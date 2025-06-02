@@ -1,0 +1,22 @@
+name: Close issues
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - dev
+      - dev-backend
+      - dev-frontend
+      - release
+      - release-backend
+      - release-frontend
+
+jobs:
+  closeIssueOnPrMergeTrigger:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Closes issues related to a merged pull request.
+        uses: ldez/gha-mjolnir@v1.4.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.AUTO_CLOSE_ISSUE_TOKEN }}
