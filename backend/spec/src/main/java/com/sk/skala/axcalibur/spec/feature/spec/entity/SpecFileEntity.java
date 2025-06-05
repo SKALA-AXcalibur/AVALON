@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.spec.entity;
+package com.sk.skala.axcalibur.spec.feature.spec.entity;
 
 import lombok.Builder;
 import lombok.Getter;

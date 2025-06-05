@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.spec.service;
+package com.sk.skala.axcalibur.spec.feature.spec.service;
 
 import org.springframework.stereotype.Service;
 

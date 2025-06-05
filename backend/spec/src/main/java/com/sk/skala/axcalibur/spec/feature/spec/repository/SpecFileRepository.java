@@ -1,6 +1,6 @@
-package com.sk.skala.axcalibur.spec.repository;
+package com.sk.skala.axcalibur.spec.feature.spec.repository;
 
-import com.sk.skala.axcalibur.spec.entity.SpecFileEntity;
+import com.sk.skala.axcalibur.spec.feature.spec.entity.SpecFileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
