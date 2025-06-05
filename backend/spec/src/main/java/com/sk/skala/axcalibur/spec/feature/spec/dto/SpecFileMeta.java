@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.spec.dto;
+package com.sk.skala.axcalibur.spec.feature.spec.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 

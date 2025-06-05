@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.spec.dto.response;
+package com.sk.skala.axcalibur.spec.feature.spec.dto.response;
 
 import java.util.List;
 
