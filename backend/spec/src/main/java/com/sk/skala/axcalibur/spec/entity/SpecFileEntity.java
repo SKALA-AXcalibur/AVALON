@@ -19,7 +19,7 @@ public class SpecFileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "key")
-    private Integer key;
+    private Integer id; // key를 id로 변경
 
     @Column(nullable = false, length = 100)
     @NotBlank(message = "파일 경로는 필수입니다")
