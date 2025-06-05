@@ -9,14 +9,14 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
 
-    private static final String basepath = "";
+    private static final String basepath = "uploads/"; // 추후 pvc 경로로 변경 필요
 
     @Override
     public String storeFile(MultipartFile file, String projectId) {
-        String relativePath = "project_" + projectId + "/" + file.getOriginalFilename();
+        String relativePath = projectId + "/" + file.getOriginalFilename(); // project_ 제거
 
         try {
-            String dirPath = basepath + "project_" + projectId + "/";
+            String dirPath = basepath + projectId + "/"; // project_ 제거
             File dir = new File(dirPath);
             if (!dir.exists()) {
                 dir.mkdirs();
