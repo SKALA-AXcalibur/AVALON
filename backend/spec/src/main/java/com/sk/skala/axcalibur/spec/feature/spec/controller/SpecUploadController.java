@@ -1,9 +1,9 @@
 package com.sk.skala.axcalibur.spec.feature.spec.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.sk.skala.axcalibur.spec.feature.spec.dto.request.SpecUploadRequest;
 import com.sk.skala.axcalibur.spec.feature.spec.dto.response.SpecUploadResponse;
@@ -19,7 +19,7 @@ public interface SpecUploadController {
 
     @Operation(summary = "명세서 업로드", description = "요구사항정의서, 인터페이스정의서, 설계서를 업로드합니다.")
     public ResponseEntity<SuccessResponse<SpecUploadResponse>> uploadSpec(
-        @PathVariable String projectId,
-        @RequestBody SpecUploadRequest request
+        HttpServletRequest request,
+        @ModelAttribute SpecUploadRequest specUploadRequest
     );
 }
