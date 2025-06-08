@@ -15,7 +15,6 @@ npm install
 
 2. .env.local에 key 입력
 APP_KEYS=...
-
 ```
 
 ### 개발 환경 실행
@@ -29,4 +28,14 @@ npm run dev
 ```bash
 npm run build
 npm start
+```
+
+### Docker
+
+```bash
+# 이미지 빌드
+docker build --build-arg NEXT_PUBLIC_API_URL=<API_URL> --tag avalon-frontend:latest .
+
+# 컨테이너 실행
+docker run --name avalon-frontend-container --rm -p 3000:3000 --env-file .env.local avalon-frontend:latest
 ```
