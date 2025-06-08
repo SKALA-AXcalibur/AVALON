@@ -21,11 +21,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MariaDBDialect
         default_schema: {MARIADB_DEFAULT_SCHEMA}
-#  data:
-#    redis:
-#      host: {REDIS_HOST}
-#      port: {REDIS_PORT}
-#      password: {REDIS_PASSWORD}
+  data:
+   redis:
+     host: {REDIS_HOST}
+     port: {REDIS_PORT}
+     password: {REDIS_PASSWORD}
 
 
 server:
