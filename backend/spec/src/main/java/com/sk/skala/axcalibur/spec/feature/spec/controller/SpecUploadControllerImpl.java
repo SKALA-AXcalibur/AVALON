@@ -1,18 +1,19 @@
 package com.sk.skala.axcalibur.spec.feature.spec.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sk.skala.axcalibur.spec.feature.spec.dto.request.SpecUploadRequest;
 import com.sk.skala.axcalibur.spec.feature.spec.dto.response.SpecUploadResponse;
 import com.sk.skala.axcalibur.spec.feature.spec.service.SpecUploadService;
+import com.sk.skala.axcalibur.spec.feature.spec.service.ProjectIdResolverService;
 import com.sk.skala.axcalibur.spec.global.code.SuccessCode;
 import com.sk.skala.axcalibur.spec.global.response.SuccessResponse;
 
@@ -28,15 +29,19 @@ import com.sk.skala.axcalibur.spec.global.response.SuccessResponse;
 public class SpecUploadControllerImpl implements SpecUploadController {
     // 서비스 주입
     private final SpecUploadService specUploadService;
+    private final ProjectIdResolverService projectIdResolverService;
 
     @Override
-    @PostMapping("/{projectId}") // 수정 필요( -> cookie로 project ID 구분)
+    @PostMapping
     public ResponseEntity<SuccessResponse<SpecUploadResponse>> uploadSpec(
-        @PathVariable String projectId,
-        @Valid @RequestBody SpecUploadRequest request) {
+        HttpServletRequest request,
+        @Valid @ModelAttribute SpecUploadRequest specUploadRequest) {
+
+        // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
+        String projectId = projectIdResolverService.resolveProjectId(request);
         
         // 서비스 호출
-        SpecUploadResponse response = specUploadService.uploadFiles(projectId, request);
+        SpecUploadResponse response = specUploadService.uploadFiles(projectId, specUploadRequest);
 
         // 정상 처리 
         return ResponseEntity
