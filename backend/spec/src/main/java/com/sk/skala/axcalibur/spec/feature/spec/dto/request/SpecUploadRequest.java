@@ -4,6 +4,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 /**
  * 명세서 업로드 요청 DTO
@@ -12,6 +14,8 @@ import lombok.Getter;
  */
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class SpecUploadRequest {
     
     @NotNull(message = "요구사항 정의서 업로드 안됨")

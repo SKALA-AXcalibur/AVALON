@@ -1,11 +1,11 @@
 package com.sk.skala.axcalibur.spec.feature.spec.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import com.sk.skala.axcalibur.spec.feature.spec.dto.request.SpecUploadRequest;
 import com.sk.skala.axcalibur.spec.feature.spec.dto.response.SpecUploadResponse;
 import com.sk.skala.axcalibur.spec.global.response.SuccessResponse;
 
@@ -20,6 +20,8 @@ public interface SpecUploadController {
     @Operation(summary = "명세서 업로드", description = "요구사항정의서, 인터페이스정의서, 설계서를 업로드합니다.")
     public ResponseEntity<SuccessResponse<SpecUploadResponse>> uploadSpec(
         HttpServletRequest request,
-        @ModelAttribute SpecUploadRequest specUploadRequest
+        @RequestParam MultipartFile requirementFile,
+        @RequestParam MultipartFile interfaceDef,
+        @RequestParam MultipartFile interfaceDesign
     );
 }

@@ -1,14 +1,15 @@
 package com.sk.skala.axcalibur.spec.feature.spec.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sk.skala.axcalibur.spec.feature.spec.dto.request.SpecUploadRequest;
 import com.sk.skala.axcalibur.spec.feature.spec.dto.response.SpecUploadResponse;
@@ -24,7 +25,7 @@ import com.sk.skala.axcalibur.spec.global.response.SuccessResponse;
  * - 예외 발생 시 global.exception.GlobalExceptionHandler 에서 일괄 처리 
  */
 @RestController
-@RequestMapping("/api/spec/v1")
+@RequestMapping("/spec/v1")
 @RequiredArgsConstructor
 public class SpecUploadControllerImpl implements SpecUploadController {
     // 서비스 주입
@@ -35,7 +36,12 @@ public class SpecUploadControllerImpl implements SpecUploadController {
     @PostMapping
     public ResponseEntity<SuccessResponse<SpecUploadResponse>> uploadSpec(
         HttpServletRequest request,
-        @Valid @ModelAttribute SpecUploadRequest specUploadRequest) {
+        @RequestParam MultipartFile requirementFile,
+        @RequestParam MultipartFile interfaceDef,
+        @RequestParam MultipartFile interfaceDesign) {
+        
+        // specUploadRequest dto 객체 생성
+        SpecUploadRequest specUploadRequest = new SpecUploadRequest(requirementFile, interfaceDef, interfaceDesign);
 
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
         String projectId = projectIdResolverService.resolveProjectId(request);
