@@ -1,4 +1,4 @@
-import LoginProjectBox from "@/components/login/LoginProjectBox";
+import Login from "@/components/login/Login";
 
 const LoginPage = () => {
   return (
@@ -8,10 +8,10 @@ const LoginPage = () => {
           AXcalibur
         </span>
       </header>
-      <h1 className="font-playfair text-[128px] font-bold tracking-widest text-gray-800 mb-4">
+      <h1 className="font-playfair text-[128px] font-bold tracking-widest text-gray-800 mb-12">
         AVALON
       </h1>
-      <LoginProjectBox />
+      <Login />
     </div>
   );
 };
