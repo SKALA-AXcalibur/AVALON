@@ -28,8 +28,9 @@ public class ProjectIdResolverServiceImpl implements ProjectIdResolverService {
 
     // 쿠키에서 프로젝트 인증값(avalon) 추출
     private String extractProjectKeyFromCookie(HttpServletRequest request) {
+         // 쿠키 자체가 존재하지 않는 경우
         if (request.getCookies() == null) {
-            throw new BusinessExceptionHandler(ErrorCode.NOT_VALID_COOKIE_ERROR);
+            throw new BusinessExceptionHandler(ErrorCode.NOT_VALID_HEADER_ERROR);
         }
 
         for (Cookie cookie : request.getCookies()) {
@@ -38,16 +39,16 @@ public class ProjectIdResolverServiceImpl implements ProjectIdResolverService {
                 return cookie.getValue();
             }
         }
-
+        // 쿠키는 있으나 유효하지 않은 경우
         throw new BusinessExceptionHandler(ErrorCode.NOT_VALID_COOKIE_ERROR);
     }
 
     // Redis에서 인증값으로 projectId 조회
     private String getProjectIdFromRedis(String projectKey) {
         Object projectId = redisTemplate.opsForValue().get(projectKey);
-
+        // 인증된 프로젝트 키가 DB상 유효하지 않은 경우
         if (projectId == null) {
-            throw new BusinessExceptionHandler(ErrorCode.NOT_VALID_COOKIE_ERROR);
+            throw new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
         }
 
         return projectId.toString();

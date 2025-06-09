@@ -14,6 +14,11 @@ import io.swagger.v3.oas.annotations.Operation;
 /**
  * 명세서 업로드 컨트롤러 인터페이스
  * '명세서 업로드(IF-SP-0001)' 파트를 구현합니다.
+ * @param request HttpServletRequest 객체
+ * @param requirementFile 요구사항 정의서 파일
+ * @param interfaceDef 인터페이스 정의서 파일
+ * @param interfaceDesign 인터페이스 설계서 파일
+ * @return 업로드 결과를 담은 ResponseEntity 객체
  */
 public interface SpecUploadController {
 
