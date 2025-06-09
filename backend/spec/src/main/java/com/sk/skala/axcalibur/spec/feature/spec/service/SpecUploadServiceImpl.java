@@ -38,6 +38,7 @@ public class SpecUploadServiceImpl implements SpecUploadService {
             request.getInterfaceDesign(), 3
         );
 
+        // 한 피일 씩 순회하며 pvc 및 DB 저장 수행
         for (Map.Entry<MultipartFile, Integer> entry : fileTypeMap.entrySet()) {
             MultipartFile file = entry.getKey();
             Integer type = entry.getValue();
@@ -50,7 +51,6 @@ public class SpecUploadServiceImpl implements SpecUploadService {
                     resultNames.add(file.getOriginalFilename());
                 } catch (Exception e) {
                     log.error("문서 유형 {} 저장 실패: {}", type, e.getMessage());
-                    // throw new RuntimeException("문서 저장 실패: " + e.getMessage(), e);
                 }
             }
         }
