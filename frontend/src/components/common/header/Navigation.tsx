@@ -1,13 +1,16 @@
 "use client";
-import useLogout from "@/hooks/auth/logout";
 import ActionButton from "@/components/common/ActionButton";
 import LinkButton from "@/components/common/LinkButton";
+import useLogout from "@/hooks/auth/logout";
+import useGenerateTestcases from "@/hooks/testcase/generateTestcases";
 import { usePathname } from "next/navigation";
 
 const Navigation = ({ projectId }: { projectId: string }) => {
   const pathname = usePathname();
   const isScenarioPage = pathname.includes("/scenario/");
-  const { logout, isLoading } = useLogout();
+  const { logout, isLoading: isLoggingOut } = useLogout();
+  const { generateTestcases, isLoading: isGeneratingTestcases } =
+    useGenerateTestcases();
 
   return (
     <nav className="flex flex-wrap gap-2">
@@ -16,7 +19,7 @@ const Navigation = ({ projectId }: { projectId: string }) => {
           <ActionButton
             onClick={logout}
             color="bg-blue-500 hover:bg-blue-600"
-            isLoading={isLoading}
+            isLoading={isLoggingOut}
           >
             로그아웃
           </ActionButton>
@@ -27,13 +30,13 @@ const Navigation = ({ projectId }: { projectId: string }) => {
           >
             파일 첨부
           </LinkButton>
-          <LinkButton
-            href={`/project/${projectId}/scenario`}
+          <ActionButton
+            onClick={generateTestcases}
             color="bg-pink-500 hover:bg-pink-600"
-            ariaLabel="TC 일괄 생성"
+            isLoading={isGeneratingTestcases}
           >
             TC 일괄 생성
-          </LinkButton>
+          </ActionButton>
           <LinkButton
             href={`/project/${projectId}/test-run/scenario-1`}
             color="bg-emerald-500 hover:bg-emerald-600"
