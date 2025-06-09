@@ -21,6 +21,11 @@ import com.sk.skala.axcalibur.spec.global.response.SuccessResponse;
 /**
  * 명세서 업로드 컨트롤러
  * - '명세서 업로드(IF-SP-0001)' 파트 실제 구현부
+ * @param request HttpServletRequest 객체
+ * @param requirementFile 요구사항 정의서 파일
+ * @param interfaceDef 인터페이스 정의서 파일
+ * @param interfaceDesign 인터페이스 설계서 파일
+ * @return 업로드 결과를 담은 ResponseEntity 객체
  * - 요청 데이터는 유효성 검사를 거쳐 서비스에 전달
  * - 예외 발생 시 global.exception.GlobalExceptionHandler 에서 일괄 처리 
  */
