@@ -81,21 +81,6 @@ public class SpecUploadServiceImpl implements SpecUploadService {
             rollbackUploadedFiles(savedPaths);
             throw new BusinessExceptionHandler("알 수 없는 오류", ErrorCode.INTERNAL_SERVER_ERROR);
         }
-        
-        // catch (Exception e) {
-        //     log.error("명세서 전체 업로드 실패 - 롤백 수행: {}", e.getMessage(), e);
-
-        //     // PVC 파일 삭제
-        //     for (String path : savedPaths) {
-        //         try {
-        //             fileStorageService.deleteFile(path);
-        //         } catch (Exception delEx) {
-        //             log.error("PVC 파일 삭제 실패 [{}]: {}", path, delEx.getMessage());
-        //         }
-        //     }
-
-        //     throw new BusinessExceptionHandler(ErrorCode.IO_ERROR);
-        // }
     }
     
     private void rollbackUploadedFiles(List<String> savedPaths) {
