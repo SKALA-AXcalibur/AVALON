@@ -22,9 +22,6 @@ public class SpecFileEntity {
     @Column(nullable = false, length = 100)
     private String path;
 
-    @Column(name = "project_key", nullable = false)
-    private Integer projectKey;
-
     @Column(name = "created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -35,13 +32,17 @@ public class SpecFileEntity {
     @Column(name = "file_type_key", nullable = false)
     private Integer fileTypeKey; // 파일 타입 키 추가
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_key", nullable = false) // project_key 컬럼으로 지정
+    private ProjectEntity project; // 프로젝트 엔티티와 연관 관계 설정
+
     // 생성자
     @Builder
-    public SpecFileEntity(String path, Integer projectKey, String name, Integer fileTypeKey) {
+    public SpecFileEntity(String path, ProjectEntity project, String name, int fileTypeKey) {
         this.path = path;
-        this.projectKey = projectKey;
         this.name = name;
         this.fileTypeKey = fileTypeKey;
+        this.project = project;
     }
 
 }
