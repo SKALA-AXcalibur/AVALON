@@ -1,9 +1,5 @@
+import { Project } from "@/types/project";
 import { create } from "zustand";
-
-interface Project {
-  id: string;
-  scenarioIds: string[];
-}
 
 interface ProjectState {
   project: Project;
@@ -12,8 +8,8 @@ interface ProjectState {
 
 export const useProjectStore = create<ProjectState>((set) => ({
   project: {
-    id: "PJ-001",
-    scenarioIds: [],
+    id: "",
+    scenarios: [],
   },
   setProject: (project: Project) => set({ project }),
 }));
