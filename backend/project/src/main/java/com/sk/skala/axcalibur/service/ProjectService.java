@@ -19,12 +19,20 @@ import com.sk.skala.axcalibur.entity.ApiList;
 import com.sk.skala.axcalibur.entity.Parameter;
 import com.sk.skala.axcalibur.entity.Category;
 import com.sk.skala.axcalibur.entity.Context;
+import com.sk.skala.axcalibur.entity.Priority;
+import com.sk.skala.axcalibur.entity.RequestMajor;
+import com.sk.skala.axcalibur.entity.RequestMiddle;
+import com.sk.skala.axcalibur.entity.RequestMinor;
 import com.sk.skala.axcalibur.repository.ProjectRepository;
 import com.sk.skala.axcalibur.repository.RequestRepository;
 import com.sk.skala.axcalibur.repository.ApiListRepository;
 import com.sk.skala.axcalibur.repository.ParameterRepository;
 import com.sk.skala.axcalibur.repository.CategoryRepository;
 import com.sk.skala.axcalibur.repository.ContextRepository;
+import com.sk.skala.axcalibur.repository.PriorityRepository;
+import com.sk.skala.axcalibur.repository.RequestMajorRepository;
+import com.sk.skala.axcalibur.repository.RequestMiddleRepository;
+import com.sk.skala.axcalibur.repository.RequestMinorRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +51,10 @@ public class ProjectService {
     private final ParameterRepository parameterRepository;
     private final CategoryRepository categoryRepository;
     private final ContextRepository contextRepository;
+    private final PriorityRepository priorityRepository;
+    private final RequestMajorRepository requestMajorRepository;
+    private final RequestMiddleRepository requestMiddleRepository;
+    private final RequestMinorRepository requestMinorRepository;
 
     // 프로젝트 목록 조회 (IF-PR-0002, REQ-PR-F-0002, FUNC-PR-0002)
     public List<ProjectResponse> getAllProjects() {
@@ -135,12 +147,13 @@ public class ProjectService {
                     reqEntity.setDescription(reqItem.getDesc());
                     reqEntity.setProject(project);
                     
-                    // 확장된 필드들 처리 (향후 분류 테이블과 연계)
-                    log.debug("요구사항 확장 정보: priority={}, major={}, middle={}, minor={}", 
-                        reqItem.getPriority(), reqItem.getMajor(), reqItem.getMiddle(), reqItem.getMinor());
+                    // 분류 정보를 실제 DB에 저장
+                    processRequirementClassification(reqEntity, reqItem);
                     
                     requestRepository.save(reqEntity);
-                    log.debug("요구사항 저장: {}", reqItem.getName());
+                    log.debug("요구사항 저장: {} (priority={}, major={}, middle={}, minor={})", 
+                        reqItem.getName(), reqItem.getPriority(), reqItem.getMajor(), 
+                        reqItem.getMiddle(), reqItem.getMinor());
                 }
             }
             
@@ -272,10 +285,22 @@ public class ProjectService {
         
         // 요구사항 정보 조회
         List<ProjectResponse.RequirementInfo> requirements = project.getRequirements().stream()
-            .map(req -> new ProjectResponse.RequirementInfo(
-                req.getName(), 
-                req.getDescription(), 
-                "중요도미정", "대분류미정", "중분류미정", "소분류미정"))
+            .map(req -> {
+                // 실제 분류 정보 조회
+                String priority = req.getPriorityKey() != null && req.getPriority() != null ? 
+                    req.getPriority().getName() : "중요도미정";
+                String major = req.getMajorKey() != null && req.getRequestMajor() != null ? 
+                    req.getRequestMajor().getName() : "대분류미정";
+                String middle = req.getMiddleKey() != null && req.getRequestMiddle() != null ? 
+                    req.getRequestMiddle().getName() : "중분류미정";
+                String minor = req.getMinorKey() != null && req.getRequestMinor() != null ? 
+                    req.getRequestMinor().getName() : "소분류미정";
+                    
+                return new ProjectResponse.RequirementInfo(
+                    req.getName(), 
+                    req.getDescription(), 
+                    priority, major, middle, minor);
+            })
             .collect(Collectors.toList());
         
         // API 정보 조회  
@@ -381,5 +406,114 @@ public class ProjectService {
                 newContext.setName(parameterType);
                 return contextRepository.save(newContext);
             });
+    }
+
+    // 요구사항 분류 정보 처리
+    private void processRequirementClassification(Request reqEntity, SaveProjectRequest.RequirementItem reqItem) {
+        try {
+            // Priority 처리
+            if (reqItem.getPriority() != null && !reqItem.getPriority().trim().isEmpty()) {
+                Priority priority = findOrCreatePriority(reqItem.getPriority().trim());
+                if (priority != null) {
+                    reqEntity.setPriorityKey(priority.getPriorityKey());
+                    log.debug("Priority 설정: {} -> key: {}", priority.getName(), priority.getPriorityKey());
+                }
+            }
+            
+            // RequestMajor 처리
+            if (reqItem.getMajor() != null && !reqItem.getMajor().trim().isEmpty()) {
+                RequestMajor major = findOrCreateRequestMajor(reqItem.getMajor().trim());
+                if (major != null) {
+                    reqEntity.setMajorKey(major.getMajorKey());
+                    log.debug("Major 설정: {} -> key: {}", major.getName(), major.getMajorKey());
+                }
+            }
+            
+            // RequestMiddle 처리
+            if (reqItem.getMiddle() != null && !reqItem.getMiddle().trim().isEmpty()) {
+                RequestMiddle middle = findOrCreateRequestMiddle(reqItem.getMiddle().trim());
+                if (middle != null) {
+                    reqEntity.setMiddleKey(middle.getMiddleKey());
+                    log.debug("Middle 설정: {} -> key: {}", middle.getName(), middle.getMiddleKey());
+                }
+            }
+            
+            // RequestMinor 처리
+            if (reqItem.getMinor() != null && !reqItem.getMinor().trim().isEmpty()) {
+                RequestMinor minor = findOrCreateRequestMinor(reqItem.getMinor().trim());
+                if (minor != null) {
+                    reqEntity.setMinorKey(minor.getMinorKey());
+                    log.debug("Minor 설정: {} -> key: {}", minor.getName(), minor.getMinorKey());
+                }
+            }
+            
+        } catch (Exception e) {
+            log.warn("요구사항 분류 정보 처리 중 오류 발생: {}", e.getMessage());
+            // 분류 정보 처리 실패해도 요구사항 자체 저장은 계속 진행
+        }
+    }
+    
+    // Priority 조회 또는 생성
+    private Priority findOrCreatePriority(String priorityName) {
+        try {
+            return priorityRepository.findByName(priorityName).orElseGet(() -> {
+                Priority newPriority = new Priority();
+                newPriority.setName(priorityName);
+                Priority saved = priorityRepository.save(newPriority);
+                log.info("새 Priority 생성: {} -> key: {}", priorityName, saved.getPriorityKey());
+                return saved;
+            });
+        } catch (Exception e) {
+            log.error("Priority 처리 실패: {} - {}", priorityName, e.getMessage());
+            return null;
+        }
+    }
+    
+    // RequestMajor 조회 또는 생성
+    private RequestMajor findOrCreateRequestMajor(String majorName) {
+        try {
+            return requestMajorRepository.findByName(majorName).orElseGet(() -> {
+                RequestMajor newMajor = new RequestMajor();
+                newMajor.setName(majorName);
+                RequestMajor saved = requestMajorRepository.save(newMajor);
+                log.info("새 RequestMajor 생성: {} -> key: {}", majorName, saved.getMajorKey());
+                return saved;
+            });
+        } catch (Exception e) {
+            log.error("RequestMajor 처리 실패: {} - {}", majorName, e.getMessage());
+            return null;
+        }
+    }
+    
+    // RequestMiddle 조회 또는 생성
+    private RequestMiddle findOrCreateRequestMiddle(String middleName) {
+        try {
+            return requestMiddleRepository.findByName(middleName).orElseGet(() -> {
+                RequestMiddle newMiddle = new RequestMiddle();
+                newMiddle.setName(middleName);
+                RequestMiddle saved = requestMiddleRepository.save(newMiddle);
+                log.info("새 RequestMiddle 생성: {} -> key: {}", middleName, saved.getMiddleKey());
+                return saved;
+            });
+        } catch (Exception e) {
+            log.error("RequestMiddle 처리 실패: {} - {}", middleName, e.getMessage());
+            return null;
+        }
+    }
+    
+    // RequestMinor 조회 또는 생성
+    private RequestMinor findOrCreateRequestMinor(String minorName) {
+        try {
+            return requestMinorRepository.findByName(minorName).orElseGet(() -> {
+                RequestMinor newMinor = new RequestMinor();
+                newMinor.setName(minorName);
+                RequestMinor saved = requestMinorRepository.save(newMinor);
+                log.info("새 RequestMinor 생성: {} -> key: {}", minorName, saved.getMinorKey());
+                return saved;
+            });
+        } catch (Exception e) {
+            log.error("RequestMinor 처리 실패: {} - {}", minorName, e.getMessage());
+            return null;
+        }
     }
 }

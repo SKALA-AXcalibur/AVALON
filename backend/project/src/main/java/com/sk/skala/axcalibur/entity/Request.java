@@ -110,16 +110,32 @@ public class Request {
         return majorKey;
     }
 
+    public void setMajorKey(Integer majorKey) {
+        this.majorKey = majorKey;
+    }
+
     public Integer getMiddleKey() {
         return middleKey;
+    }
+
+    public void setMiddleKey(Integer middleKey) {
+        this.middleKey = middleKey;
     }
 
     public Integer getMinorKey() {
         return minorKey;
     }
 
+    public void setMinorKey(Integer minorKey) {
+        this.minorKey = minorKey;
+    }
+
     public Integer getPriorityKey() {
         return priorityKey;
+    }
+
+    public void setPriorityKey(Integer priorityKey) {
+        this.priorityKey = priorityKey;
     }
 
     public Project getProject() {
