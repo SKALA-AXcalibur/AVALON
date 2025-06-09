@@ -313,13 +313,17 @@ public class ProjectService {
                 apiInfo.setMethod(api.getMethod());
                 apiInfo.setUrl(api.getUrl());
                 apiInfo.setPath(api.getPath());
-                apiInfo.setPathQuery("PathQuery미정");
                 
-                // 파라미터 정보는 기본값으로 설정 (실제 구현 시 확장)
-                ProjectResponse.ParameterGroup request = new ProjectResponse.ParameterGroup();
-                ProjectResponse.ParameterGroup response = new ProjectResponse.ParameterGroup();
-                apiInfo.setRequest(request);
-                apiInfo.setResponse(response);
+                // PathQuery 구성 (URL + Path 조합 또는 실제 저장된 정보)
+                String pathQuery = api.getUrl() != null && api.getPath() != null ? 
+                    api.getUrl() + api.getPath() : "PathQuery정보없음";
+                apiInfo.setPathQuery(pathQuery);
+                
+                // 실제 저장된 파라미터 정보로 request/response 구성
+                ProjectResponse.ParameterGroup requestGroup = buildParameterGroup(api, "REQUEST");
+                ProjectResponse.ParameterGroup responseGroup = buildParameterGroup(api, "RESPONSE");
+                apiInfo.setRequest(requestGroup);
+                apiInfo.setResponse(responseGroup);
                 
                 return apiInfo;
             })
@@ -327,6 +331,65 @@ public class ProjectService {
         
         return new ProjectResponse(requestTime, project.getProjectId(), avalon, 
                                  projectName, specList, requirements, apiInfos);
+    }
+
+    // API의 파라미터 그룹 구성 (REQUEST 또는 RESPONSE)
+    private ProjectResponse.ParameterGroup buildParameterGroup(ApiList api, String groupType) {
+        ProjectResponse.ParameterGroup paramGroup = new ProjectResponse.ParameterGroup();
+        
+        // API에 연결된 모든 파라미터를 조회
+        List<Parameter> parameters = api.getParameters();
+        if (parameters == null || parameters.isEmpty()) {
+            return paramGroup; // 빈 그룹 반환
+        }
+        
+        // groupType에 따라 파라미터 필터링 및 분류
+        List<ProjectResponse.ParameterDetail> pqParams = parameters.stream()
+            .filter(p -> isParameterType(p, groupType + "_PQ"))
+            .map(this::convertToParameterDetail)
+            .collect(Collectors.toList());
+            
+        List<ProjectResponse.ParameterDetail> reqParams = parameters.stream()
+            .filter(p -> isParameterType(p, groupType + "_REQ"))
+            .map(this::convertToParameterDetail)
+            .collect(Collectors.toList());
+            
+        List<ProjectResponse.ParameterDetail> resParams = parameters.stream()
+            .filter(p -> isParameterType(p, groupType + "_RES"))
+            .map(this::convertToParameterDetail)
+            .collect(Collectors.toList());
+        
+        paramGroup.setPq(pqParams);
+        paramGroup.setReq(reqParams);
+        paramGroup.setRes(resParams);
+        
+        return paramGroup;
+    }
+    
+    // Parameter의 타입 확인 (Category나 Context 정보를 통해 판단)
+    private boolean isParameterType(Parameter parameter, String expectedType) {
+        // Category나 Context의 name을 통해 파라미터 타입 판단
+        if (parameter.getCategory() != null && parameter.getCategory().getName() != null) {
+            return parameter.getCategory().getName().contains(expectedType);
+        }
+        if (parameter.getContext() != null && parameter.getContext().getName() != null) {
+            return parameter.getContext().getName().contains(expectedType);
+        }
+        return false;
+    }
+    
+    // Parameter → ParameterDetail 변환
+    private ProjectResponse.ParameterDetail convertToParameterDetail(Parameter parameter) {
+        ProjectResponse.ParameterDetail detail = new ProjectResponse.ParameterDetail();
+        detail.setKorName(parameter.getNameKo());
+        detail.setName(parameter.getName());
+        detail.setDataType(parameter.getDataType());
+        detail.setLength(parameter.getLength() != null ? parameter.getLength().toString() : null);
+        detail.setFormat(parameter.getFormat());
+        detail.setDefaultValue(parameter.getDefaultValue());
+        detail.setRequired(parameter.getRequired() ? "Y" : "N");
+        detail.setDesc(parameter.getDescription());
+        return detail;
     }
 
     // API 파라미터 처리 (확장된 구조)
