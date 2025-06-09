@@ -1,13 +1,14 @@
 "use client";
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import Header from "@/components/common/Header";
+import Header from "@/components/common/header/Header";
 import FileInputBox from "@/components/upload/FileInputBox";
 import FileListItem from "@/components/upload/FileListItem";
 import Link from "next/link";
 
 const UploadPage = () => {
   const params = useParams();
+  const projectId = params["project-id"] as string;
   const [files, setFiles] = useState<File[]>([]);
 
   const handleFileSelect = (newFiles: File[]) => {
@@ -20,7 +21,7 @@ const UploadPage = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <Header />
+      <Header projectId={projectId} />
       <main className="flex-1 flex flex-col items-center justify-center">
         <div className="bg-white shadow-lg rounded-xl p-8 w-[672px]">
           <h1 className="text-2xl font-bold text-gray-800 mb-6">파일 첨부</h1>
