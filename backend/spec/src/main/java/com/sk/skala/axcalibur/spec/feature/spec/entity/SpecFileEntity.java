@@ -1,13 +1,14 @@
 package com.sk.skala.axcalibur.spec.feature.spec.entity;
 
+import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import jakarta.persistence.*;
 
-import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
+import jakarta.persistence.*;
 
 /**
  * 명세서 파일의 메타데이터 정보를 담는 엔티티
