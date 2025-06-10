@@ -1,18 +1,24 @@
 package com.sk.skala.axcalibur.spec.feature.spec.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
 
+/**
+ * 프로젝트 정보를 담는 엔티티
+ * 데이터베이스의 'project' 테이블과 매핑
+ */
 @Getter
 @NoArgsConstructor
 @Entity
+@Builder
+@AllArgsConstructor
 @Table(name = "project")
-public class ProjectEntity {
+public class ProjectEntity extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,14 +27,5 @@ public class ProjectEntity {
 
     @Column(nullable = false, length = 20, unique = true)
     private String projectId; // 프로젝트 ID
-
-    @Column(name = "created_at")
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
-    @Builder
-    public ProjectEntity(String projectId) {
-        this.projectId = projectId;
-    }
 
 }
