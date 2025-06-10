@@ -2,6 +2,11 @@ package com.sk.skala.axcalibur.spec.feature.spec.controller;
 
 import lombok.RequiredArgsConstructor;
 
+
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.sk.skala.axcalibur.spec.feature.spec.dto.request.SpecUploadRequest;
-import com.sk.skala.axcalibur.spec.feature.spec.dto.response.SpecUploadResponse;
 import com.sk.skala.axcalibur.spec.feature.spec.service.SpecUploadService;
 import com.sk.skala.axcalibur.spec.feature.spec.service.ProjectIdResolverService;
 import com.sk.skala.axcalibur.spec.global.code.SuccessCode;
@@ -24,7 +28,7 @@ import com.sk.skala.axcalibur.spec.global.response.SuccessResponse;
  * @param requirementFile 요구사항 정의서 파일
  * @param interfaceDef 인터페이스 정의서 파일
  * @param interfaceDesign 인터페이스 설계서 파일
- * @return 업로드 결과를 담은 ResponseEntity 객체
+ * @return 업로드 결과 반환
  * - 요청 데이터는 유효성 검사를 거쳐 서비스에 전달
  * - 예외 발생 시 global.exception.GlobalExceptionHandler 에서 일괄 처리 
  */
@@ -38,7 +42,7 @@ public class SpecUploadControllerImpl implements SpecUploadController {
 
     @Override
     @PostMapping
-    public ResponseEntity<SuccessResponse<SpecUploadResponse>> uploadSpec(
+    public ResponseEntity<SuccessResponse<Void>> uploadSpec(
         @CookieValue("avalon") String key,
         @RequestParam MultipartFile requirementFile,
         @RequestParam MultipartFile interfaceDef,
@@ -51,15 +55,20 @@ public class SpecUploadControllerImpl implements SpecUploadController {
         String projectId = projectIdResolverService.resolveProjectId(key);
         
         // 서비스 호출
-        SpecUploadResponse response = specUploadService.uploadFiles(projectId, specUploadRequest);
+        specUploadService.uploadFiles(projectId, specUploadRequest);
 
-        // 정상 처리 
+        // 응답시간 헤더에 반환
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("responseTime", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+
+        // 정상 처리 응답(data는 null)
         return ResponseEntity
-            .status(SuccessCode.INSERT_SUCCESS.getStatus())
-            .body(SuccessResponse.<SpecUploadResponse>builder()
-                .data(response)
-                .status(SuccessCode.INSERT_SUCCESS)
-                .message(SuccessCode.INSERT_SUCCESS.getMessage())
-                .build());
+        .status(SuccessCode.INSERT_SUCCESS.getStatus())
+        .headers(headers)
+        .body(SuccessResponse.<Void>builder()
+            .data(null)
+            .status(SuccessCode.INSERT_SUCCESS)
+            .message(SuccessCode.INSERT_SUCCESS.getMessage())
+            .build());  
     }
-} 
+}

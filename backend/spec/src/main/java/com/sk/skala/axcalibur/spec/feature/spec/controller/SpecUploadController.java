@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.sk.skala.axcalibur.spec.feature.spec.dto.response.SpecUploadResponse;
 import com.sk.skala.axcalibur.spec.global.response.SuccessResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 public interface SpecUploadController {
 
     @Operation(summary = "명세서 업로드", description = "요구사항정의서, 인터페이스정의서, 설계서를 업로드합니다.")
-    public ResponseEntity<SuccessResponse<SpecUploadResponse>> uploadSpec(
+    public ResponseEntity<SuccessResponse<Void>> uploadSpec(
         @CookieValue("avalon") String key,
         @RequestParam MultipartFile requirementFile,
         @RequestParam MultipartFile interfaceDef,
