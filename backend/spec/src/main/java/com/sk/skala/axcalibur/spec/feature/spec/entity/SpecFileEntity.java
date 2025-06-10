@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import jakarta.persistence.*;
 
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
@@ -13,6 +14,7 @@ import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
  * 데이터베이스의 'file_path' 테이블과 매핑
  */
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor       
 @Builder
