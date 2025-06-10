@@ -9,4 +9,5 @@ import org.springframework.web.multipart.MultipartFile;
 public interface FileStorageService {
     String storeFile(MultipartFile file, String projectId);
     void deleteFile(String projectId);
+    void deleteFileByPath(String filePath);
 }

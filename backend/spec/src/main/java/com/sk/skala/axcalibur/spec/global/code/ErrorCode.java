@@ -1,5 +1,7 @@
 package com.sk.skala.axcalibur.spec.global.code;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.Getter;
 
 /**
@@ -67,9 +69,24 @@ public enum ErrorCode {
 	// 서버가 처리 할 방법을 모르는 경우 발생
 	INTERNAL_SERVER_ERROR(500, "G999", "Internal Server Error Exception"),
 
+
+
 	/**
 	 * ******************************* Custom Error CodeList ***************************************
 	 */
+	// 파일 관련 오류
+	FILE_EMPTY(400, "FILE001", "저장할 파일이 비어 있습니다."),
+    INVALID_FILE_NAME(400, "FILE002", "유효하지 않은 파일 이름입니다."),
+    FILE_STORAGE_ERROR(500, "FILE003", "파일 저장 또는 처리 중 오류가 발생했습니다."),
+    FILE_DELETE_FAILED(500, "FILE004", "파일 삭제에 실패했습니다."),
+    ACCESS_DENIED(403, "FILE005", "파일 접근 권한이 없습니다."),
+
+	// 프로젝트 관련 오류
+    PROJECT_NOT_FOUND(404, "PJT001", "프로젝트를 찾을 수 없습니다."),
+
+	// 데이터베이스 작업 실패
+	DATABASE_OPERATION_FAILED(500, "DB001", "Database Connection Exception"),
+
 	SAMPLE_INPUT_ERROR(400, "SM001", "에러 샘플 1"),
 	SAMPLE_PROCESSING_ERROR(500, "SM002", "에러 샘플 2")
 

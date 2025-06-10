@@ -86,7 +86,7 @@ public class SpecUploadServiceImpl implements SpecUploadService {
     private void rollbackUploadedFiles(List<String> savedPaths) {
         for (String path : savedPaths) {
             try {
-                fileStorageService.deleteFile(path);
+                fileStorageService.deleteFileByPath(path);
             } catch (Exception delEx) {
                 log.warn("PVC 파일 삭제 실패 [{}]: {}", path, delEx.getMessage());
             }
