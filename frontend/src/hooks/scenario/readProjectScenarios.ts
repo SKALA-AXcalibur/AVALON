@@ -1,28 +1,30 @@
-import scenario from "@/services/scenario";
+import scenarioApi from "@/services/scenario";
 import { useProjectStore } from "@/store/projectStore";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const useGetScenarios = (projectId: string) => {
+const useReadProjectScenarios = (projectId: string) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { setProject } = useProjectStore();
 
-  const getScenarios = async () => {
+  const readProjectScenarios = async () => {
     if (isLoading) return;
 
     setIsLoading(true);
     try {
-      const response = await scenario.getProjectScenarios();
+      const response = await scenarioApi.readProjectScenarios();
       if (response.total === 0) {
         router.push("/project/upload");
         return;
       }
       setProject({
         id: projectId,
-        scenarios: response.sceneList,
+        scenarios: response.scenarioList,
       });
-      router.push(`/project/${projectId}/scenario/${response.sceneList[0].id}`);
+      router.push(
+        `/project/${projectId}/scenario/${response.scenarioList[0].id}`
+      );
     } catch (error) {
       console.log(error);
     } finally {
@@ -30,7 +32,7 @@ const useGetScenarios = (projectId: string) => {
     }
   };
 
-  return { getScenarios, isLoading };
+  return { readProjectScenarios, isLoading };
 };
 
-export default useGetScenarios;
+export default useReadProjectScenarios;
