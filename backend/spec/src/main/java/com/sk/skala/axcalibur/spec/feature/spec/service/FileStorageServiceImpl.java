@@ -27,11 +27,24 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Override
     public String storeFile(MultipartFile file, String projectId) {
 
-        String originalFilename = file.getOriginalFilename();
+        String originalFilename = org.springframework.util.StringUtils.cleanPath(file.getOriginalFilename());
+
+        if (originalFilename.contains("..")) {
+            log.warn("경로 조작 시도 가능성이 있는 파일 이름입니다: {}", originalFilename);
+            throw new BusinessExceptionHandler("유효하지 않은 파일 이름입니다.",
+                ErrorCode.INVALID_FILE_NAME);
+}
      
         // 디렉토리 경로 생성
         String relativePath = projectId + File.separator + originalFilename;
         File targetFile = new File(basepath + relativePath);
+
+        // 상위 디렉토리 생성
+        File parentDir = targetFile.getParentFile();
+        if (!parentDir.exists() && !parentDir.mkdirs()) {
+            log.error("상위 디렉토리 생성 실패: {}", parentDir.getAbsolutePath());
+            throw new BusinessExceptionHandler("파일 저장 경로 생성에 실패했습니다.", ErrorCode.FILE_STORAGE_ERROR);
+        }
 
         try {
             file.transferTo(targetFile);
@@ -53,7 +66,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         File projectDir = new File(projectDirPath);
 
         try {
-            // 프로젝트 폴더가 존재하지 않는 경우 조기
+            // 프로젝트 폴더가 존재하지 않는 경우 조기 종료
             if (!projectDir.exists()) {
                 log.info("삭제하려는 프로젝트 폴더가 존재하지 않습니다: {}", projectDirPath);
                 return; 
