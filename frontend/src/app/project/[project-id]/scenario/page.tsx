@@ -2,18 +2,18 @@
 import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import ActionButton from "@/components/common/ActionButton";
-import useGetScenarios from "@/hooks/scenario/getScenarios";
+import useReadProjectScenarios from "@/hooks/scenario/readProjectScenarios";
 import useLogout from "@/hooks/auth/logout";
 
 const ScenarioPage = () => {
   const params = useParams();
   const projectId = params["project-id"] as string;
-  const { getScenarios, isLoading: isGettingScenarios } =
-    useGetScenarios(projectId);
+  const { readProjectScenarios, isLoading: isGettingScenarios } =
+    useReadProjectScenarios(projectId);
   const { logout, isLoading: isLoggingOut } = useLogout();
 
   useEffect(() => {
-    getScenarios();
+    readProjectScenarios();
   }, []);
 
   return (
@@ -23,7 +23,7 @@ const ScenarioPage = () => {
       ) : (
         <div className="flex flex-col gap-2">
           <ActionButton
-            onClick={getScenarios}
+            onClick={readProjectScenarios}
             color="bg-blue-500 hover:bg-blue-600"
           >
             다시 가져오기

@@ -7,7 +7,7 @@ const ScenarioDetailPage = async ({
 }: {
   params: { "project-id": string; "scenario-id": string };
 }) => {
-  const { "project-id": projectId } = await params;
+  const { "project-id": projectId, "scenario-id": scenarioId } = await params;
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -15,7 +15,7 @@ const ScenarioDetailPage = async ({
       <div className="flex flex-1">
         <Sidebar />
         <main className="flex-1 p-12">
-          <ScenarioBox />
+          <ScenarioBox scenarioId={scenarioId} />
         </main>
       </div>
     </div>
