@@ -24,14 +24,8 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
-    // ==================== 설계서 기준 5개 API ====================
 
-    /**
-     * IF-PR-0001: 프로젝트 목록 저장
-     * 인터페이스명: 프로젝트 목록 저장 
-     * 설명: 명세서 분석 결과를 프로젝트에 저장
-     * URL: POST /api/project/v1/{projectId}
-     */
+     // URL: POST /api/project/v1/{projectId}
     @PostMapping("/{projectId}")
     public ResponseEntity<SaveProjectResponse> saveProject(
             @PathVariable String projectId,
@@ -44,10 +38,10 @@ public class ProjectController {
         try {
             SaveProjectResponse response = projectService.saveProject(projectId, request);
             
-            // avalon 쿠키 설정 (32초)
+            // avalon 쿠키 설정 (30분)
             if (avalon != null) {
                 Cookie avalonCookie = new Cookie("avalon", avalon);
-                avalonCookie.setMaxAge(32);
+                avalonCookie.setMaxAge(1800);  // 30분 = 1800초
                 avalonCookie.setPath("/");
                 httpResponse.addCookie(avalonCookie);
             }
@@ -60,20 +54,16 @@ public class ProjectController {
         }
     }
 
-    /**
-     * IF-PR-0002: 프로젝트 목록 조회
-     * 인터페이스명: 프로젝트 정보 조회 
-     * 설명: 프로젝트 인증값을 이용해서 명세서 분석 정보를 조회
-     * URL: GET /api/project/v1
-     */
+    // URL: GET /api/project/v1
     @GetMapping("")
     public ResponseEntity<Object> getProjectList(
             @CookieValue(name = "avalon", required = false) String avalon) {
         
-        log.info("[프로젝트 정보 조회] 요청. avalon: {}", avalon);
+        log.info("[프로젝트 정보 조회] 요청. avalon: '{}', avalon이 null인가?: {}, avalon이 빈 문자열인가?: {}", 
+                avalon, avalon == null, avalon != null && avalon.trim().isEmpty());
         
         try {
-            Object response = projectService.getProjectList();
+            Object response = projectService.getProjectList(avalon);
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
@@ -82,12 +72,9 @@ public class ProjectController {
         }
     }
 
-    /**
-     * IF-PR-0003: 프로젝트 정보 삭제
-     * 인터페이스명: 프로젝트 정보 삭제
-     * 설명: 특정 프로젝트 정보를 삭제
-     * URL: DELETE /api/project/v1/{projectId}
-     */
+
+     // URL: DELETE /api/project/v1/{projectId}
+
     @DeleteMapping("/{projectId}")
     public ResponseEntity<DeleteProjectResponse> deleteProject(@PathVariable String projectId) {
         log.info("[프로젝트 정보 삭제] 요청. projectId: {}", projectId);
@@ -118,9 +105,9 @@ public class ProjectController {
         try {
             ProjectResponse response = projectService.createProject(request);
             
-            // avalon 쿠키 설정 (32초)
+            // avalon 쿠키 설정 (30분)
             Cookie avalon = new Cookie("avalon", response.getAvalon());
-            avalon.setMaxAge(32);
+            avalon.setMaxAge(1800);  // 30분 = 1800초
             avalon.setPath("/");
             httpResponse.addCookie(avalon);
             
@@ -132,12 +119,7 @@ public class ProjectController {
         }
     }
 
-    /**
-     * IF-PR-0005: 프로젝트 쿠키 삭제
-     * 인터페이스명: 프로젝트 쿠키 삭제
-     * 설명: 삭제할 프로젝트 쿠키. setMaxAge를 0으로 설정해서 응답
-     * URL: DELETE /api/project/v1
-     */
+    // URL: DELETE /api/project/v1
     @DeleteMapping("")
     public ResponseEntity<DeleteProjectResponse> deleteProjectCookie(
             @RequestParam String projectId,
@@ -164,26 +146,5 @@ public class ProjectController {
             log.error("[프로젝트 쿠키 삭제] 오류: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-    }
-
-    // ==================== 개발용 API ====================
-
-    /**
-     * Health Check API (개발용)
-     * 설명: 서버 상태 확인
-     */
-    @GetMapping("/health")
-    public ResponseEntity<String> healthCheck() {
-        log.debug("Health check 요청");
-        return ResponseEntity.ok("AXCalibur API Server is running!");
-    }
-
-    /**
-     * 간단한 테스트 API (개발용)
-     * 설명: API 연결 테스트
-     */
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Test API is working!");
     }
 }

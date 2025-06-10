@@ -12,9 +12,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "request")
+@Table(name = "request", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"name", "project_key"})
+})
 public class Request {
     
     @Id
@@ -25,8 +28,8 @@ public class Request {
     @Column(name = "project_key", updatable = false)
     private Integer projectKey;                 // 프로젝트 키 (FK)
 
-    @Column(name = "name", unique = true, nullable = false, length = 50)
-    private String name;                         // 요구사항 이름
+    @Column(name = "name", nullable = false, length = 50)
+    private String name;                         // 요구사항 이름 (프로젝트별 유니크)
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;                  // 요구사항 설명
@@ -163,5 +166,33 @@ public class Request {
 
     public RequestMinor getRequestMinor() {
         return requestMinor;
+    }
+
+    
+    public void setPriorityKey(Integer priorityKey) {
+        this.priorityKey = priorityKey;
+    }
+
+    public void setMajorKey(Integer majorKey) {
+        this.majorKey = majorKey;
+    }
+
+    public void setMiddleKey(Integer middleKey) {
+        this.middleKey = middleKey;
+    }
+
+    public void setMinorKey(Integer minorKey) {
+        this.minorKey = minorKey;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+        if (project != null) {
+            this.projectKey = project.getProjectKey();
+        }
     }
 }
