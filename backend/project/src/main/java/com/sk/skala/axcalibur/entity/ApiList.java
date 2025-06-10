@@ -16,9 +16,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "apilist")
+@Table(name = "apilist", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"id", "project_key"})
+})
 public class ApiList {
     
     @Id
@@ -26,8 +29,8 @@ public class ApiList {
     @Column(name = "`key`")
     private Integer apiListKey;          // API 목록 키 (PK, AUTO_INCREMENT)
 
-    @Column(name = "id", unique = true, nullable = false, length = 30)
-    private String apiListId;            // API 목록 ID (UNIQUE)
+    @Column(name = "id", nullable = false, length = 30)
+    private String apiListId;            // API 목록 ID (프로젝트별 유니크)
 
     @Column(name = "name", length = 20)
     private String name;                 // API 목록 명 (NOT NULL, 최대 20자)

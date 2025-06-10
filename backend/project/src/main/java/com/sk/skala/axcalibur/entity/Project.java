@@ -27,6 +27,9 @@ public class Project {
    @Column(name = "project_id", unique = true, nullable = false, length = 20)
    private String projectId;                // 프로젝트 ID (UNIQUE)
 
+   @Column(name = "avalon", length = 50)
+   private String avalon;                   // 쿠키값 (UUID7 기반)
+
    @Column(name = "created_at")
    private LocalDateTime createdAt;        // 생성 일자
 
@@ -63,6 +66,14 @@ public class Project {
 
    public void setProjectId(String projectId) {
     this.projectId = projectId;
+   }
+
+   public String getAvalon() {
+    return avalon;
+   }
+
+   public void setAvalon(String avalon) {
+    this.avalon = avalon;
    }
 
    public LocalDateTime getCreatedAt() {

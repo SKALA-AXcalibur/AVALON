@@ -15,4 +15,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
 
     // 프로젝트 ID 존재 여부
     boolean existsByProjectId(String projectId);
+
+    // avalon 값으로 프로젝트 조회
+    Optional<Project> findByAvalon(String avalon);
 }
