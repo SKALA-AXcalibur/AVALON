@@ -1,8 +1,28 @@
-import { Scenario } from "@/interfaces/scenario";
+import { Scenario, ScenarioInfo } from "@/interfaces/scenario";
 
-type ScenarioResponse = {
-  sceneList: Scenario[];
+type createScenarioRequest = Pick<
+  ScenarioInfo,
+  "name" | "description" | "validation"
+>;
+
+type createScenarioResponse = Pick<ScenarioInfo, "id">;
+
+type readScenarioResponse = ScenarioInfo;
+
+type updateScenarioRequest = Pick<
+  ScenarioInfo,
+  "name" | "description" | "validation"
+>;
+
+type readProjectScenariosResponse = {
+  scenarioList: Scenario[];
   total: number;
 };
 
-export default ScenarioResponse;
+export type {
+  createScenarioRequest,
+  createScenarioResponse,
+  readScenarioResponse,
+  updateScenarioRequest,
+  readProjectScenariosResponse,
+};

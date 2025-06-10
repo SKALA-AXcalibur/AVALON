@@ -1,13 +1,14 @@
 interface Scenario {
   id: string;
   name: string;
-  createdAt: string;
 }
 
 interface ScenarioInfo {
   id: string;
   name: string;
-  createdAt: string;
+  graph: string;
+  description: string;
+  validation: string;
 }
 
 export type { Scenario, ScenarioInfo };

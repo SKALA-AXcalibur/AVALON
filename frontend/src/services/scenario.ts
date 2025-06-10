@@ -1,13 +1,53 @@
-import ScenarioResponse from "@/types/scenario";
+import {
+  createScenarioRequest,
+  readScenarioResponse,
+  updateScenarioRequest,
+  readProjectScenariosResponse,
+  createScenarioResponse,
+} from "@/types/scenario";
 import ky from "ky";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const scenario = {
-  getProjectScenarios: async (
+const scenarioApi = {
+  createScenario: async (
+    scenario: createScenarioRequest
+  ): Promise<createScenarioResponse> => {
+    const response = await ky.post(`${BASE_URL}/api/scenario/v1/scenario`, {
+      credentials: "include",
+      json: scenario,
+    });
+
+    return response.json();
+  },
+  readScenario: async (scenarioId: string): Promise<readScenarioResponse> => {
+    const response = await ky.get(
+      `${BASE_URL}/api/scenario/v1/scenario/${scenarioId}`,
+      {
+        credentials: "include",
+      }
+    );
+
+    return response.json();
+  },
+  updateScenario: async (
+    scenarioId: string,
+    scenario: updateScenarioRequest
+  ): Promise<void> => {
+    await ky.put(`${BASE_URL}/api/scenario/v1/scenario/${scenarioId}`, {
+      credentials: "include",
+      json: scenario,
+    });
+  },
+  deleteScenario: async (scenarioId: string): Promise<void> => {
+    await ky.delete(`${BASE_URL}/api/scenario/v1/scenario/${scenarioId}`, {
+      credentials: "include",
+    });
+  },
+  readProjectScenarios: async (
     offset: number = 0,
     query: number = 10
-  ): Promise<ScenarioResponse> => {
+  ): Promise<readProjectScenariosResponse> => {
     const response = await ky.get(`${BASE_URL}/api/scenario/v1/project`, {
       credentials: "include",
       searchParams: {
@@ -20,4 +60,4 @@ const scenario = {
   },
 };
 
-export default scenario;
+export default scenarioApi;
