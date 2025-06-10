@@ -1,12 +1,12 @@
 package com.sk.skala.axcalibur.spec.feature.spec.repository;
 
-import com.sk.skala.axcalibur.spec.feature.spec.entity.ProjectEntity;
-import com.sk.skala.axcalibur.spec.feature.spec.entity.SpecFileEntity;
-
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.sk.skala.axcalibur.spec.feature.spec.entity.ProjectEntity;
+import com.sk.skala.axcalibur.spec.feature.spec.entity.SpecFileEntity;
 
 /**
  * 프로젝트와 연관된 모든 명세서 파일 레코드를 제거

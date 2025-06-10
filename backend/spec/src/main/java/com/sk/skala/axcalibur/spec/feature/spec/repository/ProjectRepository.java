@@ -1,9 +1,11 @@
 package com.sk.skala.axcalibur.spec.feature.spec.repository;
 
-import com.sk.skala.axcalibur.spec.feature.spec.entity.ProjectEntity;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.Optional;
+
+import com.sk.skala.axcalibur.spec.feature.spec.entity.ProjectEntity;
 
 /**
  * 프로젝트 ID로 프로젝트 엔티티를 조회

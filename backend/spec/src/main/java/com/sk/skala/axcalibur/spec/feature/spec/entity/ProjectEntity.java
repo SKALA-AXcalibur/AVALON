@@ -1,12 +1,13 @@
 package com.sk.skala.axcalibur.spec.feature.spec.entity;
 
+import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import jakarta.persistence.*;
 
-import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
+import jakarta.persistence.*;
 
 /**
  * 프로젝트 정보를 담는 엔티티
