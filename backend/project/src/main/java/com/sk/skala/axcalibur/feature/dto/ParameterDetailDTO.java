@@ -1,6 +1,6 @@
 package com.sk.skala.axcalibur.feature.dto;
 
-public class ParameterDetail {
+public class ParameterDetailDTO {
     private Long parameterId;       // 파라미터 PK
     private String korName;         // 한글명
     private String name;            // 영문명

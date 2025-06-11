@@ -6,19 +6,19 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.sk.skala.axcalibur.feature.entity.Testcase;
-import com.sk.skala.axcalibur.feature.entity.TestcaseData;
+import com.sk.skala.axcalibur.feature.entity.TestcaseEntity;
+import com.sk.skala.axcalibur.feature.entity.TestcaseDataEntity;
 
 @Repository
-public interface TestcaseDataRepository extends JpaRepository<TestcaseData, Integer> {
+public interface TestcaseDataRepository extends JpaRepository<TestcaseDataEntity, Integer> {
     
     // 테스트케이스별 데이터 목록 조회
-    List<TestcaseData> findByTestcaseKey(Testcase testcaseKey);
+    List<TestcaseDataEntity> findByTestcaseKey(TestcaseEntity testcaseKey);
 
     // 파라미터별 데이터 목록 조회
-    List<TestcaseData> findByParameterKey(Parameter parameterKey);
+    List<TestcaseDataEntity> findByParameterKey(Parameter parameterKey);
 
     // 특정 테스트케이스의 특정 파라미터 데이터 조회
-    List<TestcaseData> findByTestcaseKeyAndParameterKey(Testcase testcaseKey, Parameter parameterKey);
+    List<TestcaseDataEntity> findByTestcaseKeyAndParameterKey(TestcaseEntity testcaseKey, Parameter parameterKey);
 
 }

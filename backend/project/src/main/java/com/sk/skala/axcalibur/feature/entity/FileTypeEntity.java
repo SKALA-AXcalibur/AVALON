@@ -22,21 +22,21 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "request_major", uniqueConstraints = {
+@Table(name = "file_type", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"name"})
 })
-public class RequestMajor {
+public class FileTypeEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "`key`")
-    private Integer key;        // 대분류 키 (PK, AUTO_INCREMENT)
+    @Column(name = "`key`")   
+    private Integer key;      // 파일 경로 키 (PK, AUTO_INCREMENT)
 
-    @Column(name = "name", unique = true, nullable = false, length = 20)
-    private String name;             // 대분류 명 (UNIQUE)
-    
     @Column(name = "created_at")
-    private LocalDateTime createdAt; // 생성 일자
+    private LocalDateTime createdAt;   // 생성 일자
+
+    @Column(name = "name", nullable = false, length = 20)
+    private String name;             // 파일유형 이름 (NOT NULL, 최대 20자)
 
     @PrePersist
     protected void onCreate() {
@@ -44,4 +44,5 @@ public class RequestMajor {
             createdAt = LocalDateTime.now();
         }
     }
+
 }

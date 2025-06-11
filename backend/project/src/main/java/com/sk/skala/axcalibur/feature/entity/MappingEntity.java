@@ -27,7 +27,7 @@ import lombok.Setter;
 @Table(name = "mapping", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"id"})
 })
-public class Mapping {
+public class MappingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,11 +46,11 @@ public class Mapping {
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scenario_key", nullable = false)
-    private Scenario scenarioKey;         // 시나리오 (N:1)
+    private ScenarioEntity scenarioKey;         // 시나리오 (N:1)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "apilist_key", nullable = false)
-    private ApiList apiListKey;           // API 목록 (N:1)
+    private ApiListEntity apiListKey;           // API 목록 (N:1)
 
     @PrePersist
     protected void onCreate() {

@@ -24,42 +24,39 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "api_list", uniqueConstraints = {
+@Table (name = "scenario", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"id"})
 })
-public class ApiList {
+public class ScenarioEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
-    private Integer key;          // API 목록 키 (PK, AUTO_INCREMENT)
+    private Integer key;
+    
+    @Column(name = "id", unique = true, nullable = false, length = 30)
+    private String id;
 
-    @Column(name = "id", nullable = false, length = 30)
-    private String id;            // API 목록 ID (프로젝트별 유니크)
+    @Column(name = "name", nullable = false, length = 30)
+    private String name;
 
-    @Column(name = "name", nullable = false, length = 20)
-    private String name;                 // API 목록 명 (NOT NULL, 최대 20자)
+    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
+    private String description;
 
-    @Column(name = "url", nullable = false, length = 50)
-    private String url;                  // API 목록 URL (NOT NULL, 최대 50자)
+    @Column(name = "validation", columnDefinition = "TEXT")
+    private String validation;
 
-    @Column(name = "path", nullable = false, length = 100)
-    private String path;                 // API 목록 경로 (NOT NULL, 최대 100자)
-
-    @Column(name = "method", nullable = false, length = 30)
-    private String method;               // API 목록 메서드 (NOT NULL, 최대 30자)
-
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;          // API 목록 설명 (TEXT)
+    @Column(name = "flow_chart", columnDefinition = "TEXT")
+    private String flowChart;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;     // 생성 일자
+    private LocalDateTime createdAt;
 
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
-    private Project projectKey;             // 프로젝트 (N:1)
-
+    private ProjectEntity projectKey;             // 프로젝트 (N:1)
+    
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {

@@ -25,7 +25,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "file_path")
-public class FilePath {
+public class FilePathEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,11 +44,11 @@ public class FilePath {
     //연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
-    private Project projectKey;         // 프로젝트 (N:1)
+    private ProjectEntity projectKey;         // 프로젝트 (N:1)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_type_key", nullable = false)
-    private FileType fileTypeKey;         // 파일 타입 (N:1)
+    private FileTypeEntity fileTypeKey;         // 파일 타입 (N:1)
 
     @PrePersist
     protected void onCreate() {

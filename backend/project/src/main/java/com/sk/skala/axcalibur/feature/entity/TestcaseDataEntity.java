@@ -22,7 +22,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "testcase_data")
-public class TestcaseData {
+public class TestcaseDataEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,10 +35,10 @@ public class TestcaseData {
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "testcase_key", nullable = false)
-    private Testcase testcaseKey;             // 테스트케이스 (N:1)
+    private TestcaseEntity testcaseKey;             // 테스트케이스 (N:1)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parameter_key", nullable = false)
-    private Parameter parameterKey;           // 파라미터 (N:1)
+    private ParameterEntity parameterKey;           // 파라미터 (N:1)
 
 }

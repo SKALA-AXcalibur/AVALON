@@ -25,7 +25,7 @@ import lombok.Setter;
 @Table(name = "request_minor", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"name"})
 })
-public class RequestMinor {
+public class RequestMinorEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -6,7 +6,7 @@ import com.sk.skala.axcalibur.feature.dto.DeleteProjectResponse;
 import com.sk.skala.axcalibur.feature.dto.ProjectResponse;
 import com.sk.skala.axcalibur.feature.dto.SaveProjectRequest;
 import com.sk.skala.axcalibur.feature.dto.SaveProjectResponse;
-import com.sk.skala.axcalibur.feature.service.ProjectService;
+import com.sk.skala.axcalibur.feature.service.ProjectServiceImpl;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @Slf4j
 public class ProjectController {
 
-    private final ProjectService projectService;
+    private final ProjectServiceImpl projectService;
 
     // URL: POST /api/project/v1/{projectId}
     @PostMapping("/{projectId}")

@@ -24,11 +24,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table (name = "scenario", uniqueConstraints = {
+@Table(name = "testcase", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"id"})
 })
-public class Scenario {
-    
+public class TestcaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
@@ -37,29 +37,26 @@ public class Scenario {
     @Column(name = "id", unique = true, nullable = false, length = 30)
     private String id;
 
-    @Column(name = "name", nullable = false, length = 30)
-    private String name;
-
-    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "description", columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    @Column(name = "validation", columnDefinition = "TEXT")
-    private String validation;
+    @Column(name = "precondition", columnDefinition = "TEXT")
+    private String precondition;
 
-    @Column(name = "flow_chart", columnDefinition = "TEXT")
-    private String flowChart;
+    @Column(name = "expected", nullable = false, length = 200)
+    private String expected;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_key", nullable = false)
-    private Project projectKey;             // 프로젝트 (N:1)
-    
+    @JoinColumn(name = "mapping_key", nullable = false)
+    private MappingEntity mappingKey;             // 매핑 (N:1)
+
     @PrePersist
     protected void onCreate() {
-        if (createdAt == null) {
+        if (this.createdAt == null) {
             createdAt = LocalDateTime.now();
         }
     }

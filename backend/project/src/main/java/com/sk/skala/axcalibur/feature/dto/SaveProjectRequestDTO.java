@@ -4,7 +4,7 @@ import java.util.List;
 
 // 프로젝트 목록 저장 요청 DTO (IF-PR-0001)
 // 설계서 기준: 상세한 요구사항 및 API 정보 포함
-public class SaveProjectRequest {
+public class SaveProjectRequestDTO {
     
     // 요구사항 관련
     private List<RequirementItem> requirement;  // 요구사항 목록
@@ -13,7 +13,7 @@ public class SaveProjectRequest {
     private List<ApiItem> apiList;             // API 목록
     
     // 기본 생성자
-    public SaveProjectRequest() {}
+    public SaveProjectRequestDTO() {}
     
     // getter/setter (Spring JSON 파싱용)
     public List<RequirementItem> getRequirement() {

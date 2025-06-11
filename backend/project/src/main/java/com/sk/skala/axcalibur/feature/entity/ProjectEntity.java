@@ -21,7 +21,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "project")
-public class Project {
+public class ProjectEntity {
 
    @Id
    @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -25,7 +25,7 @@ import lombok.Setter;
 @Table(name = "parameter", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"id"})
 })
-public class Parameter {
+public class ParameterEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,18 +62,18 @@ public class Parameter {
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "apilist_key", nullable = false)
-    private ApiList apiListKey;
+    private ApiListEntity apiListKey;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_key", nullable = false)
-    private Category categoryKey;
+    private CategoryEntity categoryKey;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "context_key", nullable = false)
-    private Context contextKey;
+    private ContextEntity contextKey;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_key")
-    private Parameter parentKey;
+    private ParameterEntity parentKey;
 
 }

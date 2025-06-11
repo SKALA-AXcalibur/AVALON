@@ -22,21 +22,21 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "priority", uniqueConstraints = {
+@Table(name = "request_major", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"name"})
 })
-public class Priority {
+public class RequestMajorEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
-    private Integer key;        // 중요도 키 (PK, AUTO_INCREMENT)
+    private Integer key;        // 대분류 키 (PK, AUTO_INCREMENT)
 
-    @Column(name = "name", unique = true, nullable = false, length = 50)
-    private String name;                 // 중요도 명 (UNIQUE)
-
+    @Column(name = "name", unique = true, nullable = false, length = 20)
+    private String name;             // 대분류 명 (UNIQUE)
+    
     @Column(name = "created_at")
-    private LocalDateTime createdAt;     // 생성 일자
+    private LocalDateTime createdAt; // 생성 일자
 
     @PrePersist
     protected void onCreate() {

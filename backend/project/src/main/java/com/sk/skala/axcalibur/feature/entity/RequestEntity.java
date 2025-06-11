@@ -28,7 +28,7 @@ import lombok.Setter;
 @Table(name = "request", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"name"})
 })
-public class Request {
+public class RequestEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,23 +47,23 @@ public class Request {
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
-    private Project projectKey;             // 프로젝트 (N:1)
+    private ProjectEntity projectKey;             // 프로젝트 (N:1)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "priority_key", nullable = false)
-    private Priority priorityKey;           // 우선순위 (N:1)
+    private PriorityEntity priorityKey;           // 우선순위 (N:1)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "major_key", nullable = false)
-    private RequestMajor majorKey;   // 대분류 (N:1)
+    private RequestMajorEntity majorKey;   // 대분류 (N:1)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "middle_key", nullable = false)
-    private RequestMiddle middleKey; // 중분류 (N:1)
+    private RequestMiddleEntity middleKey; // 중분류 (N:1)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "minor_key", nullable = false)
-    private RequestMinor minorKey;   // 소분류 (N:1)
+    private RequestMinorEntity minorKey;   // 소분류 (N:1)
 
     @PrePersist
     protected void onCreate() {
