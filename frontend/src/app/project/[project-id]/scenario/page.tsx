@@ -10,7 +10,7 @@ import useReadScenarioTestcases from "@/hooks/testcase/readScenarioTestcases";
 const ScenarioPage = () => {
   const params = useParams();
   const router = useRouter();
-  const projectId = params["project-id"];
+  const projectId = params["project-id"] as string;
   const { project } = useProjectStore();
   const { logout, isLoading: isLoggingOut } = useLogout();
   const { readProjectScenarios, isLoading: isGettingScenarios } =
@@ -19,13 +19,12 @@ const ScenarioPage = () => {
     useReadScenarioTestcases();
 
   const initProject = async () => {
-    let isSuccess = await readProjectScenarios(projectId as string);
+    let isSuccess = await readProjectScenarios(projectId);
     if (!isSuccess) return;
     if (project.scenarios.length === 0) {
       router.push("/project/upload");
       return;
     }
-
     isSuccess = await readScenarioTestcases(project.scenarios[0].id);
     if (!isSuccess) return;
     router.push(`/project/${projectId}/scenario/${project.scenarios[0].id}`);

@@ -1,5 +1,4 @@
 import scenarioApi from "@/services/scenario";
-import { ScenarioInfo } from "@/interfaces/scenario";
 import { useState } from "react";
 
 const useReadScenario = (scenarioId: string) => {
@@ -11,7 +10,7 @@ const useReadScenario = (scenarioId: string) => {
     setIsLoading(true);
     try {
       const response = await scenarioApi.readScenario(scenarioId);
-      return response as ScenarioInfo;
+      return response;
     } catch (error) {
       console.log(error);
     } finally {

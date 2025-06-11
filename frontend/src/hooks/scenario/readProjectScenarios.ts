@@ -1,6 +1,5 @@
 import scenarioApi from "@/services/scenario";
 import { useProjectStore } from "@/store/projectStore";
-import { Scenario } from "@/interfaces/scenario";
 import { useState } from "react";
 
 const useReadProjectScenarios = () => {
@@ -16,7 +15,7 @@ const useReadProjectScenarios = () => {
       if (response.total === 0) return false;
       setProject({
         id: projectId,
-        scenarios: response.scenarioList as Scenario[],
+        scenarios: response.scenarioList.map((s) => ({ ...s, testcases: [] })),
       });
       return true;
     } catch (error) {

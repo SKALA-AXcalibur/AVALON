@@ -16,10 +16,15 @@ const Sidebar = ({
 }) => {
   const router = useRouter();
   const { project } = useProjectStore();
-  const [openScenarios, setOpenScenarios] = useState<Set<string>>(
-    new Set(scenarioId ? [scenarioId] : [])
-  );
+  const [openScenarios, setOpenScenarios] = useState<Set<string>>(new Set());
   const { readScenarioTestcases } = useReadScenarioTestcases();
+
+  // Initialize openScenarios after mount
+  useEffect(() => {
+    if (scenarioId) {
+      setOpenScenarios(new Set([scenarioId]));
+    }
+  }, []);
 
   useEffect(() => {
     const fetchInitialTestcases = async () => {
@@ -28,7 +33,7 @@ const Sidebar = ({
       }
     };
     fetchInitialTestcases();
-  }, []);
+  }, [scenarioId]);
 
   const handleToggleClick = async (scenarioId: string) => {
     const isCurrentlyOpen = openScenarios.has(scenarioId);
