@@ -4,12 +4,17 @@ import LinkButton from "../common/LinkButton";
 import useUpdateScenario from "@/hooks/scenario/updateScenario";
 import useCreateScenario from "@/hooks/scenario/createScenario";
 import { ScenarioInfo } from "@/interfaces/scenario";
+import { useRouter } from "next/navigation";
+import { useProjectStore } from "@/store/projectStore";
 
 const ScenarioNavigation = ({
   scenarioInfo,
 }: {
   scenarioInfo: ScenarioInfo;
 }) => {
+  const router = useRouter();
+  const { project } = useProjectStore();
+
   const { createScenario, isLoading: isCreatingScenario } = useCreateScenario(
     scenarioInfo.name,
     scenarioInfo.description,
@@ -25,17 +30,33 @@ const ScenarioNavigation = ({
     scenarioInfo.id
   );
 
+  const handleDeleteScenario = async () => {
+    const isSuccess = await deleteScenario();
+    if (!isSuccess) return;
+    if (project.scenarios.length === 0) {
+      router.push(`/project/${project.id}/upload`);
+    } else {
+      router.push(`/project/${project.id}/scenario/${project.scenarios[0].id}`);
+    }
+  };
+
+  const handleCreateScenario = async () => {
+    const scenarioId = await createScenario();
+    if (!scenarioId) return;
+    router.push(`/project/${project.id}/scenario/${scenarioId}`);
+  };
+
   return (
     <div className="flex gap-2">
       <LinkButton
-        href={`/scenario/${scenarioInfo.id}/tc/new`}
+        href={`/project/${project.id}/scenario/${scenarioInfo.id}/testcase/new`}
         color="bg-sky-400 hover:bg-sky-500"
         ariaLabel="TC 추가"
       >
         TC 추가
       </LinkButton>
       <ActionButton
-        onClick={deleteScenario}
+        onClick={handleDeleteScenario}
         color="bg-red-500 hover:bg-red-600"
         isLoading={isDeletingScenario}
       >
@@ -43,7 +64,7 @@ const ScenarioNavigation = ({
       </ActionButton>
       {scenarioInfo.id === "new" ? (
         <ActionButton
-          onClick={createScenario}
+          onClick={handleCreateScenario}
           color="bg-green-500 hover:bg-green-600"
           isLoading={isCreatingScenario}
         >

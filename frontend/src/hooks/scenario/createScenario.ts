@@ -1,5 +1,4 @@
 import scenarioApi from "@/services/scenario";
-import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
 const useCreateScenario = (
@@ -7,13 +6,10 @@ const useCreateScenario = (
   description: string,
   validation: string
 ) => {
-  const params = useParams();
-  const projectId = params["project-id"];
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const createScenario = async () => {
-    if (isLoading) return;
+    if (isLoading) return false;
 
     setIsLoading(true);
     try {
@@ -22,9 +18,10 @@ const useCreateScenario = (
         description,
         validation,
       });
-      router.push(`/project/${projectId}/scenario/${response.id}`);
+      return response.id;
     } catch (error) {
       console.error(error);
+      return false;
     } finally {
       setIsLoading(false);
     }
