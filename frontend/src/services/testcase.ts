@@ -1,11 +1,11 @@
 import { readScenarioTestcasesResponse } from "@/types/testcase";
 import ky from "ky";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/tc/v1`;
 
 const testcaseApi = {
   generate: async (): Promise<void> => {
-    await ky.post(`${BASE_URL}/api/tc/v1/testcase`, {
+    await ky.post(`${BASE_URL}/testcase`, {
       credentials: "include",
     });
   },
@@ -14,7 +14,7 @@ const testcaseApi = {
     offset: number = 0,
     query: number = 10
   ): Promise<readScenarioTestcasesResponse> => {
-    const response = await ky.get(`${BASE_URL}/api/tc/v1/${scenarioId}`, {
+    const response = await ky.get(`${BASE_URL}/${scenarioId}`, {
       credentials: "include",
       searchParams: {
         offset,
