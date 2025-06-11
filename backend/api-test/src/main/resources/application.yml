@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: api-test
+  profiles:
+    include: dev
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+
+server:
+  servlet:
+    context-path: /api
+  port: 8080
