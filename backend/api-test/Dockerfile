@@ -1,9 +1,9 @@
-FROM eclipse-temurin:21 AS build
+FROM docker.io/library/eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
 COPY . .
 RUN ./gradlew bootJar --no-daemon
 
-FROM eclipse-temurin:21-alpine
+FROM docker.io/library/eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 COPY --from=build /app/config /app/config
