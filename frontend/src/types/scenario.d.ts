@@ -15,7 +15,7 @@ type updateScenarioRequest = Pick<
 >;
 
 type readProjectScenariosResponse = {
-  scenarioList: Scenario[];
+  scenarioList: Pick<Scenario, "id" | "name">[];
   total: number;
 };
 
