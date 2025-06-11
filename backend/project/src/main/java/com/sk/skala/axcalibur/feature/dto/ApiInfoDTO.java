@@ -2,7 +2,7 @@ package com.sk.skala.axcalibur.feature.dto;
 
 import java.util.List;
 
-public class ApiInfo {
+public class ApiInfoDTO {
     private Long apiPk;         // API PK
     private String id;          // API 아이디
     private String name;        // API 이름
@@ -10,9 +10,9 @@ public class ApiInfo {
     private String method;      // API HTTP Method
     private String url;         // API URL
     private String path;        // API Path
-    private List<ParameterDetail> pathQuery;   // API Path/Query (Array)
-    private List<ParameterDetail> request;     // API Request (Array)
-    private List<ParameterDetail> response;    // API Response (Array)
+    private List<ParameterDetailDTO> pathQuery;   // API Path/Query (Array)
+    private List<ParameterDetailDTO> request;     // API Request (Array)
+    private List<ParameterDetailDTO> response;    // API Response (Array)
 
     //<editor-fold desc="Getter and Setter">
     public Long getApiPk() {
@@ -71,27 +71,27 @@ public class ApiInfo {
         this.path = path;
     }
 
-    public List<ParameterDetail> getPathQuery() {
+    public List<ParameterDetailDTO> getPathQuery() {
         return pathQuery;
     }
 
-    public void setPathQuery(List<ParameterDetail> pathQuery) {
+    public void setPathQuery(List<ParameterDetailDTO> pathQuery) {
         this.pathQuery = pathQuery;
     }
 
-    public List<ParameterDetail> getRequest() {
+    public List<ParameterDetailDTO> getRequest() {
         return request;
     }
 
-    public void setRequest(List<ParameterDetail> request) {
+    public void setRequest(List<ParameterDetailDTO> request) {
         this.request = request;
     }
 
-    public List<ParameterDetail> getResponse() {
+    public List<ParameterDetailDTO> getResponse() {
         return response;
     }
 
-    public void setResponse(List<ParameterDetail> response) {
+    public void setResponse(List<ParameterDetailDTO> response) {
         this.response = response;
     }
     //</editor-fold>

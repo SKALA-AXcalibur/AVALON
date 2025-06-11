@@ -8,15 +8,15 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.sk.skala.axcalibur.feature.dto.ApiInfo;
-import com.sk.skala.axcalibur.feature.dto.CreateProjectRequest;
-import com.sk.skala.axcalibur.feature.dto.CreateProjectResponse;
-import com.sk.skala.axcalibur.feature.dto.DeleteProjectResponse;
-import com.sk.skala.axcalibur.feature.dto.ParameterDetail;
-import com.sk.skala.axcalibur.feature.dto.ProjectResponse;
-import com.sk.skala.axcalibur.feature.dto.RequirementInfo;
-import com.sk.skala.axcalibur.feature.dto.SaveProjectRequest;
-import com.sk.skala.axcalibur.feature.dto.SaveProjectResponse;
+import com.sk.skala.axcalibur.feature.dto.ApiInfoDTO;
+import com.sk.skala.axcalibur.feature.dto.CreateProjectRequestDTO;
+import com.sk.skala.axcalibur.feature.dto.CreateProjectResponseDTO;
+import com.sk.skala.axcalibur.feature.dto.DeleteProjectResponseDTO;
+import com.sk.skala.axcalibur.feature.dto.ParameterDetailDTO;
+import com.sk.skala.axcalibur.feature.dto.ProjectResponseDTO;
+import com.sk.skala.axcalibur.feature.dto.RequirementInfoDTO;
+import com.sk.skala.axcalibur.feature.dto.SaveProjectRequestDTO;
+import com.sk.skala.axcalibur.feature.dto.SaveProjectResponseDTO;
 import com.sk.skala.axcalibur.feature.entity.ProjectEntity;
 import com.sk.skala.axcalibur.feature.entity.RequestEntity;
 import com.sk.skala.axcalibur.feature.entity.ApiListEntity;
@@ -63,7 +63,7 @@ public class ProjectServiceImpl {
 
     // 프로젝트 생성 (IF-PR-0004)
     @Transactional
-    public CreateProjectResponse createProject(CreateProjectRequest request) {
+    public CreateProjectResponseDTO createProject(CreateProjectRequestDTO request) {
         log.debug("프로젝트 생성 시작. projectId: {}", request.getProjectId());
         String projectId = request.getProjectId();
         
@@ -79,12 +79,12 @@ public class ProjectServiceImpl {
         log.info("Avalon 토큰 생성/업데이트. projectId: {}, newAvalon: {}", projectId, avalon);
 
         saveAvalonToRedis(avalon, project.getKey()); // Redis 임시 비활성화
-        return new CreateProjectResponse(projectId, avalon);
+        return new CreateProjectResponseDTO(projectId, avalon);
     }
 
     // IF-PR-0001: 프로젝트 목록 저장
     @Transactional
-    public SaveProjectResponse saveProject(String projectId, SaveProjectRequest request) {
+    public SaveProjectResponseDTO saveProject(String projectId, SaveProjectRequestDTO request) {
         log.info("프로젝트 목록 저장 시작. projectId: {}", projectId);
 
         ProjectEntity project = projectRepository.findById(projectId).orElseGet(() -> {
@@ -95,7 +95,7 @@ public class ProjectServiceImpl {
         });
 
         if (request.getRequirement() != null && !request.getRequirement().isEmpty()) {
-            for (SaveProjectRequest.RequirementItem reqItem : request.getRequirement()) {
+            for (SaveProjectRequestDTO.RequirementItem reqItem : request.getRequirement()) {
                 RequestEntity reqEntity = new RequestEntity();
                 reqEntity.setName(reqItem.getName());
                 reqEntity.setDescription(reqItem.getDesc());
@@ -127,7 +127,7 @@ public class ProjectServiceImpl {
         }
 
         if (request.getApiList() != null && !request.getApiList().isEmpty()) {
-            for (SaveProjectRequest.ApiItem apiItem : request.getApiList()) {
+            for (SaveProjectRequestDTO.ApiItem apiItem : request.getApiList()) {
                 ApiListEntity apiEntity = new ApiListEntity();
                 apiEntity.setId(apiItem.getId());
                 apiEntity.setName(apiItem.getName());
@@ -143,11 +143,11 @@ public class ProjectServiceImpl {
         }
 
         log.info("프로젝트 목록 저장 완료. projectId: {}", projectId);
-        return new SaveProjectResponse(LocalDateTime.now());
+        return new SaveProjectResponseDTO(LocalDateTime.now());
     }
 
     // 프로젝트 상세 조회 - avalon으로 조회
-    public ProjectResponse getProjectDetails(String avalon) {
+    public ProjectResponseDTO getProjectDetails(String avalon) {
         log.debug("프로젝트 조회 시작. avalon: {}", avalon);
         
         // 1. Redis에서 avalon 토큰으로 프로젝트 키 찾기
@@ -159,7 +159,7 @@ public class ProjectServiceImpl {
         
         // 2. 프로젝트 키로 MySQL에서 프로젝트 조회
         Integer projectKey = cookie.get().getProjectKey();
-        Optional<ProjectEntity> project = projectRepository.findById(projectKey);
+        Optional<ProjectEntity> project = projectRepository.findByKey(projectKey);
         
         return project
             .map(p -> convertToDetailedResponse(p, avalon))
@@ -169,22 +169,22 @@ public class ProjectServiceImpl {
 
     // IF-PR-0003: 프로젝트 정보 삭제
     @Transactional
-    public DeleteProjectResponse deleteProject(String projectId) {
+    public DeleteProjectResponseDTO deleteProject(String projectId) {
         log.info("프로젝트 정보 삭제 시작. projectId: {}", projectId);
         projectRepository.findById(projectId).ifPresent(projectRepository::delete);
         log.info("프로젝트 정보 삭제 완료. projectId: {}", projectId);
-        return new DeleteProjectResponse();
+        return new DeleteProjectResponseDTO();
     }
 
     // IF-PR-0005: 프로젝트 쿠키 삭제
     @Transactional
-    public DeleteProjectResponse deleteProjectCookie(String avalon) {
+    public DeleteProjectResponseDTO deleteProjectCookie(String avalon) {
         log.info("프로젝트 쿠키 삭제 요청. avalon: {}", avalon);
         if (avalon != null && !avalon.trim().isEmpty()) {
             avalonCookieRepository.deleteByToken(avalon);
             log.info("Redis 비활성화 상태 - 쿠키 삭제 요청만 처리");
         }
-        return new DeleteProjectResponse();
+        return new DeleteProjectResponseDTO();
     }
 
     
@@ -200,15 +200,15 @@ public class ProjectServiceImpl {
         return UUID.randomUUID().toString();
     }
     
-    private ProjectResponse convertToDetailedResponse(ProjectEntity project, String avalon) {
+    private ProjectResponseDTO convertToDetailedResponse(ProjectEntity project, String avalon) {
         String projectName = project.getId() + "_Project";
         
         List<String> specList = List.of("요구사항명세서", "인터페이스정의서", "인터페이스설계서");
     
         // OneToMany 관계 대신 Repository로 직접 조회
         List<RequestEntity> requests = requestRepository.findByProjectKey(project);
-        List<RequirementInfo> requirements = requests.stream()
-                .map(req -> new RequirementInfo(
+        List<RequirementInfoDTO> requirements = requests.stream()
+                .map(req -> new RequirementInfoDTO(
                         req.getKey().longValue(),
                         req.getName(),
                         req.getDescription(),
@@ -220,16 +220,16 @@ public class ProjectServiceImpl {
     
         // OneToMany 관계 대신 Repository로 직접 조회
         List<ApiListEntity> apiLists = apiListRepository.findByProjectKey(project);
-        List<ApiInfo> apiInfos = apiLists.stream()
+        List<ApiInfoDTO> apiInfos = apiLists.stream()
                 .map(this::convertApiEntityToDto)
                 .collect(Collectors.toList());
     
-        return new ProjectResponse(project.getId(), avalon,  // 파라미터로 받은 avalon 사용
+        return new ProjectResponseDTO(project.getId(), avalon,  // 파라미터로 받은 avalon 사용
                 projectName, specList, requirements, apiInfos);
     }
 
-    private ApiInfo convertApiEntityToDto(ApiListEntity api) {
-        ApiInfo apiInfo = new ApiInfo();
+    private ApiInfoDTO convertApiEntityToDto(ApiListEntity api) {
+        ApiInfoDTO apiInfo = new ApiInfoDTO();
         apiInfo.setApiPk(api.getKey().longValue());
         apiInfo.setId(api.getId());
         apiInfo.setName(api.getName());
@@ -240,17 +240,17 @@ public class ProjectServiceImpl {
 
         List<ParameterEntity> parameters = parameterRepository.findByApiListKey(api);
         
-        List<ParameterDetail> pathQueryParams = parameters.stream()
+        List<ParameterDetailDTO> pathQueryParams = parameters.stream()
             .filter(p -> p.getCategoryKey() != null && (p.getCategoryKey().getName().endsWith("_PQ")))
             .map(this::convertParameterEntityToDto).collect(Collectors.toList());
         apiInfo.setPathQuery(pathQueryParams);
 
-        List<ParameterDetail> requestParams = parameters.stream()
+        List<ParameterDetailDTO> requestParams = parameters.stream()
             .filter(p -> p.getCategoryKey() != null && (p.getCategoryKey().getName().endsWith("_REQ")))
             .map(this::convertParameterEntityToDto).collect(Collectors.toList());
         apiInfo.setRequest(requestParams);
 
-        List<ParameterDetail> responseParams = parameters.stream()
+        List<ParameterDetailDTO> responseParams = parameters.stream()
             .filter(p -> p.getCategoryKey() != null && (p.getCategoryKey().getName().endsWith("_RES")))
             .map(this::convertParameterEntityToDto).collect(Collectors.toList());
         apiInfo.setResponse(responseParams);
@@ -258,8 +258,8 @@ public class ProjectServiceImpl {
         return apiInfo;
     }
 
-    private ParameterDetail convertParameterEntityToDto(ParameterEntity param) {
-        ParameterDetail detail = new ParameterDetail();
+    private ParameterDetailDTO convertParameterEntityToDto(ParameterEntity param) {
+        ParameterDetailDTO detail = new ParameterDetailDTO();
         detail.setParameterId(param.getKey().longValue());
         detail.setKorName(param.getNameKo());
         detail.setName(param.getName());
@@ -278,7 +278,7 @@ public class ProjectServiceImpl {
         return detail;
     }
 
-    private void processApiParameters(ApiListEntity apiList, SaveProjectRequest.ApiItem apiItem) {
+    private void processApiParameters(ApiListEntity apiList, SaveProjectRequestDTO.ApiItem apiItem) {
         if (apiItem.getRequest() != null) {
             processParameterGroup(apiList, apiItem.getRequest(), "REQUEST");
         }
@@ -287,21 +287,21 @@ public class ProjectServiceImpl {
         }
     }
 
-    private void processParameterGroup(ApiListEntity apiList, SaveProjectRequest.ParameterGroup paramGroup, String groupType) {
+    private void processParameterGroup(ApiListEntity apiList, SaveProjectRequestDTO.ParameterGroup paramGroup, String groupType) {
         if (paramGroup.getPq() != null) {
-            processParameterItems(apiList, paramGroup.getPq(), groupType + "_PQ");
+            processParameterItems(apiList, paramGroup.getPq(), groupType);
         }
         if (paramGroup.getReq() != null) {
-            processParameterItems(apiList, paramGroup.getReq(), groupType + "_REQ");
+            processParameterItems(apiList, paramGroup.getReq(), groupType);
         }
         if (paramGroup.getRes() != null) {
-            processParameterItems(apiList, paramGroup.getRes(), groupType + "_RES");
+            processParameterItems(apiList, paramGroup.getRes(), groupType);
         }
     }
 
     @Transactional
-    private void processParameterItems(ApiListEntity apiList, List<SaveProjectRequest.ParameterItem> paramItems, String paramType) {
-        for (SaveProjectRequest.ParameterItem paramItem : paramItems) {
+    private void processParameterItems(ApiListEntity apiList, List<SaveProjectRequestDTO.ParameterItem> paramItems, String paramType) {
+        for (SaveProjectRequestDTO.ParameterItem paramItem : paramItems) {
             ParameterEntity parameter = new ParameterEntity();
             parameter.setId(paramItem.getName() + "_" + System.currentTimeMillis());
             parameter.setNameKo(paramItem.getKorName());
@@ -327,6 +327,7 @@ public class ProjectServiceImpl {
 
     @Transactional
     private CategoryEntity findOrCreateCategory(String name) {
+        log.info("category에 저장하려는 name 값: '{}'", name);
         return categoryRepository.findByName(name)
                 .orElseGet(() -> {
                     CategoryEntity entity = new CategoryEntity();
@@ -337,6 +338,7 @@ public class ProjectServiceImpl {
 
     @Transactional
     private ContextEntity findOrCreateContext(String name) {
+        log.info("context에 저장하려는 name 값: '{}'", name);
         return contextRepository.findByName(name)
                 .orElseGet(() -> {
                     ContextEntity entity = new ContextEntity();

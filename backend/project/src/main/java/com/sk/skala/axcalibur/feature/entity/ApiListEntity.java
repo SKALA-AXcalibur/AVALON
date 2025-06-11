@@ -25,7 +25,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "api_list", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"id"})
+    @UniqueConstraint(columnNames = {"project_key", "id"})
 })
 public class ApiListEntity {
     

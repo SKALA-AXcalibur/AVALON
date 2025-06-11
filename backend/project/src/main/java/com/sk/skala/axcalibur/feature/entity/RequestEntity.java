@@ -26,7 +26,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "request", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"name"})
+    @UniqueConstraint(columnNames = {"project_key", "name"})
 })
 public class RequestEntity {
     
