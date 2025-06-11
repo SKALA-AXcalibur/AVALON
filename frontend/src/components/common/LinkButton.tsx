@@ -14,7 +14,7 @@ const LinkButton = ({
   return (
     <Link
       href={href}
-      className={`${color} text-white rounded-lg px-4 py-2 flex items-center gap-1`}
+      className={`${color} text-white rounded-lg px-4 py-2 flex items-center justify-center gap-1`}
       aria-label={ariaLabel}
     >
       {children}
