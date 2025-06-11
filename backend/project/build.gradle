@@ -28,26 +28,43 @@ ext {
 }
 
 dependencies {
+	// Spring Boot Starters
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	
+	// Spring Cloud
 	implementation 'org.springframework.cloud:spring-cloud-starter'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-	implementation 'org.springframework.session:spring-session-jdbc'
+	
+	// Redis (프로젝트 데이터 저장용)
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	// Spring Session 불필요 (Redis 직접 관리)
+	// implementation 'org.springframework.session:spring-session-data-redis'
+	implementation 'org.springframework.session:spring-session-jdbc'        // 기존 유지
+	
+	// API 문서화
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
+	
+	// 기타 유틸리티
 	implementation 'me.paulschwarz:spring-dotenv:2.5.4'
+	
+	// 개발 도구
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
-	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	annotationProcessor 'org.projectlombok:lombok'
+	
+	// 런타임 의존성
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+	
+	// 테스트
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
 }
 
 dependencyManagement {

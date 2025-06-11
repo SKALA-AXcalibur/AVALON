@@ -1,18 +1,20 @@
 spring:
   application:
     name: sample
-
   profiles:
     include: dev
   servlet:
     multipart:
       max-request-size: 10MB
       max-file-size: 10MB
-
   jpa:
     hibernate:
       ddl-auto: update
-      show-sql: true
+    show-sql: true
+  session:
+    store-type: none
+    jdbc:
+      initialize-schema: never
 
 server:
   port: 8081
