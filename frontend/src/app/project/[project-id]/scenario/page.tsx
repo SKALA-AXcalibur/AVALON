@@ -1,29 +1,48 @@
 "use client";
 import { useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import ActionButton from "@/components/common/ActionButton";
 import useReadProjectScenarios from "@/hooks/scenario/readProjectScenarios";
 import useLogout from "@/hooks/auth/logout";
+import { useProjectStore } from "@/store/projectStore";
+import useReadScenarioTestcases from "@/hooks/testcase/readScenarioTestcases";
 
 const ScenarioPage = () => {
   const params = useParams();
-  const projectId = params["project-id"] as string;
-  const { readProjectScenarios, isLoading: isGettingScenarios } =
-    useReadProjectScenarios(projectId);
+  const router = useRouter();
+  const projectId = params["project-id"];
+  const { project } = useProjectStore();
   const { logout, isLoading: isLoggingOut } = useLogout();
+  const { readProjectScenarios, isLoading: isGettingScenarios } =
+    useReadProjectScenarios();
+  const { readScenarioTestcases, isLoading: isGettingTestcases } =
+    useReadScenarioTestcases();
+
+  const initProject = async () => {
+    let isSuccess = await readProjectScenarios(projectId as string);
+    if (!isSuccess) return;
+    if (project.scenarios.length === 0) {
+      router.push("/project/upload");
+      return;
+    }
+
+    isSuccess = await readScenarioTestcases(project.scenarios[0].id);
+    if (!isSuccess) return;
+    router.push(`/project/${projectId}/scenario/${project.scenarios[0].id}`);
+  };
 
   useEffect(() => {
-    readProjectScenarios();
+    initProject();
   }, []);
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-      {isGettingScenarios ? (
-        <div className="text-gray-600">시나리오를 가져오는 중입니다...</div>
+      {isGettingScenarios || isGettingTestcases ? (
+        <div className="text-gray-600">프로젝트를 가져오는 중입니다...</div>
       ) : (
         <div className="flex flex-col gap-2">
           <ActionButton
-            onClick={readProjectScenarios}
+            onClick={initProject}
             color="bg-blue-500 hover:bg-blue-600"
           >
             다시 가져오기
