@@ -19,7 +19,7 @@ const useReadProjectScenarios = () => {
       });
       return true;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return false;
     } finally {
       setIsLoading(false);

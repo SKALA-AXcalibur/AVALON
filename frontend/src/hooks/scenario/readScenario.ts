@@ -12,7 +12,7 @@ const useReadScenario = (scenarioId: string) => {
       const response = await scenarioApi.readScenario(scenarioId);
       return response;
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
