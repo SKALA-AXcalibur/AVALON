@@ -1,65 +1,26 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useTestcaseStore } from "@/store/testcaseStore";
 import TestcaseTable from "./TestcaseTable";
 
-const mockTestcases = [
-  {
-    id: "TC-001",
-    precondition: "데이터 베이스 내 테스트 고객 존재",
-    content: "존재하는 고객 확인",
-    parameters: {
-      ID: "Torsvalds",
-      Password: "ILoveLinux",
-    },
-    expected: "고객이 존재합니다.",
+const testcase = {
+  id: "TC-001",
+  precondition: "데이터 베이스 내 테스트 고객 존재",
+  content: "존재하는 고객 확인",
+  parameters: {
+    ID: "Torsvalds",
+    Password: "ILoveLinux",
   },
-  {
-    id: "TC-002",
-    precondition: "데이터 베이스 내 테스트 고객 존재",
-    content: "존재하지 않는 고객 확인",
-    parameters: {
-      ID: "test_user",
-      Password: "test1234",
-    },
-    expected: "고객이 존재하지 않습니다.",
-  },
-  {
-    id: "TC-003",
-    precondition: "데이터 베이스 내 테스트 고객 존재",
-    content: "잘못된 비밀번호로 로그인 시도",
-    parameters: {
-      ID: "admin",
-      Password: "admin1234",
-    },
-    expected: "비밀번호가 일치하지 않습니다.",
-  },
-];
+  expected: "고객이 존재합니다.",
+};
 
 const TestcaseBox = () => {
-  const { testcase, setTestcase } = useTestcaseStore();
   const [currentTestcase, setCurrentTestcase] = useState(testcase);
 
   useEffect(() => {
     if (testcase.id) {
-      const found = mockTestcases.find((tc) => tc.id === testcase.id);
-      if (found) {
-        setCurrentTestcase(found);
-        setTestcase(found);
-      }
+      setCurrentTestcase(testcase);
     }
-  }, [testcase.id, setTestcase]);
-
-  const handleSave = () => {
-    setTestcase(currentTestcase);
-  };
-
-  const handleParametersChange = (parameters: { [key: string]: string }) => {
-    setCurrentTestcase({
-      ...currentTestcase,
-      parameters,
-    });
-  };
+  }, [testcase.id]);
 
   return (
     <>
@@ -73,12 +34,6 @@ const TestcaseBox = () => {
           </button>
           <button className="bg-red-500 text-white rounded-lg px-4 py-2">
             삭제
-          </button>
-          <button
-            onClick={handleSave}
-            className="bg-green-500 text-white rounded-lg px-4 py-2"
-          >
-            저장
           </button>
         </div>
       </div>
@@ -112,10 +67,7 @@ const TestcaseBox = () => {
           />
         </div>
       </div>
-      <TestcaseTable
-        parameters={currentTestcase.parameters}
-        onParametersChange={handleParametersChange}
-      />
+      <TestcaseTable parameters={currentTestcase.parameters} />
       <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
         <h3 className="font-medium text-slate-700 mb-2">예상 결과</h3>
         <textarea
