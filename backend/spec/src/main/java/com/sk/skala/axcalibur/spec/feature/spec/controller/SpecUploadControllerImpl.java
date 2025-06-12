@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sk.skala.axcalibur.spec.feature.spec.dto.ProjectContext;
 import com.sk.skala.axcalibur.spec.feature.spec.dto.request.SpecUploadRequest;
 import com.sk.skala.axcalibur.spec.feature.spec.service.SpecUploadService;
 import com.sk.skala.axcalibur.spec.feature.spec.service.ProjectIdResolverService;
@@ -42,7 +45,7 @@ public class SpecUploadControllerImpl implements SpecUploadController {
 
     @Override
     @PostMapping
-    public ResponseEntity<SuccessResponse<Void>> uploadSpec(
+    public ResponseEntity<SuccessResponse<List<Object>>> uploadSpec(
         @CookieValue("avalon") String key,
         @RequestParam MultipartFile requirementFile,
         @RequestParam MultipartFile interfaceDef,
@@ -52,10 +55,10 @@ public class SpecUploadControllerImpl implements SpecUploadController {
         SpecUploadRequest specUploadRequest = new SpecUploadRequest(requirementFile, interfaceDef, interfaceDesign);
 
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
-        String projectId = projectIdResolverService.resolveProjectId(key);
-        
+        ProjectContext project = projectIdResolverService.resolveProjectId(key);
+
         // 서비스 호출
-        specUploadService.uploadFiles(projectId, specUploadRequest);
+        specUploadService.uploadFiles(project, specUploadRequest);
 
         // 응답시간 헤더에 반환
         HttpHeaders headers = new HttpHeaders();
@@ -65,10 +68,10 @@ public class SpecUploadControllerImpl implements SpecUploadController {
         return ResponseEntity
         .status(SuccessCode.INSERT_SUCCESS.getStatus())
         .headers(headers)
-        .body(SuccessResponse.<Void>builder()
-            .data(null)
+        .body(SuccessResponse.<List<Object>>builder()
+            .data(Collections.emptyList())  // 빈 리스트 반환
             .status(SuccessCode.INSERT_SUCCESS)
             .message(SuccessCode.INSERT_SUCCESS.getMessage())
-            .build());  
+            .build());
     }
 }

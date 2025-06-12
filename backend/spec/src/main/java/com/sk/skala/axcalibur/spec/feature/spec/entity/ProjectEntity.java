@@ -1,5 +1,7 @@
 package com.sk.skala.axcalibur.spec.feature.spec.entity;
 
+import java.time.LocalDateTime;
+
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
 
 import lombok.AllArgsConstructor;
@@ -26,7 +28,7 @@ public class ProjectEntity extends BaseTimeEntity {
     @Column(name = "`key`") // 백틱키를 사용하여 key 컬럼으로 지정
     private Integer id; // key를 id로 변경
 
-    @Column(nullable = false, length = 20, unique = true)
+    @Column(name = "id", nullable = false, length = 20, unique = true)
     private String projectId; // 프로젝트 ID
 
 }
