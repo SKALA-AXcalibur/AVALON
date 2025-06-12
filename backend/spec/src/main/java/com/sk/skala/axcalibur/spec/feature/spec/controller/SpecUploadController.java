@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
  * @param requirementFile 요구사항 정의서 파일
  * @param interfaceDef 인터페이스 정의서 파일
  * @param interfaceDesign 인터페이스 설계서 파일
+ * @param databaseDesign 테이블 설계서 파일
  * @return 업로드 결과 전달
  */
 public interface SpecUploadController {
@@ -27,6 +28,7 @@ public interface SpecUploadController {
         @CookieValue("avalon") String key,
         @RequestParam MultipartFile requirementFile,
         @RequestParam MultipartFile interfaceDef,
-        @RequestParam MultipartFile interfaceDesign
+        @RequestParam MultipartFile interfaceDesign,
+        @RequestParam MultipartFile databaseDesign
     );
 }

@@ -43,7 +43,8 @@ public class SpecUploadServiceImpl implements SpecUploadService {
         Map<MultipartFile, FileTypeEntity> fileTypeMap = Map.of(
             request.getRequirementFile(), getFileTypeEntity(1),
             request.getInterfaceDef(), getFileTypeEntity(2),
-            request.getInterfaceDesign(), getFileTypeEntity(3)
+            request.getInterfaceDesign(), getFileTypeEntity(3),
+            request.getDatabaseDesign(), getFileTypeEntity(4)
         );
 
         try {
