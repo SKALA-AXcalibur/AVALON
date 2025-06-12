@@ -103,26 +103,21 @@ public class FileStorageServiceImpl implements FileStorageService {
      * 파일 덮어씌울떄 호출됨
      */
     @Override 
-    public void deleteFileByPath(String filePath) { 
-        File fileToDelete = new File(basepath + filePath);
+    public void deleteFileByPath(String filePath) {
+    File fileToDelete = new File(basepath + filePath);
 
-        if (!fileToDelete.exists()) {
-            log.warn("삭제하려는 단일 파일이 존재하지 않습니다: {}", filePath);
-            return; // 파일이 없으면 그냥 종료
-        }
-
-        try {
-            if (fileToDelete.delete()) {
-                log.info("단일 파일 삭제 성공: {}", filePath);
-            } else {
-                log.error("단일 파일 삭제 실패: {}", filePath);
-                throw new BusinessExceptionHandler("파일 삭제에 실패했습니다.", ErrorCode.FILE_DELETE_FAILED);
-            }
-        } catch (Exception e) { // 예상치 못한 오류
-            log.error("단일 파일 삭제 중 예상치 못한 오류 발생: {}", filePath, e);
-            throw new BusinessExceptionHandler("파일 삭제 중 예상치 못한 오류 발생.", ErrorCode.FILE_DELETE_FAILED);
-        }
+    if (!fileToDelete.exists()) {
+        log.info("삭제하려는 파일이 존재하지 않습니다: {}", fileToDelete.getAbsolutePath());
+        return;
     }
+
+    if (fileToDelete.delete()) {
+        log.info("파일 삭제 성공: {}", fileToDelete.getAbsolutePath());
+    } else {
+        log.error("파일 삭제 실패: {}", fileToDelete.getAbsolutePath());
+        throw new BusinessExceptionHandler("파일 삭제 실패: " + fileToDelete.getName(), ErrorCode.FILE_DELETE_FAILED);
+    }
+}
 }
 
 

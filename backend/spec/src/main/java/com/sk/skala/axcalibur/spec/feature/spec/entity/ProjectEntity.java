@@ -1,7 +1,5 @@
 package com.sk.skala.axcalibur.spec.feature.spec.entity;
 
-import java.time.LocalDateTime;
-
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
 
 import lombok.AllArgsConstructor;
