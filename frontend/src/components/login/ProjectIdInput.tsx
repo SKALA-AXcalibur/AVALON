@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import validateId from "@/utils/ValidateId";
+import validateId from "@/utils/validateId";
 
 const ProjectIdInput = () => {
   const [projectId, setProjectId] = useState("");

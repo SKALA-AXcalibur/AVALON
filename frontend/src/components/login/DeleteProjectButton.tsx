@@ -1,5 +1,5 @@
 "use client";
-import validateId from "@/utils/ValidateId";
+import validateId from "@/utils/validateId";
 import ky from "ky";
 import { useState } from "react";
 
