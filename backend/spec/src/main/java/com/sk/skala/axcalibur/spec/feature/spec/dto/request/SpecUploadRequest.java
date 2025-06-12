@@ -26,4 +26,7 @@ public class SpecUploadRequest {
 
     @NotNull(message = "인터페이스 설계서 업로드 안됨")
     private MultipartFile interfaceDesign;
+
+    @NotNull(message = "테이블 설계서 업로드 안됨")
+    private MultipartFile databaseDesign;
 }

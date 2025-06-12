@@ -49,10 +49,11 @@ public class SpecUploadControllerImpl implements SpecUploadController {
         @CookieValue("avalon") String key,
         @RequestParam MultipartFile requirementFile,
         @RequestParam MultipartFile interfaceDef,
-        @RequestParam MultipartFile interfaceDesign) {
+        @RequestParam MultipartFile interfaceDesign,
+        @RequestParam MultipartFile databaseDesign) {
         
         // specUploadRequest dto 객체 생성
-        SpecUploadRequest specUploadRequest = new SpecUploadRequest(requirementFile, interfaceDef, interfaceDesign);
+        SpecUploadRequest specUploadRequest = new SpecUploadRequest(requirementFile, interfaceDef, interfaceDesign, databaseDesign);
 
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
         ProjectContext project = projectIdResolverService.resolveProjectId(key);
