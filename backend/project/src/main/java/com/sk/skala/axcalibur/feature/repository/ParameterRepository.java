@@ -34,6 +34,9 @@ public interface ParameterRepository extends JpaRepository<ParameterEntity, Inte
 
     // 파라미터 ID 존재 여부 확인
     boolean existsById(String id);
+
+    // 프로젝트 키로 파라미터 삭제
+    void deleteByApiListKey(ApiListEntity apiListKey);
     
     
 }

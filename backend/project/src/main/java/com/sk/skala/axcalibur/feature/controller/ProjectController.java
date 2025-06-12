@@ -2,6 +2,7 @@ package com.sk.skala.axcalibur.feature.controller;
 
 import com.sk.skala.axcalibur.feature.dto.CreateProjectRequestDTO;
 import com.sk.skala.axcalibur.feature.dto.CreateProjectResponseDTO;
+import com.sk.skala.axcalibur.feature.dto.DeleteProjectCookieDTO;
 import com.sk.skala.axcalibur.feature.dto.DeleteProjectResponseDTO;
 import com.sk.skala.axcalibur.feature.dto.ProjectResponseDTO;
 import com.sk.skala.axcalibur.feature.dto.SaveProjectRequestDTO;
@@ -105,7 +106,7 @@ public class ProjectController {
 
     // URL: DELETE /api/project/v1
     @DeleteMapping("")
-    public ResponseEntity<DeleteProjectResponseDTO> deleteProjectCookie(
+    public ResponseEntity<DeleteProjectCookieDTO> deleteProjectCookie(
             @CookieValue(name = "Cookie") String avalon) {
 
         log.info("[프로젝트 쿠키 삭제] 요청. avalon: {}", avalon);
@@ -123,6 +124,7 @@ public class ProjectController {
                 .status(SuccessCode.DELETE_SUCCESS.getStatus())
                 .header(HttpHeaders.SET_COOKIE, expiringCookie.toString())
                 .header("X-Request-Time", LocalDateTime.now().toString())
-                .body(response);
+                .body(new DeleteProjectCookieDTO());
+                
     }
 }

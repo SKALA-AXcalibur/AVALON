@@ -1,5 +1,10 @@
 package com.sk.skala.axcalibur.feature.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class ParameterDetailDTO {
     private Long parameterId;       // 파라미터 PK
     private String korName;         // 한글명
@@ -18,117 +23,4 @@ public class ParameterDetailDTO {
     private String apiId;           // 소속 API ID
     private String apiName;         // 소속 API 이름
 
-    //<editor-fold desc="Getter and Setter">
-    public Long getParameterId() {
-        return parameterId;
-    }
-
-    public void setParameterId(Long parameterId) {
-        this.parameterId = parameterId;
-    }
-
-    public String getKorName() {
-        return korName;
-    }
-
-    public void setKorName(String korName) {
-        this.korName = korName;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getItemType() {
-        return itemType;
-    }
-
-    public void setItemType(String itemType) {
-        this.itemType = itemType;
-    }
-
-    public Integer getStep() {
-        return step;
-    }
-
-    public void setStep(Integer step) {
-        this.step = step;
-    }
-
-    public String getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(String dataType) {
-        this.dataType = dataType;
-    }
-
-    public Integer getLength() {
-        return length;
-    }
-
-    public void setLength(Integer length) {
-        this.length = length;
-    }
-
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
-    }
-
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    public Boolean getRequired() {
-        return required;
-    }
-
-    public void setRequired(Boolean required) {
-        this.required = required;
-    }
-
-    public String getUpper() {
-        return upper;
-    }
-
-    public void setUpper(String upper) {
-        this.upper = upper;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-
-    public String getApiId() {
-        return apiId;
-    }
-
-    public void setApiId(String apiId) {
-        this.apiId = apiId;
-    }
-
-    public String getApiName() {
-        return apiName;
-    }
-
-    public void setApiName(String apiName) {
-        this.apiName = apiName;
-    }
-    //</editor-fold>
 } 

@@ -1,10 +1,13 @@
 package com.sk.skala.axcalibur.feature.dto;
 
-// import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 프로젝트 생성 응답 DTO (IF-PR-0004)
  */
+@Getter
+@Setter
 public class CreateProjectResponseDTO {
 
     private String projectId;
@@ -14,14 +17,4 @@ public class CreateProjectResponseDTO {
         this.projectId = projectId;
         this.avalon = avalon;
     }
-
-    //<editor-fold desc="Getter">
-    public String getProjectId() {
-        return projectId;
-    }
-
-    public String getAvalon() {
-        return avalon;
-    }
-    //</editor-fold>
 } 

@@ -1,5 +1,10 @@
 package com.sk.skala.axcalibur.feature.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class RequirementInfoDTO {
     private Long requirementId; // 요구사항 PK
     private String name;        // 요구사항 이름
@@ -11,6 +16,7 @@ public class RequirementInfoDTO {
 
     public RequirementInfoDTO() {}
 
+
     public RequirementInfoDTO(Long requirementId, String name, String desc, String priority, String major, String middle, String minor) {
         this.requirementId = requirementId;
         this.name = name;
@@ -20,62 +26,4 @@ public class RequirementInfoDTO {
         this.middle = middle;
         this.minor = minor;
     }
-
-    //<editor-fold desc="Getter and Setter">
-    public Long getRequirementId() {
-        return requirementId;
-    }
-
-    public void setRequirementId(Long requirementId) {
-        this.requirementId = requirementId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-
-    public String getPriority() {
-        return priority;
-    }
-
-    public void setPriority(String priority) {
-        this.priority = priority;
-    }
-
-    public String getMajor() {
-        return major;
-    }
-
-    public void setMajor(String major) {
-        this.major = major;
-    }
-
-    public String getMiddle() {
-        return middle;
-    }
-
-    public void setMiddle(String middle) {
-        this.middle = middle;
-    }
-
-    public String getMinor() {
-        return minor;
-    }
-
-    public void setMinor(String minor) {
-        this.minor = minor;
-    }
-    //</editor-fold>
 } 

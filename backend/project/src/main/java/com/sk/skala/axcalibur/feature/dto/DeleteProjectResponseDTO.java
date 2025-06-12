@@ -1,10 +1,17 @@
 package com.sk.skala.axcalibur.feature.dto;
 
-// 프로젝트 삭제 응답 DTO (IF-PR-0003, IF-PR-0005)
-// 응답 본문이 비어있음 (HTTP Status Code로 성공 여부 판단)
+import lombok.Getter;
+import lombok.Setter;
+
+// 프로젝트 삭제 응답 DTO (IF-PR-0003)
+
+@Getter
+@Setter
 public class DeleteProjectResponseDTO {
+    private String result;
     
-    // 기본 생성자
-    public DeleteProjectResponseDTO() {}
-    
-} 
+    public DeleteProjectResponseDTO() {
+        this.result = "success";
+    }
+
+}

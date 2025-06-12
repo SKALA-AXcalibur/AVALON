@@ -1,9 +1,15 @@
 package com.sk.skala.axcalibur.feature.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
 // 프로젝트 조회 응답 DTO (IF-PR-0002)
+@Getter
+@Setter
 public class ProjectResponseDTO {
     
     private String projectId;
@@ -25,55 +31,4 @@ public class ProjectResponseDTO {
         this.requirement = requirement;
         this.apiList = apiList;
     }
-    
-    
-    //<editor-fold desc="Getter and Setter">
-    public String getProjectId() {
-        return projectId;
-    }
-    
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
-    }
-    
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-    
-    public List<String> getSpecList() {
-        return specList;
-    }
-
-    public void setSpecList(List<String> specList) {
-        this.specList = specList;
-    }
-    
-    public List<RequirementInfoDTO> getRequirement() {
-        return requirement;
-    }
-
-    public void setRequirement(List<RequirementInfoDTO> requirement) {
-        this.requirement = requirement;
-    }
-    
-    public List<ApiInfoDTO> getApiList() {
-        return apiList;
-    }
-    
-    public void setApiList(List<ApiInfoDTO> apiList) {
-        this.apiList = apiList;
-        }
-        
-    public String getAvalon() {
-        return avalon;
-        }
-        
-    public void setAvalon(String avalon) {
-        this.avalon = avalon;
-        }
-    //</editor-fold>
 }

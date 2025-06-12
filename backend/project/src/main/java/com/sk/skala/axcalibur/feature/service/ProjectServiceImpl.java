@@ -117,7 +117,7 @@ public class ProjectServiceImpl {
                     RequestMinorEntity minor = findOrCreateRequestMinor(reqItem.getMinor());
                     reqEntity.setMinorKey(minor);
                 }
-                log.info("💡 Request 저장 전 확인 - majorKey: {}, middleKey: {}, minorKey: {}, priorityKey: {}", 
+                log.info(" Request 저장 전 확인 - majorKey: {}, middleKey: {}, minorKey: {}, priorityKey: {}", 
                     reqEntity.getMajorKey() != null ? reqEntity.getMajorKey().getKey() : "null",
                     reqEntity.getMiddleKey() != null ? reqEntity.getMiddleKey().getKey() : "null", 
                     reqEntity.getMinorKey() != null ? reqEntity.getMinorKey().getKey() : "null",
@@ -159,7 +159,7 @@ public class ProjectServiceImpl {
         
         // 2. 프로젝트 키로 MySQL에서 프로젝트 조회
         Integer projectKey = cookie.get().getProjectKey();
-        Optional<ProjectEntity> project = projectRepository.findByKey(projectKey);
+        Optional<ProjectEntity> project = projectRepository.findById(projectKey);
         
         return project
             .map(p -> convertToDetailedResponse(p, avalon))
@@ -167,11 +167,34 @@ public class ProjectServiceImpl {
     }
     
 
-    // IF-PR-0003: 프로젝트 정보 삭제
     @Transactional
     public DeleteProjectResponseDTO deleteProject(String projectId) {
         log.info("프로젝트 정보 삭제 시작. projectId: {}", projectId);
-        projectRepository.findById(projectId).ifPresent(projectRepository::delete);
+        
+        Optional<ProjectEntity> projectOpt = projectRepository.findById(projectId);
+        if (projectOpt.isPresent()) {
+            ProjectEntity project = projectOpt.get();
+            Integer projectKey = project.getKey(); // 숫자 키 가져오기
+            
+            // 1. 해당 프로젝트의 API 목록들과 파라미터들 삭제
+            List<ApiListEntity> apiLists = apiListRepository.findByProjectKey(project);
+            for (ApiListEntity apiList : apiLists) {
+                List<ParameterEntity> parameters = parameterRepository.findByApiListKey(apiList);
+                parameterRepository.deleteAll(parameters);
+            }
+            apiListRepository.deleteAll(apiLists);
+            
+            // 2. 해당 프로젝트의 요구사항들 삭제
+            List<RequestEntity> requests = requestRepository.findByProjectKey(project);
+            requestRepository.deleteAll(requests);
+            
+            // 3. Redis에서 해당 프로젝트 쿠키들 삭제
+            avalonCookieRepository.deleteByProjectKey(projectKey);
+            
+            // 4. 프로젝트 삭제
+            projectRepository.delete(project);
+        }
+        
         log.info("프로젝트 정보 삭제 완료. projectId: {}", projectId);
         return new DeleteProjectResponseDTO();
     }
@@ -187,7 +210,7 @@ public class ProjectServiceImpl {
         return new DeleteProjectResponseDTO();
     }
 
-    
+    @Transactional
     private void saveAvalonToRedis(String avalon, Integer projectKey) {
         avalonCookieRepository.save(AvalonCookieEntity.builder()
             .token(avalon)
@@ -327,7 +350,6 @@ public class ProjectServiceImpl {
 
     @Transactional
     private CategoryEntity findOrCreateCategory(String name) {
-        log.info("category에 저장하려는 name 값: '{}'", name);
         return categoryRepository.findByName(name)
                 .orElseGet(() -> {
                     CategoryEntity entity = new CategoryEntity();
@@ -338,7 +360,6 @@ public class ProjectServiceImpl {
 
     @Transactional
     private ContextEntity findOrCreateContext(String name) {
-        log.info("context에 저장하려는 name 값: '{}'", name);
         return contextRepository.findByName(name)
                 .orElseGet(() -> {
                     ContextEntity entity = new ContextEntity();
