@@ -10,6 +10,13 @@ import ky from "ky";
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/scenario/v1`;
 
 const scenarioApi = {
+  create: async (): Promise<readProjectScenariosResponse> => {
+    const response = await ky.post(`${BASE_URL}/create`, {
+      credentials: "include",
+    });
+
+    return response.json();
+  },
   createScenario: async (
     scenario: createScenarioRequest
   ): Promise<createScenarioResponse> => {
