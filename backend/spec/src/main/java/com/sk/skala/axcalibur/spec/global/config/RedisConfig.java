@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 
 @RequiredArgsConstructor
-@EnableRedisRepositories
+@EnableRedisRepositories(basePackages = "com.sk.skala.axcalibur.spec.feature.spec.repository")
 @Configuration
 @Slf4j
 public class RedisConfig {
