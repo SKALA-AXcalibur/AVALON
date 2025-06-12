@@ -6,13 +6,15 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.sk.skala.axcalibur.spec.feature.spec.code.FileType;
+import com.sk.skala.axcalibur.spec.feature.spec.dto.ProjectContext;
 import com.sk.skala.axcalibur.spec.feature.spec.dto.request.SpecUploadRequest;
+import com.sk.skala.axcalibur.spec.feature.spec.entity.FileTypeEntity;
+import com.sk.skala.axcalibur.spec.feature.spec.repository.FileTypeRepository;
 import com.sk.skala.axcalibur.spec.global.code.ErrorCode;
 import com.sk.skala.axcalibur.spec.global.exception.BusinessExceptionHandler;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,26 +27,30 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class SpecUploadServiceImpl implements SpecUploadService {
+    private final FileTypeRepository fileTypeRepository;
+    
     private final FileStorageService fileStorageService;
     private final SpecFileService specFileService;
     
-    // Controller에서 받아온 project ID와 request body 받아오는 함수
+    // Controller에서 받아온 project dto와 request body 받아오는 함수
     @Override
     @Transactional
-    public void uploadFiles(String projectId, SpecUploadRequest request) {
+    public void uploadFiles(ProjectContext project, SpecUploadRequest request) {
         List<String> savedPaths = new ArrayList<>();        // 저장된 파일의 PVC 경로 list
+        
+        String projectId = project.getProjectId();
 
-        Map<MultipartFile, FileType> fileTypeMap = Map.of(
-            request.getRequirementFile(), FileType.REQUIREMENT_FILE,
-            request.getInterfaceDef(), FileType.INTERFACE_DEFINITION,
-            request.getInterfaceDesign(), FileType.INTERFACE_DESIGN
+        Map<MultipartFile, FileTypeEntity> fileTypeMap = Map.of(
+            request.getRequirementFile(), getFileTypeEntity(1),
+            request.getInterfaceDef(), getFileTypeEntity(2),
+            request.getInterfaceDesign(), getFileTypeEntity(3)
         );
 
         try {
-            for (Map.Entry<MultipartFile, FileType> entry : fileTypeMap.entrySet()) {
+            for (Map.Entry<MultipartFile, FileTypeEntity> entry : fileTypeMap.entrySet()) {
                 MultipartFile file = entry.getKey();
-                FileType fileType = entry.getValue();
-                Integer type = fileType.getTypeKey();
+                FileTypeEntity fileType = entry.getValue();
+                Integer type = fileType.getId();
 
                 if (file == null || file.isEmpty()) {
                     log.warn("파일이 비어 있거나 null입니다. 문서 유형: {}", type);
@@ -54,7 +60,7 @@ public class SpecUploadServiceImpl implements SpecUploadService {
                 String originalFilename = file.getOriginalFilename();
 
                 String savedPath = fileStorageService.storeFile(file, projectId);
-                specFileService.saveToDatabase(originalFilename, projectId, savedPath, type);
+                specFileService.saveToDatabase(originalFilename, project, savedPath, type);
 
                 savedPaths.add(savedPath);
             }
@@ -81,5 +87,11 @@ public class SpecUploadServiceImpl implements SpecUploadService {
                 log.warn("파일 삭제 중 예상치 못한 예외 발생 [{}]: {}", path, e.getMessage(), e);
             }
         }
+    }
+
+    // file_type DB에 정의된 유형별 id값과 매핑하는 코드
+    private FileTypeEntity getFileTypeEntity(int id) {
+        return fileTypeRepository.findById(id)
+            .orElseThrow(() -> new BusinessExceptionHandler("파일 유형 없음", ErrorCode.INVALID_TYPE_VALUE));
     }
 }
