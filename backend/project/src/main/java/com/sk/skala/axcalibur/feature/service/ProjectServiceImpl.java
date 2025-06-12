@@ -350,12 +350,9 @@ public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDt
             .korName(object.getKorName())
             .name(object.getName())
             .itemType(object.getItemType())
-            .step(object.getStep())
             .dataType(object.getDataType())
-            .length(object.getLength())
             .format(object.getFormat())
             .defaultValue(object.getDefaultValue())
-            .required(object.getRequired())
             .upper(object.getUpper())
             .desc(object.getDesc())
             .build();
@@ -371,14 +368,14 @@ public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDt
                 .dataType(paramItem.getDataType())
                 .format(paramItem.getFormat())
                 .defaultValue(paramItem.getDefaultValue())
-                .required("Y".equalsIgnoreCase(paramItem.getRequired()))
+                .required(paramItem.isRequired())
                 .description(paramItem.getDesc())
                 .apiListKey(apiList)
                 .categoryKey(findOrCreateCategory(paramType))
                 .contextKey(findOrCreateContext(paramType));
 
-            if (paramItem.getLength() != null && !paramItem.getLength().isBlank()) {
-                builder.length(Integer.valueOf(paramItem.getLength()));
+            if (paramItem.getLength() > 0) {
+                builder.length(paramItem.getLength());
             }
 
             parameterRepository.save(builder.build());

@@ -2,6 +2,7 @@ package com.sk.skala.axcalibur.feature.service;
 
 import com.sk.skala.axcalibur.feature.dto.CreateProjectRequestDto;
 import com.sk.skala.axcalibur.feature.dto.CreateProjectResponseDto;
+import com.sk.skala.axcalibur.feature.dto.DeleteProjectCookieDto;
 import com.sk.skala.axcalibur.feature.dto.DeleteProjectResponseDto;
 import com.sk.skala.axcalibur.feature.dto.ProjectResponseDto;
 import com.sk.skala.axcalibur.feature.dto.SaveProjectRequestDto;
@@ -26,5 +27,5 @@ public interface ProjectService {
     CreateProjectResponseDto createProject(CreateProjectRequestDto request);
 
     // 프로젝트 쿠키 삭제 (IF-PR-0005)
-    DeleteProjectResponseDto deleteProjectCookie(String avalon);
+    DeleteProjectCookieDto deleteProjectCookie(String avalon);
 }
