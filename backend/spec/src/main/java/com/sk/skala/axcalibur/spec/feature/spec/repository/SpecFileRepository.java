@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.sk.skala.axcalibur.spec.feature.spec.entity.FileTypeEntity;
 import com.sk.skala.axcalibur.spec.feature.spec.entity.ProjectEntity;
 import com.sk.skala.axcalibur.spec.feature.spec.entity.SpecFileEntity;
 
@@ -15,5 +16,5 @@ import com.sk.skala.axcalibur.spec.feature.spec.entity.SpecFileEntity;
 @Repository
 public interface SpecFileRepository extends JpaRepository<SpecFileEntity, Integer> {
     void deleteAllByProject(ProjectEntity project);
-    Optional<SpecFileEntity> findByProjectAndFileTypeKey(ProjectEntity project, int fileTypeKey);
+    Optional<SpecFileEntity> findByProjectAndFileType(ProjectEntity project, FileTypeEntity fileTypeKey);
 }
