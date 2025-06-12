@@ -6,6 +6,9 @@ import FileListItem from "./FileListItem";
 import ActionButton from "../common/ActionButton";
 import useCreateScenarios from "@/hooks/upload/createScenarios";
 import { useProjectStore } from "@/store/projectStore";
+import validateFiles from "@/utils/validateFiles";
+import { FILE_UPLOAD_ERROR_MESSAGE } from "@/constants/errorMessages";
+import { STEP_NAMES, UPLOAD_STEPS, FILE_TYPES } from "@/constants/upload";
 
 const UploadBox = () => {
   const router = useRouter();
@@ -17,57 +20,36 @@ const UploadBox = () => {
   const handleFileSelect = (newFiles: File[]) => {
     setFiles((prevFiles) => [...prevFiles, ...newFiles]);
     setError(null);
-    setStep(0);
+    setStep(UPLOAD_STEPS.UPLOAD);
   };
 
   const handleFileDelete = (fileToDelete: File) => {
     setFiles((prevFiles) => prevFiles.filter((file) => file !== fileToDelete));
     setError(null);
-    setStep(0);
+    setStep(UPLOAD_STEPS.UPLOAD);
   };
 
-  const validateFiles = (): boolean => {
-    const requiredNames = [
-      "요구사항 정의서",
-      "인터페이스 정의서",
-      "인터페이스 설계서",
-    ];
-    const fileNames = files.map((file) => file.name);
-
-    if (files.length !== 3) {
-      setError("정확히 3개의 파일을 첨부해야 합니다.");
-      return false;
-    }
-
-    for (const requiredName of requiredNames) {
-      const matchingFiles = fileNames.filter((name) =>
-        name.normalize("NFC").includes(requiredName)
-      );
-      if (matchingFiles.length !== 1) {
-        setError(`'${requiredName}'이 하나만 있어야 합니다.`);
-        return false;
-      }
-    }
-
-    return true;
+  const findFileByType = (type: keyof typeof FILE_TYPES) => {
+    const { words } = FILE_TYPES[type];
+    return files.find((file) =>
+      words.every((word) => file.name.normalize("NFC").includes(word))
+    );
   };
 
   const handleCreateScenario = async () => {
-    if (!validateFiles()) return;
+    const { isValid, errorMessage } = validateFiles(files);
+    if (!isValid) {
+      setError(errorMessage || null);
+      return;
+    }
 
     try {
       setError(null);
 
       const uploadRequest = {
-        requirementFile: files.find((file) =>
-          file.name.includes("요구사항 정의서")
-        )!,
-        interfaceDef: files.find((file) =>
-          file.name.includes("인터페이스 정의서")
-        )!,
-        interfaceDesign: files.find((file) =>
-          file.name.includes("인터페이스 설계서")
-        )!,
+        requirementFile: findFileByType("REQUIREMENT")!,
+        interfaceDef: findFileByType("INTERFACE_DEF")!,
+        interfaceDesign: findFileByType("INTERFACE_DESIGN")!,
       };
 
       const isSuccess = await createScenarios(uploadRequest);
@@ -76,29 +58,23 @@ const UploadBox = () => {
           `/project/${project.id}/scenario/${project.scenarios[0].id}`
         );
       } else if (isSuccess && project.scenarios.length === 0) {
-        setError("시나리오 생성가 0개 생성되어 이동할 수 없습니다.");
+        setError(FILE_UPLOAD_ERROR_MESSAGE.EMPTY);
       }
     } catch (err) {
-      setError("시나리오 생성 중 오류가 발생했습니다.");
+      setError(FILE_UPLOAD_ERROR_MESSAGE.ERROR);
       console.error(err);
     }
   };
 
   const getButtonText = () => {
-    const STEP_NAME: Record<number, string> = {
-      0: "파일 업로드",
-      1: "파일 분석",
-      2: "API 목록 생성",
-      3: "시나리오 생성",
-    };
     if (isLoading) {
-      return `${step + 1}/${Object.keys(STEP_NAME).length} ${
-        STEP_NAME[step]
+      return `${step + 1}/${Object.keys(STEP_NAMES).length} ${
+        STEP_NAMES[step]
       } 진행 중`;
-    } else if (step === 0) {
+    } else if (step === UPLOAD_STEPS.UPLOAD) {
       return "시나리오 생성하기";
     } else {
-      return `${STEP_NAME[step]} 이어서 생성하기`;
+      return `${STEP_NAMES[step]} 이어서 생성하기`;
     }
   };
 

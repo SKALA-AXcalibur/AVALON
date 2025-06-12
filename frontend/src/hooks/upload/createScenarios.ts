@@ -4,9 +4,10 @@ import apiListApi from "@/services/apiList";
 import scenarioApi from "@/services/scenario";
 import { useProjectStore } from "@/store/projectStore";
 import { uploadSpecRequest } from "@/types/spec";
+import { UPLOAD_STEPS } from "@/constants/upload";
 
 const useCreateScenarios = () => {
-  const [step, setStep] = useState<number>(0);
+  const [step, setStep] = useState<number>(UPLOAD_STEPS.UPLOAD);
   const [isLoading, setIsLoading] = useState(false);
   const { project, setProject } = useProjectStore();
 
@@ -15,34 +16,35 @@ const useCreateScenarios = () => {
 
     try {
       setIsLoading(true);
-      if (step === 0) {
-        await specApi.upload(files);
-        setStep(1);
-      }
 
-      if (step === 1) {
-        await specApi.analyze();
-        setStep(2);
-      }
+      switch (step) {
+        case UPLOAD_STEPS.UPLOAD:
+          await specApi.upload(files);
+          setStep(UPLOAD_STEPS.ANALYZE);
+          break;
 
-      if (step === 2) {
-        await apiListApi.create();
-        setStep(3);
-      }
+        case UPLOAD_STEPS.ANALYZE:
+          await specApi.analyze();
+          setStep(UPLOAD_STEPS.CREATE_API_LIST);
+          break;
 
-      if (step === 3) {
-        const scenarioResponse = await scenarioApi.create();
-        setStep(4);
+        case UPLOAD_STEPS.CREATE_API_LIST:
+          await apiListApi.create();
+          setStep(UPLOAD_STEPS.CREATE_SCENARIOS);
+          break;
 
-        setProject({
-          ...project,
-          scenarios: scenarioResponse.scenarioList.map((s) => ({
-            ...s,
-            testcases: [],
-          })),
-        });
+        case UPLOAD_STEPS.CREATE_SCENARIOS:
+          const scenarioResponse = await scenarioApi.create();
+          setStep(UPLOAD_STEPS.COMPLETE);
 
-        return true;
+          setProject({
+            ...project,
+            scenarios: scenarioResponse.scenarioList.map((s) => ({
+              ...s,
+              testcases: [],
+            })),
+          });
+          return true;
       }
 
       return false;
