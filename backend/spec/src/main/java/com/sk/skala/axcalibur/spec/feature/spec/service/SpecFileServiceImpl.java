@@ -7,6 +7,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sk.skala.axcalibur.spec.feature.spec.dto.ProjectContext;
 import com.sk.skala.axcalibur.spec.feature.spec.entity.ProjectEntity;
 import com.sk.skala.axcalibur.spec.feature.spec.entity.SpecFileEntity;
 import com.sk.skala.axcalibur.spec.feature.spec.repository.SpecFileRepository;
@@ -35,9 +36,12 @@ public class SpecFileServiceImpl implements SpecFileService {
     
     @Transactional
     @Override
-    public void saveToDatabase(String fileName, String projectId, String savedPath, int fileTypeKey) {
-        
-        ProjectEntity project = findByProjectId(projectId);
+    public void saveToDatabase(String fileName, ProjectContext projectContext, String savedPath, int fileTypeKey) {
+        // key 기반 project 조회
+        ProjectEntity project = projectRepository.findById(projectContext.getKey())
+            .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 프로젝트입니다.", ErrorCode.PROJECT_NOT_FOUND));
+        String projectId = projectContext.getProjectId();
+
         final String oldPathToDelete;
 
         // db 커밋 후 파일 삭제
@@ -94,10 +98,11 @@ public class SpecFileServiceImpl implements SpecFileService {
 
     @Override
     @Transactional
-    public void deleteMetadata(String projectId) {
-
-        ProjectEntity project = findByProjectId(projectId);
-            
+    public void deleteMetadata(ProjectContext projectContext) {
+        ProjectEntity project = projectRepository.findById(projectContext.getKey())
+            .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 프로젝트입니다.", ErrorCode.PROJECT_NOT_FOUND));
+        String projectId = projectContext.getProjectId();
+        
         try {
             specFileRepository.deleteAllByProject(project);
             log.info("메타데이터 삭제 완료: PjtId={}", projectId);
@@ -105,11 +110,6 @@ public class SpecFileServiceImpl implements SpecFileService {
             log.error("메타데이터 삭제 실패: PjtId={}", projectId, e);
             throw new BusinessExceptionHandler("명세서 메타정보 삭제 실패", ErrorCode.DATABASE_OPERATION_FAILED);
         }
-    }
-
-    private ProjectEntity findByProjectId(String projectId) {
-        return projectRepository.findByProjectId(projectId)
-            .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 프로젝트입니다.", ErrorCode.PROJECT_NOT_FOUND));
     }
 
 }
