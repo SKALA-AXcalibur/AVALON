@@ -1,5 +1,7 @@
 package com.sk.skala.axcalibur.spec.feature.spec.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,12 +18,12 @@ import io.swagger.v3.oas.annotations.Operation;
  * @param requirementFile 요구사항 정의서 파일
  * @param interfaceDef 인터페이스 정의서 파일
  * @param interfaceDesign 인터페이스 설계서 파일
- * @return 업로드 결과를 담은 ResponseEntity 객체
+ * @return 업로드 결과 전달
  */
 public interface SpecUploadController {
 
     @Operation(summary = "명세서 업로드", description = "요구사항정의서, 인터페이스정의서, 설계서를 업로드합니다.")
-    public ResponseEntity<SuccessResponse<Void>> uploadSpec(
+    ResponseEntity<SuccessResponse<List<Object>>> uploadSpec(
         @CookieValue("avalon") String key,
         @RequestParam MultipartFile requirementFile,
         @RequestParam MultipartFile interfaceDef,
