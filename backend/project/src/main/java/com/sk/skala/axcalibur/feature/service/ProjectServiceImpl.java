@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.uuid.Generators;
 import com.sk.skala.axcalibur.feature.dto.ApiInfoDto;
 import com.sk.skala.axcalibur.feature.dto.CreateProjectRequestDto;
 import com.sk.skala.axcalibur.feature.dto.CreateProjectResponseDto;
@@ -108,7 +109,7 @@ public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDt
 
             // id가 없는 경우 UUID 생성
             String reqId = (reqItem.getId() == null || reqItem.getId().trim().isEmpty()) 
-                ? UUID.randomUUID().toString().substring(0, 20) 
+                ? Generators.timeBasedReorderedGenerator().generate().toString().substring(0, 20) 
                 : reqItem.getId();
 
             RequestEntity.RequestEntityBuilder reqBuilder = RequestEntity.builder()
@@ -239,7 +240,7 @@ public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDt
     
 
     private String generateUUID7Cookie() {
-        return UUID.randomUUID().toString();
+        return Generators.timeBasedReorderedGenerator().generate().toString();
     }
     
     private ProjectResponseDto convertToDetailedResponse(ProjectEntity project, String avalon) {

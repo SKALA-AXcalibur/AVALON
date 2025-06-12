@@ -51,6 +51,7 @@ dependencies {
 	
 	// 기타 유틸리티
 	implementation 'me.paulschwarz:spring-dotenv:2.5.4'
+	implementation 'com.fasterxml.uuid:java-uuid-generator:5.1.0'
 	
 	// 개발 도구
 	compileOnly 'org.projectlombok:lombok'
