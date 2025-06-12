@@ -14,10 +14,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -32,7 +30,7 @@ public class PriorityEntity {
     @Column(name = "`key`")
     private Integer key;        // 중요도 키 (PK, AUTO_INCREMENT)
 
-    @Column(name = "name", unique = true, nullable = false, length = 50)
+    @Column(name = "name", nullable = false, length = 50)
     private String name;                 // 중요도 명 (UNIQUE)
 
     @Column(name = "created_at")

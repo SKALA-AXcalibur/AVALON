@@ -9,22 +9,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "request_middle", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"name"})
-})
+@Table(name = "request_middle")
 public class RequestMiddleEntity {
     
     @Id
@@ -32,7 +27,7 @@ public class RequestMiddleEntity {
     @Column(name = "`key`")   
     private Integer key;        // 중분류 키 (PK, AUTO_INCREMENT)
 
-    @Column(name = "name", unique = true, nullable = false, length = 20)
+    @Column(name = "name", nullable = false, length = 20)
     private String name;                 // 중분류 명 (UNIQUE)
 
     @Column(name = "created_at")

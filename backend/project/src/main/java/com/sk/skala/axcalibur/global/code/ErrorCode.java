@@ -70,6 +70,9 @@ public enum ErrorCode {
 	/**
 	 * ******************************* Custom Error CodeList ***************************************
 	 */
+	// 프로젝트 관련
+	PROJECT_NOT_FOUND(404, "PR001", "삭제되었거나 존재하지 않는 프로젝트입니다."),
+	
 	SAMPLE_INPUT_ERROR(400, "SM001", "에러 샘플 1"),
 	SAMPLE_PROCESSING_ERROR(500, "SM002", "에러 샘플 2")
 

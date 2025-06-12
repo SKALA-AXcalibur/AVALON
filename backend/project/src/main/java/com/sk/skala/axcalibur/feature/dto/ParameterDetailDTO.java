@@ -1,11 +1,15 @@
 package com.sk.skala.axcalibur.feature.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
-public class ParameterDetailDTO {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ParameterDetailDto {
     private Long parameterId;       // 파라미터 PK
     private String korName;         // 한글명
     private String name;            // 영문명

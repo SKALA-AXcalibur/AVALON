@@ -1,17 +1,17 @@
 package com.sk.skala.axcalibur.feature.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.Getter;
-import lombok.Setter;
 
 // 프로젝트 삭제 응답 DTO (IF-PR-0003)
 
 @Getter
-@Setter
-public class DeleteProjectResponseDTO {
-    private String result;
+public class DeleteProjectResponseDto {
+    private String requestTime;
     
-    public DeleteProjectResponseDTO() {
-        this.result = "success";
+    public DeleteProjectResponseDto() {
+        this.requestTime = LocalDateTime.now().toString();
     }
 
 }

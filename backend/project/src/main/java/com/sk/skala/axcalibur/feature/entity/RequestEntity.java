@@ -17,16 +17,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
 @Table(name = "request", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"project_key", "name"})
+    @UniqueConstraint(columnNames = {"id"}),
+    @UniqueConstraint(columnNames = {"name"})
 })
 public class RequestEntity {
     
@@ -34,6 +33,9 @@ public class RequestEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
     private Integer key;             // 요구사항 키 (PK, AUTO_INCREMENT)
+
+    @Column(name = "id", nullable = false, length = 20)
+    private String id;                         // 요구사항 아이디 (프로젝트별 유니크)
 
     @Column(name = "name", nullable = false, length = 50)
     private String name;                         // 요구사항 이름 (프로젝트별 유니크)
@@ -64,6 +66,12 @@ public class RequestEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "minor_key", nullable = false)
     private RequestMinorEntity minorKey;   // 소분류 (N:1)
+
+    // id만 받는 생성자 추가
+    public RequestEntity(String id) {
+        this.id = id;
+    }
+    
 
     @PrePersist
     protected void onCreate() {

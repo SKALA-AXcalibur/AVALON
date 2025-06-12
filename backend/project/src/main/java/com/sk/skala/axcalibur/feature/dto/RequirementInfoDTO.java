@@ -1,11 +1,9 @@
 package com.sk.skala.axcalibur.feature.dto;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
-public class RequirementInfoDTO {
+public class RequirementInfoDto {
     private Long requirementId; // 요구사항 PK
     private String name;        // 요구사항 이름
     private String desc;        // 요구사항 설명
@@ -14,10 +12,9 @@ public class RequirementInfoDTO {
     private String middle;      // 요구사항 중분류
     private String minor;       // 요구사항 소분류
 
-    public RequirementInfoDTO() {}
+    public RequirementInfoDto() {}
 
-
-    public RequirementInfoDTO(Long requirementId, String name, String desc, String priority, String major, String middle, String minor) {
+    public RequirementInfoDto(Long requirementId, String name, String desc, String priority, String major, String middle, String minor) {
         this.requirementId = requirementId;
         this.name = name;
         this.desc = desc;
