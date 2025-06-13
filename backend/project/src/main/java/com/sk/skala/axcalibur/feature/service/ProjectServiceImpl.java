@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.io.IOException;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -410,15 +411,10 @@ public class ProjectServiceImpl implements ProjectService {
                 continue;
             }
 
-            String paramName = paramItem.getName() != null && !paramItem.getName().trim().isEmpty() 
-                ? paramItem.getName() 
-                : paramItem.getKorName();
-            // ID 생성: 파라미터명 8자 + UUID 8자 = 최대 17자
-            String safeId = (paramName != null ? paramName.substring(0, Math.min(paramName.length(), 8)) : "param") 
-                + "_" + java.util.UUID.randomUUID().toString().substring(0, 8);
+            String safeId = java.util.UUID.randomUUID().toString();
 
             ParameterEntity.ParameterEntityBuilder builder = ParameterEntity.builder()
-                .id(safeId)     
+                .id(safeId)
                 .nameKo(paramItem.getKorName())
                 .name(paramItem.getName())
                 .dataType(paramItem.getDataType())
@@ -434,7 +430,7 @@ public class ProjectServiceImpl implements ProjectService {
                 builder.length(paramItem.getLength());
             }
 
-            processParameterItem(paramItem, builder);
+            processParameterItem(paramItem, apiList, builder);
             
             parameterRepository.save(builder.build());
         }
@@ -445,16 +441,24 @@ public class ProjectServiceImpl implements ProjectService {
      
     @Transactional
     private CategoryEntity findOrCreateCategory(String name) {
-        return categoryRepository.findByName(name)
-            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
+        return categoryRepository.findByName(name).orElseGet(() -> {
+                    CategoryEntity newCategory = CategoryEntity.builder()
+                            .name(name)
+                            .build();
+                    return categoryRepository.save(newCategory);
+                });
     }
 
     // 컨텍스트 조회 또는 생성
      
     @Transactional
     private ContextEntity findOrCreateContext(String name) {
-        return contextRepository.findByName(name)
-            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
+        return contextRepository.findByName(name).orElseGet(() -> {
+                    ContextEntity newContext = ContextEntity.builder()
+                            .name(name)
+                            .build();
+                    return contextRepository.save(newContext);
+                });
     }
 
     // 부모 파라미터 찾기 (Self-Join을 위한 부모 참조 검색)
@@ -469,8 +473,12 @@ public class ProjectServiceImpl implements ProjectService {
      
     @Transactional
     private PriorityEntity findOrCreatePriority(String name) {
-        return priorityRepository.findByName(name)
-            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
+        return priorityRepository.findByName(name).orElseGet(() -> {
+                    PriorityEntity newPriority = PriorityEntity.builder()
+                            .name(name)
+                            .build();
+                    return priorityRepository.save(newPriority);
+                });
     }
 
     
@@ -478,14 +486,12 @@ public class ProjectServiceImpl implements ProjectService {
      
     @Transactional
     private RequestMajorEntity findOrCreateRequestMajor(String name) {
-        RequestMajorEntity entity = requestMajorRepository.findByName(name).orElseGet(() -> {
-            RequestMajorEntity newEntity = RequestMajorEntity.builder()
-                .name(name)
-                .build();
-            return requestMajorRepository.save(newEntity);
-        });
-        log.info("RequestMajor 처리 완료 - name: {}, key: {}", entity.getName(), entity.getKey());
-        return entity;
+        return requestMajorRepository.findByName(name).orElseGet(() -> {
+                    RequestMajorEntity newRequestMajor = RequestMajorEntity.builder()
+                            .name(name)
+                            .build();
+                    return requestMajorRepository.save(newRequestMajor);
+                });
     }
 
     
@@ -493,14 +499,12 @@ public class ProjectServiceImpl implements ProjectService {
      
     @Transactional
     private RequestMiddleEntity findOrCreateRequestMiddle(String name) {
-        RequestMiddleEntity entity = requestMiddleRepository.findByName(name).orElseGet(() -> {
-            RequestMiddleEntity newEntity = RequestMiddleEntity.builder()
-                .name(name)
-                .build();
-            return requestMiddleRepository.save(newEntity);
-        });
-        log.info("RequestMiddle 처리 완료 - name: {}, key: {}", entity.getName(), entity.getKey());
-        return entity;
+        return requestMiddleRepository.findByName(name).orElseGet(() -> {
+                    RequestMiddleEntity newRequestMiddle = RequestMiddleEntity.builder()
+                            .name(name)
+                            .build();
+                    return requestMiddleRepository.save(newRequestMiddle);
+                });
     }
 
     
@@ -508,14 +512,12 @@ public class ProjectServiceImpl implements ProjectService {
      
     @Transactional
     private RequestMinorEntity findOrCreateRequestMinor(String name) {
-        RequestMinorEntity entity = requestMinorRepository.findByName(name).orElseGet(() -> {
-            RequestMinorEntity newEntity = RequestMinorEntity.builder()
-                .name(name)
-                .build();
-            return requestMinorRepository.save(newEntity);
-        });
-        log.info("RequestMinor 처리 완료 - name: {}, key: {}", entity.getName(), entity.getKey());
-        return entity;
+        return requestMinorRepository.findByName(name).orElseGet(() -> {
+                    RequestMinorEntity newRequestMinor = RequestMinorEntity.builder()
+                            .name(name)
+                            .build();
+                    return requestMinorRepository.save(newRequestMinor);
+                });
     }
 
     // 빈 파라미터 체크
@@ -530,7 +532,21 @@ public class ProjectServiceImpl implements ProjectService {
         return hasNoName && hasNoDataType;
     }
 
-    private void processParameterItem(ParameterItem paramItem, ParameterEntity.ParameterEntityBuilder builder) {
+    private String generateUniqueId(String paramName, ApiListEntity apiList) {
+        // API ID와 파라미터 이름을 조합하여 더 고유한 ID 생성
+        String apiIdentifier = apiList.getId() != null ? apiList.getId() : "";
+        String baseName = paramName != null ? paramName.replaceAll("[^a-zA-Z0-9]", "") : "";
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        
+        // UUID 전체를 사용하고 타임스탬프와 API 식별자를 포함
+        return String.format("%s_%s_%s_%s",
+                baseName,
+                apiIdentifier,
+                timestamp,
+                UUID.randomUUID().toString().replace("-", ""));
+    }
+
+    private void processParameterItem(ParameterItem paramItem, ApiListEntity apiList, ParameterEntity.ParameterEntityBuilder builder) {
         if (paramItem.getUpper() != null) {
             // 부모 파라미터 찾아서 설정
             ParameterEntity parent = findParentParameter(paramItem.getUpper());
@@ -540,5 +556,9 @@ public class ProjectServiceImpl implements ProjectService {
             }
             builder.parentKey(parent);
         }
+
+        // 고유 ID 생성
+        String uniqueId = generateUniqueId(paramItem.getName(), apiList);
+        builder.id(uniqueId);
     }
 }

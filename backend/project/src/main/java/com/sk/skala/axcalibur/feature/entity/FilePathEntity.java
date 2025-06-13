@@ -36,8 +36,8 @@ public class FilePathEntity extends BaseTimeEntity {
     private String name;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "file_type_key", nullable = false)
-    private Integer fileTypeKey;  // file_type 테이블 참조
+    @JoinColumn(name = "file_type_key", nullable = false)
+    private FileTypeEntity fileTypeKey;  // file_type 테이블 참조
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
