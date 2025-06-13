@@ -20,6 +20,6 @@ public class ParameterItem {
     private String format;      // 포맷
     private String defaultValue; // 기본값
     private boolean required;    // 필수여부
-    private String upper;       // 상위항목명
+    private Integer upper;       // 상위항목명
     private String desc;        // 설명
 }

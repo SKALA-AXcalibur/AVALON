@@ -31,12 +31,13 @@ public class FilePathEntity extends BaseTimeEntity {
     
     @Column(name = "path", nullable = false, unique = true, length = 100)
     private String path;
-    
-    @Column(name = "file_type_key", nullable = false)
-    private Integer fileTypeKey;  // file_type 테이블 참조
-    
+
     @Column(name = "name", length = 255, nullable = false)
     private String name;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(name = "file_type_key", nullable = false)
+    private Integer fileTypeKey;  // file_type 테이블 참조
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)

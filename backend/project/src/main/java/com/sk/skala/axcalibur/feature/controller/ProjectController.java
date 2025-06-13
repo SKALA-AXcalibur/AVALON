@@ -44,6 +44,10 @@ public class ProjectController {
      * 인터페이스명: 프로젝트 정보 저장
      * 설명: 프로젝트 정보 저장
      * URL: POST /api/project/v1/{projectId}
+     *
+     * @param projectId 저장할 프로젝트의 고유 식별자
+     * @param request 저장할 프로젝트 정보를 담은 요청 DTO
+     * @return 프로젝트 저장 결과를 담은 응답 객체
      */
     @PostMapping("/{projectId}")
     public ResponseEntity<SuccessResponse<SaveProjectResponseDto>> saveProject(
@@ -63,6 +67,9 @@ public class ProjectController {
      * 인터페이스명: 프로젝트 정보 조회
      * 설명: 프로젝트 정보 조회
      * URL: GET /api/project/v1
+     *
+     * @param avalon 프로젝트 인증을 위한 쿠키 값
+     * @return 프로젝트 상세 정보를 담은 응답 객체
      */
     @GetMapping("")
     public ResponseEntity<SuccessResponse<ProjectResponseDto>> getProjectDetails(
@@ -87,6 +94,10 @@ public class ProjectController {
      * 인터페이스명: 프로젝트 정보 삭제
      * 설명: 프로젝트 정보 삭제
      * URL: DELETE /api/project/v1/{projectId}
+     *
+     * @param projectId 삭제할 프로젝트의 고유 식별자
+     * @return 프로젝트 삭제 결과를 담은 응답 객체
+     * @throws IOException 파일 시스템 작업 중 오류 발생 시
      */
     @DeleteMapping("/{projectId}")
     public ResponseEntity<SuccessResponse<DeleteProjectResponseDto>> deleteProject(@PathVariable("projectId") String projectId) throws IOException {
@@ -108,6 +119,9 @@ public class ProjectController {
      * 인터페이스명: 프로젝트 생성
      * 설명: 새로운 프로젝트를 생성하고 인증 쿠키 발급
      * URL: POST /api/project/v1
+     *
+     * @param request 프로젝트 생성에 필요한 정보를 담은 요청 DTO
+     * @return 프로젝트 생성 결과와 인증 쿠키를 담은 응답 객체
      */
     @PostMapping("")
     public ResponseEntity<SuccessResponse<CreateProjectResponseDto>> createProject(
@@ -131,6 +145,9 @@ public class ProjectController {
      * 인터페이스명: 프로젝트 쿠키 삭제
      * 설명: 프로젝트 쿠키 삭제
      * URL: DELETE /api/project/v1
+     *
+     * @param avalon 삭제할 프로젝트 인증 쿠키 값
+     * @return 프로젝트 쿠키 삭제 결과를 담은 응답 객체
      */
     @DeleteMapping("")
     public ResponseEntity<SuccessResponse<DeleteProjectCookieDto>> deleteProjectCookie(

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.io.IOException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -171,7 +172,7 @@ public class ProjectServiceImpl implements ProjectService {
     // IF-PR-0003: 프로젝트 정보 삭제
 
     @Transactional
-    public DeleteProjectResponseDto deleteProject(String projectId) throws java.io.IOException {
+    public DeleteProjectResponseDto deleteProject(String projectId) {
         log.info("프로젝트 정보 삭제 시작. projectId: {}", projectId);
         
         ProjectEntity project = projectRepository.findById(projectId)
@@ -186,8 +187,13 @@ public class ProjectServiceImpl implements ProjectService {
             if (!java.nio.file.Files.exists(path)) {
                 throw new BusinessExceptionHandler(ErrorCode.IO_ERROR);
             }
-            java.nio.file.Files.delete(path);
-            log.info("파일 삭제 완료: {}", filePathEntity.getPath());
+            try {
+                java.nio.file.Files.delete(path);
+                log.info("파일 삭제 완료: {}", filePathEntity.getPath());
+            } catch (IOException e) {
+                log.error("파일 삭제 중 오류 발생: {}", e.getMessage());
+                throw new BusinessExceptionHandler(ErrorCode.IO_ERROR);
+            }
         }
         
         // 2. Redis에서 해당 프로젝트 쿠키들 삭제
@@ -428,17 +434,7 @@ public class ProjectServiceImpl implements ProjectService {
                 builder.length(paramItem.getLength());
             }
 
-            // Self-Join 관계 처리
-            if (paramItem.getUpper() != null && !paramItem.getUpper().trim().isEmpty()) {
-                // 부모 파라미터 찾아서 설정
-                ParameterEntity parent = findParentParameter(Integer.parseInt(paramItem.getUpper()), apiList);
-                if (parent == null) {
-                    log.error("부모 파라미터를 찾을 수 없습니다. upper: {}", paramItem.getUpper());
-                    throw new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
-                }
-                builder.parentKey(parent);
-            }        
-            // 최상위 파라미터는 parentKey가 null로 자동 설정됨
+            processParameterItem(paramItem, apiList, builder);
             
             parameterRepository.save(builder.build());
         }
@@ -464,7 +460,7 @@ public class ProjectServiceImpl implements ProjectService {
     // 부모 파라미터 찾기 (Self-Join을 위한 부모 참조 검색)
      
     @Transactional
-    private ParameterEntity findParentParameter(Integer parentKey, ApiListEntity apiList) {
+    private ParameterEntity findParentParameter(Integer parentKey) {
         if (parentKey == null) return null;
         return parameterRepository.findById(parentKey).orElse(null);
     }
@@ -532,5 +528,17 @@ public class ProjectServiceImpl implements ProjectService {
         boolean hasNoDataType = (paramItem.getDataType() == null || paramItem.getDataType().trim().isEmpty());
         
         return hasNoName && hasNoDataType;
+    }
+
+    private void processParameterItem(ParameterItem paramItem, ApiListEntity apiList, ParameterEntity.ParameterEntityBuilder builder) {
+        if (paramItem.getUpper() != null) {
+            // 부모 파라미터 찾아서 설정
+            ParameterEntity parent = findParentParameter(paramItem.getUpper());
+            if (parent == null) {
+                log.error("부모 파라미터를 찾을 수 없습니다. upper: {}", paramItem.getUpper());
+                throw new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
+            }
+            builder.parentKey(parent);
+        }
     }
 }
