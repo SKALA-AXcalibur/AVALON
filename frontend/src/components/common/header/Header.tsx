@@ -7,7 +7,7 @@ const Header = ({ projectId }: { projectId: string }) => {
         <h1 className="text-xl md:text-2xl font-bold text-slate-800 truncate">
           {projectId}
         </h1>
-        <Navigation projectId={projectId} />
+        <Navigation />
       </div>
     </header>
   );

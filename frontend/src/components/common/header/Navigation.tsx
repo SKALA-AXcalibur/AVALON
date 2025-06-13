@@ -3,18 +3,18 @@ import ActionButton from "@/components/common/ActionButton";
 import LinkButton from "@/components/common/LinkButton";
 import useLogout from "@/hooks/auth/logout";
 import useGenerateTestcases from "@/hooks/testcase/generateTestcases";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 
-const Navigation = ({ projectId }: { projectId: string }) => {
+const Navigation = () => {
+  const { "project-id": projectId, "scenario-id": scenarioId } = useParams();
   const pathname = usePathname();
-  const isScenarioPage = pathname.includes("/scenario/");
   const { logout, isLoading: isLoggingOut } = useLogout();
   const { generateTestcases, isLoading: isGeneratingTestcases } =
     useGenerateTestcases();
 
   return (
     <nav className="flex flex-wrap gap-2">
-      {isScenarioPage ? (
+      {pathname.includes("/scenario/") ? (
         <>
           <ActionButton
             onClick={logout}
@@ -38,7 +38,7 @@ const Navigation = ({ projectId }: { projectId: string }) => {
             TC 일괄 생성
           </ActionButton>
           <LinkButton
-            href={`/project/${projectId}/test-run/scenario-1`}
+            href={`/project/${projectId}/test-run/${scenarioId}`}
             color="bg-emerald-500 hover:bg-emerald-600"
             ariaLabel="테스트 실행하기"
           >
