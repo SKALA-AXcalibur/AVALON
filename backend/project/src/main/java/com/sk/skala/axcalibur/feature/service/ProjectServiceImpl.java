@@ -175,7 +175,10 @@ public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDt
         Optional<AvalonCookieEntity> cookie = avalonCookieRepository.findByToken(avalon);
         if (cookie.isEmpty()) {
             log.warn("유효하지 않은 avalon 토큰: {}", avalon);
-            return null;
+            throw BusinessExceptionHandler.builder()
+                .errorCode(ErrorCode.NOT_VALID_COOKIE_ERROR)
+                .message("유효하지 않은 avalon 토큰입니다.")
+                .build();
         }
         
         // 2. 프로젝트 키로 MySQL에서 프로젝트 조회
