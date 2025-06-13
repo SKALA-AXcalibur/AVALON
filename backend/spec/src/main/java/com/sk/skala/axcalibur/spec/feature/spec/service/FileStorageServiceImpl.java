@@ -61,39 +61,34 @@ public class FileStorageServiceImpl implements FileStorageService {
      * 업로드 실패 시 호출됨
      */
     @Override
-    public void deleteFile(String projectId) {
+    public void deleteDir(String projectId) {
         String projectDirPath = basepath + projectId + File.separator;
         File projectDir = new File(projectDirPath);
+        
+        // 프로젝트 폴더가 존재하지 않는 경우 조기 종료
+        if (!projectDir.exists()) {
+            log.info("삭제하려는 프로젝트 폴더가 존재하지 않습니다: {}", projectDirPath);
+            return; 
+        }
 
-        try {
-            // 프로젝트 폴더가 존재하지 않는 경우 조기 종료
-            if (!projectDir.exists()) {
-                log.info("삭제하려는 프로젝트 폴더가 존재하지 않습니다: {}", projectDirPath);
-                return; 
-            }
-
-            // 폴더 내 모든 파일 삭제
-            File[] files = projectDir.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (!file.delete()) {
-                        log.error("파일 삭제 실패: {}", file.getAbsolutePath());
-                        throw new BusinessExceptionHandler("파일 삭제 실패: " + file.getName(), ErrorCode.FILE_DELETE_FAILED);
-                    }
+        // 폴더 내 모든 파일 삭제
+        File[] files = projectDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (!file.delete()) {
+                    log.error("파일 삭제 실패: {}", file.getAbsolutePath());
+                    throw new BusinessExceptionHandler("파일 삭제 실패: " + file.getName(), ErrorCode.FILE_DELETE_FAILED);
                 }
-                log.info("프로젝트 폴더 내 모든 파일 삭제 완료: {}", projectDirPath);
-            } 
-
-            // 폴더 자체 삭제
-            if (projectDir.delete()) {
-                log.info("프로젝트 폴더 삭제 성공: {}", projectDirPath);
-            } else {
-                log.error("프로젝트 폴더 삭제 실패: {}", projectDirPath);
-                throw new BusinessExceptionHandler("프로젝트 폴더 삭제에 실패했습니다.", ErrorCode.FILE_DELETE_FAILED);
             }
-        } catch (Exception e) { // 예상치 못한 오류
-            log.error("프로젝트 폴더 삭제 중 예상치 못한 오류 발생: {}", projectDirPath, e);
-            throw new BusinessExceptionHandler("프로젝트 폴더 삭제 중 예상치 못한 오류 발생.", ErrorCode.FILE_DELETE_FAILED);
+            log.info("프로젝트 폴더 내 모든 파일 삭제 완료: {}", projectDirPath);
+        }
+
+        // 폴더 자체 삭제
+        if (projectDir.delete()) {
+            log.info("프로젝트 폴더 삭제 성공: {}", projectDirPath);
+        } else {
+            log.error("프로젝트 폴더 삭제 실패: {}", projectDirPath);
+            throw new BusinessExceptionHandler("프로젝트 폴더 삭제에 실패했습니다.", ErrorCode.FILE_DELETE_FAILED);
         }
     }
 
