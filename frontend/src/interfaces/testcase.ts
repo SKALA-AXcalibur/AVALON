@@ -4,7 +4,7 @@ export interface Testcase {
 
 export interface TestData {
   key: string;
-  type: string;
+  type: "string" | "number" | "boolean";
   value: string;
 }
 
