@@ -11,6 +11,7 @@ import com.sk.skala.axcalibur.feature.service.ProjectService;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -18,8 +19,17 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+/**
+ * 프로젝트 정보 관리 컨트롤러
+ * 
+ * 프로젝트 정보 저장, 조회, 삭제, 생성, 쿠키 삭제 기능 제공
+ * 
+ * 
+ */
 
 @RestController
 @RequestMapping("/project/v1")
@@ -38,23 +48,13 @@ public class ProjectController {
     @PostMapping("/{projectId}")
     public ResponseEntity<SuccessResponse<SaveProjectResponseDto>> saveProject(
             @PathVariable("projectId") String projectId,
-            @RequestBody SaveProjectRequestDto request,
-            @CookieValue(name = "Avalon") String avalon) {
+            @Valid @RequestBody SaveProjectRequestDto request) {
 
         log.info("[프로젝트 정보 저장] 요청. projectId: {}", projectId);
 
-        SaveProjectResponseDto response = projectService.saveProject(projectId, request, avalon);
-
-        // Spring의 ResponseCookie를 사용하여 쿠키 갱신 (보안 강화)
-        ResponseCookie sessionCookie = ResponseCookie.from("Avalon", avalon)
-                .path("/")
-                .maxAge(86400)       // 쿠키 유효기간 1일로 갱신
-                .httpOnly(true)     // Javascript에서 접근 불가 (XSS 방지)
-                .secure(true)       // HTTPS 환경에서만 쿠키 전송
-                .build();
+        SaveProjectResponseDto response = projectService.saveProject(projectId, request);
         return ResponseEntity
                 .status(SuccessCode.INSERT_SUCCESS.getStatus())
-                .header(HttpHeaders.SET_COOKIE, sessionCookie.toString())
                 .body(new SuccessResponse<>(response, SuccessCode.INSERT_SUCCESS, "프로젝트 정보 저장 성공"));
     }
 
@@ -66,9 +66,9 @@ public class ProjectController {
      */
     @GetMapping("")
     public ResponseEntity<SuccessResponse<ProjectResponseDto>> getProjectDetails(
-            @CookieValue(name = "Avalon") String avalon) {
+            @CookieValue(name = "avalon") String avalon) {
     
-        log.info("[프로젝트 정보 조회] 요청. avalon: '{}'", avalon);
+        log.info("[프로젝트 정보 조회] 요청.");
         
         ProjectResponseDto response = projectService.getProjectDetails(avalon);
     
@@ -82,9 +82,14 @@ public class ProjectController {
                 .body(new SuccessResponse<>(response, SuccessCode.SELECT_SUCCESS, "프로젝트 정보 조회 성공"));
     }
 
-    // URL: DELETE /api/project/v1/{projectId}
+    /**
+     * IF-PR-0003: 프로젝트 정보 삭제
+     * 인터페이스명: 프로젝트 정보 삭제
+     * 설명: 프로젝트 정보 삭제
+     * URL: DELETE /api/project/v1/{projectId}
+     */
     @DeleteMapping("/{projectId}")
-    public ResponseEntity<SuccessResponse<DeleteProjectResponseDto>> deleteProject(@PathVariable("projectId") String projectId) {
+    public ResponseEntity<SuccessResponse<DeleteProjectResponseDto>> deleteProject(@PathVariable("projectId") String projectId) throws IOException {
         log.info("[프로젝트 정보 삭제] 요청. projectId: {}", projectId);
         DeleteProjectResponseDto response = projectService.deleteProject(projectId);
 
@@ -111,21 +116,12 @@ public class ProjectController {
         log.info("[프로젝트 생성] 요청. projectId: {}", request.getProjectId());
         CreateProjectResponseDto response = projectService.createProject(request);
 
-        // Spring의 ResponseCookie를 사용하여 쿠키 생성 (보안 강화)
-        ResponseCookie sessionCookie = ResponseCookie.from("Avalon", response.getAvalon())
-                .path("/")
-                .maxAge(86400)       // 1일
-                .httpOnly(true)
-                .secure(true)
-                .build();
-
         //  응답 시간 설정
         String responseTime = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
 
         return ResponseEntity
                 .status(SuccessCode.INSERT_SUCCESS.getStatus())
-                .header(HttpHeaders.SET_COOKIE, sessionCookie.toString())
                 .header("responseTime", responseTime)
                 .body(new SuccessResponse<>(response, SuccessCode.INSERT_SUCCESS, "프로젝트 생성 성공"));
     }
@@ -138,13 +134,13 @@ public class ProjectController {
      */
     @DeleteMapping("")
     public ResponseEntity<SuccessResponse<DeleteProjectCookieDto>> deleteProjectCookie(
-            @CookieValue(name = "Avalon") String avalon) {
+            @CookieValue(name = "avalon") String avalon) {
 
         log.info("[프로젝트 쿠키 삭제] 요청. avalon: {}", avalon);
         DeleteProjectCookieDto response = projectService.deleteProjectCookie(avalon);
 
         // Spring의 ResponseCookie를 사용하여 쿠키 삭제
-        ResponseCookie expiringCookie = ResponseCookie.from("Avalon", "")
+        ResponseCookie expiringCookie = ResponseCookie.from("avalon", "")
                 .path("/")
                 .maxAge(0)       // 쿠키 즉시 만료
                 .build();

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ import com.sk.skala.axcalibur.feature.entity.AvalonCookieEntity;
 import com.sk.skala.axcalibur.feature.entity.ParameterEntity;
 import com.sk.skala.axcalibur.feature.entity.CategoryEntity;
 import com.sk.skala.axcalibur.feature.entity.ContextEntity;
+import com.sk.skala.axcalibur.feature.entity.FilePathEntity;
 import com.sk.skala.axcalibur.feature.entity.PriorityEntity;
 import com.sk.skala.axcalibur.feature.entity.RequestMajorEntity;
 import com.sk.skala.axcalibur.feature.entity.RequestMiddleEntity;
@@ -67,41 +69,23 @@ public class ProjectServiceImpl implements ProjectService {
     private final RequestMinorRepository requestMinorRepository;
     private final AvalonCookieRepository avalonCookieRepository;
 
+    private static final String PARAM_TYPE_PATH_QUERY = "PATH_QUERY";
+    private static final String PARAM_TYPE_REQUEST = "REQUEST";
+    private static final String PARAM_TYPE_RESPONSE = "RESPONSE";
+
     
     // IF-PR-0001: 프로젝트 목록 저장
 
     @Transactional
-    public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDto request, String avalon) {
+    public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDto request) {
         log.info("프로젝트 목록 저장 시작. projectId: {}", projectId);
 
-        AvalonCookieEntity cookie = avalonCookieRepository.findByToken(avalon)
-            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_VALID_COOKIE_ERROR));
-
-        ProjectEntity tokenProject = projectRepository.findById(cookie.getProjectKey())
+        ProjectEntity project = projectRepository.findById(projectId)
             .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PROJECT_NOT_FOUND));
-
-        if (!projectId.equals(tokenProject.getId())) {
-            log.error("프로젝트 ID 불일치 projectId: {}, tokenProjectId: {}", projectId, tokenProject.getId());
-            throw new BusinessExceptionHandler(ErrorCode.NOT_VALID_ERROR);
-        }
-
-        
-
-        ProjectEntity project = projectRepository.findById(projectId).orElseGet(() -> { 
-            ProjectEntity newProject = ProjectEntity.builder()
-                .id(projectId)
-                .build();
-            log.info("새 프로젝트 생성. projectId: {}", projectId);
-            return projectRepository.save(newProject);
-        });
 
         // 요구사항 데이터 저장
         if (request.getRequirement() != null && !request.getRequirement().isEmpty()) {
             for (ReqItem reqItem : request.getRequirement()) {
-                // ID 필수 검증
-                if (reqItem.getId() == null || reqItem.getId().trim().isEmpty()) {
-                    throw new BusinessExceptionHandler(ErrorCode.NOT_VALID_ERROR);
-                }
 
                 RequestEntity.RequestEntityBuilder reqBuilder = RequestEntity.builder()
                     .id(reqItem.getId())
@@ -110,19 +94,19 @@ public class ProjectServiceImpl implements ProjectService {
                     .projectKey(project);
 
                 // 분류 정보 처리 (없으면 자동 생성)
-                if (reqItem.getPriority() != null && !reqItem.getPriority().trim().isEmpty()) {
+                if (reqItem.getPriority() != null) {
                     PriorityEntity priority = findOrCreatePriority(reqItem.getPriority());
                     reqBuilder.priorityKey(priority);
                 }
-                if (reqItem.getMajor() != null && !reqItem.getMajor().trim().isEmpty()) {
+                if (reqItem.getMajor() != null) {
                     RequestMajorEntity major = findOrCreateRequestMajor(reqItem.getMajor());
                     reqBuilder.majorKey(major);
                 }
-                if (reqItem.getMiddle() != null && !reqItem.getMiddle().trim().isEmpty()) {
+                if (reqItem.getMiddle() != null) {
                     RequestMiddleEntity middle = findOrCreateRequestMiddle(reqItem.getMiddle());
                     reqBuilder.middleKey(middle);
                 }
-                if (reqItem.getMinor() != null && !reqItem.getMinor().trim().isEmpty()) {
+                if (reqItem.getMinor() != null) {
                     RequestMinorEntity minor = findOrCreateRequestMinor(reqItem.getMinor());
                     reqBuilder.minorKey(minor);
                 }
@@ -166,7 +150,7 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectResponseDto getProjectDetails(String avalon) {
         log.debug("프로젝트 조회 시작. avalon: {}", avalon);
         
-        // 1. Redis에서 avalon 토큰으로 프로젝트 키 찾기
+        // 1. Redis에서 avalon 토큰으로 프로젝트 조회
         Optional<AvalonCookieEntity> cookie = avalonCookieRepository.findByToken(avalon);
         if (cookie.isEmpty()) {
             log.warn("유효하지 않은 avalon 토큰: {}", avalon);
@@ -187,34 +171,38 @@ public class ProjectServiceImpl implements ProjectService {
     // IF-PR-0003: 프로젝트 정보 삭제
 
     @Transactional
-    public DeleteProjectResponseDto deleteProject(String projectId) {
+    public DeleteProjectResponseDto deleteProject(String projectId) throws java.io.IOException {
         log.info("프로젝트 정보 삭제 시작. projectId: {}", projectId);
         
-        Optional<ProjectEntity> projectOpt = projectRepository.findById(projectId);
-        if (projectOpt.isPresent()) {
-            ProjectEntity project = projectOpt.get();
-            Integer projectKey = project.getKey(); // 숫자 키 가져오기
-            
-            // 1. 해당 프로젝트의 API 목록들과 파라미터들 삭제
-            List<ApiListEntity> apiLists = apiListRepository.findByProjectKey(project);
-            for (ApiListEntity apiList : apiLists) {
-                List<ParameterEntity> parameters = parameterRepository.findByApiListKey(apiList);
-                parameterRepository.deleteAll(parameters);
+        ProjectEntity project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PROJECT_NOT_FOUND));
+        
+        Integer projectKey = project.getKey();
+        
+        // 1. 파일경로에 등록된 파일들 물리적 삭제
+        List<FilePathEntity> filePaths = project.getFilePaths();
+        for (FilePathEntity filePathEntity : filePaths) {
+            java.nio.file.Path path = java.nio.file.Paths.get(filePathEntity.getPath());
+            if (!java.nio.file.Files.exists(path)) {
+                throw new BusinessExceptionHandler(ErrorCode.IO_ERROR);
             }
-            apiListRepository.deleteAll(apiLists);
-            
-            // 2. 해당 프로젝트의 요구사항들 삭제
-            List<RequestEntity> requests = requestRepository.findByProjectKey(project);
-            requestRepository.deleteAll(requests);
-            
-            // 3. Redis에서 해당 프로젝트 쿠키들 삭제
-            avalonCookieRepository.deleteByProjectKey(projectKey);
-            
-            // 4. 프로젝트 삭제
-            projectRepository.delete(project);
+            java.nio.file.Files.delete(path);
+            log.info("파일 삭제 완료: {}", filePathEntity.getPath());
         }
         
-        log.info("프로젝트 정보 삭제 완료. projectId: {}", projectId);
+        // 2. Redis에서 해당 프로젝트 쿠키들 삭제
+        List<AvalonCookieEntity> cookies = new ArrayList<>();
+        avalonCookieRepository.findAll().forEach(cookies::add);
+        avalonCookieRepository.deleteAll(
+            cookies.stream()
+                .filter(cookie -> projectKey.equals(cookie.getProjectKey()))
+                .collect(Collectors.toList())
+        );
+        
+        // 3. 프로젝트 삭제 (Cascade로 관련 데이터 자동 삭제)
+        projectRepository.delete(project);
+        
+        log.info("프로젝트 삭제 완료");
         return new DeleteProjectResponseDto();
     }
 
@@ -251,7 +239,7 @@ public class ProjectServiceImpl implements ProjectService {
             avalonCookieRepository.deleteByToken(avalon);
             log.info("쿠키 삭제 처리");
         }
-        return new DeleteProjectCookieDto();
+        return new DeleteProjectCookieDto(LocalDateTime.now().toString(), "");
     }
 
     // ========================================
@@ -270,16 +258,13 @@ public class ProjectServiceImpl implements ProjectService {
 
     // UUID7 기반 쿠키 생성
     private String generateUUID7Cookie() {
-        return Generators.timeBasedReorderedGenerator().generate().toString();
+        return Generators.timeBasedReorderedGenerator().generate().toString().replace("-", "");
     }
 
     // 프로젝트 엔티티를 상세 응답 DTO로 변환
      
     private ProjectResponseDto convertToDetailedResponse(ProjectEntity project, String avalon) {
-        String projectName = project.getId() + "_Project";
         
-        List<String> specList = List.of("요구사항명세서", "인터페이스정의서", "인터페이스설계서");
-    
         // 요구사항 정보 조회 및 변환
         List<RequestEntity> requests = requestRepository.findByProjectKey(project);
         List<RequirementInfoDto> requirements = requests.stream()
@@ -287,10 +272,10 @@ public class ProjectServiceImpl implements ProjectService {
                         req.getId(),
                         req.getName(),
                         req.getDescription(),
-                        req.getPriorityKey() != null ? req.getPriorityKey().getName() : "중요도미정",
-                        req.getMajorKey() != null ? req.getMajorKey().getName() : "대분류미정",
-                        req.getMiddleKey() != null ? req.getMiddleKey().getName() : "중분류미정",
-                        req.getMinorKey() != null ? req.getMinorKey().getName() : "소분류미정"))
+                        req.getPriorityKey().getName(),
+                        req.getMajorKey().getName(),
+                        req.getMiddleKey().getName(),
+                        req.getMinorKey().getName()))
                 .collect(Collectors.toList());
     
         // API 목록 정보 조회 및 변환
@@ -300,7 +285,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .collect(Collectors.toList());
     
         return new ProjectResponseDto(project.getId(), avalon,
-                projectName, specList, requirements, apiInfos);
+                project.getId(), requirements, apiInfos);
     }
 
     // API 엔티티를 DTO로 변환 (파라미터 계층 구조 포함)
@@ -348,7 +333,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .format(param.getFormat())
                 .defaultValue(param.getDefaultValue())
                 .required(param.getRequired())
-                .upper(param.getParentKey() != null ? param.getParentKey().getName() : null)
+                .upper(param.getParentKey() != null ? param.getParentKey().getKey() : null)
                 .desc(param.getDescription());
         
         if (param.getApiListKey() != null) {
@@ -362,13 +347,13 @@ public class ProjectServiceImpl implements ProjectService {
      
     private void processApiParameters(ApiListEntity apiList, ApiItem apiItem) {
         if (apiItem.getPathQuery() != null) {
-            processParameterGroup(apiList, apiItem.getPathQuery(), "PATH_QUERY");
+            processParameterGroup(apiList, apiItem.getPathQuery(), PARAM_TYPE_PATH_QUERY);
         }
         if (apiItem.getRequest() != null) {
-            processParameterGroup(apiList, apiItem.getRequest(), "REQUEST");
+            processParameterGroup(apiList, apiItem.getRequest(), PARAM_TYPE_REQUEST);
         }
         if (apiItem.getResponse() != null) {
-            processParameterGroup(apiList, apiItem.getResponse(), "RESPONSE");
+            processParameterGroup(apiList, apiItem.getResponse(), PARAM_TYPE_RESPONSE);
         }
     }
 
@@ -377,47 +362,34 @@ public class ProjectServiceImpl implements ProjectService {
      */
     private void processParameterGroup(ApiListEntity apiList, ParameterGroup paramGroup, String groupType) {
         if (paramGroup == null) {
+            log.debug("파라미터 그룹이 null입니다. groupType: {}", groupType);
             return;
         }
 
-        switch (groupType) {
-            case "PATH_QUERY":
-                // PATH_QUERY 파라미터 처리
-                if (paramGroup.getPq() != null) {
-                    ParameterItem paramItem = convertToParameterItem(paramGroup.getPq());
-                            processParameterItems(apiList, List.of(paramItem), groupType);
-                }
-                break;
-            case "REQUEST":
-                // REQUEST 파라미터 처리
-                if (paramGroup.getReq() != null) {
-                    ParameterItem paramItem = convertToParameterItem(paramGroup.getReq());
-                    processParameterItems(apiList, List.of(paramItem), groupType);
-                }
-                break;
-            case "RESPONSE":
-                // RESPONSE 파라미터 처리
-                if (paramGroup.getRes() != null) {
-                    ParameterItem paramItem = convertToParameterItem(paramGroup.getRes());
-                    processParameterItems(apiList, List.of(paramItem), groupType);
-                }
-                break;
+        List<ParameterItem> targetParams = getTargetParameters(paramGroup, groupType);
+        if (targetParams != null && !targetParams.isEmpty()) {
+            log.debug("파라미터 처리 시작 - groupType: {}, 파라미터 수: {}", groupType, targetParams.size());
+            processParameterItems(apiList, targetParams, groupType);
+        } else {
+            log.debug("처리할 파라미터가 없습니다. groupType: {}", groupType);
         }
     }
 
-    // ParameterItem 객체 복사 (필드 선택적 처리용)
-     
-    private ParameterItem convertToParameterItem(ParameterItem item) {
-        return ParameterItem.builder()
-            .korName(item.getKorName())
-            .name(item.getName())
-            .itemType(item.getItemType())
-            .dataType(item.getDataType())
-            .format(item.getFormat())
-            .defaultValue(item.getDefaultValue())
-            .upper(item.getUpper())
-            .desc(item.getDesc())
-            .build();
+    /**
+     * 그룹 타입에 해당하는 파라미터 목록을 반환
+     */
+    private List<ParameterItem> getTargetParameters(ParameterGroup paramGroup, String groupType) {
+        switch (groupType) {
+            case PARAM_TYPE_PATH_QUERY:
+                return paramGroup.getPq();
+            case PARAM_TYPE_REQUEST:
+                return paramGroup.getReq();
+            case PARAM_TYPE_RESPONSE:
+                return paramGroup.getRes();
+            default:
+                log.warn("지원하지 않는 파라미터 그룹 타입입니다: {}", groupType);
+                return null;
+        }
     }
 
     // 파라미터 목록을 DB에 저장 (Self-Join 구조 처리)
@@ -459,7 +431,7 @@ public class ProjectServiceImpl implements ProjectService {
             // Self-Join 관계 처리
             if (paramItem.getUpper() != null && !paramItem.getUpper().trim().isEmpty()) {
                 // 부모 파라미터 찾아서 설정
-                ParameterEntity parent = findParentParameter(paramItem.getUpper(), apiList);
+                ParameterEntity parent = findParentParameter(Integer.parseInt(paramItem.getUpper()), apiList);
                 if (parent == null) {
                     log.error("부모 파라미터를 찾을 수 없습니다. upper: {}", paramItem.getUpper());
                     throw new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
@@ -478,7 +450,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     private CategoryEntity findOrCreateCategory(String name) {
         return categoryRepository.findByName(name)
-                .orElseGet(() -> categoryRepository.save(CategoryEntity.builder().name(name).build()));
+            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
     // 컨텍스트 조회 또는 생성
@@ -486,35 +458,23 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     private ContextEntity findOrCreateContext(String name) {
         return contextRepository.findByName(name)
-                .orElseGet(() -> contextRepository.save(ContextEntity.builder().name(name).build()));
+            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
     // 부모 파라미터 찾기 (Self-Join을 위한 부모 참조 검색)
      
     @Transactional
-    private ParameterEntity findParentParameter(String parentName, ApiListEntity apiList) {
-        // 같은 API 내에서 부모 파라미터 찾기
-        List<ParameterEntity> existingParams = parameterRepository.findByApiListKey(apiList);
-        
-        return existingParams.stream()
-            .filter(param -> parentName.equals(param.getName()) || parentName.equals(param.getNameKo()))
-            .findFirst()
-            .orElse(null); // 부모를 찾을 수 없으면 null 반환
+    private ParameterEntity findParentParameter(Integer parentKey, ApiListEntity apiList) {
+        if (parentKey == null) return null;
+        return parameterRepository.findById(parentKey).orElse(null);
     }
 
     // 우선순위 엔티티 조회 또는 생성
      
     @Transactional
     private PriorityEntity findOrCreatePriority(String name) {
-        PriorityEntity entity = priorityRepository.findByName(name).orElseGet(() -> {
-            PriorityEntity newEntity = PriorityEntity.builder()
-                .name(name)
-                .createdAt(LocalDateTime.now())
-                .build();
-            return priorityRepository.save(newEntity);
-        });
-        log.info("Priority 처리 완료 - name: {}, key: {}", entity.getName(), entity.getKey());
-        return entity;
+        return priorityRepository.findByName(name)
+            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
     
@@ -525,7 +485,6 @@ public class ProjectServiceImpl implements ProjectService {
         RequestMajorEntity entity = requestMajorRepository.findByName(name).orElseGet(() -> {
             RequestMajorEntity newEntity = RequestMajorEntity.builder()
                 .name(name)
-                .createdAt(LocalDateTime.now())
                 .build();
             return requestMajorRepository.save(newEntity);
         });
@@ -541,7 +500,6 @@ public class ProjectServiceImpl implements ProjectService {
         RequestMiddleEntity entity = requestMiddleRepository.findByName(name).orElseGet(() -> {
             RequestMiddleEntity newEntity = RequestMiddleEntity.builder()
                 .name(name)
-                .createdAt(LocalDateTime.now())
                 .build();
             return requestMiddleRepository.save(newEntity);
         });
@@ -557,7 +515,6 @@ public class ProjectServiceImpl implements ProjectService {
         RequestMinorEntity entity = requestMinorRepository.findByName(name).orElseGet(() -> {
             RequestMinorEntity newEntity = RequestMinorEntity.builder()
                 .name(name)
-                .createdAt(LocalDateTime.now())
                 .build();
             return requestMinorRepository.save(newEntity);
         });

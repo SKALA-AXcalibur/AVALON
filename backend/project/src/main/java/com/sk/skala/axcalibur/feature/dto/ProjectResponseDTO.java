@@ -12,7 +12,6 @@ public class ProjectResponseDto {
     
     private String projectId;
     private String projectName;
-    private List<String> specList;
     private List<RequirementInfoDto> requirement;
     private List<ApiInfoDto> apiList;
 
@@ -21,11 +20,10 @@ public class ProjectResponseDto {
     private String avalon;
 
 
-    public ProjectResponseDto(String projectId, String avalon, String projectName, List<String> specList, List<RequirementInfoDto> requirement, List<ApiInfoDto> apiList) {
+    public ProjectResponseDto(String projectId, String avalon, String projectName, List<RequirementInfoDto> requirement, List<ApiInfoDto> apiList) {
         this.projectId = projectId;
         this.avalon = avalon;
         this.projectName = projectName;
-        this.specList = specList;
         this.requirement = requirement;
         this.apiList = apiList;
     }

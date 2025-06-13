@@ -1,6 +1,9 @@
 package com.sk.skala.axcalibur.feature.entity;
 
 import java.time.LocalDateTime;
+
+import com.sk.skala.axcalibur.global.entity.BaseTimeEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,9 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,17 +24,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "api_list", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"id"})
-})
-public class ApiListEntity {
-    
+@Table(name = "api_list")
+public class ApiListEntity extends BaseTimeEntity {
+     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
     private Integer key;          // API 목록 키 (PK, AUTO_INCREMENT)
 
-    @Column(name = "id", nullable = false, length = 30)
+    @Column(name = "id", nullable = false, length = 30, unique = true)
     private String id;            // API 목록 ID (프로젝트별 유니크)
 
     @Column(name = "name", nullable = false, length = 20)
@@ -51,18 +50,8 @@ public class ApiListEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;          // API 목록 설명 (TEXT)
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;     // 생성 일자
-
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
-    private ProjectEntity projectKey;             // 프로젝트 (N:1)
-
-    @PrePersist
-    protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-    }
+    private ProjectEntity projectKey;             // 프로젝트 키 (N:1)
 }

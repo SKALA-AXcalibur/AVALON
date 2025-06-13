@@ -1,6 +1,6 @@
 package com.sk.skala.axcalibur.feature.entity;
 
-import java.time.LocalDateTime;
+import com.sk.skala.axcalibur.global.entity.BaseTimeEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -26,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "request", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"id"})
 })
-public class RequestEntity {
+public class RequestEntity extends BaseTimeEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,9 +40,6 @@ public class RequestEntity {
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;                  // 요구사항 설명
-
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;             // 생성 일자
 
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
@@ -66,16 +62,4 @@ public class RequestEntity {
     @JoinColumn(name = "minor_key", nullable = false)
     private RequestMinorEntity minorKey;   // 소분류 (N:1)
 
-    // id만 받는 생성자 추가
-    public RequestEntity(String id) {
-        this.id = id;
-    }
-    
-
-    @PrePersist
-    protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-    }
 }

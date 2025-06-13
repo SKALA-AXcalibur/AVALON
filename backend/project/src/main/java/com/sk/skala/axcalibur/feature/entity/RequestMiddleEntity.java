@@ -1,13 +1,12 @@
 package com.sk.skala.axcalibur.feature.entity;
 
-import java.time.LocalDateTime;
+import com.sk.skala.axcalibur.global.entity.BaseTimeEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(name = "request_middle")
-public class RequestMiddleEntity {
+public class RequestMiddleEntity extends BaseTimeEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,15 +27,5 @@ public class RequestMiddleEntity {
     private Integer key;        // 중분류 키 (PK, AUTO_INCREMENT)
 
     @Column(name = "name", nullable = false, length = 20)
-    private String name;                 // 중분류 명 (UNIQUE)
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;     // 생성 일자
-
-    @PrePersist
-    protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-    }
+    private String name;                 // 중분류 명
 }

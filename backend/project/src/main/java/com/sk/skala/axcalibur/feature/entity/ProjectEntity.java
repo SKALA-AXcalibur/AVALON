@@ -1,12 +1,17 @@
 package com.sk.skala.axcalibur.feature.entity;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sk.skala.axcalibur.global.entity.BaseTimeEntity;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,29 +24,28 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(name = "project")
-public class ProjectEntity {
+public class ProjectEntity extends BaseTimeEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "`key`")
+    private Integer key;               // 프로젝트 키 (PK, AUTO_INCREMENT)
 
-   @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   @Column(name = "`key`")
-   private Integer key;               // 프로젝트 키 (PK, AUTO_INCREMENT)
+    @Column(name = "id", unique = true, nullable = false, length = 20)
+    private String id;                // 프로젝트 ID (UNIQUE)
 
-   @Column(name = "id", unique = true, nullable = false, length = 20)
-   private String id;                // 프로젝트 ID (UNIQUE)
-
-   @Column(name = "created_at", updatable = false)
-   private LocalDateTime createdAt;        // 생성 일자
+    @OneToMany(mappedBy = "projectKey", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ApiListEntity> apiLists = new ArrayList<>();
+   
+    @OneToMany(mappedBy = "projectKey", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<RequestEntity> requests = new ArrayList<>();
+   
+    @OneToMany(mappedBy = "projectKey", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<FilePathEntity> filePaths = new ArrayList<>();
 
     public ProjectEntity(String id) {
-        this.id = id;
+         this.id = id;
     }
-
-   @PrePersist
-   protected void onCreate() {
-    if (createdAt == null) {
-        createdAt = LocalDateTime.now();
-    }
-
-    
-}
 }

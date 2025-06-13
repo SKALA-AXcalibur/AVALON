@@ -20,7 +20,7 @@ public class ParameterDetailDto {
     private String format;          // 포맷
     private String defaultValue;    // 기본값
     private Boolean required;       // 필수여부 (boolean)
-    private String upper;           // 상위항목명
+    private Integer upper;          // 상위항목명
     private String desc;            // 설명
 
     // 코멘트 반영: 어떤 API에 속한 파라미터인지 명시
