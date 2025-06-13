@@ -81,14 +81,13 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDto request) {
         log.info("프로젝트 목록 저장 시작. projectId: {}", projectId);
-
+        
         ProjectEntity project = projectRepository.findById(projectId)
             .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PROJECT_NOT_FOUND));
 
         // 요구사항 데이터 저장
         if (request.getRequirement() != null && !request.getRequirement().isEmpty()) {
             for (ReqItem reqItem : request.getRequirement()) {
-
                 RequestEntity.RequestEntityBuilder reqBuilder = RequestEntity.builder()
                     .id(reqItem.getId())
                     .name(reqItem.getName())
@@ -229,7 +228,6 @@ public class ProjectServiceImpl implements ProjectService {
         });
 
         String avalon = generateUUID7Cookie();                  
-        projectRepository.save(project);
         log.info("Avalon 토큰 생성/업데이트. projectId: {}, newAvalon: {}", projectId, avalon);
 
         saveAvalonToRedis(avalon, project.getKey()); 

@@ -12,7 +12,7 @@ import com.sk.skala.axcalibur.feature.entity.RequestEntity;
 
 @Repository
 public interface RequestRepository extends JpaRepository<RequestEntity, Integer> {
-
+    
     // 프로젝트별 요구사항 목록 조회
     List<RequestEntity> findByProjectKey(ProjectEntity projectKey);
 
@@ -24,11 +24,10 @@ public interface RequestRepository extends JpaRepository<RequestEntity, Integer>
 
     // 프로젝트별 요구사항 조회 (기존)
     Optional<RequestEntity> findByProjectKeyAndName(ProjectEntity projectKey, String name);
-    
+
     // request.id으로 중복 체크
     boolean existsById(String id);
 
     // request.id으로 요구사항 조회
     Optional<RequestEntity> findById(String id);
-
 }

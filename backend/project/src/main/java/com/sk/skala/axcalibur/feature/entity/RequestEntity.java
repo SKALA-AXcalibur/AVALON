@@ -32,11 +32,11 @@ public class RequestEntity extends BaseTimeEntity {
     @Column(name = "`key`")
     private Integer key;             // 요구사항 키 (PK, AUTO_INCREMENT)
 
-    @Column(name = "id", nullable = false, length = 20)
-    private String id;                         // 요구사항 아이디 (프로젝트별 유니크)
+    @Column(name = "id", nullable = false, length = 20, unique = true)
+    private String id;               // 요구사항 아이디 
 
     @Column(name = "name", nullable = false, length = 50)
-    private String name;                         // 요구사항 이름 (프로젝트별 유니크)
+    private String name;             // 요구사항 이름
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;                  // 요구사항 설명
