@@ -14,12 +14,12 @@ public class ParameterItem {
     private String korName;     // 한글명
     private String name;        // 영문명
     private String itemType;    // 항목유형
-    private int step;        // 단계  
+    private Integer step;       // 단계  
     private String dataType;    // 데이터타입
-    private int length;      // 길이
+    private Integer length;     // 길이
     private String format;      // 포맷
     private String defaultValue; // 기본값
-    private boolean required;    // 필수여부
-    private Integer upper;       // 상위항목명
+    private Boolean required;   // 필수여부
+    private Integer upper;      // 상위항목명
     private String desc;        // 설명
 }

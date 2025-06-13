@@ -402,23 +402,20 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     private void processParameterItems(ApiListEntity apiList, List<ParameterItem> paramItems, String paramType) {
         for (ParameterItem paramItem : paramItems) {
-
             if (isEmptyParameter(paramItem)) {
                 log.debug("빈 파라미터 데이터 스킵 - name: {}, korName: {}, dataType: {}", 
                     paramItem.getName(), paramItem.getKorName(), paramItem.getDataType());
                 continue;
             }
 
-            String safeId = java.util.UUID.randomUUID().toString();
-
             ParameterEntity.ParameterEntityBuilder builder = ParameterEntity.builder()
-                .id(safeId)
+                .id(generateParameterId(paramItem.getName(), apiList))
                 .nameKo(paramItem.getKorName())
                 .name(paramItem.getName())
                 .dataType(paramItem.getDataType())
                 .format(paramItem.getFormat())
                 .defaultValue(paramItem.getDefaultValue())
-                .required(paramItem.isRequired())
+                .required(paramItem.getRequired())
                 .description(paramItem.getDesc())
                 .apiListKey(apiList)
                 .categoryKey(findOrCreateCategory(paramType))
@@ -428,7 +425,14 @@ public class ProjectServiceImpl implements ProjectService {
                 builder.length(paramItem.getLength());
             }
 
-            processParameterItem(paramItem, apiList, builder);
+            if (paramItem.getUpper() != null) {
+                ParameterEntity parent = findParentParameter(paramItem.getUpper());
+                if (parent == null) {
+                    log.error("부모 파라미터를 찾을 수 없습니다. upper: {}", paramItem.getUpper());
+                    throw new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
+                }
+                builder.parentKey(parent);
+            }
             
             parameterRepository.save(builder.build());
         }
@@ -499,33 +503,19 @@ public class ProjectServiceImpl implements ProjectService {
         return hasNoName && hasNoDataType;
     }
 
-    private String generateUniqueId(String paramName, ApiListEntity apiList) {
-        // API ID와 파라미터 이름을 조합하여 더 고유한 ID 생성
-        String apiIdentifier = apiList.getId() != null ? apiList.getId() : "";
-        String baseName = paramName != null ? paramName.replaceAll("[^a-zA-Z0-9]", "") : "";
-        String timestamp = String.valueOf(System.currentTimeMillis());
+    private String generateParameterId(String paramName, ApiListEntity apiList) {
+        // API ID의 첫 3자리
+        String apiPrefix = apiList.getId() != null ? apiList.getId().substring(0, Math.min(3, apiList.getId().length())) : "API";
         
-        // UUID 전체를 사용하고 타임스탬프와 API 식별자를 포함
-        return String.format("%s_%s_%s_%s",
-                baseName,
-                apiIdentifier,
-                timestamp,
-                UUID.randomUUID().toString().replace("-", ""));
-    }
-
-    private void processParameterItem(ParameterItem paramItem, ApiListEntity apiList, ParameterEntity.ParameterEntityBuilder builder) {
-        if (paramItem.getUpper() != null) {
-            // 부모 파라미터 찾아서 설정
-            ParameterEntity parent = findParentParameter(paramItem.getUpper());
-            if (parent == null) {
-                log.error("부모 파라미터를 찾을 수 없습니다. upper: {}", paramItem.getUpper());
-                throw new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
-            }
-            builder.parentKey(parent);
-        }
-
-        // 고유 ID 생성
-        String uniqueId = generateUniqueId(paramItem.getName(), apiList);
-        builder.id(uniqueId);
+        // 파라미터 이름의 첫 3자리 (영문자, 숫자만)
+        String paramPrefix = paramName != null ? 
+            paramName.replaceAll("[^a-zA-Z0-9]", "").substring(0, Math.min(3, paramName.length())).toUpperCase() : 
+            "PAR";
+        
+        // UUID의 첫 8자리
+        String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        
+        // 최종 ID: API3 + PAR3 + UUID8 = 14자
+        return apiPrefix + paramPrefix + uuid;
     }
 }
