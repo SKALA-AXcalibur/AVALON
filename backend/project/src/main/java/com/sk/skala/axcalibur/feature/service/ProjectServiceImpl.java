@@ -434,7 +434,7 @@ public class ProjectServiceImpl implements ProjectService {
                 builder.length(paramItem.getLength());
             }
 
-            processParameterItem(paramItem, apiList, builder);
+            processParameterItem(paramItem, builder);
             
             parameterRepository.save(builder.build());
         }
@@ -530,7 +530,7 @@ public class ProjectServiceImpl implements ProjectService {
         return hasNoName && hasNoDataType;
     }
 
-    private void processParameterItem(ParameterItem paramItem, ApiListEntity apiList, ParameterEntity.ParameterEntityBuilder builder) {
+    private void processParameterItem(ParameterItem paramItem, ParameterEntity.ParameterEntityBuilder builder) {
         if (paramItem.getUpper() != null) {
             // 부모 파라미터 찾아서 설정
             ParameterEntity parent = findParentParameter(paramItem.getUpper());
