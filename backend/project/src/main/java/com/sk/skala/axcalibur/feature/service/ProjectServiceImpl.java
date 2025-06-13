@@ -439,24 +439,16 @@ public class ProjectServiceImpl implements ProjectService {
      
     @Transactional
     private CategoryEntity findOrCreateCategory(String name) {
-        return categoryRepository.findByName(name).orElseGet(() -> {
-                    CategoryEntity newCategory = CategoryEntity.builder()
-                            .name(name)
-                            .build();
-                    return categoryRepository.save(newCategory);
-                });
+        return categoryRepository.findByName(name)
+            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
     // 컨텍스트 조회 또는 생성
      
     @Transactional
     private ContextEntity findOrCreateContext(String name) {
-        return contextRepository.findByName(name).orElseGet(() -> {
-                    ContextEntity newContext = ContextEntity.builder()
-                            .name(name)
-                            .build();
-                    return contextRepository.save(newContext);
-                });
+        return contextRepository.findByName(name)
+            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
     // 부모 파라미터 찾기 (Self-Join을 위한 부모 참조 검색)
@@ -467,55 +459,32 @@ public class ProjectServiceImpl implements ProjectService {
         return parameterRepository.findById(parentKey).orElse(null);
     }
 
-    // 우선순위 엔티티 조회 또는 생성
-     
+    // 우선순위 엔티티 조회
     @Transactional
     private PriorityEntity findOrCreatePriority(String name) {
-        return priorityRepository.findByName(name).orElseGet(() -> {
-                    PriorityEntity newPriority = PriorityEntity.builder()
-                            .name(name)
-                            .build();
-                    return priorityRepository.save(newPriority);
-                });
+        return priorityRepository.findByName(name)
+            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
-    
-    // 요구사항 대분류 엔티티 조회 또는 생성
-     
+    // 요구사항 대분류 엔티티 조회
     @Transactional
     private RequestMajorEntity findOrCreateRequestMajor(String name) {
-        return requestMajorRepository.findByName(name).orElseGet(() -> {
-                    RequestMajorEntity newRequestMajor = RequestMajorEntity.builder()
-                            .name(name)
-                            .build();
-                    return requestMajorRepository.save(newRequestMajor);
-                });
+        return requestMajorRepository.findByName(name)
+            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
-    
-    // 요구사항 중분류 엔티티 조회 또는 생성
-     
+    // 요구사항 중분류 엔티티 조회
     @Transactional
     private RequestMiddleEntity findOrCreateRequestMiddle(String name) {
-        return requestMiddleRepository.findByName(name).orElseGet(() -> {
-                    RequestMiddleEntity newRequestMiddle = RequestMiddleEntity.builder()
-                            .name(name)
-                            .build();
-                    return requestMiddleRepository.save(newRequestMiddle);
-                });
+        return requestMiddleRepository.findByName(name)
+            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
-    
-    // 요구사항 소분류 엔티티 조회 또는 생성
-     
+    // 요구사항 소분류 엔티티 조회
     @Transactional
     private RequestMinorEntity findOrCreateRequestMinor(String name) {
-        return requestMinorRepository.findByName(name).orElseGet(() -> {
-                    RequestMinorEntity newRequestMinor = RequestMinorEntity.builder()
-                            .name(name)
-                            .build();
-                    return requestMinorRepository.save(newRequestMinor);
-                });
+        return requestMinorRepository.findByName(name)
+            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
     // 빈 파라미터 체크
