@@ -15,7 +15,7 @@ import com.sk.skala.axcalibur.feature.dto.SaveProjectResponseDto;
 public interface ProjectService {
     
     //  프로젝트 목록 저장 (IF-PR-0001)
-    SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDto request);
+    SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDto request, String avalon);
 
     // 프로젝트 상세 조회 (IF-PR-0002)
     ProjectResponseDto getProjectDetails(String avalon);

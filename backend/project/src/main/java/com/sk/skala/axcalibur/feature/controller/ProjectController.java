@@ -43,7 +43,7 @@ public class ProjectController {
 
         log.info("[프로젝트 정보 저장] 요청. projectId: {}", projectId);
 
-        SaveProjectResponseDto response = projectService.saveProject(projectId, request);
+        SaveProjectResponseDto response = projectService.saveProject(projectId, request, avalon);
 
         // Spring의 ResponseCookie를 사용하여 쿠키 갱신 (보안 강화)
         ResponseCookie sessionCookie = ResponseCookie.from("Avalon", avalon)
