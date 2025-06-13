@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur;  // project 제거!
+package com.sk.skala.axcalibur;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

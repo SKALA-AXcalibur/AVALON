@@ -81,12 +81,11 @@ public class ProjectServiceImpl implements ProjectService {
             return projectRepository.save(newProject);
         });
 
-        String avalon = generateUUID7Cookie();
-        // project.setAvalon(avalon);                  // redis 관련 코드 추가 시 개선 예정
+        String avalon = generateUUID7Cookie();                  
         projectRepository.save(project);
         log.info("Avalon 토큰 생성/업데이트. projectId: {}, newAvalon: {}", projectId, avalon);
 
-        saveAvalonToRedis(avalon, project.getKey()); // Redis 임시 비활성화
+        saveAvalonToRedis(avalon, project.getKey()); 
         return new CreateProjectResponseDto(projectId, avalon);
     }
 
@@ -226,7 +225,7 @@ public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDt
         log.info("프로젝트 쿠키 삭제 요청. avalon: {}", avalon);
         if (avalon != null && !avalon.trim().isEmpty()) {
             avalonCookieRepository.deleteByToken(avalon);
-            log.info("Redis 비활성화 상태 - 쿠키 삭제 요청만 처리");
+            log.info("쿠키 삭제 처리");
         }
         return new DeleteProjectCookieDto();
     }
@@ -377,9 +376,9 @@ public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDt
             String paramName = paramItem.getName() != null && !paramItem.getName().trim().isEmpty() 
                 ? paramItem.getName() 
                 : paramItem.getKorName();
-                
+
             ParameterEntity.ParameterEntityBuilder builder = ParameterEntity.builder()
-                .id(paramName + "_" + System.currentTimeMillis())  
+                .id(paramName + "_" + java.util.UUID.randomUUID().toString())     
                 .nameKo(paramItem.getKorName())
                 .name(paramItem.getName())
                 .dataType(paramItem.getDataType())
