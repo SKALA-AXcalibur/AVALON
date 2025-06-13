@@ -71,7 +71,7 @@ public class ParameterEntity {
     private ContextEntity contextKey;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_key")
+    @JoinColumn(name = "parent_key", nullable = false)
     private ParameterEntity parentKey;
 
 }

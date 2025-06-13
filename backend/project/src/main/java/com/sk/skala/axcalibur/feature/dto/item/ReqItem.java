@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequirementItem {
+public class ReqItem {
     private String id;          // 요구사항 아이디
     private String name;        // 요구사항 이름
     private String desc;        // 요구사항 설명  

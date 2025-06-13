@@ -7,7 +7,7 @@ import com.sk.skala.axcalibur.feature.dto.DeleteProjectResponseDto;
 import com.sk.skala.axcalibur.feature.dto.ProjectResponseDto;
 import com.sk.skala.axcalibur.feature.dto.SaveProjectRequestDto;
 import com.sk.skala.axcalibur.feature.dto.SaveProjectResponseDto;
-import com.sk.skala.axcalibur.feature.service.ProjectServiceImpl;
+import com.sk.skala.axcalibur.feature.service.ProjectService;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class ProjectController {
 
-    private final ProjectServiceImpl projectService;
+    private final ProjectService projectService;
 
     /**
      * IF-PR-0001: 프로젝트 정보 저장

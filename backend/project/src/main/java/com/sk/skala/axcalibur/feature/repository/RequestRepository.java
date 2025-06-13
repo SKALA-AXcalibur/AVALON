@@ -25,10 +25,10 @@ public interface RequestRepository extends JpaRepository<RequestEntity, Integer>
     // 프로젝트별 요구사항 조회 (기존)
     Optional<RequestEntity> findByProjectKeyAndName(ProjectEntity projectKey, String name);
     
-    // request.name으로 중복 체크
-    boolean existsByName(String name);
+    // request.id으로 중복 체크
+    boolean existsById(String id);
 
-    // request.name으로 요구사항 조회
-    Optional<RequestEntity> findByName(String name);
+    // request.id으로 요구사항 조회
+    Optional<RequestEntity> findById(String id);
 
 }

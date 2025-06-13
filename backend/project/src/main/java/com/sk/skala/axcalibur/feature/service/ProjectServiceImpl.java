@@ -3,7 +3,6 @@ package com.sk.skala.axcalibur.feature.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -22,8 +21,7 @@ import com.sk.skala.axcalibur.feature.dto.SaveProjectResponseDto;
 import com.sk.skala.axcalibur.feature.dto.item.ApiItem;
 import com.sk.skala.axcalibur.feature.dto.item.ParameterGroup;
 import com.sk.skala.axcalibur.feature.dto.item.ParameterItem;
-import com.sk.skala.axcalibur.feature.dto.item.ParameterObject;
-import com.sk.skala.axcalibur.feature.dto.item.RequirementItem;
+import com.sk.skala.axcalibur.feature.dto.item.ReqItem;
 import com.sk.skala.axcalibur.feature.entity.ProjectEntity;
 import com.sk.skala.axcalibur.feature.entity.RequestEntity;
 import com.sk.skala.axcalibur.feature.entity.ApiListEntity;
@@ -56,7 +54,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProjectServiceImpl {
+public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
     private final RequestRepository requestRepository;
@@ -105,15 +103,15 @@ public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDt
     });
 
     if (request.getRequirement() != null && !request.getRequirement().isEmpty()) {
-        for (RequirementItem reqItem : request.getRequirement()) {
+        for (ReqItem reqItem : request.getRequirement()) {
 
             // id가 없는 경우 UUID 생성
-            String reqId = (reqItem.getId() == null || reqItem.getId().trim().isEmpty()) 
-                ? Generators.timeBasedReorderedGenerator().generate().toString().substring(0, 20) 
-                : reqItem.getId();
+            if (reqItem.getId() == null || reqItem.getId().trim().isEmpty()) {
+                throw new BusinessExceptionHandler(ErrorCode.NOT_VALID_ERROR);
+            }
 
             RequestEntity.RequestEntityBuilder reqBuilder = RequestEntity.builder()
-                .id(reqId)
+                .id(reqItem.getId())
                 .name(reqItem.getName())
                 .description(reqItem.getDesc())
                 .projectKey(project);
@@ -181,7 +179,7 @@ public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDt
                 .build();
         }
         
-        // 2. 프로젝트 키로 MySQL에서 프로젝트 조회
+        // 2. 프로젝트 키로 MariaDB에서 프로젝트 조회
         Integer projectKey = cookie.get().getProjectKey();
         ProjectEntity project = projectRepository.findById(projectKey)
             .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PROJECT_NOT_FOUND));
@@ -255,7 +253,7 @@ public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDt
         List<RequestEntity> requests = requestRepository.findByProjectKey(project);
         List<RequirementInfoDto> requirements = requests.stream()
                 .map(req -> new RequirementInfoDto(
-                        req.getKey().longValue(),
+                        req.getId(),
                         req.getName(),
                         req.getDescription(),
                         req.getPriorityKey() != null ? req.getPriorityKey().getName() : "중요도미정",
@@ -305,7 +303,7 @@ public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDt
 
     private ParameterDetailDto convertParameterEntityToDto(ParameterEntity param) {
         ParameterDetailDto.ParameterDetailDtoBuilder builder = ParameterDetailDto.builder()
-                .parameterId(param.getKey().longValue())
+                .id(param.getId())
                 .korName(param.getNameKo())
                 .name(param.getName())
                 .itemType(param.getCategoryKey() != null ? param.getCategoryKey().getName() : null)
@@ -337,35 +335,51 @@ public SaveProjectResponseDto saveProject(String projectId, SaveProjectRequestDt
     }
 
     private void processParameterGroup(ApiListEntity apiList, ParameterGroup paramGroup, String groupType) {
+        if (paramGroup == null) {
+            return;
+        }
+        
+        // getPq()가 ParameterItem를 반환하는지 확인 후 처리
         if (paramGroup.getPq() != null) {
-            processParameterItems(apiList, List.of(convertToParameterItem(paramGroup.getPq())), groupType);
+            ParameterItem paramItem = convertToParameterItem(paramGroup.getPq());
+            processParameterItems(apiList, List.of(paramItem), groupType);
         }
+        
+        // getReq()가 ParameterItem를 반환하는지 확인 후 처리  
         if (paramGroup.getReq() != null) {
-            processParameterItems(apiList, List.of(convertToParameterItem(paramGroup.getReq())), groupType);
+            ParameterItem paramItem = convertToParameterItem(paramGroup.getReq());
+            processParameterItems(apiList, List.of(paramItem), groupType);
         }
+        
+        // getRes()가 ParameterItem를 반환하는지 확인 후 처리
         if (paramGroup.getRes() != null) {
-            processParameterItems(apiList, List.of(convertToParameterItem(paramGroup.getRes())), groupType);
+            ParameterItem paramItem = convertToParameterItem(paramGroup.getRes());
+            processParameterItems(apiList, List.of(paramItem), groupType);
         }
     }
 
-    private ParameterItem convertToParameterItem(ParameterObject object) {
+    private ParameterItem convertToParameterItem(ParameterItem item) {
         return ParameterItem.builder()
-            .korName(object.getKorName())
-            .name(object.getName())
-            .itemType(object.getItemType())
-            .dataType(object.getDataType())
-            .format(object.getFormat())
-            .defaultValue(object.getDefaultValue())
-            .upper(object.getUpper())
-            .desc(object.getDesc())
+            .korName(item.getKorName())
+            .name(item.getName())
+            .itemType(item.getItemType())
+            .dataType(item.getDataType())
+            .format(item.getFormat())
+            .defaultValue(item.getDefaultValue())
+            .upper(item.getUpper())
+            .desc(item.getDesc())
             .build();
     }
 
     @Transactional
     private void processParameterItems(ApiListEntity apiList, List<ParameterItem> paramItems, String paramType) {
         for (ParameterItem paramItem : paramItems) {
+            String paramName = paramItem.getName() != null && !paramItem.getName().trim().isEmpty() 
+                ? paramItem.getName() 
+                : paramItem.getKorName();
+                
             ParameterEntity.ParameterEntityBuilder builder = ParameterEntity.builder()
-                .id(paramItem.getName() + "_" + System.currentTimeMillis())
+                .id(paramName + "_" + System.currentTimeMillis())  
                 .nameKo(paramItem.getKorName())
                 .name(paramItem.getName())
                 .dataType(paramItem.getDataType())

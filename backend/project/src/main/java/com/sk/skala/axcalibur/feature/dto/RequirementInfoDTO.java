@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class RequirementInfoDto {
-    private Long requirementId; // 요구사항 PK
+    private String id;          // 요구사항 ID
     private String name;        // 요구사항 이름
     private String desc;        // 요구사항 설명
     private String priority;    // 요구사항 중요도
@@ -14,8 +14,8 @@ public class RequirementInfoDto {
 
     public RequirementInfoDto() {}
 
-    public RequirementInfoDto(Long requirementId, String name, String desc, String priority, String major, String middle, String minor) {
-        this.requirementId = requirementId;
+    public RequirementInfoDto(String id, String name, String desc, String priority, String major, String middle, String minor) {
+        this.id = id;
         this.name = name;
         this.desc = desc;
         this.priority = priority;

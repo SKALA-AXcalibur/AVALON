@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ParameterDetailDto {
-    private Long parameterId;       // 파라미터 PK
+    private String id;              // 파라미터 ID
     private String korName;         // 한글명
     private String name;            // 영문명
     private String itemType;        // 항목유형

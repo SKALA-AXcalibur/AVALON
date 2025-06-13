@@ -44,7 +44,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	// Spring Session 불필요 (Redis 직접 관리)
 	// implementation 'org.springframework.session:spring-session-data-redis'
-	implementation 'org.springframework.session:spring-session-jdbc'        // 기존 유지
+	implementation 'org.springframework.session:spring-session-jdbc'       
 	
 	// API 문서화
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'

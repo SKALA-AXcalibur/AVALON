@@ -3,7 +3,7 @@ package com.sk.skala.axcalibur.feature.dto;
 import java.util.List;
 
 import com.sk.skala.axcalibur.feature.dto.item.ApiItem;
-import com.sk.skala.axcalibur.feature.dto.item.RequirementItem;
+import com.sk.skala.axcalibur.feature.dto.item.ReqItem;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SaveProjectRequestDto {
     
-    private List<RequirementItem> requirement;
+    private List<ReqItem> requirement;
     private List<ApiItem> apiList;
     
 }

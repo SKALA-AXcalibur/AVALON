@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiItem {
+    
     private String id;                          // API 아이디
     private String name;                        // API 이름
     private String desc;                        // API 설명
