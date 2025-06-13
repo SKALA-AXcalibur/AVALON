@@ -379,23 +379,29 @@ public class ProjectServiceImpl implements ProjectService {
         if (paramGroup == null) {
             return;
         }
-        
-        // PATH_QUERY 파라미터 처리
-        if (paramGroup.getPq() != null) {
-            ParameterItem paramItem = convertToParameterItem(paramGroup.getPq());
-            processParameterItems(apiList, List.of(paramItem), groupType);
-        }
-        
-        // REQUEST 파라미터 처리
-        if (paramGroup.getReq() != null) {
-            ParameterItem paramItem = convertToParameterItem(paramGroup.getReq());
-            processParameterItems(apiList, List.of(paramItem), groupType);
-        }
-        
-        // RESPONSE 파라미터 처리
-        if (paramGroup.getRes() != null) {
-            ParameterItem paramItem = convertToParameterItem(paramGroup.getRes());
-            processParameterItems(apiList, List.of(paramItem), groupType);
+
+        switch (groupType) {
+            case "PATH_QUERY":
+                // PATH_QUERY 파라미터 처리
+                if (paramGroup.getPq() != null) {
+                    ParameterItem paramItem = convertToParameterItem(paramGroup.getPq());
+                            processParameterItems(apiList, List.of(paramItem), groupType);
+                }
+                break;
+            case "REQUEST":
+                // REQUEST 파라미터 처리
+                if (paramGroup.getReq() != null) {
+                    ParameterItem paramItem = convertToParameterItem(paramGroup.getReq());
+                    processParameterItems(apiList, List.of(paramItem), groupType);
+                }
+                break;
+            case "RESPONSE":
+                // RESPONSE 파라미터 처리
+                if (paramGroup.getRes() != null) {
+                    ParameterItem paramItem = convertToParameterItem(paramGroup.getRes());
+                    processParameterItems(apiList, List.of(paramItem), groupType);
+                }
+                break;
         }
     }
 
