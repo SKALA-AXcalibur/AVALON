@@ -27,7 +27,7 @@ const ScenarioLayout = async ({
           scenarioId={scenarioId}
           testcaseId={testcaseId}
         />
-        <main className="flex-1 p-12 overflow-y-auto h-[calc(100vh-128px)]">
+        <main className="flex-1 p-12 overflow-y-auto h-[calc(100vh-84px)]">
           {children}
         </main>
       </div>

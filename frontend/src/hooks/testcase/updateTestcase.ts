@@ -19,6 +19,7 @@ const useUpdateTestcase = () => {
       return true;
     } catch (error) {
       console.error(error);
+      return false;
     } finally {
       setIsLoading(false);
     }

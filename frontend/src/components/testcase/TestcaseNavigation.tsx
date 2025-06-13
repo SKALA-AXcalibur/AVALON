@@ -50,7 +50,7 @@ const TestcaseNavigation = ({
       >
         삭제
       </ActionButton>
-      {scenarioId === "new" ? (
+      {testcaseInfo.tcId === "new" ? (
         <ActionButton
           onClick={handleCreateTestcase}
           color="bg-green-500 hover:bg-green-600"

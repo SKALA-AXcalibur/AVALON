@@ -27,6 +27,7 @@ const useDeleteTestcase = () => {
       return true;
     } catch (error) {
       console.error(error);
+      return false;
     } finally {
       setIsLoading(false);
     }

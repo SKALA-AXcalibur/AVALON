@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TestData } from "@/interfaces/testcase";
 
 const TestcaseDataTable = ({
@@ -11,8 +11,14 @@ const TestcaseDataTable = ({
 }) => {
   const [rows, setRows] = useState<TestData[]>(testDataList);
 
+  useEffect(() => {
+    if (rows.length === 0 && testDataList.length > 0) {
+      setRows(testDataList);
+    }
+  }, [testDataList]);
+
   const addRow = () => {
-    const newRows = [...rows, { key: "", type: "string", value: "" }];
+    const newRows = [...rows, { key: "", type: "string" as const, value: "" }];
     setRows(newRows);
     updateTestcaseParameters(newRows);
   };
