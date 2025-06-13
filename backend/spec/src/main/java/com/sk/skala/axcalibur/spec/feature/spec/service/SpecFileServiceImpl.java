@@ -49,7 +49,7 @@ public class SpecFileServiceImpl implements SpecFileService {
             .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 프로젝트입니다.", ErrorCode.PROJECT_NOT_FOUND));
         String projectId = projectContext.getProjectId();
 
-        FileTypeEntity fileTypeEntity = fileTypeRepository.findById(fileType).orElseThrow(() -> new IllegalArgumentException("파일 유형이 존재하지 않습니다."));
+        FileTypeEntity fileTypeEntity = fileTypeRepository.findById(fileType).orElseThrow(() -> new BusinessExceptionHandler("파일 유형이 존재하지 않습니다.", ErrorCode.FILE_STORAGE_ERROR));
 
         // 삭제할 기존 파일 경로 리스트
         List<String> oldPathsToDelete = new ArrayList<>();
