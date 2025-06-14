@@ -1,40 +1,24 @@
 package com.sk.skala.axcalibur.apitest.feature.controller;
 
+
 import com.sk.skala.axcalibur.apitest.feature.dto.request.ExcuteApiTestRequestDto;
-import com.sk.skala.axcalibur.apitest.feature.service.ApiTestService;
 import com.sk.skala.axcalibur.apitest.global.response.SuccessResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
-@Controller
-@RequiredArgsConstructor
-@Slf4j
-@RequestMapping("/test/v1")
-public class ApiTestController implements IApiTestController{
-
-  private final ApiTestService svc;
-
-
-  @PostMapping
-  @Override
-  public ResponseEntity<SuccessResponse<?>> executeApiTest(
+public interface ApiTestController {
+  // API 테스트 실행
+  @Operation(summary = "API 테스트 실행", description = "JSON 형태의 시나리오에 대해 테스트 도구를 활용해 API 테스트를 실행한다.")
+  ResponseEntity<SuccessResponse<?>> executeApiTest(
       ExcuteApiTestRequestDto dto,
-      @CookieValue(name = "avalon") String avalon) {
-    return null;
-  }
-
-  @GetMapping("/{testExecutionId}")
-  @Override
-  public ResponseEntity<SuccessResponse<?>> getApiTestResult(
+      @Parameter(hidden = true) @CookieValue(name = "avalon") String avalon);
+  // API 테스트 실행 결과 조회
+  @Operation(summary = "API 테스트 실행 결과 조회", description = "API 테스트 실행 결과 데이터를 조회하여 실행 결과를 반환한다.")
+  ResponseEntity<SuccessResponse<?>> getApiTestResult(
       @PathVariable(name = "testExecutionId") String testExecutionId,
-      @CookieValue(name = "avalon") String avalon) {
-    return null;
-  }
+      @Parameter(hidden = true) @CookieValue(name = "avalon") String avalon);
+
 }

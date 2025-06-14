@@ -9,7 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -24,7 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "testcase_result")
-public class TestcaseResult extends BaseTimeEntity {
+public class TestcaseResultEntity extends BaseTimeEntity {
 
   @Id
   @Column(name = "`key`", nullable = false)
@@ -35,24 +34,20 @@ public class TestcaseResult extends BaseTimeEntity {
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "testcase_id", nullable = false)
   // 테스트케이스 키
-  private Testcase testcase;
+  private TestcaseEntity testcaseEntity;
 
   @Column(name = "result", length = 50)
   // 수행 결과
   private String result;
 
   @Column(name = "success", nullable = false)
+  @Builder.Default
   // 성공 여부
-  private Boolean success;
+  private Boolean success = false;
 
   @Column(name = "time")
   // 수행시간
   private LocalDateTime time;
 
-  @PrePersist
-  public void prePersist() {
-    if (this.success == null) {
-      this.success = false; // 기본값 설정
-    }
-  }
+
 }
