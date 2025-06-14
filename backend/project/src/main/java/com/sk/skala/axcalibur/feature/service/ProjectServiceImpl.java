@@ -327,7 +327,6 @@ public class ProjectServiceImpl implements ProjectService {
      
     private ParameterDetailDto convertParameterEntityToDto(ParameterEntity param) {
         ParameterDetailDto.ParameterDetailDtoBuilder builder = ParameterDetailDto.builder()
-                .id(param.getId())
                 .korName(param.getNameKo())
                 .name(param.getName())
                 .itemType(param.getCategoryKey() != null ? param.getCategoryKey().getName() : null)
@@ -407,7 +406,6 @@ public class ProjectServiceImpl implements ProjectService {
             }
 
             ParameterEntity.ParameterEntityBuilder builder = ParameterEntity.builder()
-                .id(generateParameterId(paramItem.getName(), apiList))
                 .nameKo(paramItem.getKorName())
                 .name(paramItem.getName())
                 .dataType(paramItem.getDataType())
@@ -499,21 +497,5 @@ public class ProjectServiceImpl implements ProjectService {
         boolean hasNoDataType = (paramItem.getDataType() == null || paramItem.getDataType().trim().isEmpty());
         
         return hasNoName && hasNoDataType;
-    }
-
-    private String generateParameterId(String paramName, ApiListEntity apiList) {
-        // API ID의 첫 3자리
-        String apiPrefix = apiList.getId() != null ? apiList.getId().substring(0, Math.min(3, apiList.getId().length())) : "API";
-        
-        // 파라미터 이름의 첫 3자리 (영문자, 숫자만)
-        String paramPrefix = paramName != null ? 
-            paramName.replaceAll("[^a-zA-Z0-9]", "").substring(0, Math.min(3, paramName.length())).toUpperCase() : 
-            "PAR";
-        
-        // UUID의 첫 8자리
-        String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
-        
-        // 최종 ID: API3 + PAR3 + UUID8 = 14자
-        return apiPrefix + paramPrefix + uuid;
     }
 }

@@ -28,9 +28,6 @@ public class ParameterEntity extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
     private Integer key;                 // 파라미터 키 (PK, AUTO_INCREMENT)
-    
-    @Column(name = "id", nullable = false, length = 30, unique = true)
-    private String id;                   // 파라미터 ID (UNIQUE)
 
     @Column(name = "name_ko", length = 100, nullable = false)
     private String nameKo;              // 파라미터 한글명
