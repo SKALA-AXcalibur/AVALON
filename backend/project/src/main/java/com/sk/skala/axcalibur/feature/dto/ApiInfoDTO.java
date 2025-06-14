@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiInfoDto {
-    private Long apiPk;         // API PK
+    private Integer apiPk;         // API PK
     private String id;          // API 아이디
     private String name;        // API 이름
     private String desc;        // API 설명

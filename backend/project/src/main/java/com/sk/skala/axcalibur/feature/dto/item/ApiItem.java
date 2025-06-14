@@ -1,5 +1,7 @@
 package com.sk.skala.axcalibur.feature.dto.item;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +20,7 @@ public class ApiItem {
     private String url;                         // API URL
     private String path;                        // API Path
 
-    private ParameterGroup pathQuery;      // Path/Query 파라미터 목록
-    private ParameterGroup request;        // Request 파라미터 목록  
-    private ParameterGroup response;       // Response 파라미터 목록
+    private List<ParameterItem> pathQuery;      // Path/Query 파라미터 목록
+    private List<ParameterItem> request;        // Request 파라미터 목록  
+    private List<ParameterItem> response;       // Response 파라미터 목록
 }

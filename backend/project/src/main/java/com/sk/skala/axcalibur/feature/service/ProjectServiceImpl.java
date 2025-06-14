@@ -22,7 +22,6 @@ import com.sk.skala.axcalibur.feature.dto.RequirementInfoDto;
 import com.sk.skala.axcalibur.feature.dto.SaveProjectRequestDto;
 import com.sk.skala.axcalibur.feature.dto.SaveProjectResponseDto;
 import com.sk.skala.axcalibur.feature.dto.item.ApiItem;
-import com.sk.skala.axcalibur.feature.dto.item.ParameterGroup;
 import com.sk.skala.axcalibur.feature.dto.item.ParameterItem;
 import com.sk.skala.axcalibur.feature.dto.item.ReqItem;
 import com.sk.skala.axcalibur.feature.entity.ProjectEntity;
@@ -96,19 +95,19 @@ public class ProjectServiceImpl implements ProjectService {
 
                 // 분류 정보 처리 (없으면 자동 생성)
                 if (reqItem.getPriority() != null) {
-                    PriorityEntity priority = findOrCreatePriority(reqItem.getPriority());
+                    PriorityEntity priority = findPriority(reqItem.getPriority());
                     reqBuilder.priorityKey(priority);
                 }
                 if (reqItem.getMajor() != null) {
-                    RequestMajorEntity major = findOrCreateRequestMajor(reqItem.getMajor());
+                    RequestMajorEntity major = findRequestMajor(reqItem.getMajor());
                     reqBuilder.majorKey(major);
                 }
                 if (reqItem.getMiddle() != null) {
-                    RequestMiddleEntity middle = findOrCreateRequestMiddle(reqItem.getMiddle());
+                    RequestMiddleEntity middle = findRequestMiddle(reqItem.getMiddle());
                     reqBuilder.middleKey(middle);
                 }
                 if (reqItem.getMinor() != null) {
-                    RequestMinorEntity minor = findOrCreateRequestMinor(reqItem.getMinor());
+                    RequestMinorEntity minor = findRequestMinor(reqItem.getMinor());
                     reqBuilder.minorKey(minor);
                 }
                 
@@ -184,15 +183,15 @@ public class ProjectServiceImpl implements ProjectService {
         List<FilePathEntity> filePaths = project.getFilePaths();
         for (FilePathEntity filePathEntity : filePaths) {
             java.nio.file.Path path = java.nio.file.Paths.get(filePathEntity.getPath());
+            
             if (!java.nio.file.Files.exists(path)) {
-                throw new BusinessExceptionHandler(ErrorCode.IO_ERROR);
-            }
-            try {
-                java.nio.file.Files.delete(path);
-                log.info("파일 삭제 완료: {}", filePathEntity.getPath());
-            } catch (IOException e) {
-                log.error("파일 삭제 중 오류 발생: {}", e.getMessage());
-                throw new BusinessExceptionHandler(ErrorCode.IO_ERROR);
+                try {
+                    java.nio.file.Files.delete(path);
+                    log.info("파일 삭제 완료: {}", filePathEntity.getPath());
+                } catch (IOException e) {
+                    log.error("파일 삭제 중 오류 발생: {}", e.getMessage());
+                    throw new BusinessExceptionHandler(ErrorCode.IO_ERROR);
+                }
             }
         }
         
@@ -252,8 +251,7 @@ public class ProjectServiceImpl implements ProjectService {
     // ========================================
 
     // avalon 토큰을 Redis에 저장
-     
-    @Transactional
+    
     private void saveAvalonToRedis(String avalon, Integer projectKey) {
         avalonCookieRepository.save(AvalonCookieEntity.builder()
             .token(avalon)
@@ -312,7 +310,7 @@ public class ProjectServiceImpl implements ProjectService {
             .map(this::convertParameterEntityToDto).collect(Collectors.toList());
 
         return ApiInfoDto.builder()
-                .apiPk(api.getKey().longValue())
+                .apiPk(api.getKey())
                 .id(api.getId())
                 .name(api.getName())
                 .desc(api.getDescription())
@@ -365,7 +363,7 @@ public class ProjectServiceImpl implements ProjectService {
     /**
      * 파라미터 그룹 내의 개별 파라미터들을 처리
      */
-    private void processParameterGroup(ApiListEntity apiList, ParameterGroup paramGroup, String groupType) {
+    private void processParameterGroup(ApiListEntity apiList, List<ParameterItem> paramGroup, String groupType) {
         if (paramGroup == null) {
             log.debug("파라미터 그룹이 null입니다. groupType: {}", groupType);
             return;
@@ -383,14 +381,14 @@ public class ProjectServiceImpl implements ProjectService {
     /**
      * 그룹 타입에 해당하는 파라미터 목록을 반환
      */
-    private List<ParameterItem> getTargetParameters(ParameterGroup paramGroup, String groupType) {
+    private List<ParameterItem> getTargetParameters(List<ParameterItem> paramGroup, String groupType) {
         switch (groupType) {
             case PARAM_TYPE_PATH_QUERY:
-                return paramGroup.getPq();
+                return paramGroup;
             case PARAM_TYPE_REQUEST:
-                return paramGroup.getReq();
+                return paramGroup;
             case PARAM_TYPE_RESPONSE:
-                return paramGroup.getRes();
+                return paramGroup;
             default:
                 log.warn("지원하지 않는 파라미터 그룹 타입입니다: {}", groupType);
                 return null;
@@ -418,8 +416,8 @@ public class ProjectServiceImpl implements ProjectService {
                 .required(paramItem.getRequired())
                 .description(paramItem.getDesc())
                 .apiListKey(apiList)
-                .categoryKey(findOrCreateCategory(paramType))
-                .contextKey(findOrCreateContext(paramType));
+                .categoryKey(findCategory(paramType))
+                .contextKey(findContext(paramType));
 
             if (paramItem.getLength() > 0) {
                 builder.length(paramItem.getLength());
@@ -439,18 +437,18 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     
-    // 카테고리 조회 또는 생성 (PATH_QUERY, REQUEST, RESPONSE)
+    // 카테고리 조회
      
     @Transactional
-    private CategoryEntity findOrCreateCategory(String name) {
+    private CategoryEntity findCategory(String name) {
         return categoryRepository.findByName(name)
             .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
-    // 컨텍스트 조회 또는 생성
+    // 컨텍스트 조회
      
     @Transactional
-    private ContextEntity findOrCreateContext(String name) {
+    private ContextEntity findContext(String name) {
         return contextRepository.findByName(name)
             .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
@@ -465,28 +463,28 @@ public class ProjectServiceImpl implements ProjectService {
 
     // 우선순위 엔티티 조회
     @Transactional
-    private PriorityEntity findOrCreatePriority(String name) {
+    private PriorityEntity findPriority(String name) {
         return priorityRepository.findByName(name)
             .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
     // 요구사항 대분류 엔티티 조회
     @Transactional
-    private RequestMajorEntity findOrCreateRequestMajor(String name) {
+    private RequestMajorEntity findRequestMajor(String name) {
         return requestMajorRepository.findByName(name)
             .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
     // 요구사항 중분류 엔티티 조회
     @Transactional
-    private RequestMiddleEntity findOrCreateRequestMiddle(String name) {
+    private RequestMiddleEntity findRequestMiddle(String name) {
         return requestMiddleRepository.findByName(name)
             .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }
 
     // 요구사항 소분류 엔티티 조회
     @Transactional
-    private RequestMinorEntity findOrCreateRequestMinor(String name) {
+    private RequestMinorEntity findRequestMinor(String name) {
         return requestMinorRepository.findByName(name)
             .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
     }

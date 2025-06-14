@@ -130,12 +130,17 @@ public class ProjectController {
         log.info("[프로젝트 생성] 요청. projectId: {}", request.getProjectId());
         CreateProjectResponseDto response = projectService.createProject(request);
 
+        ResponseCookie cookie = ResponseCookie.from("avalon", response.getAvalon())
+                .path("/")
+                .build();
+
         //  응답 시간 설정
         String responseTime = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
 
         return ResponseEntity
                 .status(SuccessCode.INSERT_SUCCESS.getStatus())
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header("responseTime", responseTime)
                 .body(new SuccessResponse<>(response, SuccessCode.INSERT_SUCCESS, "프로젝트 생성 성공"));
     }
