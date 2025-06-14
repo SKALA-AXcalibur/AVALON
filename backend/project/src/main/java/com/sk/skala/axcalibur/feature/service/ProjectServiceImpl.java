@@ -184,7 +184,7 @@ public class ProjectServiceImpl implements ProjectService {
         for (FilePathEntity filePathEntity : filePaths) {
             java.nio.file.Path path = java.nio.file.Paths.get(filePathEntity.getPath());
             
-            if (!java.nio.file.Files.exists(path)) {
+            if (java.nio.file.Files.exists(path)) {
                 try {
                     java.nio.file.Files.delete(path);
                     log.info("파일 삭제 완료: {}", filePathEntity.getPath());
@@ -419,7 +419,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .categoryKey(findCategory(paramType))
                 .contextKey(findContext(paramType));
 
-            if (paramItem.getLength() > 0) {
+            if (paramItem.getLength() != null && paramItem.getLength() > 0) {
                 builder.length(paramItem.getLength());
             }
 

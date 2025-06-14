@@ -132,6 +132,8 @@ public class ProjectController {
 
         ResponseCookie cookie = ResponseCookie.from("avalon", response.getAvalon())
                 .path("/")
+                .httpOnly(true)
+                .secure(true)
                 .build();
 
         //  응답 시간 설정
