@@ -13,7 +13,7 @@ from controller.router import router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
-    FastAPI 애플리케이션의 생애주기 관리
+    FastAPI 시작 및 종료 이벤트 핸들러
     """
     # 여기에 애플리케이션 시작 시 필요한 초기화 작업을 추가할 수 있습니다.
     print("Starting AVALON AI application...")
