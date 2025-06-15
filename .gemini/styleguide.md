@@ -1,4 +1,4 @@
-** IMPORTANT: All code reviews, comments and responses must be written in Korean. **
+** IMPORTANT: All code reviews, summaries, comments, and other responses must be written in Korean. **
 
 ---
 
