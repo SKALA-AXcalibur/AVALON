@@ -1,44 +1,51 @@
 "use client";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { ApiTestResult } from "@/interfaces/apiTest";
+import ActionButton from "@/components/common/ActionButton";
+import { useReadScenarioReport } from "@/hooks/test-run/readScenarioReport";
 
-const scenarioList = [
-  {
-    id: "scenario-1",
-    title: "시나리오 #1",
-    icon: "fail",
-    iconColor: "text-red-500",
-  },
-  {
-    id: "scenario-2",
-    title: "시나리오 #2",
-    icon: "success",
-    iconColor: "text-green-500",
-  },
-];
-
-const TestRunSidebar = () => {
-  const params = useParams();
+const TestRunSidebar = ({
+  apiTestResult,
+}: {
+  apiTestResult: ApiTestResult;
+}) => {
+  const { readScenarioReport, isLoading: isReadingScenarioReport } =
+    useReadScenarioReport();
 
   return (
     <aside className="w-72 bg-slate-50 border-r border-slate-200 flex flex-col">
       <div className="flex-1 p-6 overflow-y-auto">
-        {scenarioList.map((s) => (
+        {apiTestResult.scenarioList.map((s) => (
           <Link
-            key={s.id}
-            href={`/project/${params["project-id"]}/test-run/${s.id}`}
+            key={s.scenarioId}
+            href={`/project/${apiTestResult.projectId}/test-run/${s.scenarioId}`}
           >
-            <div key={s.id} className="mb-8 flex items-center justify-between">
-              <div className="font-bold text-slate-800">{s.title}</div>
-              <span className={`material-icons ${s.iconColor}`}>{s.icon}</span>
+            <div
+              key={s.scenarioId}
+              className="mb-8 flex items-center justify-between"
+            >
+              <div className="font-bold text-slate-800">{s.scenarioName}</div>
+              <span
+                className={`material-icons ${
+                  s.scenarioExecution ? "text-green-500" : "text-red-500"
+                }`}
+              >
+                {s.scenarioExecution ? "pass" : "fail"}
+              </span>
             </div>
           </Link>
         ))}
       </div>
       <div className="p-6 border-t border-slate-200">
-        <button className="w-full bg-emerald-500 text-white rounded-lg py-3 flex items-center justify-center gap-2">
+        <ActionButton
+          onClick={() => {
+            readScenarioReport();
+          }}
+          color="w-full bg-emerald-500 hover:bg-emerald-600 justify-center"
+          isLoading={isReadingScenarioReport}
+        >
           시나리오 다운로드
-        </button>
+        </ActionButton>
       </div>
     </aside>
   );

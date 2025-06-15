@@ -2,15 +2,25 @@
 import ActionButton from "@/components/common/ActionButton";
 import LinkButton from "@/components/common/LinkButton";
 import useLogout from "@/hooks/auth/logout";
+import { useRunApiTest } from "@/hooks/test-run/runApiTest";
 import useGenerateTestcases from "@/hooks/testcase/generateTestcases";
-import { useParams, usePathname } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 
 const Navigation = () => {
   const { "project-id": projectId, "scenario-id": scenarioId } = useParams();
+  const router = useRouter();
   const pathname = usePathname();
   const { logout, isLoading: isLoggingOut } = useLogout();
   const { generateTestcases, isLoading: isGeneratingTestcases } =
     useGenerateTestcases();
+  const { runApiTest, isLoading: isRunningApiTest } = useRunApiTest();
+
+  const handleRunApiTest = async () => {
+    const result = await runApiTest();
+    if (result) {
+      router.push(`/project/${projectId}/test-run/${scenarioId}`);
+    }
+  };
 
   return (
     <nav className="flex flex-wrap gap-2">
@@ -37,13 +47,13 @@ const Navigation = () => {
           >
             TC 일괄 생성
           </ActionButton>
-          <LinkButton
-            href={`/project/${projectId}/test-run/${scenarioId}`}
+          <ActionButton
+            onClick={handleRunApiTest}
             color="bg-emerald-500 hover:bg-emerald-600"
-            ariaLabel="테스트 실행하기"
+            isLoading={isRunningApiTest}
           >
             테스트 실행
-          </LinkButton>
+          </ActionButton>
         </>
       ) : (
         <LinkButton
