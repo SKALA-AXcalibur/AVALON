@@ -1,4 +1,3 @@
-import Header from "@/components/common/header/Header";
 import Sidebar from "@/components/common/Sidebar";
 
 const ScenarioLayout = async ({
@@ -19,18 +18,15 @@ const ScenarioLayout = async ({
   } = await params;
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <Header projectId={projectId} />
-      <div className="flex flex-1">
-        <Sidebar
-          projectId={projectId}
-          scenarioId={scenarioId}
-          testcaseId={testcaseId}
-        />
-        <main className="flex-1 p-12 overflow-y-auto h-[calc(100vh-84px)]">
-          {children}
-        </main>
-      </div>
+    <div className="flex flex-1">
+      <Sidebar
+        projectId={projectId}
+        scenarioId={scenarioId}
+        testcaseId={testcaseId}
+      />
+      <main className="flex-1 p-12 overflow-y-auto h-[calc(100vh-84px)]">
+        {children}
+      </main>
     </div>
   );
 };
