@@ -4,11 +4,17 @@ on:
     types: [closed]
     branches:
       - dev
-      - dev-backend
+      - dev-backend-spec
+      - dev-backend-scenario
+      - dev-backend-api-test
       - dev-frontend
+      - dev-ai
       - release
-      - release-backend
+      - release-backend-spec
+      - release-backend-scenario
+      - release-backend-api-test
       - release-frontend
+      - release-ai
 
 jobs:
   closeIssueOnPrMergeTrigger:
