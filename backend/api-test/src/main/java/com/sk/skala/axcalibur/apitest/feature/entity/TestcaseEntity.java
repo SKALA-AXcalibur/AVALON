@@ -27,7 +27,7 @@ public class TestcaseEntity {
   @Column(name = "`key`", nullable = false)
   private Integer id;
 
-  @OneToMany(mappedBy = "testcaseEntity")
-  private List<TestcaseDataEntity> testcaseDatumEntities; // 테스트 케이스에 속한 데이터 목록
+  @OneToMany(mappedBy = "testcase")
+  private List<TestcaseDataEntity> testcaseDatas; // 테스트 케이스에 속한 데이터 목록
 
 }

@@ -3,7 +3,9 @@ package com.sk.skala.axcalibur.apitest.feature.repository;
 import com.sk.skala.axcalibur.apitest.feature.entity.AvalonCookieEntity;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface AvalonRepository extends CrudRepository<AvalonCookieEntity, String> {
 
   /**
@@ -11,6 +13,6 @@ public interface AvalonRepository extends CrudRepository<AvalonCookieEntity, Str
    * @param token 쿠키 토큰
    * @return  아발론 쿠키 엔티티
    */
-  Optional<AvalonCookieEntity> findAvalonCookieEntityByToken(String token);
+  Optional<AvalonCookieEntity> findByToken(String token);
 
 }

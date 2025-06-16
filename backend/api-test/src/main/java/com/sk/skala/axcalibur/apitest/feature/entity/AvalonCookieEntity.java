@@ -1,16 +1,19 @@
 package com.sk.skala.axcalibur.apitest.feature.entity;
 
-import jakarta.persistence.Id;
+
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
 // Redis 기반 아발론 쿠키 엔티티
 @RedisHash(value = "avalon_cookie", timeToLive = 86400) // TTL 기간 (하루)
 @Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class AvalonCookieEntity {

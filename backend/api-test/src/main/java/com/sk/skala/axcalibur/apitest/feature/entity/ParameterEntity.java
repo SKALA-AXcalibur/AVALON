@@ -45,15 +45,15 @@ public class ParameterEntity {
   // 연관 관계
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "apilist_key", nullable = false)
-  private ApiListEntity apiListEntity;
+  private ApiListEntity apiList;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "category_key", nullable = false)
-  private CategoryEntity categoryEntity;
+  private CategoryEntity category;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "context_key", nullable = false)
-  private ContextEntity contextEntity;
+  private ContextEntity context;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "parent_key")
