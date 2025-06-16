@@ -60,8 +60,9 @@ async def parse_requirement_file(upload_file: UploadFile):
         }
         requirements.append(Requirement(**requirement_data))
 
-    spec_upload_request = SpecUploadRequest(requirement=requirements)
-    return spec_upload_request
+    # spec_upload_request = SpecUploadRequest(requirement=requirements)
+    # return spec_upload_request
+    return requirements
 
 
 
