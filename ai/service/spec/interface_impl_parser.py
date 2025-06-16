@@ -9,7 +9,7 @@ from loguru import logger
 from dto.request.spec.api import Api
 from dto.request.spec.param import Param
 
-class SpecParserService:
+class InterfaceImplParserService:
     async def parse_interface_file(self, upload_file: UploadFile) -> List[Api]:
         contents = await upload_file.read()
         excel_bytes = BytesIO(contents)
