@@ -22,4 +22,5 @@ async def lifespan(app: FastAPI):
     # 여기에 애플리케이션 종료 시 필요한 정리 작업을 추가할 수 있습니다.
 
 app = FastAPI(lifespan=lifespan)
+
 app.include_router(router)
