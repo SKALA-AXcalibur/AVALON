@@ -29,11 +29,11 @@ public class TestcaseDataEntity {
 
   @ManyToOne
   @JoinColumn(name = "parameter_key", nullable = false)
-  private ParameterEntity parameterEntity; // 파라미터 (FK, NOT NULL)
+  private ParameterEntity parameter; // 파라미터 (FK, NOT NULL)
 
   @ManyToOne
   @JoinColumn(name = "testcase_key", nullable = false)
-  private TestcaseEntity testcaseEntity; // 테스트 케이스 (FK, NOT NULL)
+  private TestcaseEntity testcase; // 테스트 케이스 (FK, NOT NULL)
 
   @Column(name = "value", length = 50)
   private String value;

@@ -37,7 +37,7 @@ public class ApiListEntity {
   @Column(name = "method", nullable = false, length = 30)
   private String method;               // API 목록 메서드 (NOT NULL, 최대 30자)
 
-  @OneToMany(mappedBy = "api_list", fetch = FetchType.LAZY)
-  private List<ParameterEntity> parameterEntities; // API 목록에 속한 파라미터 목록
+  @OneToMany(mappedBy = "apiList", fetch = FetchType.LAZY)
+  private List<ParameterEntity> parameters; // API 목록에 속한 파라미터 목록
 
 }

@@ -37,9 +37,9 @@ public class MappingEntity {
   // 연관 관계
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "scenario_key", nullable = false)
-  private ScenarioEntity scenarioEntity;         // 시나리오 (N:1)
+  private ScenarioEntity scenario;         // 시나리오 (N:1)
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "apilist_key", nullable = false)
-  private ApiListEntity apiListEntity;           // API 목록 (N:1)
+  private ApiListEntity apiList;           // API 목록 (N:1)
 }

@@ -14,12 +14,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@ToString(exclude = {"mappings"})
 @Table(name = "scenario")
 public class ScenarioEntity {
 
@@ -29,10 +31,13 @@ public class ScenarioEntity {
   private Integer id;
 
   @Column(name = "id", nullable = false, unique = true)
-  private String senarioId;
+  private String scenarioId;
 
-  @OneToMany(mappedBy = "scenarioEntity", fetch = FetchType.LAZY)
-  private List<MappingEntity> mappingEntities;
+  @Column(name = "name", nullable = false, length = 50)
+  private String name;
+
+  @OneToMany(mappedBy = "scenario", fetch = FetchType.LAZY)
+  private List<MappingEntity> mappings;
 
   @Column(name = "project_key", nullable = false)
   private Integer projectKey; // 프로젝트 키

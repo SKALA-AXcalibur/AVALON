@@ -34,16 +34,16 @@ public class TestcaseResultEntity extends BaseTimeEntity {
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "testcase_id", nullable = false)
   // 테스트케이스 키
-  private TestcaseEntity testcaseEntity;
+  private TestcaseEntity testcase;
 
   @Column(name = "result", length = 50)
   // 수행 결과
   private String result;
 
-  @Column(name = "success", nullable = false)
+  @Column(name = "success", nullable = true)
   @Builder.Default
   // 성공 여부
-  private Boolean success = false;
+  private Boolean success = null;
 
   @Column(name = "time")
   // 수행시간

@@ -25,6 +25,9 @@ public enum ErrorCode {
 	// 잘못된 서버 요청
 	BAD_REQUEST_ERROR(400, "G001", "Bad Request Exception"),
 
+	// 인증되지 않은 사용자로 요청을 보낸 경우
+	UNAUTHORIZED_ERROR(401, "G001", "Unauthorized Exception"),
+
 	// @RequestBody 데이터 미 존재
 	REQUEST_BODY_MISSING_ERROR(400, "G002", "Required request body is missing"),
 
@@ -64,6 +67,9 @@ public enum ErrorCode {
 	// MultipartFile이 유효하지 않는 경우
 	NOT_VALID_MULTIPART_ERROR(400, "G014", "MultipartFile에 데이터가 존재하지 않는 경우 "),
 
+	// Validated으로 검사한 값이 유효하지 않은 경우
+	CONSTRAINT_VIOLATION_ERROR(400, "G015", "Validated으로 검사한 값이 유효하지 않은 경우"),
+
 	// 서버가 처리 할 방법을 모르는 경우 발생
 	INTERNAL_SERVER_ERROR(500, "G999", "Internal Server Error Exception"),
 
@@ -71,7 +77,9 @@ public enum ErrorCode {
 	 * ******************************* Custom Error CodeList ***************************************
 	 */
 	SAMPLE_INPUT_ERROR(400, "SM001", "에러 샘플 1"),
-	SAMPLE_PROCESSING_ERROR(500, "SM002", "에러 샘플 2")
+	SAMPLE_PROCESSING_ERROR(500, "SM002", "에러 샘플 2"),
+
+	SCENARIO_NOT_FOUND_ERROR(404, "SN001", "해당 시나리오를 찾을 수 없습니다."),
 
 
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sk.skala.axcalibur.apitest.global.code.ErrorCode;
 import com.sk.skala.axcalibur.apitest.global.response.ErrorResponse;
+import jakarta.validation.ConstraintViolationException;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -47,7 +48,8 @@ public class GlobalExceptionHandler {
 			stringBuilder.append(fieldError.getDefaultMessage());
 			stringBuilder.append(", ");
 		}
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_VALID_ERROR, String.valueOf(stringBuilder));
+		String reason = stringBuilder.toString();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_VALID_ERROR, "");
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -60,7 +62,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MissingRequestHeaderException.class)
 	protected ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(MissingRequestHeaderException ex) {
 		log.error("MissingRequestHeaderException", ex);
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.REQUEST_BODY_MISSING_ERROR, ex.getMessage());
+		String reason = ex.getMessage();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.REQUEST_BODY_MISSING_ERROR, "");
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -74,7 +77,8 @@ public class GlobalExceptionHandler {
 	protected ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
 		HttpMessageNotReadableException ex) {
 		log.error("HttpMessageNotReadableException", ex);
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.REQUEST_BODY_MISSING_ERROR, ex.getMessage());
+		String reason = ex.getMessage();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.REQUEST_BODY_MISSING_ERROR, "");
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -88,7 +92,8 @@ public class GlobalExceptionHandler {
 	protected ResponseEntity<ErrorResponse> handleMissingRequestHeaderExceptionException(
 		MissingServletRequestParameterException ex) {
 		log.error("handleMissingServletRequestParameterException", ex);
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.MISSING_REQUEST_PARAMETER_ERROR, ex.getMessage());
+		String reason = ex.getMessage();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.MISSING_REQUEST_PARAMETER_ERROR, "");
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -96,13 +101,14 @@ public class GlobalExceptionHandler {
 	/**
 	 * [Exception] 잘못된 서버 요청일 경우 발생한 경우
 	 *
-	 * @param e HttpClientErrorException
+	 * @param ex HttpClientErrorException
 	 * @return ResponseEntity<ErrorResponse>
 	 */
 	@ExceptionHandler(HttpClientErrorException.BadRequest.class)
-	protected ResponseEntity<ErrorResponse> handleBadRequestException(HttpClientErrorException e) {
-		log.error("HttpClientErrorException.BadRequest", e);
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.BAD_REQUEST_ERROR, e.getMessage());
+	protected ResponseEntity<ErrorResponse> handleBadRequestException(HttpClientErrorException ex) {
+		log.error("HttpClientErrorException.BadRequest", ex);
+		String reason = ex.getMessage();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.BAD_REQUEST_ERROR, "");
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -110,13 +116,14 @@ public class GlobalExceptionHandler {
 	/**
 	 * [Exception] 잘못된 주소로 요청 한 경우
 	 *
-	 * @param e NoHandlerFoundException
+	 * @param ex NoHandlerFoundException
 	 * @return ResponseEntity<ErrorResponse>
 	 */
 	@ExceptionHandler(NoHandlerFoundException.class)
-	protected ResponseEntity<ErrorResponse> handleNoHandlerFoundExceptionException(NoHandlerFoundException e) {
-		log.error("handleNoHandlerFoundExceptionException", e);
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_FOUND_ERROR, e.getMessage());
+	protected ResponseEntity<ErrorResponse> handleNoHandlerFoundExceptionException(NoHandlerFoundException ex) {
+		log.error("handleNoHandlerFoundExceptionException", ex);
+		String reason = ex.getMessage();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_FOUND_ERROR, "");
 		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 	}
 
@@ -124,13 +131,14 @@ public class GlobalExceptionHandler {
 	/**
 	 * [Exception] NULL 값이 발생한 경우
 	 *
-	 * @param e NullPointerException
+	 * @param ex NullPointerException
 	 * @return ResponseEntity<ErrorResponse>
 	 */
 	@ExceptionHandler(NullPointerException.class)
-	protected ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException e) {
-		log.error("handleNullPointerException", e);
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.NULL_POINT_ERROR, e.getMessage());
+	protected ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException ex) {
+		log.error("handleNullPointerException", ex);
+		String reason = ex.getMessage();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.NULL_POINT_ERROR, "");
 		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 	}
 
@@ -143,7 +151,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(IOException.class)
 	protected ResponseEntity<ErrorResponse> handleIOException(IOException ex) {
 		log.error("handleIOException", ex);
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.IO_ERROR, ex.getMessage());
+		String reason = ex.getMessage();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.IO_ERROR, "");
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -157,7 +166,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(JsonParseException.class)
 	protected ResponseEntity<ErrorResponse> handleJsonParseExceptionException(JsonParseException ex) {
 		log.error("handleJsonParseExceptionException", ex);
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.JSON_PARSE_ERROR, ex.getMessage());
+		String reason = ex.getMessage();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.JSON_PARSE_ERROR, "");
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -170,7 +180,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(JsonProcessingException.class)
 	protected ResponseEntity<ErrorResponse> handleJsonProcessingException(JsonProcessingException ex) {
 		log.error("handleJsonProcessingException", ex);
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.REQUEST_BODY_MISSING_ERROR, ex.getMessage());
+		String reason = ex.getMessage();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.REQUEST_BODY_MISSING_ERROR, "");
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -184,7 +195,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(NoResourceFoundException.class)
 	protected ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException ex) {
 		log.error("NoResourceFoundException", ex);
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_FOUND_ERROR, ex.getMessage());
+		String reason = ex.getMessage();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_FOUND_ERROR, "");
 		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 	}
 
@@ -198,7 +210,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MissingRequestCookieException.class)
 	protected ResponseEntity<ErrorResponse> handleMissingRequestCookieException(MissingRequestCookieException ex) {
 		log.error("MissingRequestCookieException", ex);
-		final ErrorResponse res = ErrorResponse.of(ErrorCode.NOT_VALID_COOKIE_ERROR, ex.getMessage());
+		String reason = ex.getMessage();
+		final ErrorResponse res = ErrorResponse.of(ErrorCode.NOT_VALID_COOKIE_ERROR, "");
 		return ResponseEntity.status(ErrorCode.NOT_VALID_COOKIE_ERROR.getStatus()).body(res);
 	}
 
@@ -210,14 +223,14 @@ public class GlobalExceptionHandler {
 	// @ExceptionHandler(SignatureException.class)
 	// protected ResponseEntity<ErrorResponse> handleSignatureException(SignatureException ex) {
 	// 	log.error("SignatureException", ex);
-	// 	final ErrorResponse response = ErrorResponse.of(ErrorCode.WRONG_TOKEN_ERROR, ex.getMessage());
+	// 	final ErrorResponse response = ErrorResponse.of(ErrorCode.WRONG_TOKEN_ERROR, "");
 	// 	return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 	// }
 
 	// @ExceptionHandler(MalformedJwtException.class)
 	// protected ResponseEntity<ErrorResponse> handleMalformedJwtException(MalformedJwtException ex) {
 	// 	log.error("MalformedJwtException", ex);
-	// 	final ErrorResponse response = ErrorResponse.of(ErrorCode.SECURITY_TOKEN_ERROR, ex.getMessage());
+	// 	final ErrorResponse response = ErrorResponse.of(ErrorCode.SECURITY_TOKEN_ERROR, "");
 	// 	return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 	// }
 
@@ -230,7 +243,16 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MultipartException.class)
 	protected ResponseEntity<ErrorResponse> handleMultipartException(MultipartException ex) {
 		log.error("MultipartException", ex);
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_VALID_MULTIPART_ERROR, ex.getMessage());
+		String reason = ex.getMessage();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_VALID_MULTIPART_ERROR, "");
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(ConstraintViolationException.class)
+	protected ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex) {
+		log.error("ConstraintViolationException", ex);
+		String reason = ex.getMessage();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.CONSTRAINT_VIOLATION_ERROR, "");
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
@@ -245,13 +267,15 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	protected final ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
 		log.error("Exception", ex);
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR, ex.getMessage());
+		String reason = ex.getMessage();
+		final ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR, "");
 		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@ExceptionHandler(BusinessExceptionHandler.class)
 	public ResponseEntity<ErrorResponse> handleCustomException(BusinessExceptionHandler ex) {
-		final ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), ex.getMessage());
+		final ErrorResponse response = ErrorResponse.of(ex.getErrorCode(), "");
+		String reason = ex.getMessage();
 		return new ResponseEntity<>(response, HttpStatus.valueOf(ex.getErrorCode().getStatus()));
 	}
 
