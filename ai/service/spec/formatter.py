@@ -6,7 +6,8 @@ from service.spec.interface_def_parser import InterfaceDefParserService
 
 from dto.request.spec.spec_upload_request import SpecUploadRequest
 
-def formatter(    requirementFile: UploadFile,
+def formatter(
+    requirementFile: UploadFile,
     interfaceDesign: UploadFile,
     interfaceDef: UploadFile,
     databaseDesign: UploadFile):
