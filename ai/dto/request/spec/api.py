@@ -14,7 +14,7 @@ class Api(BaseModel):
     desc: str
     method: str
     url: Optional[str] = None
-    req_id: str
+    req_id: str = ""
     path: str
     pathQuery: List[Param]
     request: List[Param]

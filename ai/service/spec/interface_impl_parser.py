@@ -10,7 +10,13 @@ from dto.request.spec.api import Api
 from dto.request.spec.param import Param
 
 class InterfaceImplParserService:
+    """
+    인터페이스 설계서 파일을 파싱하여 API 정보 리스트로 변환 수행하는 서비스 클래스
+    """
     async def parse_interface_file(self, upload_file: UploadFile) -> List[Api]:
+        """
+        FastAPI UploadFile 객체를 입력받아 모든 유효 시트를 파싱하여 Api 객체 리스트로 반환하는 함수
+        """
         contents = await upload_file.read()
         excel_bytes = BytesIO(contents)
         xls = pd.ExcelFile(excel_bytes)
@@ -27,6 +33,9 @@ class InterfaceImplParserService:
         return parsed_apis
 
     def find_valid_sheet_starts(self, xls: pd.ExcelFile) -> Dict[str, int]:
+        """
+        각 시트에서 '*** 입출력 파라미터 명세 ***'가 위치한 행 번호를 탐색하는 함수(실제 API 명세 시트 구분 위함)
+        """
         valid_starts = {}
 
         for sheet_name in xls.sheet_names:
@@ -39,6 +48,9 @@ class InterfaceImplParserService:
         return valid_starts
 
     def find_value_to_right(self, df: pd.DataFrame, keyword: str, offset: int = 1) -> str:
+        """
+        특정 키워드가 포함된 셀의 오른쪽 지정 offset만큼 떨어진 셀의 값을 반환하는 함수
+        """
         for i, row in df.iterrows():
             for j, cell in enumerate(row):
                 if isinstance(cell, str) and keyword in cell:
@@ -50,12 +62,18 @@ class InterfaceImplParserService:
         return ""
 
     def find_keyword_row(self, df: pd.DataFrame, keyword: str) -> int:
+        """
+        특정 키워드가 포함된 행의 인덱스를 반환하는 함수
+        """
         for i, row in df.iterrows():
             if any(isinstance(cell, str) and keyword in cell for cell in row):
                 return i
         return -1
 
     def parse_param_block(self, df: pd.DataFrame, start: int, end: int) -> List[Param]:
+        """
+        파라미터 블록 영역을 순회하며 Param 객체 리스트로 파싱하는 함수
+        """
         params = []
         for i in range(start, end):
             row = df.iloc[i]
@@ -82,6 +100,9 @@ class InterfaceImplParserService:
         return params
 
     def parse_interface_sheet(self, df: pd.DataFrame, start_row: int) -> Optional[Api]:
+        """
+        하나의 시트에서 API 메타 정보 및 파라미터 블록을 파싱하여 Api 객체로 반환하는 함수
+        """
         try:
             id_ = self.find_value_to_right(df, "인터페이스ID", offset=2)
             name = self.find_value_to_right(df, "인터페이스명", offset=2)
