@@ -20,7 +20,7 @@ class InterfaceDefParserService:
 
         # 시트명 판단을 위한 ExcelFile 객체 생성
         xls = pd.ExcelFile(excel_bytes)
-        sheet_name = self.find_interface_def_sheet(xls.sheet_names)
+        sheet_name = self.find_interface_def_sheet(xls)
 
         # BytesIO 포인터 다시 앞으로 (read_excel은 새로 읽어야 함)
         excel_bytes.seek(0)
@@ -51,13 +51,15 @@ class InterfaceDefParserService:
 
         return api_list
     
-    def find_interface_def_sheet(self, sheet_names: List[str]) -> str:
+    def find_interface_def_sheet(self, xls: pd.ExcelFile) -> str:
         """
         인터페이스 정의서 시트명을 추론:
         1. 시트명 중 '인터페이스정의서'가 있으면 우선 사용
         2. 없으면 시트 내에서 '업무Level1*'이 가장 먼저 나와있는 시트를 반환
         3. 없으면 마지막 시트를 fallback
         """
+        sheet_names = xls.sheet_names
+
         if "인터페이스정의서" in sheet_names:
             return "인터페이스정의서"
 

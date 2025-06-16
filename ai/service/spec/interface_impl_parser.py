@@ -2,7 +2,6 @@
 import pandas as pd
 from fastapi import UploadFile
 from typing import List, Dict, Optional
-from pydantic import BaseModel
 from io import BytesIO
 from loguru import logger
 
@@ -94,8 +93,8 @@ class InterfaceImplParserService:
                     desc=str(row[11]).strip() if not pd.isna(row[11]) else None,
                 )
                 params.append(param)
-            except Exception:
-                logger.warning(f"[파싱 실패] {i}행 - {e}")
+            except Exception as e:
+                logger.warning(f"[파싱 실패] {i}행 - {repr(e)}")
                 continue
         return params
 
