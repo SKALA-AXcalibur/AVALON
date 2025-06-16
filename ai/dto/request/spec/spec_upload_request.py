@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from dto.request.spec.requirement import Requirement
 from dto.request.spec.api import Api
-from dto.request.spec.db import Db
+from dto.request.spec.db import DbDesignDto
 
 '''
 명세서 분석 결과 request 객체 정의
@@ -13,4 +13,4 @@ from dto.request.spec.db import Db
 class SpecUploadRequest(BaseModel):
     requirement: List[Requirement]
     apiList: List[Api]
-    db_design: List[Db]
+    db_design: List[DbDesignDto]

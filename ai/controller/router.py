@@ -8,10 +8,11 @@
 from typing import Dict
 from fastapi import APIRouter, File, Form, Response, UploadFile, requests
 
+from service.spec.formatter import formatter 
 from service.spec.interface_def_parser import InterfaceDefParserService
 from service.spec.interface_impl_parser import InterfaceImplParserService
-from service.spec.db_design_parser import parse_db_design
-from service.spec.requirement_parser import parse_requirement_file
+from service.spec.db_design_parser import DbDesignParserService
+from service.spec.requirement_parser import RequirementParserService
 
 router = APIRouter()
 
@@ -33,7 +34,7 @@ async def analyze_spec(
     requirementFile: UploadFile = File(...),
     interfaceDef: UploadFile = File(...),
     interfaceDesign: UploadFile = File(...),
-    # databaseDesign: UploadFile = File(...),
+    databaseDesign: UploadFile = File(...)
 ) -> Response:
     """
     명세서 분석
@@ -52,7 +53,7 @@ async def analyze_spec(
     # def_result = await parser_def.map_req_ids_to_apis(interfaceDef, impl_result)
 
     # 포맷팅
-    result = formatter(requirementFile, interfaceDesign, interfaceDef, databaseDesign)
+    result = await formatter(requirementFile, interfaceDesign, interfaceDef, databaseDesign)
 
     # # 정보저장API로 POST 요청
     # response = requests.post(
@@ -60,7 +61,7 @@ async def analyze_spec(
     #     # json=result
     # )
 
-    return req_result, def_result
+    return result
 
 
 # @router.post("/api/scenario/v1/generate")
