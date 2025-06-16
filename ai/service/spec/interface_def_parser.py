@@ -55,8 +55,18 @@ class InterfaceDefParserService:
         """
         인터페이스 정의서 시트명을 추론:
         1. 시트명 중 '인터페이스정의서'가 있으면 우선 사용
-        2. 없으면 마지막 시트를 fallback
+        2. 없으면 시트 내에서 '업무Level1*'이 가장 먼저 나와있는 시트를 반환
+        3. 없으면 마지막 시트를 fallback
         """
         if "인터페이스정의서" in sheet_names:
             return "인터페이스정의서"
+
+        for sheet in sheet_names:
+            try:
+                df = xls.parse(sheet_name=sheet, header=None, nrows=5)
+                if df.astype(str).apply(lambda col: col.str.contains("업무Level1*", na=False)).any().any():
+                    return sheet
+            except Exception:
+                continue
+
         return sheet_names[-1]
