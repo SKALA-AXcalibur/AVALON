@@ -42,17 +42,17 @@ async def analyze_spec(
     """
 
     # 파싱 
-    req_result = await parse_requirement_file(requirementFile)
-    # db_result = await parse_db_design(databaseDesign)
+    # req_result = await parse_requirement_file(requirementFile)
+    # # db_result = await parse_db_design(databaseDesign)
 
-    parser_impl = InterfaceImplParserService()
-    impl_result = await parser_impl.parse_interface_file(interfaceDesign)
+    # parser_impl = InterfaceImplParserService()
+    # impl_result = await parser_impl.parse_interface_file(interfaceDesign)
 
-    parser_def = InterfaceDefParserService()
-    def_result = await parser_def.map_req_ids_to_apis(interfaceDef, impl_result)
+    # parser_def = InterfaceDefParserService()
+    # def_result = await parser_def.map_req_ids_to_apis(interfaceDef, impl_result)
 
     # 포맷팅
-    # result = formatter()
+    result = formatter(requirementFile, interfaceDesign, interfaceDef, databaseDesign)
 
     # # 정보저장API로 POST 요청
     # response = requests.post(
