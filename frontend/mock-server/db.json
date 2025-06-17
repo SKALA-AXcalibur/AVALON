@@ -1,0 +1,519 @@
+{
+  "projects": [
+    {
+      "id": 1750050552736,
+      "projectId": "hello",
+      "createdAt": "2025-06-16T05:09:12.736Z",
+      "avalon": "1977730be4c01aflqfkne0o48ijwknm4",
+      "scenarioList": [
+        {
+          "id": "scenario-1750053221151-0",
+          "name": "Process 692",
+          "description": "A comprehensive test flow for critical operations",
+          "validation": "Success rate > 99%",
+          "graph": "",
+          "testcaseList": [
+            {
+              "tcId": "testcase-1750120471896-0",
+              "precondition": "네트워크 연결이 안정적인 상태",
+              "description": "Check the boundary conditions",
+              "expectedResult": "요청한 데이터가 정확히 반환됨",
+              "testDataList": [
+                {
+                  "key": "status",
+                  "type": "array",
+                  "value": [
+                    1,
+                    2,
+                    3
+                  ]
+                },
+                {
+                  "key": "email",
+                  "type": "boolean",
+                  "value": false
+                },
+                {
+                  "key": "email",
+                  "type": "boolean",
+                  "value": true
+                }
+              ],
+              "isSuccess": false,
+              "executedTime": "416ms"
+            },
+            {
+              "tcId": "testcase-1750120471896-1",
+              "precondition": "사용자가 로그인한 상태",
+              "description": "Validate the data processing flow",
+              "expectedResult": "시스템이 정상적으로 응답함",
+              "testDataList": [
+                {
+                  "key": "productId",
+                  "type": "number",
+                  "value": 55
+                },
+                {
+                  "key": "phone",
+                  "type": "object",
+                  "value": {
+                    "key": "value"
+                  }
+                },
+                {
+                  "key": "quantity",
+                  "type": "array",
+                  "value": [
+                    1,
+                    2,
+                    3
+                  ]
+                }
+              ],
+              "isSuccess": null,
+              "executedTime": "22ms"
+            },
+            {
+              "tcId": "testcase-1750124373649-2",
+              "precondition": "test",
+              "description": "test",
+              "expectedResult": "test",
+              "testDataList": [
+                {
+                  "key": "world",
+                  "type": "boolean",
+                  "value": false
+                },
+                {
+                  "key": "hello",
+                  "type": "date",
+                  "value": "2025-05-13T15:22:39.589Z"
+                },
+                {
+                  "key": "userId",
+                  "type": "object",
+                  "value": {
+                    "key": "value"
+                  }
+                }
+              ],
+              "isSuccess": null,
+              "executedTime": "232ms"
+            },
+            {
+              "tcId": "testcase-1750124425439-3",
+              "precondition": "test",
+              "description": "test",
+              "expectedResult": "test",
+              "testDataList": [
+                {
+                  "key": "world",
+                  "type": "boolean",
+                  "value": false
+                },
+                {
+                  "key": "hello",
+                  "type": "date",
+                  "value": "2025-05-13T15:22:39.589Z"
+                },
+                {
+                  "key": "userId",
+                  "type": "object",
+                  "value": {
+                    "key": "value"
+                  }
+                }
+              ],
+              "isSuccess": true,
+              "executedTime": "441ms"
+            },
+            {
+              "tcId": "testcase-1750124576657-4",
+              "precondition": "test",
+              "description": "test",
+              "expectedResult": "test",
+              "testDataList": [
+                {
+                  "key": "world",
+                  "type": "boolean",
+                  "value": false
+                },
+                {
+                  "key": "hello",
+                  "type": "date",
+                  "value": "2025-05-13T15:22:39.589Z"
+                },
+                {
+                  "key": "userId",
+                  "type": "object",
+                  "value": {
+                    "key": "value"
+                  }
+                }
+              ],
+              "isSuccess": true,
+              "executedTime": "142ms"
+            }
+          ],
+          "isSuccess": null
+        },
+        {
+          "id": "scenario-1750053221151-1",
+          "name": "Scenario 204",
+          "description": "A comprehensive test flow for critical operations",
+          "validation": "Success rate > 99%",
+          "graph": "",
+          "testcaseList": [
+            {
+              "tcId": "testcase-1750120471896-1",
+              "precondition": "필요한 리소스가 할당된 상태",
+              "description": "Test the integration with other components",
+              "expectedResult": "성공적으로 데이터가 저장됨",
+              "testDataList": [
+                {
+                  "key": "email",
+                  "type": "date",
+                  "value": "2025-06-11T07:22:19.640Z"
+                },
+                {
+                  "key": "address",
+                  "type": "array",
+                  "value": [
+                    1,
+                    2,
+                    3
+                  ]
+                },
+                {
+                  "key": "price",
+                  "type": "object",
+                  "value": {
+                    "key": "value"
+                  }
+                }
+              ],
+              "isSuccess": true,
+              "executedTime": "135ms"
+            },
+            {
+              "tcId": "testcase-1750120471896-2",
+              "precondition": "필요한 리소스가 할당된 상태",
+              "description": "Test the integration with other components",
+              "expectedResult": "데이터가 올바르게 업데이트됨",
+              "testDataList": [
+                {
+                  "key": "productId",
+                  "type": "object",
+                  "value": {
+                    "key": "value"
+                  }
+                },
+                {
+                  "key": "productId",
+                  "type": "date",
+                  "value": "2025-06-04T09:34:36.350Z"
+                },
+                {
+                  "key": "address",
+                  "type": "date",
+                  "value": "2025-03-17T07:50:09.855Z"
+                }
+              ],
+              "isSuccess": true,
+              "executedTime": "204ms"
+            }
+          ],
+          "isSuccess": true
+        },
+        {
+          "id": "scenario-1750053221151-2",
+          "name": "Flow 306",
+          "description": "This scenario tests the basic functionality of the system",
+          "validation": "Error rate < 0.1%",
+          "graph": "",
+          "testcaseList": [
+            {
+              "tcId": "testcase-1750120471896-1",
+              "precondition": "데이터베이스가 초기화된 상태",
+              "description": "Check the boundary conditions",
+              "expectedResult": "데이터가 올바르게 업데이트됨",
+              "testDataList": [
+                {
+                  "key": "quantity",
+                  "type": "array",
+                  "value": [
+                    1,
+                    2,
+                    3
+                  ]
+                },
+                {
+                  "key": "userId",
+                  "type": "number",
+                  "value": 913
+                },
+                {
+                  "key": "orderId",
+                  "type": "date",
+                  "value": "2025-06-10T16:39:49.974Z"
+                }
+              ],
+              "isSuccess": true,
+              "executedTime": "78ms"
+            },
+            {
+              "tcId": "testcase-1750120471896-2",
+              "precondition": "사용자가 로그인한 상태",
+              "description": "Verify the basic functionality of the feature",
+              "expectedResult": "에러 메시지가 정확히 표시됨",
+              "testDataList": [
+                {
+                  "key": "quantity",
+                  "type": "date",
+                  "value": "2025-02-28T12:56:56.039Z"
+                },
+                {
+                  "key": "userId",
+                  "type": "boolean",
+                  "value": true
+                },
+                {
+                  "key": "productId",
+                  "type": "object",
+                  "value": {
+                    "key": "value"
+                  }
+                }
+              ],
+              "isSuccess": true,
+              "executedTime": "605ms"
+            }
+          ],
+          "isSuccess": true
+        },
+        {
+          "id": "scenario-1750053221151-3",
+          "name": "Workflow 110",
+          "description": "A comprehensive test flow for critical operations",
+          "validation": "Success rate > 99%",
+          "graph": "",
+          "testcaseList": [
+            {
+              "tcId": "testcase-1750120471896-1",
+              "precondition": "시스템이 정상적으로 실행 중인 상태",
+              "description": "Verify the basic functionality of the feature",
+              "expectedResult": "데이터가 올바르게 업데이트됨",
+              "testDataList": [
+                {
+                  "key": "price",
+                  "type": "array",
+                  "value": [
+                    1,
+                    2,
+                    3
+                  ]
+                },
+                {
+                  "key": "productId",
+                  "type": "string",
+                  "value": "test_q357be"
+                },
+                {
+                  "key": "productId",
+                  "type": "array",
+                  "value": [
+                    1,
+                    2,
+                    3
+                  ]
+                }
+              ]
+            },
+            {
+              "tcId": "testcase-1750120471896-2",
+              "precondition": "필요한 리소스가 할당된 상태",
+              "description": "Verify the basic functionality of the feature",
+              "expectedResult": "데이터가 올바르게 업데이트됨",
+              "testDataList": [
+                {
+                  "key": "price",
+                  "type": "string",
+                  "value": "test_yb33oc"
+                },
+                {
+                  "key": "productId",
+                  "type": "date",
+                  "value": "2025-05-10T10:43:07.547Z"
+                },
+                {
+                  "key": "address",
+                  "type": "date",
+                  "value": "2025-06-15T14:03:57.487Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "scenario-1750053221151-4",
+          "name": "Chain 601",
+          "description": "Performance testing scenario for system optimization",
+          "validation": "State transition validation",
+          "graph": "",
+          "testcaseList": [
+            {
+              "tcId": "testcase-1750120471896-1",
+              "precondition": "시스템이 정상적으로 실행 중인 상태",
+              "description": "Test the integration with other components",
+              "expectedResult": "시스템이 정상적으로 응답함",
+              "testDataList": [
+                {
+                  "key": "address",
+                  "type": "array",
+                  "value": [
+                    1,
+                    2,
+                    3
+                  ]
+                },
+                {
+                  "key": "orderId",
+                  "type": "object",
+                  "value": {
+                    "key": "value"
+                  }
+                },
+                {
+                  "key": "quantity",
+                  "type": "array",
+                  "value": [
+                    1,
+                    2,
+                    3
+                  ]
+                }
+              ]
+            },
+            {
+              "tcId": "testcase-1750120471896-2",
+              "precondition": "필요한 리소스가 할당된 상태",
+              "description": "Verify the basic functionality of the feature",
+              "expectedResult": "시스템이 정상적으로 응답함",
+              "testDataList": [
+                {
+                  "key": "quantity",
+                  "type": "string",
+                  "value": "test_nzds8b"
+                },
+                {
+                  "key": "price",
+                  "type": "object",
+                  "value": {
+                    "key": "value"
+                  }
+                },
+                {
+                  "key": "status",
+                  "type": "number",
+                  "value": 255
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "scenario-1750053221151-5",
+          "name": "test",
+          "description": "test",
+          "validation": "test",
+          "graph": "",
+          "testcaseList": [
+            {
+              "tcId": "testcase-1750120471896-1",
+              "precondition": "시스템이 정상적으로 실행 중인 상태",
+              "description": "Test the integration with other components",
+              "expectedResult": "데이터가 올바르게 업데이트됨",
+              "testDataList": [
+                {
+                  "key": "address",
+                  "type": "boolean",
+                  "value": true
+                },
+                {
+                  "key": "productId",
+                  "type": "boolean",
+                  "value": true
+                },
+                {
+                  "key": "email",
+                  "type": "array",
+                  "value": [
+                    1,
+                    2,
+                    3
+                  ]
+                }
+              ]
+            },
+            {
+              "tcId": "testcase-1750120471896-2",
+              "precondition": "필요한 리소스가 할당된 상태",
+              "description": "Validate the data processing flow",
+              "expectedResult": "시스템이 정상적으로 응답함",
+              "testDataList": [
+                {
+                  "key": "name",
+                  "type": "object",
+                  "value": {
+                    "key": "value"
+                  }
+                },
+                {
+                  "key": "phone",
+                  "type": "boolean",
+                  "value": true
+                },
+                {
+                  "key": "userId",
+                  "type": "date",
+                  "value": "2025-03-07T17:08:27.752Z"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "lastUpdated": "2025-06-16T08:14:13.660Z",
+      "specFiles": {
+        "requirementFile": {
+          "filename": "1750061653657-요구사항 정의서.txt",
+          "originalname": "요구사항 정의서.txt",
+          "path": "uploads/1750061653657-요구사항 정의서.txt",
+          "size": 1,
+          "mimetype": "text/plain"
+        },
+        "interfaceDef": {
+          "filename": "1750061653658-인터페이스 정의서.txt",
+          "originalname": "인터페이스 정의서.txt",
+          "path": "uploads/1750061653658-인터페이스 정의서.txt",
+          "size": 1,
+          "mimetype": "text/plain"
+        },
+        "interfaceDesign": {
+          "filename": "1750061653658-인터페이스 설계서.txt",
+          "originalname": "인터페이스 설계서.txt",
+          "path": "uploads/1750061653658-인터페이스 설계서.txt",
+          "size": 1,
+          "mimetype": "text/plain"
+        },
+        "databaseDesign": {
+          "filename": "1750061653658-테이블 설계서.txt",
+          "originalname": "테이블 설계서.txt",
+          "path": "uploads/1750061653658-테이블 설계서.txt",
+          "size": 1,
+          "mimetype": "text/plain"
+        }
+      }
+    }
+  ]
+}
