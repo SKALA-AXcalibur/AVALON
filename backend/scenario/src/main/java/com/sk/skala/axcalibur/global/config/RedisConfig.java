@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.spec.global.config;
+package com.sk.skala.axcalibur.global.config;
 // package com.sk.skala.axcalibur.sample.global.config;
 
 import org.springframework.beans.factory.annotation.Value;

@@ -1,10 +1,10 @@
-package com.sk.skala.axcalibur.spec.global.exception;
+package com.sk.skala.axcalibur.global.exception;
 
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sk.skala.axcalibur.spec.global.code.ErrorCode;
-import com.sk.skala.axcalibur.spec.global.response.ErrorResponse;
+import com.sk.skala.axcalibur.global.code.ErrorCode;
+import com.sk.skala.axcalibur.global.response.ErrorResponse;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
