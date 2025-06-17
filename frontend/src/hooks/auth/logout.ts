@@ -1,4 +1,4 @@
-import auth from "@/services/auth";
+import { auth } from "@/services/auth";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
