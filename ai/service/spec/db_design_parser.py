@@ -126,7 +126,7 @@ class DbDesignParserService:
                     "col_name": str(row_dict.get("col_name") or ""),
                     "type": str(row_dict.get("type") or ""),
                     "length": (
-                        str(row_dict.get("length")) if row_dict.get("length") else None
+                        int(row_dict.get("length")) if row_dict.get("length") else None
                     ),
                     "isPk": str(row_dict.get("isPk")).strip().upper() == "Y",
                     "fk": str(row_dict.get("fk")) if row_dict.get("fk") else None,

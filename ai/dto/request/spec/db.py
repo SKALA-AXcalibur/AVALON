@@ -8,7 +8,7 @@ class ColumnDto(BaseModel):
     col_name: str
     desc: Optional[str] = None
     type: str
-    length: Optional[str] = None
+    length: int
     isPk: bool = False
     fk: Optional[str] = None
     isNull: bool = True
