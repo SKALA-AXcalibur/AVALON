@@ -6,13 +6,14 @@
 """
 
 from typing import Dict
-from fastapi import APIRouter, File, Form, Response, UploadFile, requests
+from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile, requests
 
-from service.spec.formatter import formatter 
+from service.spec.formatter import formatter
 from service.spec.interface_def_parser import InterfaceDefParserService
 from service.spec.interface_impl_parser import InterfaceImplParserService
 from service.spec.db_design_parser import DbDesignParserService
 from service.spec.requirement_parser import RequirementParserService
+from service.spec.info_save_service import save_to_info_api
 
 router = APIRouter()
 
@@ -30,11 +31,11 @@ async def read_root() -> Response:
 
 @router.post("/api/spec/v1/analyze")
 async def analyze_spec(
-    # projectId: str = Form(...),
+    projectId: str = Form(...),
     requirementFile: UploadFile = File(...),
     interfaceDef: UploadFile = File(...),
     interfaceDesign: UploadFile = File(...),
-    databaseDesign: UploadFile = File(...)
+    databaseDesign: UploadFile = File(...),
 ) -> Response:
     """
     명세서 분석
@@ -42,40 +43,26 @@ async def analyze_spec(
     정보저장api를 통해 저장
     """
 
-    # 파싱 
-    # req_result = await parse_requirement_file(requirementFile)
-    # # db_result = await parse_db_design(databaseDesign)
-
-    # parser_impl = InterfaceImplParserService()
-    # impl_result = await parser_impl.parse_interface_file(interfaceDesign)
-
-    # parser_def = InterfaceDefParserService()
-    # def_result = await parser_def.map_req_ids_to_apis(interfaceDef, impl_result)
-
     # 포맷팅
-    result = await formatter(requirementFile, interfaceDesign, interfaceDef, databaseDesign)
+    try:
+        result = await formatter(
+            requirementFile, interfaceDesign, interfaceDef, databaseDesign
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    # # 정보저장API로 POST 요청
-    # response = requests.post(
-    #     "http://info-save-api-url/requirements",  # 정보저장API URL로 변경
-    #     # json=result
-    # )
-
-    return result
+    # 정보저장API로 POST 요청
+    response = await save_to_info_api(result.model_dump())  # dict로 변환해서 넘김
+    return Response
 
 
-# @router.post("/api/scenario/v1/generate")
-# async def generate_scenario(
-#     projectId: str = Form(...),
-#     ScenarioRequest: parsing_result = File(...), #파싱된 결과
-# ) -> Response:
-#     """
-#     LLM을 통해 명세서 분석 결과를 바탕으로 테스트 시나리오를 생성하고 검증을 거친 후 반환
-#     """
-#     generate_scenario_result = generate_scenario(projectId, parsing_result)
-#     validate_scenario_result = validate_scenario(generate_scenario_result)
+@router.post("/api/scenario/v1/generate")
+async def generate_scenario() -> Response:
+    """
+    LLM을 통해 명세서 분석 결과를 바탕으로 테스트 시나리오를 생성하고 검증을 거친 후 반환
+    """
 
-#     return validate_scenario_result
+    return Response()
 
 
 @router.post("/api/scenario/v1/scenario")
