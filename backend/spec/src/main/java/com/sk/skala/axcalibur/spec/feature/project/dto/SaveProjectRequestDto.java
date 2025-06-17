@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.sk.skala.axcalibur.spec.feature.project.dto.item.ApiItem;
 import com.sk.skala.axcalibur.spec.feature.project.dto.item.ReqItem;
+import com.sk.skala.axcalibur.spec.feature.project.dto.item.TableItem;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,5 +22,6 @@ public class SaveProjectRequestDto {
     
     private List<ReqItem> requirement;
     private List<ApiItem> apiList;
+    private List<TableItem> tableList;
     
 }

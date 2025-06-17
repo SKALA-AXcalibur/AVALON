@@ -10,14 +10,14 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sk.skala.axcalibur.spec.feature.spec.dto.ProjectContext;
-import com.sk.skala.axcalibur.spec.feature.spec.entity.FileTypeEntity;
-import com.sk.skala.axcalibur.spec.feature.spec.entity.ProjectEntity;
-import com.sk.skala.axcalibur.spec.feature.spec.entity.SpecFileEntity;
-import com.sk.skala.axcalibur.spec.feature.spec.repository.SpecFileRepository;
+import com.sk.skala.axcalibur.spec.global.entity.FileTypeEntity;
+import com.sk.skala.axcalibur.spec.global.entity.ProjectEntity;
+import com.sk.skala.axcalibur.spec.global.entity.FilePathEntity;
+import com.sk.skala.axcalibur.spec.global.repository.FilePathRepository;
 import com.sk.skala.axcalibur.spec.global.code.ErrorCode;
 import com.sk.skala.axcalibur.spec.global.exception.BusinessExceptionHandler;
-import com.sk.skala.axcalibur.spec.feature.spec.repository.FileTypeRepository;
-import com.sk.skala.axcalibur.spec.feature.spec.repository.ProjectRepository;
+import com.sk.skala.axcalibur.spec.global.repository.FileTypeRepository;
+import com.sk.skala.axcalibur.spec.global.repository.ProjectRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SpecFileServiceImpl implements SpecFileService {
 
-    private final SpecFileRepository specFileRepository;
+    private final FilePathRepository filePathRepository;
     private final ProjectRepository projectRepository;
     private final FileStorageService fileStorageService;
     private final FileTypeRepository fileTypeRepository;
@@ -55,27 +55,27 @@ public class SpecFileServiceImpl implements SpecFileService {
         
         
         // 기존 파일(같은 타입, 같은 프로젝트) 찾아서 경로 백업
-        Optional<SpecFileEntity> existingSpecFileOptional = specFileRepository.findByProjectAndFileType(project, fileTypeEntity);
+        Optional<FilePathEntity> existingFilePathOptional = filePathRepository.findByProjectKeyAndFileTypeKey(project, fileTypeEntity);
 
         // db 커밋 후 파일 삭제
-        if (existingSpecFileOptional.isPresent()) {
-            SpecFileEntity existing = existingSpecFileOptional.get();
+        if (existingFilePathOptional.isPresent()) {
+            FilePathEntity existing = existingFilePathOptional.get();
             String oldPath = existing.getPath();
             // 경로가 다를 때만 삭제 목록에 추가
             if (!oldPath.equals(savedPath)) {
                 oldPathsToDelete.add(oldPath);
             }
             existing.updateFileInfo(savedPath, fileName); // path, name만 갱신
-            specFileRepository.save(existing); // update (PK 유지)
+            filePathRepository.save(existing); // update (PK 유지)
             log.info("기존 메타데이터 업데이트: PjtId={}, 유형={}, 기존 경로: {}, 새 경로: {}", projectId, fileType, oldPath, savedPath);
         } else {
-            SpecFileEntity newEntity = SpecFileEntity.builder()
+            FilePathEntity newEntity = FilePathEntity.builder()
                     .path(savedPath)
                     .name(fileName)
-                    .fileType(fileTypeEntity)
-                    .project(project)
+                    .fileTypeKey(fileTypeEntity)
+                    .projectKey(project)
                     .build();
-            specFileRepository.save(newEntity);
+            filePathRepository.save(newEntity);
             log.info("새 메타데이터 저장: PjtId={}, 유형={}, 경로: {}", projectId, fileType, savedPath);
         }
 
@@ -109,7 +109,7 @@ public class SpecFileServiceImpl implements SpecFileService {
             .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 프로젝트입니다.", ErrorCode.PROJECT_NOT_FOUND)); 
         String projectId = projectContext.getProjectId();
 
-        specFileRepository.deleteAllByProject(project);
+        filePathRepository.deleteByProjectKey(project);
         log.info("메타데이터 삭제 완료: PjtId={}", projectId); 
           
     }

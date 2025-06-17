@@ -11,9 +11,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "db_column")
 public class DbColumnEntity extends BaseTimeEntity {
@@ -44,8 +50,9 @@ public class DbColumnEntity extends BaseTimeEntity {
     @Column(name = "is_null", nullable = false)
     private Boolean isNull;
 
-    @Column(name = "constraint", length = 255)
-    private String constraint;
+    // constraint는 예약어이므로 constraint_type으로 변경
+    @Column(name = "constraint_type", length = 255)
+    private String constraintType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "db_design_key", nullable = false)

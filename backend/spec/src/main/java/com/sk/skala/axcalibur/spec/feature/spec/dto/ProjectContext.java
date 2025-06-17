@@ -1,6 +1,6 @@
 package com.sk.skala.axcalibur.spec.feature.spec.dto;
 
-import com.sk.skala.axcalibur.spec.feature.spec.entity.ProjectEntity;
+import com.sk.skala.axcalibur.spec.global.entity.ProjectEntity;
 
 import lombok.Getter;
 
@@ -14,7 +14,7 @@ public class ProjectContext {
     private final String projectId;
 
     public ProjectContext(ProjectEntity entity) {
-        this.key = entity.getId();
-        this.projectId = entity.getProjectId();
+        this.key = entity.getKey();
+        this.projectId = entity.getId();
     }
 }

@@ -27,6 +27,6 @@ public class PriorityEntity extends BaseTimeEntity {
     @Column(name = "`key`")
     private Integer key;        // 중요도 키 (PK, AUTO_INCREMENT)
 
-    @Column(name = "name", nullable = false, length = 50, unique = true)
+    @Column(name = "name", nullable = false, length = 10, unique = true)
     private String name;                 // 중요도 명 (UNIQUE)
 }
