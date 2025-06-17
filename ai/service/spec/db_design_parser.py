@@ -128,13 +128,9 @@ class DbDesignParserService:
                     "length": (
                         str(row_dict.get("length")) if row_dict.get("length") else None
                     ),
-                    "isPk": (
-                        "Y" if str(row_dict.get("isPk")).strip().upper() == "Y" else "N"
-                    ),
+                    "isPk": str(row_dict.get("isPk")).strip().upper() == "Y",
                     "fk": str(row_dict.get("fk")) if row_dict.get("fk") else None,
-                    "isNull": (
-                        "Y" if str(row_dict.get("isNull")).strip().upper() != "N" else "N"
-                    ),
+                    "isNull": str(row_dict.get("isNull")).strip().upper() != "N",
                     "constraint": (
                         str(row_dict.get("constraint"))
                         if row_dict.get("constraint")
