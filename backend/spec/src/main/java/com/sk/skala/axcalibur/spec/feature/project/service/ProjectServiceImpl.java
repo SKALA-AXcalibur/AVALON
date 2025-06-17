@@ -79,13 +79,23 @@ public class ProjectServiceImpl implements ProjectService {
     private final RequestMinorRepository requestMinorRepository;
     private final AvalonCookieRepository avalonCookieRepository;
 
-    private static final String PARAM_TYPE_PATH_QUERY = "PATH_QUERY";
-    private static final String PARAM_TYPE_REQUEST = "REQUEST";
-    private static final String PARAM_TYPE_RESPONSE = "RESPONSE";
+    private static final Integer PRIORITY_HIGH = 0; // 상
+    private static final Integer PRIORITY_MEDIUM = 1; // 중
+    private static final Integer PRIORITY_LOW = 2; // 하
 
-    private static final String PRIORITY_HIGH = "상";
-    private static final String PRIORITY_MEDIUM = "중";
-    private static final String PRIORITY_LOW = "하";
+    private static final Integer FILE_TYPE_REQ = 0; // 요구사항서
+    private static final Integer FILE_TYPE_DEF = 1; // 인터페이스 정의서
+    private static final Integer FILE_TYPE_DES = 2; // 인터페이스 설계서
+    private static final Integer FILE_TYPE_ERD = 3; // ERD
+
+    private static final Integer CATEGORY_PATH_QUERY = 0; // 경로 쿼리
+    private static final Integer CATEGORY_REQUEST = 1; // 요청
+    private static final Integer CATEGORY_RESPONSE = 2; // 응답
+
+    private static final Integer CONTEXT_BODY = 0;
+    private static final Integer CONTEXT_HEADER = 1; // 헤더
+    private static final Integer CONTEXT_QUERY = 2; // 쿼리
+    private static final Integer CONTEXT_PATH = 3; // 경로
 
     // IF-PR-0001: 프로젝트 목록 저장
 
@@ -107,19 +117,19 @@ public class ProjectServiceImpl implements ProjectService {
 
                 // 분류 정보 처리 (없으면 자동 생성)
                 if (reqItem.getPriority() != null) {
-                    PriorityEntity priority = findPriority(reqItem.getPriority());
+                    PriorityEntity priority = findAndCreatePriority(reqItem.getPriority());
                     reqBuilder.priorityKey(priority);
                 }
                 if (reqItem.getMajor() != null) {
-                    RequestMajorEntity major = findRequestMajor(reqItem.getMajor());
+                    RequestMajorEntity major = findAndCreateRequestMajor(reqItem.getMajor());
                     reqBuilder.majorKey(major);
                 }
                 if (reqItem.getMiddle() != null) {
-                    RequestMiddleEntity middle = findRequestMiddle(reqItem.getMiddle());
+                    RequestMiddleEntity middle = findAndCreateRequestMiddle(reqItem.getMiddle());
                     reqBuilder.middleKey(middle);
                 }
                 if (reqItem.getMinor() != null) {
-                    RequestMinorEntity minor = findRequestMinor(reqItem.getMinor());
+                    RequestMinorEntity minor = findAndCreateRequestMinor(reqItem.getMinor());
                     reqBuilder.minorKey(minor);
                 }
 
@@ -146,9 +156,7 @@ public class ProjectServiceImpl implements ProjectService {
                         .path(apiItem.getPath())
                         .projectKey(project)
                         .build();
-
-                ApiListEntity savedApi = apiListRepository.save(apiEntity);
-                processApiParameters(savedApi, apiItem);
+                    apiListRepository.save(apiEntity);
             }
         }
 
@@ -408,54 +416,7 @@ public class ProjectServiceImpl implements ProjectService {
         return builder.build();
     }
 
-    // API 아이템의 파라미터 그룹들을 처리
 
-    private void processApiParameters(ApiListEntity apiList, ApiItem apiItem) {
-        if (apiItem.getPathQuery() != null) {
-            processParameterGroup(apiList, apiItem.getPathQuery(), PARAM_TYPE_PATH_QUERY);
-        }
-        if (apiItem.getRequest() != null) {
-            processParameterGroup(apiList, apiItem.getRequest(), PARAM_TYPE_REQUEST);
-        }
-        if (apiItem.getResponse() != null) {
-            processParameterGroup(apiList, apiItem.getResponse(), PARAM_TYPE_RESPONSE);
-        }
-    }
-
-    /**
-     * 파라미터 그룹 내의 개별 파라미터들을 처리
-     */
-    private void processParameterGroup(ApiListEntity apiList, List<ParameterItem> paramGroup, String groupType) {
-        if (paramGroup == null) {
-            log.debug("파라미터 그룹이 null입니다. groupType: {}", groupType);
-            return;
-        }
-
-        List<ParameterItem> targetParams = getTargetParameters(paramGroup, groupType);
-        if (targetParams != null && !targetParams.isEmpty()) {
-            log.debug("파라미터 처리 시작 - groupType: {}, 파라미터 수: {}", groupType, targetParams.size());
-            processParameterItems(apiList, targetParams, groupType);
-        } else {
-            log.debug("처리할 파라미터가 없습니다. groupType: {}", groupType);
-        }
-    }
-
-    /**
-     * 그룹 타입에 해당하는 파라미터 목록을 반환
-     */
-    private List<ParameterItem> getTargetParameters(List<ParameterItem> paramGroup, String groupType) {
-        switch (groupType) {
-            case PARAM_TYPE_PATH_QUERY:
-                return paramGroup;
-            case PARAM_TYPE_REQUEST:
-                return paramGroup;
-            case PARAM_TYPE_RESPONSE:
-                return paramGroup;
-            default:
-                log.warn("지원하지 않는 파라미터 그룹 타입입니다: {}", groupType);
-                return null;
-        }
-    }
 
     // 파라미터 목록을 DB에 저장 (Self-Join 구조 처리)
 
@@ -522,36 +483,52 @@ public class ProjectServiceImpl implements ProjectService {
         return parameterRepository.findById(parentKey).orElse(null);
     }
 
-    // 우선순위 엔티티 조회
+    // 요구사항 대분류 엔티티 조회 및 생성
     @Transactional
-    private PriorityEntity findPriority(String name) {
-        // 유효한 우선순위 값인지 확인
-        if (!name.equals(PRIORITY_HIGH) && !name.equals(PRIORITY_MEDIUM) && !name.equals(PRIORITY_LOW)) {
-            throw new BusinessExceptionHandler(ErrorCode.INVALID_PRIORITY_VALUE);
-        }
-        return priorityRepository.findByName(name)
-                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
-    }
-
-    // 요구사항 대분류 엔티티 조회
-    @Transactional
-    private RequestMajorEntity findRequestMajor(String name) {
+    private RequestMajorEntity findAndCreateRequestMajor(String name) {
         return requestMajorRepository.findByName(name)
-                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
+            .orElseGet(() -> {
+                RequestMajorEntity entity = RequestMajorEntity.builder()
+                    .name(name)
+                    .build();
+                return requestMajorRepository.save(entity);
+            });
     }
 
-    // 요구사항 중분류 엔티티 조회
+    // 요구사항 중분류 엔티티 조회 및 생성
     @Transactional
-    private RequestMiddleEntity findRequestMiddle(String name) {
+    private RequestMiddleEntity findAndCreateRequestMiddle(String name) {
         return requestMiddleRepository.findByName(name)
-                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
+            .orElseGet(() -> {
+                RequestMiddleEntity entity = RequestMiddleEntity.builder()
+                    .name(name)
+                    .build();
+                return requestMiddleRepository.save(entity);
+            });
     }
 
-    // 요구사항 소분류 엔티티 조회
+    // 요구사항 소분류 엔티티 조회 및 생성
     @Transactional
-    private RequestMinorEntity findRequestMinor(String name) {
+    private RequestMinorEntity findAndCreateRequestMinor(String name) {
         return requestMinorRepository.findByName(name)
-                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
+            .orElseGet(() -> {
+                RequestMinorEntity entity = RequestMinorEntity.builder()
+                    .name(name)
+                    .build();
+                return requestMinorRepository.save(entity);
+            });
+    }
+
+    // 우선순위 엔티티 조회 및 생성
+    @Transactional
+    private PriorityEntity findAndCreatePriority(String name) {
+        return priorityRepository.findByName(name)
+            .orElseGet(() -> {
+                PriorityEntity entity = PriorityEntity.builder()
+                    .name(name)
+                    .build();
+                return priorityRepository.save(entity);
+            });
     }
 
     // 빈 파라미터 체크
