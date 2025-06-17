@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.spec.global.entity;
+package com.sk.skala.axcalibur.global.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

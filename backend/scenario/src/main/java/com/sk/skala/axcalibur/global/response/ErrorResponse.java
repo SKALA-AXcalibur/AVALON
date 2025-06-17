@@ -1,6 +1,6 @@
-package com.sk.skala.axcalibur.spec.global.response;
+package com.sk.skala.axcalibur.global.response;
 
-import com.sk.skala.axcalibur.spec.global.code.ErrorCode;
+import com.sk.skala.axcalibur.global.code.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

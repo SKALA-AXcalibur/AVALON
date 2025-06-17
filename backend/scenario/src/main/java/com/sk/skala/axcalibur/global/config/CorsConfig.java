@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.spec.global.config;
+package com.sk.skala.axcalibur.global.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

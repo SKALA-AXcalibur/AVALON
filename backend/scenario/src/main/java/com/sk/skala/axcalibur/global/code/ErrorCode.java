@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.spec.global.code;
+package com.sk.skala.axcalibur.global.code;
 
 import org.springframework.http.HttpStatus;
 

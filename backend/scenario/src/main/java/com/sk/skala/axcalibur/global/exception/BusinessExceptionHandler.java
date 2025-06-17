@@ -1,6 +1,6 @@
-package com.sk.skala.axcalibur.spec.global.exception;
+package com.sk.skala.axcalibur.global.exception;
 
-import com.sk.skala.axcalibur.spec.global.code.ErrorCode;
+import com.sk.skala.axcalibur.global.code.ErrorCode;
 import lombok.Builder;
 import lombok.Getter;
 

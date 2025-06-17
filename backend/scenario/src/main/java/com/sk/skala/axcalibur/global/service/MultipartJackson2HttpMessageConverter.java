@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.spec.global.service;
+package com.sk.skala.axcalibur.global.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Type;

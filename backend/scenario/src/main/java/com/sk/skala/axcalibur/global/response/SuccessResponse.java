@@ -1,6 +1,6 @@
-package com.sk.skala.axcalibur.spec.global.response;
+package com.sk.skala.axcalibur.global.response;
 
-import com.sk.skala.axcalibur.spec.global.code.SuccessCode;
+import com.sk.skala.axcalibur.global.code.SuccessCode;
 import lombok.Builder;
 import lombok.Getter;
 
