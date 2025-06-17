@@ -11,10 +11,9 @@ public record TestcaseInfoResponseDto(
     @NotBlank
     String description,
     @NotBlank
-    String inputData,
-    @NotBlank
     String expectedResult,
-    Boolean isSuccess,
+    @NotBlank
+    String isSuccess,
     LocalDateTime excutedTime
 ) {
 
