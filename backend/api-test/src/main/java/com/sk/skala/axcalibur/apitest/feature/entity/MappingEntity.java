@@ -8,7 +8,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,4 +44,7 @@ public class MappingEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "apilist_key", nullable = false)
   private ApiListEntity apiList;           // API 목록 (N:1)
+
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "mapping")
+  private List<TestcaseEntity> testcases;
 }

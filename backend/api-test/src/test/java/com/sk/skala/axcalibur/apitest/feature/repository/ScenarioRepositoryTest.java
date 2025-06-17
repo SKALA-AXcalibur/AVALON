@@ -79,7 +79,7 @@ class ScenarioRepositoryTest {
         scenarioRepository.save(createScenario("SCN-12", "테스트12", 6));
         scenarioRepository.save(createScenario("SCN-9", "테스트13", 6));
         Pageable pageable = PageRequest.of(0, 5, Sort.by("id").ascending());
-        List<ScenarioEntity> found = scenarioRepository.findAllByProjectKeyAndScenarioIdGreaterThanOrderByScenarioIdAsc(6, "", pageable);
+        List<ScenarioEntity> found = scenarioRepository.findAllByProjectKeyAndScenarioIdGreaterThanOrderByIdAsc(6, "", pageable);
         System.out.println("Found");
         System.out.println(found);
         assertThat(found).hasSize(4);

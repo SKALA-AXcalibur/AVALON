@@ -14,6 +14,6 @@ public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Intege
   List<ScenarioEntity> findByScenarioIdIn(List<String> scenarioIds);
   List<ScenarioEntity> findByProjectKeyAndScenarioIdIn(Integer projectKey, List<String> scenarioIds);
   List<ScenarioEntity> findAllByProjectKey(Integer projectKey);
-  List<ScenarioEntity> findAllByProjectKeyAndScenarioIdGreaterThanOrderByScenarioIdAsc(Integer projectKey, String scenarioId, Pageable pageable);
+  List<ScenarioEntity> findAllByProjectKeyAndScenarioIdGreaterThanOrderByIdAsc(Integer projectKey, String scenarioId, Pageable pageable);
 }
 

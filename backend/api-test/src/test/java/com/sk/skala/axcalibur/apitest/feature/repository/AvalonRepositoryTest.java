@@ -1,7 +1,5 @@
 package com.sk.skala.axcalibur.apitest.feature.repository;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.sk.skala.axcalibur.apitest.feature.entity.AvalonCookieEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
