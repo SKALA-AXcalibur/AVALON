@@ -3,10 +3,10 @@ package com.sk.skala.axcalibur.spec.feature.spec.service;
 import org.springframework.stereotype.Service;
 
 import com.sk.skala.axcalibur.spec.feature.spec.dto.ProjectContext;
-import com.sk.skala.axcalibur.spec.feature.spec.entity.AvalonCookieEntity;
-import com.sk.skala.axcalibur.spec.feature.spec.entity.ProjectEntity;
-import com.sk.skala.axcalibur.spec.feature.spec.repository.AvalonCookieRepository;
-import com.sk.skala.axcalibur.spec.feature.spec.repository.ProjectRepository;
+import com.sk.skala.axcalibur.spec.global.entity.AvalonCookieEntity;
+import com.sk.skala.axcalibur.spec.global.entity.ProjectEntity;
+import com.sk.skala.axcalibur.spec.global.repository.AvalonCookieRepository;
+import com.sk.skala.axcalibur.spec.global.repository.ProjectRepository;
 import com.sk.skala.axcalibur.spec.global.code.ErrorCode;
 import com.sk.skala.axcalibur.spec.global.exception.BusinessExceptionHandler;
 

@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sk.skala.axcalibur.spec.feature.spec.dto.ProjectContext;
 import com.sk.skala.axcalibur.spec.feature.spec.dto.request.SpecUploadRequest;
-import com.sk.skala.axcalibur.spec.feature.spec.entity.FileTypeEntity;
-import com.sk.skala.axcalibur.spec.feature.spec.repository.FileTypeRepository;
+import com.sk.skala.axcalibur.spec.global.entity.FileTypeEntity;
+import com.sk.skala.axcalibur.spec.global.repository.FileTypeRepository;
 import com.sk.skala.axcalibur.spec.global.code.ErrorCode;
 import com.sk.skala.axcalibur.spec.global.exception.BusinessExceptionHandler;
 
@@ -51,7 +51,7 @@ public class SpecUploadServiceImpl implements SpecUploadService {
             for (Map.Entry<MultipartFile, FileTypeEntity> entry : fileTypeMap.entrySet()) {
                 MultipartFile file = entry.getKey();
                 FileTypeEntity fileType = entry.getValue();
-                Integer type = fileType.getId();
+                Integer type = fileType.getKey();
 
                 if (file == null || file.isEmpty()) {
                     log.warn("파일이 비어 있거나 null입니다. 문서 유형: {}", type);
