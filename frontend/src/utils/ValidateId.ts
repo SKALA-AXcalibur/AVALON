@@ -1,27 +1,25 @@
-import { ID_VALIDATION_ERROR_MESSAGE } from "@/constants/errorMessages";
+import { ERROR_MESSAGES } from "@/constants/messages";
 
-const validateId = (
-  Id: string
+export const validateId = (
+  id: string
 ): { isValid: boolean; errorMessage?: string } => {
-  if (!Id) {
-    return { isValid: false, errorMessage: ID_VALIDATION_ERROR_MESSAGE.EMPTY };
+  if (!id) {
+    return { isValid: false, errorMessage: ERROR_MESSAGES.ID_VALIDATION.EMPTY };
   }
 
-  if (Id.length < 5 || Id.length > 30) {
+  if (id.length < 5 || id.length > 30) {
     return {
       isValid: false,
-      errorMessage: ID_VALIDATION_ERROR_MESSAGE.LENGTH,
+      errorMessage: ERROR_MESSAGES.ID_VALIDATION.LENGTH,
     };
   }
 
-  if (!/^[a-zA-Z0-9-]+$/.test(Id)) {
+  if (!/^[a-zA-Z0-9-]+$/.test(id)) {
     return {
       isValid: false,
-      errorMessage: ID_VALIDATION_ERROR_MESSAGE.FORMAT,
+      errorMessage: ERROR_MESSAGES.ID_VALIDATION.FORMAT,
     };
   }
 
   return { isValid: true };
 };
-
-export default validateId;

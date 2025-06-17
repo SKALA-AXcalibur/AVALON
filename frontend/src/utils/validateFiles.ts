@@ -1,4 +1,4 @@
-import { FILE_VALIDATION_ERROR_MESSAGE } from "@/constants/errorMessages";
+import { FILE_VALIDATION_ERROR_MESSAGE } from "@/constants/messages";
 
 const validateFiles = (files: File[]) => {
   const requiredWords = {
