@@ -1,4 +1,4 @@
-import LoginProjectBox from "@/components/login/LoginProjectBox";
+import { LoginProject } from "@/components/login/LoginProject";
 
 const LoginPage = () => {
   return (
@@ -11,7 +11,7 @@ const LoginPage = () => {
       <h1 className="font-playfair text-[128px] font-bold tracking-widest text-gray-800 mb-4">
         AVALON
       </h1>
-      <LoginProjectBox />
+      <LoginProject />
     </div>
   );
 };
