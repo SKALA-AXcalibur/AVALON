@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
 import com.sk.skala.axcalibur.spec.feature.project.entity.ApiListEntity;
+import com.sk.skala.axcalibur.spec.feature.project.entity.DbDesignEntity;
 import com.sk.skala.axcalibur.spec.feature.project.entity.RequestEntity;
 import com.sk.skala.axcalibur.spec.global.entity.FilePathEntity;
 
@@ -47,6 +48,11 @@ public class ProjectEntity extends BaseTimeEntity {
     @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @Builder.Default
     private List<FilePathEntity> filePaths = new ArrayList<>();
+
+    @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default
+    private List<DbDesignEntity> dbDesigns = new ArrayList<>();
+    
 
     public ProjectEntity(String id) {
          this.id = id;
