@@ -12,7 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sk.skala.axcalibur.feature.testcase.dto.request.DbTableDto;
+import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
+import com.sk.skala.axcalibur.feature.testcase.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.feature.testcase.service.ProjectIdResolverService;
+import com.sk.skala.axcalibur.feature.testcase.service.TcPayloadService;
+
 import com.sk.skala.axcalibur.global.code.SuccessCode;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
@@ -27,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TcGeneratorControllerImpl implements TcGeneratorContoller {
     private final ProjectIdResolverService projectIdResolverService;
+    private final TcPayloadService tcPayloadService;
 
     @Override
     @PostMapping
@@ -34,8 +40,22 @@ public class TcGeneratorControllerImpl implements TcGeneratorContoller {
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
         Integer projectId = projectIdResolverService.resolveProjectId(key);
 
-        // 이후 로직 구현
         // project ID로 필요 DB 조회 -> fastAPI 측에 필요한 생성 정보 + 생성 요청 전달
+        // 시나리오 리스트 조회
+        List<ScenarioEntity> scenarios = tcPayloadService.getScenarios(projectId);
+
+        // ERD 테이블 정보 수집
+        List<DbTableDto> dbList = tcPayloadService.getDbTableList(projectId);
+
+        // 3) 시나리오별 테스트케이스 생성 로직
+        for (ScenarioEntity scenario : scenarios) {
+            // payload 조립
+            TcRequestPayload payload = tcPayloadService.buildTcRequestPayload(scenario, dbList);
+            // FastAPI 호출
+            TestcaseGenerationResponse response = testcaseService.callFastApi(payload);
+            // 결과 저장
+            testcaseService.saveTestcases(response);
+        }
         
         // 응답시간 헤더에 반환
         HttpHeaders headers = new HttpHeaders();
