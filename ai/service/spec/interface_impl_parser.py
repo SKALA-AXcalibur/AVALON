@@ -87,7 +87,7 @@ class InterfaceImplParserService:
                     data_type=str(row[5]).strip(),
                     length=int(row[6]) if not pd.isna(row[6]) else None,
                     format=str(row[7]).strip() if not pd.isna(row[7]) else None,
-                    defaultValue=str(row[8]).strip() if not pd.isna(row[8]) else None, # default -> defaultValue로 변경
+                    default_value=str(row[8]).strip() if not pd.isna(row[8]) else None, # default -> default_value로 변경
                     required=str(row[9]).strip().upper() == 'Y',
                     upper=str(row[10]).strip() if not pd.isna(row[10]) else None,
                     desc=str(row[11]).strip() if not pd.isna(row[11]) else None,

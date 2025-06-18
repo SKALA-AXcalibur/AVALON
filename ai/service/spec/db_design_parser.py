@@ -138,7 +138,7 @@ class DbDesignParserService:
                     "is_null": {
                                 "Y": True,
                                 "N": False
-                            }.get(str(row_dict.get("is_null") or "").strip().upper(), False),
+                            }.get(str(row_dict.get("is_null") or "").strip().upper(), True),
                     "const": (
                         str(row_dict.get("const"))
                         if row_dict.get("const")
@@ -146,8 +146,6 @@ class DbDesignParserService:
                     ),
                     "desc": str(row_dict.get("desc")) if row_dict.get("desc") else None,
                 }
-                
-
                 column_dto = ColumnDto(**column_data)
                 # 테이블별로 컬럼 추가
                 table_map.setdefault(table_name, []).append(column_dto)
@@ -160,4 +158,3 @@ class DbDesignParserService:
             for tbl_name, columns in table_map.items()
         ]
         return db_designs
-    

@@ -5,7 +5,7 @@ async def save_to_info_api(project_id: str, result: dict): # project_id 추가
     """
     결과 딕셔너리를 정보저장 api로 전송하는 함수
     """
-    url = "/api/project/v1/{projectId}" # 실제 서비스 주소로 변경 필요 (정보저장 api 경로)
+    url = f"/api/project/v1/{projectId}" # 실제 서비스 주소로 변경 필요 (정보저장 api 경로)
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(url, json=result)
