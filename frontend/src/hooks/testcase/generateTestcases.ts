@@ -1,4 +1,4 @@
-import testcaseApi from "@/services/testcase";
+import { clientTestcaseApi } from "@/services/client/clientTestcaseApi";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -9,7 +9,7 @@ const useGenerateTestcases = (redirectUrl: string = "/scenario") => {
   const generateTestcases = async () => {
     setIsLoading(true);
     try {
-      await testcaseApi.generate();
+      await clientTestcaseApi.generate();
       router.push(redirectUrl);
     } catch (error) {
       console.error(error);

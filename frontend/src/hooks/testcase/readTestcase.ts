@@ -1,5 +1,5 @@
 import { useState } from "react";
-import testcaseApi from "@/services/testcase";
+import { clientTestcaseApi } from "@/services/client/clientTestcaseApi";
 
 const useReadTestcase = (testcaseId: string) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -9,7 +9,7 @@ const useReadTestcase = (testcaseId: string) => {
 
     setIsLoading(true);
     try {
-      const response = await testcaseApi.readTestcase(testcaseId);
+      const response = await clientTestcaseApi.readTestcase(testcaseId);
       return response;
     } catch (error) {
       console.error(error);

@@ -1,4 +1,4 @@
-import scenarioApi from "@/services/scenario";
+import { clientScenarioApi } from "@/services/client/clientScenarioApi";
 import { useState } from "react";
 import { useProjectStore } from "@/store/projectStore";
 
@@ -11,7 +11,7 @@ const useDeleteScenario = (scenarioId: string) => {
 
     setIsLoading(true);
     try {
-      await scenarioApi.deleteScenario(scenarioId);
+      await clientScenarioApi.deleteScenario(scenarioId);
 
       const updatedScenarios = project.scenarios.filter(
         (scenario) => scenario.id !== scenarioId

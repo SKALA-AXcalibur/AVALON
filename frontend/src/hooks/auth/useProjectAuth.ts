@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { validateId } from "@/utils/validateId";
-import { auth } from "@/services/auth";
+import { clientAuthApi } from "@/services/client/clientAuthApi";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/constants/messages";
 
 export const useProjectAuth = () => {
@@ -34,7 +34,7 @@ export const useProjectAuth = () => {
     try {
       setIsLoading(true);
 
-      await auth.login(projectId);
+      await clientAuthApi.login(projectId);
 
       onSuccess?.();
     } catch (error) {
@@ -55,7 +55,7 @@ export const useProjectAuth = () => {
     try {
       setIsLoading(true);
 
-      await auth.delete(projectId);
+      await clientAuthApi.delete(projectId);
 
       setSuccess(SUCCESS_MESSAGES.PROJECT_AUTH.DELETE_SUCCESS);
     } catch (error) {

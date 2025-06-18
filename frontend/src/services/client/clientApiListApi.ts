@@ -1,11 +1,9 @@
-import ky from "ky";
+import ky from "ky-universal";
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/list/v1`;
 
-const apiListApi = {
+export const clientApiListApi = {
   create: async (): Promise<void> => {
     await ky.post(`${BASE_URL}/`, { credentials: "include" });
   },
 };
-
-export default apiListApi;

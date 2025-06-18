@@ -1,4 +1,4 @@
-import { auth } from "@/services/auth";
+import { clientAuthApi } from "@/services/client/clientAuthApi";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -11,7 +11,7 @@ const useLogout = (redirectUrl: string = "/login") => {
 
     setIsLoading(true);
     try {
-      await auth.logout();
+      await clientAuthApi.logout();
       router.push(redirectUrl);
     } catch (error) {
       console.error(error);

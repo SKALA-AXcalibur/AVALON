@@ -1,5 +1,5 @@
 import { useProjectStore } from "@/store/projectStore";
-import { apiTestApi } from "@/services/apiTest";
+import { clientApiTestApi } from "@/services/client/clientApiTestApi";
 import { useState } from "react";
 
 export const useRunApiTest = () => {
@@ -11,7 +11,7 @@ export const useRunApiTest = () => {
 
     setIsLoading(true);
     try {
-      await apiTestApi.runApiTest({
+      await clientApiTestApi.runApiTest({
         scenarioList: project.scenarios.map((scenario) => ({
           scenarioId: scenario.id,
         })),
