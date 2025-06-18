@@ -7,7 +7,7 @@ import ActionButton from "../common/ActionButton";
 import useCreateScenarios from "@/hooks/upload/createScenarios";
 import { useProjectStore } from "@/store/projectStore";
 import validateFiles from "@/utils/validateFiles";
-import { FILE_UPLOAD_ERROR_MESSAGE } from "@/constants/errorMessages";
+import { FILE_UPLOAD_ERROR_MESSAGE } from "@/constants/messages";
 import { STEP_NAMES, UPLOAD_STEPS, FILE_TYPES } from "@/constants/upload";
 
 const UploadBox = () => {
