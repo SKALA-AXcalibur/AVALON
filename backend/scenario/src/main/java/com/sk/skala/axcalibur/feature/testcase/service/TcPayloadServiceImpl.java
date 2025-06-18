@@ -133,6 +133,7 @@ public class TcPayloadServiceImpl implements TcPayloadService{
                         new BusinessExceptionHandler("API에 대한 매핑 정보가 존재하지 않습니다.", ErrorCode.NOT_FOUND_ERROR));
                 
                 return ApiMappingDto.builder()
+                    .mappingID(api.getKey())
                     .step(step)
                     .url(api.getUrl())
                     .path(api.getPath())
