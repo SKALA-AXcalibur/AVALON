@@ -38,7 +38,7 @@ public class DbColumnEntity extends BaseTimeEntity {
     @Column(name = "description")
     private String description;         // 컬럼 설명
 
-    @Column(name = "type", nullable = false)
+    @Column(name = "data_type", nullable = false)
     private String type;                // 데이터 타입
 
     @Column(name = "length")
@@ -53,7 +53,7 @@ public class DbColumnEntity extends BaseTimeEntity {
     @Column(name = "fk")
     private String fk;                  // 외래키 정보
 
-    @Column(name = "constraint")
+    @Column(name = "const")
     private String constraint;          // 제약조건
 
     // 연관관계

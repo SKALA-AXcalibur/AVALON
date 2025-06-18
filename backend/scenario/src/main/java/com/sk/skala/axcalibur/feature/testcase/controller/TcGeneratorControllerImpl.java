@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sk.skala.axcalibur.feature.testcase.dto.request.DbTableDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseGenerationResponse;
 import com.sk.skala.axcalibur.feature.testcase.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.feature.testcase.service.ProjectIdResolverService;
 import com.sk.skala.axcalibur.feature.testcase.service.TcPayloadService;
@@ -22,6 +23,7 @@ import com.sk.skala.axcalibur.global.code.SuccessCode;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 테스트케이스 생성 요청 인터페이스
@@ -30,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/tc/v1")
 @RequiredArgsConstructor
+@Slf4j
 public class TcGeneratorControllerImpl implements TcGeneratorContoller {
     private final ProjectIdResolverService projectIdResolverService;
     private final TcPayloadService tcPayloadService;
@@ -47,14 +50,14 @@ public class TcGeneratorControllerImpl implements TcGeneratorContoller {
         // ERD 테이블 정보 수집
         List<DbTableDto> dbList = tcPayloadService.getDbTableList(projectId);
 
-        // 3) 시나리오별 테스트케이스 생성 로직
+        // 시나리오별 테스트케이스 생성 로직
         for (ScenarioEntity scenario : scenarios) {
             // payload 조립
-            TcRequestPayload payload = tcPayloadService.buildTcRequestPayload(scenario, dbList);
+            TcRequestPayload payload = tcPayloadService.buildPayload(scenario, dbList);
             // FastAPI 호출
-            TestcaseGenerationResponse response = testcaseService.callFastApi(payload);
+            // List<TestcaseGenerationResponse> response = testcaseService.callFastApi(payload);
             // 결과 저장
-            testcaseService.saveTestcases(response);
+            // testcaseService.saveTestcases(response);
         }
         
         // 응답시간 헤더에 반환
