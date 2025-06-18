@@ -5,6 +5,7 @@ from dto.request.spec.db import DbDesignDto, ColumnDto
 from typing import Dict, List
 import logging
 
+
 class DbDesignParserService:
     """
     테이블 설계서(엑셀) 파일을 파싱하여 DB 설계 정보를 구조화하는 서비스 클래스
@@ -36,10 +37,10 @@ class DbDesignParserService:
             "컬럼 한글명": "col_name",
             "데이터타입": "type",
             "길이": "length",
-            "PK": "isPk",
+            "PK": "is_pk",
             "FK": "fk",
-            "Null여부": "isNull",
-            "제약 조건": "constraint",
+            "Null여부": "is_null",
+            "제약 조건": "const",
             "설명": "desc",
         }
         return {
@@ -61,7 +62,9 @@ class DbDesignParserService:
                     return top_left_cell.value
             return cell.value
         except Exception as e:
-            logging.warning(f"[병합 셀 값 추출 예외] row={row_idx}, col={col_idx}, error: {e}")
+            logging.warning(
+                f"[병합 셀 값 추출 예외] row={row_idx}, col={col_idx}, error: {e}"
+            )
             return None
 
     async def parse_dbdesign_file(self, upload_file: UploadFile) -> List[DbDesignDto]:
@@ -78,7 +81,9 @@ class DbDesignParserService:
 
         required_keywords = ["Null여부", "데이터타입"]
         try:
-            header_idx, header_row = self.find_custom_header_row(sheet, required_keywords)
+            header_idx, header_row = self.find_custom_header_row(
+                sheet, required_keywords
+            )
         except Exception as e:
             logging.warning(f"[헤더 행 탐색 실패] error: {e}")
             return []
@@ -128,16 +133,20 @@ class DbDesignParserService:
                     "length": (
                         int(row_dict.get("length")) if row_dict.get("length") else None
                     ),
-                    "isPk": str(row_dict.get("isPk")).strip().upper() == "Y",
+                    "is_pk": str(row_dict.get("is_pk") or "").strip().upper() in ["Y", "PK", "●", "O", "TRUE"],
                     "fk": str(row_dict.get("fk")) if row_dict.get("fk") else None,
-                    "isNull": str(row_dict.get("isNull")).strip().upper() != "N",
-                    "constraint": (
-                        str(row_dict.get("constraint"))
-                        if row_dict.get("constraint")
+                    "is_null": {
+                                "Y": True,
+                                "N": False
+                            }.get(str(row_dict.get("is_null") or "").strip().upper(), False),
+                    "const": (
+                        str(row_dict.get("const"))
+                        if row_dict.get("const")
                         else None
                     ),
                     "desc": str(row_dict.get("desc")) if row_dict.get("desc") else None,
                 }
+                
 
                 column_dto = ColumnDto(**column_data)
                 # 테이블별로 컬럼 추가
