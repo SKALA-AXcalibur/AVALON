@@ -79,24 +79,6 @@ public class ProjectServiceImpl implements ProjectService {
     private final RequestMinorRepository requestMinorRepository;
     private final AvalonCookieRepository avalonCookieRepository;
 
-    private static final Integer PRIORITY_HIGH = 0; // 상
-    private static final Integer PRIORITY_MEDIUM = 1; // 중
-    private static final Integer PRIORITY_LOW = 2; // 하
-
-    private static final Integer FILE_TYPE_REQ = 0; // 요구사항서
-    private static final Integer FILE_TYPE_DEF = 1; // 인터페이스 정의서
-    private static final Integer FILE_TYPE_DES = 2; // 인터페이스 설계서
-    private static final Integer FILE_TYPE_ERD = 3; // ERD
-
-    private static final Integer CATEGORY_PATH_QUERY = 0; // 경로 쿼리
-    private static final Integer CATEGORY_REQUEST = 1; // 요청
-    private static final Integer CATEGORY_RESPONSE = 2; // 응답
-
-    private static final Integer CONTEXT_BODY = 0;
-    private static final Integer CONTEXT_HEADER = 1; // 헤더
-    private static final Integer CONTEXT_QUERY = 2; // 쿼리
-    private static final Integer CONTEXT_PATH = 3; // 경로
-
     // IF-PR-0001: 프로젝트 목록 저장
 
     @Transactional
