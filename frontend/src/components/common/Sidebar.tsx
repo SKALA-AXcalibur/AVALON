@@ -2,54 +2,34 @@
 import { useProjectStore } from "@/store/projectStore";
 import { useRouter } from "next/navigation";
 import LinkButton from "./LinkButton";
-import { useState, useEffect } from "react";
 import useReadScenarioTestcases from "@/hooks/testcase/readScenarioTestcases";
+import { useSidebarStore } from "@/store/sidebarStore";
+import { useEffect } from "react";
 
-const Sidebar = ({
+export const Sidebar = ({
   projectId,
   scenarioId,
-  testcaseId,
 }: {
   projectId: string;
   scenarioId: string;
-  testcaseId?: string;
 }) => {
   const router = useRouter();
   const { project } = useProjectStore();
-  const [openScenarios, setOpenScenarios] = useState<Set<string>>(new Set());
+  const { openScenarios, addOpenScenario, toggleOpenScenario, isOpen } =
+    useSidebarStore();
   const { readScenarioTestcases } = useReadScenarioTestcases();
 
-  // Initialize openScenarios after mount
   useEffect(() => {
-    if (scenarioId) {
-      setOpenScenarios(new Set([scenarioId]));
+    if (!isOpen(scenarioId)) {
+      addOpenScenario(scenarioId);
+      readScenarioTestcases(scenarioId);
     }
-  }, []);
-
-  useEffect(() => {
-    const fetchInitialTestcases = async () => {
-      if (scenarioId) {
-        await readScenarioTestcases(scenarioId);
-      }
-    };
-    fetchInitialTestcases();
-  }, [scenarioId]);
+  }, [scenarioId, addOpenScenario, readScenarioTestcases, isOpen]);
 
   const handleToggleClick = async (scenarioId: string) => {
-    const isCurrentlyOpen = openScenarios.has(scenarioId);
-
-    setOpenScenarios((prev) => {
-      const newSet = new Set(prev);
-      if (isCurrentlyOpen) {
-        newSet.delete(scenarioId);
-      } else {
-        newSet.add(scenarioId);
-      }
-      return newSet;
-    });
-
-    if (!isCurrentlyOpen) {
-      await readScenarioTestcases(scenarioId);
+    toggleOpenScenario(scenarioId);
+    if (isOpen(scenarioId)) {
+      readScenarioTestcases(scenarioId);
     }
   };
 
@@ -64,13 +44,13 @@ const Sidebar = ({
   };
 
   return (
-    <aside className="w-72 bg-slate-50 border-r border-slate-200 flex flex-col">
+    <aside className="w-72 bg-slate-50 border-r border-slate-200 flex flex-col h-[calc(100vh-84px)]">
       <div className="flex-1 p-6 overflow-y-auto">
         {project.scenarios.map((scenario) => (
-          <div key={scenario.id} className="mb-4">
+          <div key={scenario.id} className="mb-2">
             <div className="flex items-center w-full font-bold text-slate-800">
               <button
-                className="mr-2 focus:outline-none"
+                className="mr-2 focus:outline-none text-xl cursor-pointer"
                 onClick={() => handleToggleClick(scenario.id)}
               >
                 {scenario.testcases.length > 0
@@ -90,18 +70,16 @@ const Sidebar = ({
             </div>
             {scenario.testcases.length > 0 &&
               openScenarios.has(scenario.id) && (
-                <div className="mt-2 ml-6">
+                <div className="ml-2">
                   {scenario.testcases.map((testcase) => (
                     <div
                       key={testcase.tcId}
                       onClick={() =>
                         handleTestcaseClick(scenario.id, testcase.tcId)
                       }
-                      className={`block rounded-lg px-4 py-2 text-slate-600 hover:bg-sky-50 cursor-pointer ${
-                        testcase.tcId === testcaseId
-                          ? "bg-sky-50 text-sky-600"
-                          : ""
-                      }`}
+                      className={
+                        "block rounded-lg px-4 py-2 text-slate-600 hover:bg-sky-50 cursor-pointer text-sm"
+                      }
                     >
                       {testcase.tcId}
                     </div>
@@ -123,5 +101,3 @@ const Sidebar = ({
     </aside>
   );
 };
-
-export default Sidebar;
