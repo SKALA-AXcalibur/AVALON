@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScenarioDto {
+    private String scenarioId;
     private String scenarioName;
     private String scenarioDesc;
     private String validation;
