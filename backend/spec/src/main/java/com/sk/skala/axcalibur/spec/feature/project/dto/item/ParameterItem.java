@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ParameterItem {
     // Step 4 → Step 5: 실제 파라미터 상세 정보
-    private String korName;     // 한글명
+    private String nameKo;     // 한글명
     private String name;        // 영문명
     private String itemType;    // 항목유형
     private Integer step;       // 단계  

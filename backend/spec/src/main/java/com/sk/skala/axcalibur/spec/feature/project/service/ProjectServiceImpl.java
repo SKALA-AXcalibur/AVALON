@@ -156,7 +156,7 @@ public class ProjectServiceImpl implements ProjectService {
                 if (tableItem.getColumn() != null) {
                     for (ColItem colItem : tableItem.getColumn()) {
                         DbColumnEntity dbColumnEntity = DbColumnEntity.builder()
-                                .colName(colItem.getName())
+                                .col_name(colItem.getCol_name())
                                 .description(colItem.getDesc())
                                 .type(colItem.getType())
                                 .length(colItem.getLength())
@@ -203,7 +203,7 @@ public class ProjectServiceImpl implements ProjectService {
                         .name(dbDesign.getName())
                         .column(dbDesign.getColumns().stream()
                                 .<ColItem>map(col -> ColItem.builder()
-                                        .name(col.getColName())
+                                        .col_name(col.getCol_name())
                                         .desc(col.getDescription())
                                         .type(col.getType())
                                         .length(col.getLength())
@@ -380,7 +380,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     private ParameterDetailDto convertParameterEntityToDto(ParameterEntity param) {
         ParameterDetailDto.ParameterDetailDtoBuilder builder = ParameterDetailDto.builder()
-                .korName(param.getNameKo())
+                .nameKo(param.getNameKo())
                 .name(param.getName())
                 .itemType(param.getCategoryKey() != null ? param.getCategoryKey().getName() : null)
                 .dataType(param.getDataType())
@@ -406,13 +406,13 @@ public class ProjectServiceImpl implements ProjectService {
     private void processParameterItems(ApiListEntity apiList, List<ParameterItem> paramItems, String paramType) {
         for (ParameterItem paramItem : paramItems) {
             if (isEmptyParameter(paramItem)) {
-                log.debug("빈 파라미터 데이터 스킵 - name: {}, korName: {}, dataType: {}",
-                        paramItem.getName(), paramItem.getKorName(), paramItem.getDataType());
+                log.debug("빈 파라미터 데이터 스킵 - name: {}, nameKo: {}, dataType: {}",
+                        paramItem.getName(), paramItem.getNameKo(), paramItem.getDataType());
                 continue;
             }
 
             ParameterEntity.ParameterEntityBuilder builder = ParameterEntity.builder()
-                    .nameKo(paramItem.getKorName())
+                    .nameKo(paramItem.getNameKo())
                     .name(paramItem.getName())
                     .dataType(paramItem.getDataType())
                     .format(paramItem.getFormat())
@@ -517,7 +517,7 @@ public class ProjectServiceImpl implements ProjectService {
     private boolean isEmptyParameter(ParameterItem paramItem) {
         // 이름과 한글명이 모두 비어있으면 의미없는 데이터로 판단
         boolean hasNoName = (paramItem.getName() == null || paramItem.getName().trim().isEmpty()) &&
-                (paramItem.getKorName() == null || paramItem.getKorName().trim().isEmpty());
+                (paramItem.getNameKo() == null || paramItem.getNameKo().trim().isEmpty());
 
         // 데이터 타입도 비어있으면 완전히 빈 데이터
         boolean hasNoDataType = (paramItem.getDataType() == null || paramItem.getDataType().trim().isEmpty());

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ColItem {
-    private String name; // 컬럼명
+    private String col_name; // 컬럼명
     private String desc; // 컬럼설명
     private String type; // 컬럼타입
     private Integer length; // 컬럼길이
