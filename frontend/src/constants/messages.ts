@@ -9,9 +9,16 @@ export const ERROR_MESSAGES = {
   },
 
   ID_VALIDATION: {
-    EMPTY: "ID를 입력해주세요.",
-    LENGTH: "ID는 5자 이상 30자 이하여야 합니다.",
-    FORMAT: "ID는 영문자와 숫자, -로만 구성되어야 합니다.",
+    EMPTY: "입력해주세요.",
+    LENGTH: "5자 이상 30자 이하여야 합니다.",
+    FORMAT: "영문자와 숫자, -로만 구성되어야 합니다.",
+  },
+
+  SCENARIO: {
+    READ_FAILED: "시나리오 정보를 불러오지 못했습니다.",
+    CREATE_FAILED: "시나리오 생성에 실패했습니다.",
+    UPDATE_FAILED: "시나리오 수정에 실패했습니다.",
+    DELETE_FAILED: "시나리오 삭제에 실패했습니다.",
   },
 };
 
@@ -19,6 +26,11 @@ export const SUCCESS_MESSAGES = {
   PROJECT_AUTH: {
     DELETE_SUCCESS: "프로젝트가 성공적으로 삭제되었습니다.",
     LOGIN_SUCCESS: "로그인이 완료되었습니다.",
+  },
+  SCENARIO: {
+    CREATE_SUCCESS: "시나리오가 성공적으로 생성되었습니다.",
+    UPDATE_SUCCESS: "시나리오가 성공적으로 수정되었습니다.",
+    DELETE_SUCCESS: "시나리오가 성공적으로 삭제되었습니다.",
   },
 };
 
