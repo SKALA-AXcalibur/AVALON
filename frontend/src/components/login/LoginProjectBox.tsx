@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useProjectAuth } from "@/hooks/auth/useProjectAuth";
 
-export const LoginProject = () => {
+export const LoginProjectBox = () => {
   const router = useRouter();
   const {
     projectId,
