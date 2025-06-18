@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.Operation;
  */
 public interface SpecUploadController {
 
-    @Operation(summary = "명세서 업로드", description = "요구사항정의서, 인터페이스정의서, 설계서를 업로드합니다.")
+    @Operation(summary = "명세서 업로드", description = "요구사항정의서, 인터페이스정의서, 설계서, 테이블설계서를 업로드합니다.")
     ResponseEntity<SuccessResponse<List<Object>>> uploadSpec(
         @CookieValue("avalon") String key,
         @RequestParam MultipartFile requirementFile,
