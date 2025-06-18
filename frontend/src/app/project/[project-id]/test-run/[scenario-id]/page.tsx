@@ -1,5 +1,6 @@
 import { TestRunBox } from "@/components/test-run/TestRunBox";
-import { apiTestApi } from "@/services/apiTest";
+import { ErrorBox } from "@/components/common/ErrorBox";
+import { clientApiTestApi } from "@/services/client/clientApiTestApi";
 
 const TestRunPage = async ({
   params,
@@ -9,7 +10,7 @@ const TestRunPage = async ({
   const { "project-id": projectId, "scenario-id": scenarioId } = await params;
 
   try {
-    const apiTestResult = await apiTestApi.readApiTestResult();
+    const apiTestResult = await clientApiTestApi.readApiTestResult();
 
     return (
       <TestRunBox
@@ -20,18 +21,7 @@ const TestRunPage = async ({
     );
   } catch (error) {
     console.error(error);
-    return (
-      <div className="flex flex-col items-center justify-center p-6">
-        <h1 className="text-2xl font-bold text-red-600 mb-4">
-          데이터를 가져오는데 실패했습니다
-        </h1>
-        <p className="text-slate-600">
-          {error instanceof Error
-            ? error.message
-            : "알 수 없는 오류가 발생했습니다"}
-        </p>
-      </div>
-    );
+    return <ErrorBox error={error} />;
   }
 };
 
