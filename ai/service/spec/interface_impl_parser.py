@@ -5,6 +5,7 @@ from typing import List, Dict, Optional
 from io import BytesIO
 import logging
 
+from config.config import IMPL_PARAM, PATH_QUERY_PARAM, REQUEST_PARAM, RESPONSE_PARAM, IMPL_FIELD_MAP
 from dto.request.spec.api import Api
 from dto.request.spec.param import Param
 
@@ -23,9 +24,9 @@ class InterfaceImplParserService:
         sheet_starts = self.find_valid_sheet_starts(xls)
         parsed_apis = []
 
-        for sheet_name, start_row in sheet_starts.items():
+        for sheet_name in sheet_starts.keys():
             df = xls.parse(sheet_name=sheet_name, header=None)
-            api = self.parse_interface_sheet(df, start_row)
+            api = self.parse_interface_sheet(df)
             if api:
                 parsed_apis.append(api)
 
@@ -40,7 +41,7 @@ class InterfaceImplParserService:
         for sheet_name in xls.sheet_names:
             df = xls.parse(sheet_name=sheet_name, header=None)
             for i, row in df.iterrows():
-                if any(isinstance(cell, str) and "*** 입출력 파라미터 명세 ***" in cell for cell in row):
+                if any(isinstance(cell, str) and IMPL_PARAM in cell for cell in row):
                     valid_starts[sheet_name] = i
                     break
 
@@ -87,61 +88,56 @@ class InterfaceImplParserService:
                     data_type=str(row[5]).strip(),
                     length=int(row[6]) if not pd.isna(row[6]) else None,
                     format=str(row[7]).strip() if not pd.isna(row[7]) else None,
-                    default_value=str(row[8]).strip() if not pd.isna(row[8]) else None, # default -> default_value로 변경
+                    default_value=str(row[8]).strip() if not pd.isna(row[8]) else None, # defaut -> default_value로 변경
                     required=str(row[9]).strip().upper() == 'Y',
                     upper=str(row[10]).strip() if not pd.isna(row[10]) else None,
                     desc=str(row[11]).strip() if not pd.isna(row[11]) else None,
                 )
                 params.append(param)
-            except Exception as e:
-                logging.warning(f"[파싱 실패] {i}행 - {repr(e)}")
+            except (ValueError, IndexError, AttributeError) as e:
+                logging.warning(f"[파싱 실패] {i}행 - {type(e).__name__}: {e}")
                 continue
         return params
 
-    def parse_interface_sheet(self, df: pd.DataFrame, start_row: int) -> Optional[Api]:
+    def parse_interface_sheet(self, df: pd.DataFrame) -> Optional[Api]:
         """
         하나의 시트에서 API 메타 정보 및 파라미터 블록을 파싱하여 Api 객체로 반환하는 함수
         """
-        try:
-            id_ = self.find_value_to_right(df, "인터페이스ID", offset=2)
-            name = self.find_value_to_right(df, "인터페이스명", offset=2)
-            desc = self.find_value_to_right(df, "설명", offset=2)
-            method = self.find_value_to_right(df, "HTTP Method", offset=1)
-            path = self.find_value_to_right(df, "Path", offset=2)
-            url = self.find_value_to_right(df, "URL", offset=2)
-        
-            if not all([id_, name, method, path]):
-                logging.warning(f"필수 필드 누락: ID={id_}, name={name}, method={method}, path={path}")
-                return None
+        values = {}
+        missing_fields = []
 
-        except (IndexError, KeyError, ValueError) as e:
-            logging.warning(f"API 메타정보 파싱 실패: {e}")
+        for key, (keyword, offset) in IMPL_FIELD_MAP.items():
+            val = self.find_value_to_right(df, keyword, offset)
+            values[key] = val
+            if not val and key in {"id", "name", "method", "path"}:
+                missing_fields.append(keyword)
+        
+        if missing_fields:
+            logging.warning(
+                f"필수 필드 누락: {', '.join(missing_fields)} "
+                f"(ID={values['id']}, name={values['name']}, method={values['method']}, path={values['path']})"
+            )
             return None
 
-        path_row = self.find_keyword_row(df, "*** Path / Query 파라미터 항목 ***")
-        request_row = self.find_keyword_row(df, "*** 요청(Request) 파라미터 항목 ***")
-        response_row = self.find_keyword_row(df, "*** 응답(Response) 파라미터 항목 ***")
+        path_row = self.find_keyword_row(df, PATH_QUERY_PARAM)
+        request_row = self.find_keyword_row(df, REQUEST_PARAM)
+        response_row = self.find_keyword_row(df, RESPONSE_PARAM)
 
         if path_row == -1 or request_row == -1 or response_row == -1:
             logging.warning(f"필수 파라미터 블록 위치를 찾지 못함 (Path: {path_row}, Req: {request_row}, Res: {response_row})")
             return None
 
-        try:
-            path_params = self.parse_param_block(df, path_row + 1, request_row)
-            req_params = self.parse_param_block(df, request_row + 1, response_row)
-            res_params = self.parse_param_block(df, response_row + 1, len(df))
+        path_params = self.parse_param_block(df, path_row + 1, request_row)
+        req_params = self.parse_param_block(df, request_row + 1, response_row)
+        res_params = self.parse_param_block(df, response_row + 1, len(df))
 
-        except Exception as e:
-            logging.warning(f"파라미터 블록 파싱 실패: {e}")
-            return None
-        
         return Api(
-            id=id_,
-            name=name,
-            desc=desc,
-            method=method,
-            url=url,
-            path=path,
+            id=values["id"],
+            name=values["name"],
+            desc=values.get("desc", ""),
+            method=values["method"],
+            url=values.get("url", ""),
+            path=values["path"],
             path_query=path_params,
             request=req_params,
             response=res_params

@@ -5,6 +5,7 @@ from typing import List
 from io import BytesIO
 import logging
 
+from config.config import INTERFACE_DEF, INTERFACE_ID, INTERFACE_REQ_ID, INTERFACE_DEF_PARSER
 from dto.request.spec.api import Api
 
 class InterfaceDefParserService:
@@ -31,17 +32,29 @@ class InterfaceDefParserService:
         id_map = {}
 
         # 인터페이스 정의서 파싱하여 인터페이스 ID: 요구사항 ID 매핑표 생성
-        for _, row in df.iterrows():
+        for i, row in df.iterrows():
             try:
-                interface_id = str(row.get("인터페이스ID*", "")).strip()
-                req_id = str(row.get("요구사항ID*", "")).strip()
+                interface_id = str(row.get(INTERFACE_ID, "")).strip()
+                req_id = str(row.get(INTERFACE_REQ_ID, "")).strip()
 
-                if interface_id and req_id and interface_id != "nan":
-                    id_map[interface_id] = req_id
+                if not interface_id or interface_id.lower() == "nan":
+                    logging.warning(f"[정의서 파싱 경고] {i+2}행 - 인터페이스ID 누락 또는 무효값: '{interface_id}'")
+                    continue
 
+                if not req_id or req_id.lower() == "nan":
+                    logging.warning(f"[정의서 파싱 경고] {i+2}행 - 요구사항ID 누락 또는 무효값: '{req_id}'")
+                    continue
+
+                id_map[interface_id] = req_id
+
+            except KeyError as e:
+                logging.error(f"[정의서 파싱 실패] {i+2}행 - KeyError 발생: {e}")
+            except TypeError as e:
+                logging.error(f"[정의서 파싱 실패] {i+2}행 - TypeError 발생: {e}")
+            except ValueError as e:
+                logging.error(f"[정의서 파싱 실패] {i+2}행 - ValueError 발생: {e}")
             except Exception as e:
-                logging.warning(f"[정의서 파싱 실패] - {e}")
-                continue
+                logging.exception(f"[정의서 파싱 실패] {i+2}행 - 알 수 없는 예외 발생")
 
         # 최종 API 파싱 결과 반환
         for api in api_list:
@@ -58,15 +71,15 @@ class InterfaceDefParserService:
         2. 없으면 시트 내에서 '업무Level1*'이 가장 먼저 나와있는 시트를 반환
         3. 없으면 마지막 시트를 fallback
         """
-        sheet_names = xls.sheet_names
+        sheet_names = [str(name) for name in xls.sheet_names]
 
-        if "인터페이스정의서" in sheet_names:
-            return "인터페이스정의서"
+        if INTERFACE_DEF in sheet_names:
+            return INTERFACE_DEF
 
         for sheet in sheet_names:
             try:
                 df = xls.parse(sheet_name=sheet, header=None, nrows=5)
-                if df.astype(str).apply(lambda col: col.str.contains("업무Level1*", na=False)).any().any():
+                if df.astype(str).apply(lambda col: col.str.contains(INTERFACE_DEF_PARSER, na=False)).any().any():
                     return sheet
             except Exception:
                 continue

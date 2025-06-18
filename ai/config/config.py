@@ -43,3 +43,32 @@ REQ_SHEET_NAME = "요구사항정의서"
 
 # 키워드
 REQ_REQUIRED_KEYWORDS = ["대분류", "중분류", "소분류"]
+
+
+"""
+인터페이스 설계서 파서 관련 설정값
+"""
+# 인터페이스 설계서 구분자
+IMPL_PARAM = "*** 입출력 파라미터 명세 ***"
+PATH_QUERY_PARAM = "*** Path / Query 파라미터 항목 ***"
+REQUEST_PARAM = "*** 요청(Request) 파라미터 항목 ***"
+RESPONSE_PARAM = "*** 응답(Response) 파라미터 항목 ***"
+
+# 인터페이스 설계서 파싱 문자
+IMPL_FIELD_MAP = {
+    "id": ("인터페이스ID", 2),
+    "name": ("인터페이스명", 2),
+    "desc": ("설명", 2),
+    "method": ("HTTP Method", 1),
+    "path": ("Path", 2),
+    "url": ("URL", 2),
+}
+
+"""
+인터페이스 정의서 파서 관련 설정값
+"""
+# 인터페이스 정의서 구분자
+INTERFACE_DEF = "인터페이스정의서"
+INTERFACE_ID = "인터페이스ID*"
+INTERFACE_REQ_ID = "요구사항ID*"
+INTERFACE_DEF_PARSER = "업무Level1*"
