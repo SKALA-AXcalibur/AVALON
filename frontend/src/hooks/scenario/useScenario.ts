@@ -7,7 +7,6 @@ import { validateId } from "@/utils/validateId";
 
 export const useScenario = (projectId: string, scenarioId: string) => {
   const {
-    project,
     addScenario,
     updateScenario,
     deleteScenario: removeScenario,
@@ -37,7 +36,6 @@ export const useScenario = (projectId: string, scenarioId: string) => {
   useEffect(() => {
     if (scenarioId !== "new") {
       const fetchScenarioInfo = async () => {
-        if (scenarioId === "new") return;
         try {
           setIsLoading(true);
           const scenario = await clientScenarioApi.readScenario(scenarioId);
@@ -118,8 +116,10 @@ export const useScenario = (projectId: string, scenarioId: string) => {
       await clientScenarioApi.deleteScenario(scenarioInfo.id);
       removeScenario(scenarioInfo.id);
       setSuccess(SUCCESS_MESSAGES.SCENARIO.DELETE_SUCCESS);
-      const total = project.scenarios.length;
-      onSuccess?.(total > 0 ? project.scenarios[0].id : null, total);
+      const scenariosAfterDeletion =
+        useProjectStore.getState().project.scenarios;
+      const total = scenariosAfterDeletion.length;
+      onSuccess?.(total > 0 ? scenariosAfterDeletion[0].id : null, total);
     } catch (error) {
       console.error(error);
       setError(ERROR_MESSAGES.SCENARIO.DELETE_FAILED);
