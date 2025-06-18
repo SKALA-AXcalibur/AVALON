@@ -133,7 +133,7 @@ public class ProjectController {
         ResponseCookie cookie = ResponseCookie.from("avalon", response.getAvalon())
                 .path("/")
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)  // 임시 수정 기존은 true
                 .build();
 
         //  응답 시간 설정
