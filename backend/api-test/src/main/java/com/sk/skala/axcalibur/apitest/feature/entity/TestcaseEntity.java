@@ -30,6 +30,9 @@ public class TestcaseEntity {
   @Column(name = "`key`", nullable = false)
   private Integer id;
 
+  @Column(name = "id", nullable = false, unique = true, length = 20)
+  private String testcaseId;
+
   @Column(name = "description", nullable = false, columnDefinition = "TEXT")
   private String description;
 

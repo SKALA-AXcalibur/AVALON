@@ -36,7 +36,7 @@ public class TestcaseResultRepositoryCustomImpl implements TestcaseResultReposit
                 JPAExpressions
                     .select(subResult.createdAt.max())
                     .from(subResult)
-                    .where(subResult.testcase.eq(testcaseEntity))
+                    .where(subResult.testcase.eq(testcaseResultEntity.testcase))
             ))
         .fetch();
   }

@@ -7,10 +7,13 @@ import com.sk.skala.axcalibur.apitest.feature.dto.response.ScenarioResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.TestcaseInfoResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.TestcaseSuccessResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.entity.ScenarioEntity;
+import com.sk.skala.axcalibur.apitest.feature.entity.TestcaseEntity;
 import com.sk.skala.axcalibur.apitest.feature.repository.ScenarioRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepositoryCustom;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepository;
+import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepositoryCustom;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +26,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class ApiTestServiceImpl implements ApiTestService {
-
-  private final TestcaseResultRepository repo;
   private final TestcaseRepository tc;
   private final TestcaseRepositoryCustom tcCustom;
+  private final TestcaseResultRepositoryCustom trCustom;
   private final ScenarioRepository scene;
 
 
@@ -39,6 +41,9 @@ public class ApiTestServiceImpl implements ApiTestService {
       log.warn("No scenarios provided for execution.");
       return List.of();
     }
+    
+    // TODO: Redis Streams 이용해 비동기 처리 구현하기
+
 
     return List.of();
   }
@@ -55,11 +60,18 @@ public class ApiTestServiceImpl implements ApiTestService {
         "ApiTestServiceImpl.getTestResultService() called with dto project: {}, cursor: {}, size: {}",
         dto.projectKey(), dto.cursor(), dto.size());
     Integer key = dto.projectKey();
-    var cursor = dto.cursor() == null ? "" : dto.cursor();
-    var size = dto.size() == null ? Integer.MAX_VALUE : dto.size();
+    List<ScenarioEntity> scenarios;
 
-    var page = PageRequest.of(0, size, Sort.by("id").ascending());
-    var scenarios = scene.findAllByProjectKeyAndScenarioIdGreaterThanOrderByIdAsc(key, cursor, page);
+    // dto.size is null
+    if (dto.size() == null) {
+      scenarios = scene.findAllByProjectKey(key);
+    } else {
+      var cursor = dto.cursor() == null ? "" : dto.cursor();
+      var size = dto.size();
+      var page = PageRequest.of(0, size, Sort.by("id").ascending());
+      scenarios = scene.findAllByProjectKeyAndScenarioIdGreaterThanOrderByIdAsc(key, cursor, page);
+    }
+
     var dtoList = tcCustom.findByScenarioInWithResultSuccess(scenarios);
 
     // dtoList를 scenarioId 기준으로 그룹핑 (중복 방지, 성능 개선)
@@ -103,13 +115,58 @@ public class ApiTestServiceImpl implements ApiTestService {
   public List<TestcaseInfoResponseDto> getTestCaseResultService(
       GetTestCaseResultServiceRequestDto dto) {
     log.info(
-        "ApiTestServiceImpl.getTestCaseResultService() called with dto scenarioId: {}, cursor: {}, size: {}",
-        dto.scenarioId(), dto.cursor(), dto.size());
-    // TODO: 시나리오 ID로 testcase 엔티티 리스트 조회, 커서, 사이즈 고려
+        "ApiTestServiceImpl.getTestCaseResultService() called with dto projectKdy: {}, scenarioId: {}, cursor: {}, size: {}",
+        dto.projectKey(), dto.scenarioId(), dto.cursor(), dto.size());
+    Integer key = dto.projectKey();
+    String scenarioId = dto.scenarioId();
+    List<TestcaseEntity> testcases;
 
+    // dto.size is null
+    if (dto.size() == null) {
+      testcases = tc.findByMapping_Scenario_ProjectKeyAndMapping_Scenario_ScenarioId(key, scenarioId);
+    } else {
+      var cursor = dto.cursor() == null ? "" : dto.cursor();
+      var size = dto.size();
+      var page = PageRequest.of(0, size, Sort.by("id").ascending());
+      testcases = tc.findByMapping_Scenario_ProjectKeyAndMapping_Scenario_ScenarioIdAndTestcaseIdGreaterThanOrderByIdAsc(
+          key, scenarioId, cursor, page);
+    }
+    var testcaseResults = trCustom.findLastResultByTestcaseIn(testcases);
 
+    var tcMap = testcases.stream()
+        .collect(Collectors.toMap(TestcaseEntity::getId, tc -> tc));
+    var trMap = testcaseResults.stream()
+        .collect(Collectors.toMap(tr -> tr.getTestcase().getId(), tr -> tr));
 
+    return tcMap.entrySet().stream().map(
+        entry -> {
+          Integer id = entry.getKey();
+          var tc = entry.getValue();
+          String isSuccess;
+          LocalDateTime time = null;
 
-    return List.of();
+          if(!trMap.containsKey(id)) {
+            isSuccess = "준비중";
+          } else if (trMap.get(id).getSuccess() == null ) {
+            isSuccess = "실행중";
+          } else if (trMap.get(id).getSuccess()) {
+            isSuccess = "성공";
+            // 실행 성공하면 시간도 가져오기
+            time = trMap.get(id).getTime();
+          } else {
+            // 실패한 경우에도 시간은 가져오기
+            isSuccess = "실패";
+            time = trMap.get(id).getTime();
+          }
+
+          return TestcaseInfoResponseDto.builder()
+              .tcId(tc.getTestcaseId())
+              .description(tc.getDescription())
+              .expectedResult(tc.getExpected())
+              .isSuccess(isSuccess)
+              .excutedTime(time)
+              .build();
+        }
+    ).toList();
   }
 }
