@@ -147,7 +147,7 @@ class DbDesignParserService:
                 continue  # 에러 발생 시 해당 행만 스킵, 전체 파싱은 계속
 
         db_designs = [
-            DbDesignDto(name=tbl_name, col=columns)
+            DbDesignDto(name=tbl_name, column=columns)
             for tbl_name, columns in table_map.items()
         ]
         return db_designs

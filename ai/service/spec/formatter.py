@@ -47,4 +47,5 @@ async def formatter(
     spec_upload_request = SpecUploadRequest(
         requirement=req_result, apiList=def_result, tableList=db_result
     )  # 요청파라미터와 맞춤
+
     return spec_upload_request

@@ -9,12 +9,13 @@ from dto.request.spec.param import Param
 (인터페이스 ID, 인터페이스명, 인터페이스 설명, HTTP Method, URL, path, Path/Query 객체, 요청 객체, 응답 객체)
 '''
 class Api(BaseModel):
+    apiPk: Optional[int] = None  # 추가(project의 ApiInfoDto랑 맞춤)
     id: str
     name: str
     desc: str
     method: str
     url: Optional[str] = None
-    req_id: str = ""
+    req_id: Optional[str] = None
     path: str
     pathQuery: List[Param]
     request: List[Param]

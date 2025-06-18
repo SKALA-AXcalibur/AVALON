@@ -1,14 +1,14 @@
 # # ai/dto/request/spec/db.py
 
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ColumnDto(BaseModel):
     col_name: str
     desc: Optional[str] = None
     type: str
-    length: int
+    length: Optional[int] = None
     isPk: bool = False
     fk: Optional[str] = None
     isNull: bool = True
@@ -17,4 +17,4 @@ class ColumnDto(BaseModel):
 
 class DbDesignDto(BaseModel):
     name: str
-    col: List[ColumnDto] # 요청파라미터와 맞춤
+    column: List[ColumnDto]  # 요청파라미터와 맞춤

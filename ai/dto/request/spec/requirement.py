@@ -12,4 +12,4 @@ class Requirement(BaseModel):
     priority: str
     major: str
     middle: str
-    sub: str
+    minor: str

@@ -30,7 +30,7 @@ class RequirementParserService:
             "중요도": "priority",
             "대분류": "major",
             "중분류": "middle",
-            "소분류": "sub",
+            "소분류": "minor",
         }
         return {
             i: header_map.get(str(header_row[i]), str(header_row[i]))
@@ -53,7 +53,9 @@ class RequirementParserService:
         # 헤더 행 자동 탐색 (대분류, 중분류, 소분류 포함)
         required_keywords = ["대분류", "중분류", "소분류"]
         try:
-            header_idx, header_row = self.find_custom_header_row(sheet, required_keywords)
+            header_idx, header_row = self.find_custom_header_row(
+                sheet, required_keywords
+            )
         except Exception as e:
             logger.warning(f"[헤더 탐색 중 예외] error: {e}")
             return []
@@ -75,7 +77,15 @@ class RequirementParserService:
                 row_dict = {header_map[i]: row[i] for i in range(len(header_row))}
                 requirement_data = {
                     field: row_dict.get(field, None)
-                    for field in ["id", "name", "desc", "priority", "major", "middle", "sub"]
+                    for field in [
+                        "id",
+                        "name",
+                        "desc",
+                        "priority",
+                        "major",
+                        "middle",
+                        "minor",
+                    ]
                 }
                 requirements.append(Requirement(**requirement_data))
             except Exception as e:

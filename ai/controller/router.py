@@ -5,8 +5,11 @@
 @version 1.0
 """
 
+import logging
+import traceback
 from typing import Dict
 from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile, requests
+from pydantic import ValidationError
 
 from service.spec.formatter import formatter
 from service.spec.interface_def_parser import InterfaceDefParserService
@@ -36,24 +39,27 @@ async def analyze_spec(
     interfaceDef: UploadFile = File(...),
     interfaceDesign: UploadFile = File(...),
     databaseDesign: UploadFile = File(...),
-) -> Response:
-    """
-    명세서 분석
-    4가지 문서 파싱 후 포맷팅
-    정보저장api를 통해 저장
-    """
-
-    # 포맷팅
+):
     try:
-        result = await formatter(
-            requirementFile, interfaceDesign, interfaceDef, databaseDesign
-        )
+        result = await formatter(...)
+    except ValidationError as e:
+        logging.warning("명세서 Validation 실패: %s", e)
+        raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error("분석 중 예외 발생: %s", e)
+        logging.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"{type(e).__name__}: {e}")
 
-    # 정보저장API로 POST 요청
-    response = await save_to_info_api(result.model_dump())  # dict로 변환해서 넘김
-    return Response
+    result_dict = result.model_dump()
+    result_dict.pop("projectId", None)
+
+    try:
+        response = await save_to_info_api(projectId, result_dict)
+    except Exception as e:
+        logging.error("정보저장API 호출 실패: %s", e)
+        raise HTTPException(status_code=502, detail="정보 저장 실패")
+
+    return response
 
 
 @router.post("/api/scenario/v1/generate")
