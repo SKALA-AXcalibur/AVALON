@@ -21,3 +21,4 @@ class Param(BaseModel):
     desc: Optional[str] = None
     api_id: Optional[str] = None  # 추가(project의 ParameterDetailDto랑 맞춤)
     api_name: Optional[str] = None  # 추가(project의 ParameterDetailDto랑 맞춤)
+    

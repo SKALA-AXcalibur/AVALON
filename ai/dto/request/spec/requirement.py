@@ -13,3 +13,4 @@ class Requirement(BaseModel):
     major: str
     middle: str
     minor: str
+    

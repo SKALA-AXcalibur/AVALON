@@ -14,3 +14,4 @@ class SpecUploadRequest(BaseModel):
     requirement: List[Requirement]
     apiList: List[Api]
     tableList: List[DbDesignDto] # 요청파라미터에 맞추어 수정
+    

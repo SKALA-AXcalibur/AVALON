@@ -160,3 +160,4 @@ class DbDesignParserService:
             for tbl_name, columns in table_map.items()
         ]
         return db_designs
+    

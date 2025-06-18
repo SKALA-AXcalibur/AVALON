@@ -1,5 +1,5 @@
 # ai/service/spec/requirement_parser.py
-from loguru import logger
+import logging
 import openpyxl
 from fastapi import UploadFile
 from io import BytesIO
@@ -46,7 +46,7 @@ class RequirementParserService:
             workbook = openpyxl.load_workbook(BytesIO(contents), data_only=True)
             sheet = workbook["요구사항정의서"]
         except Exception as e:
-            logger.warning(f"[엑셀 파일 오픈/시트 접근 실패] error: {e}")
+            logging.warning(f"[엑셀 파일 오픈/시트 접근 실패] error: {e}")
             return []
 
         # 헤더 행 자동 탐색 (대분류, 중분류, 소분류 포함)
@@ -56,10 +56,10 @@ class RequirementParserService:
                 sheet, required_keywords
             )
         except Exception as e:
-            logger.warning(f"[헤더 탐색 중 예외] error: {e}")
+            logging.warning(f"[헤더 탐색 중 예외] error: {e}")
             return []
         if header_row is None:
-            logger.warning("[헤더 미발견] 필수 컬럼 포함된 헤더를 찾지 못함.")
+            logging.warning("[헤더 미발견] 필수 컬럼 포함된 헤더를 찾지 못함.")
             return []
 
         header_map = self.get_header_map(header_row)
@@ -88,7 +88,7 @@ class RequirementParserService:
                 }
                 requirements.append(Requirement(**requirement_data))
             except Exception as e:
-                logger.warning(f"[요구사항 행 파싱 실패] idx={idx}, error: {e}")
+                logging.warning(f"[요구사항 행 파싱 실패] idx={idx}, error: {e}")
                 continue  # 오류 발생 시 해당 행만 스킵
 
         return requirements

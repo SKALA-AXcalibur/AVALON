@@ -18,3 +18,4 @@ class ColumnDto(BaseModel):
 class DbDesignDto(BaseModel):
     name: str
     column: List[ColumnDto]  # 요청파라미터와 맞춤
+    

@@ -20,3 +20,4 @@ class Api(BaseModel):
     path_query: List[Param] # 수정
     request: List[Param]
     response: List[Param]
+    

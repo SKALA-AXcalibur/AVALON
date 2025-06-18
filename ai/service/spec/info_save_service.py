@@ -15,3 +15,4 @@ async def save_to_info_api(project_id: str, result: dict): # project_id 추가
             raise HTTPException(status_code=502, detail=f"정보저장API 호출 실패: {str(e)}")
         except httpx.HTTPStatusError as e:
             raise HTTPException(status_code=e.response.status_code, detail=f"정보저장API 응답 오류: {e.response.text}") # 더 안정적인 방법 사용
+        

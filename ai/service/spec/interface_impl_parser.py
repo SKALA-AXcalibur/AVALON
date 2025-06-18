@@ -3,7 +3,7 @@ import pandas as pd
 from fastapi import UploadFile
 from typing import List, Dict, Optional
 from io import BytesIO
-from loguru import logger
+import logging
 
 from dto.request.spec.api import Api
 from dto.request.spec.param import Param
@@ -94,7 +94,7 @@ class InterfaceImplParserService:
                 )
                 params.append(param)
             except Exception as e:
-                logger.warning(f"[파싱 실패] {i}행 - {repr(e)}")
+                logging.warning(f"[파싱 실패] {i}행 - {repr(e)}")
                 continue
         return params
 
@@ -111,11 +111,11 @@ class InterfaceImplParserService:
             url = self.find_value_to_right(df, "URL", offset=2)
         
             if not all([id_, name, method, path]):
-                logger.warning(f"필수 필드 누락: ID={id_}, name={name}, method={method}, path={path}")
+                logging.warning(f"필수 필드 누락: ID={id_}, name={name}, method={method}, path={path}")
                 return None
 
         except (IndexError, KeyError, ValueError) as e:
-            logger.warning(f"API 메타정보 파싱 실패: {e}")
+            logging.warning(f"API 메타정보 파싱 실패: {e}")
             return None
 
         path_row = self.find_keyword_row(df, "*** Path / Query 파라미터 항목 ***")
@@ -123,7 +123,7 @@ class InterfaceImplParserService:
         response_row = self.find_keyword_row(df, "*** 응답(Response) 파라미터 항목 ***")
 
         if path_row == -1 or request_row == -1 or response_row == -1:
-            logger.warning(f"필수 파라미터 블록 위치를 찾지 못함 (Path: {path_row}, Req: {request_row}, Res: {response_row})")
+            logging.warning(f"필수 파라미터 블록 위치를 찾지 못함 (Path: {path_row}, Req: {request_row}, Res: {response_row})")
             return None
 
         try:
@@ -132,7 +132,7 @@ class InterfaceImplParserService:
             res_params = self.parse_param_block(df, response_row + 1, len(df))
 
         except Exception as e:
-            logger.warning(f"파라미터 블록 파싱 실패: {e}")
+            logging.warning(f"파라미터 블록 파싱 실패: {e}")
             return None
         
         return Api(
@@ -146,3 +146,4 @@ class InterfaceImplParserService:
             request=req_params,
             response=res_params
         )
+    

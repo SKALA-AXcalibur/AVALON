@@ -3,7 +3,7 @@ import pandas as pd
 from fastapi import UploadFile
 from typing import List
 from io import BytesIO
-from loguru import logger
+import logging
 
 from dto.request.spec.api import Api
 
@@ -40,14 +40,14 @@ class InterfaceDefParserService:
                     id_map[interface_id] = req_id
 
             except Exception as e:
-                logger.warning(f"[정의서 파싱 실패] - {e}")
+                logging.warning(f"[정의서 파싱 실패] - {e}")
                 continue
 
         # 최종 API 파싱 결과 반환
         for api in api_list:
             api.req_id = id_map.get(api.id, "")
             if not api.req_id:
-                logger.warning(f"[req_id 누락] 인터페이스 ID: {api.id}에 해당하는 요구사항 ID를 찾을 수 없음")
+                logging.warning(f"[req_id 누락] 인터페이스 ID: {api.id}에 해당하는 요구사항 ID를 찾을 수 없음")
 
         return api_list
     
@@ -72,3 +72,4 @@ class InterfaceDefParserService:
                 continue
 
         return sheet_names[-1]
+    
