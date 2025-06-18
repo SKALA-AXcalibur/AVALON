@@ -5,11 +5,11 @@ import {
   readProjectScenariosResponse,
   createScenarioResponse,
 } from "@/types/scenario";
-import ky from "ky";
+import ky from "ky-universal";
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/scenario/v1`;
 
-const scenarioApi = {
+export const clientScenarioApi = {
   create: async (): Promise<readProjectScenariosResponse> => {
     const response = await ky.post(`${BASE_URL}/create`, {
       credentials: "include",
@@ -63,5 +63,3 @@ const scenarioApi = {
     return response.json();
   },
 };
-
-export default scenarioApi;

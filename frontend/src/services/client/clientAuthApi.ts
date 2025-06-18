@@ -1,8 +1,8 @@
-import ky from "ky";
+import ky from "ky-universal";
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/project/v1`;
 
-export const auth = {
+export const clientAuthApi = {
   login: async (projectId: string): Promise<void> => {
     await ky.post(`${BASE_URL}/`, {
       json: { projectId },

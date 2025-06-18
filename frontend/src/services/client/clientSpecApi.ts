@@ -1,9 +1,9 @@
-import ky from "ky";
 import { uploadSpecRequest } from "@/types/spec";
+import ky from "ky-universal";
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/spec/v1`;
 
-const specApi = {
+export const clientSpecApi = {
   upload: async (files: uploadSpecRequest): Promise<void> => {
     const formData = new FormData();
     formData.append("requirementFile", files.requirementFile);
@@ -20,5 +20,3 @@ const specApi = {
     });
   },
 };
-
-export default specApi;

@@ -1,4 +1,4 @@
-import scenarioApi from "@/services/scenario";
+import { clientScenarioApi } from "@/services/client/clientScenarioApi";
 import { useProjectStore } from "@/store/projectStore";
 import { useState } from "react";
 
@@ -11,7 +11,7 @@ const useReadProjectScenarios = () => {
 
     setIsLoading(true);
     try {
-      const response = await scenarioApi.readProjectScenarios();
+      const response = await clientScenarioApi.readProjectScenarios();
       if (response.total === 0) return false;
       setProject({
         id: projectId,

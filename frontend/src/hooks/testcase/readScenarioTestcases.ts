@@ -1,4 +1,4 @@
-import testcaseApi from "@/services/testcase";
+import { clientTestcaseApi } from "@/services/client/clientTestcaseApi";
 import { useProjectStore } from "@/store/projectStore";
 import { useState } from "react";
 
@@ -11,7 +11,9 @@ const useReadScenarioTestcases = () => {
 
     setIsLoading(true);
     try {
-      const response = await testcaseApi.readScenarioTestcases(scenarioId);
+      const response = await clientTestcaseApi.readScenarioTestcases(
+        scenarioId
+      );
       if (response.tcTotal === 0) return false;
       setProject({
         ...project,

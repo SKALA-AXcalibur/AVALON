@@ -1,4 +1,4 @@
-import scenarioApi from "@/services/scenario";
+import { clientScenarioApi } from "@/services/client/clientScenarioApi";
 import { useState } from "react";
 
 const useReadScenario = (scenarioId: string) => {
@@ -9,7 +9,7 @@ const useReadScenario = (scenarioId: string) => {
 
     setIsLoading(true);
     try {
-      const response = await scenarioApi.readScenario(scenarioId);
+      const response = await clientScenarioApi.readScenario(scenarioId);
       return response;
     } catch (error) {
       console.error(error);

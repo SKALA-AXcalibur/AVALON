@@ -1,5 +1,5 @@
 import { TestcaseInfo } from "@/interfaces/testcase";
-import testcaseApi from "@/services/testcase";
+import { clientTestcaseApi } from "@/services/client/clientTestcaseApi";
 import { useState } from "react";
 
 const useCreateTestcase = () => {
@@ -13,7 +13,7 @@ const useCreateTestcase = () => {
 
     setIsLoading(true);
     try {
-      const response = await testcaseApi.createTestcase(scenarioId, {
+      const response = await clientTestcaseApi.createTestcase(scenarioId, {
         precondition: testcaseInfo.precondition,
         description: testcaseInfo.description,
         expectedResult: testcaseInfo.expectedResult,

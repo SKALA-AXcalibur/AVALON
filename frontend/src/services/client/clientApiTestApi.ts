@@ -1,9 +1,9 @@
 import { readApiTestResultResponse, runApiTestRequest } from "@/types/apiTest";
-import ky from "ky";
+import ky from "ky-universal";
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/test/v1`;
 
-export const apiTestApi = {
+export const clientApiTestApi = {
   runApiTest: async (request: runApiTestRequest) => {
     await ky.post(`${BASE_URL}/run`, {
       credentials: "include",

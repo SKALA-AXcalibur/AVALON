@@ -1,4 +1,4 @@
-import { apiReportApi } from "@/services/report";
+import { clientReportApi } from "@/services/client/clinetReportApi";
 import { useState } from "react";
 
 export const useReadTestcaseReport = () => {
@@ -9,7 +9,7 @@ export const useReadTestcaseReport = () => {
 
     setIsLoading(true);
     try {
-      const response = await apiReportApi.readTestcaseReport(scenarioId);
+      const response = await clientReportApi.readTestcaseReport(scenarioId);
       return response;
     } catch (error) {
       console.error(error);

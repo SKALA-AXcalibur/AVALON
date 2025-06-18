@@ -1,4 +1,4 @@
-import scenarioApi from "@/services/scenario";
+import { clientScenarioApi } from "@/services/client/clientScenarioApi";
 import { useState } from "react";
 
 const useUpdateScenario = (
@@ -14,7 +14,7 @@ const useUpdateScenario = (
 
     setIsLoading(true);
     try {
-      await scenarioApi.updateScenario(scenarioId, {
+      await clientScenarioApi.updateScenario(scenarioId, {
         name,
         description,
         validation,

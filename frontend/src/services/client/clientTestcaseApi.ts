@@ -5,11 +5,11 @@ import {
   readTestcaseResponse,
   updateTestcaseRequest,
 } from "@/types/testcase";
-import ky from "ky";
+import ky from "ky-universal";
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/tc/v1`;
 
-const testcaseApi = {
+export const clientTestcaseApi = {
   createTestcase: async (
     scenarioId: string,
     testcase: createTestcaseRequest
@@ -60,5 +60,3 @@ const testcaseApi = {
     return response.json();
   },
 };
-
-export default testcaseApi;

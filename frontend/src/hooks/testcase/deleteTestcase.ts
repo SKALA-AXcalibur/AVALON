@@ -1,5 +1,5 @@
 import { useState } from "react";
-import testcaseApi from "@/services/testcase";
+import { clientTestcaseApi } from "@/services/client/clientTestcaseApi";
 import { useProjectStore } from "@/store/projectStore";
 
 const useDeleteTestcase = () => {
@@ -11,7 +11,7 @@ const useDeleteTestcase = () => {
 
     setIsLoading(true);
     try {
-      await testcaseApi.deleteTestcase(testcaseId);
+      await clientTestcaseApi.deleteTestcase(testcaseId);
 
       const updatedScenarios = project.scenarios.map((scenario) => ({
         ...scenario,

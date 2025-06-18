@@ -1,4 +1,4 @@
-import scenarioApi from "@/services/scenario";
+import { clientScenarioApi } from "@/services/client/clientScenarioApi";
 import { useState } from "react";
 
 const useCreateScenario = (
@@ -13,7 +13,7 @@ const useCreateScenario = (
 
     setIsLoading(true);
     try {
-      const response = await scenarioApi.createScenario({
+      const response = await clientScenarioApi.createScenario({
         name,
         description,
         validation,

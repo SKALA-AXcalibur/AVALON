@@ -1,12 +1,12 @@
-import ky from "ky";
 import {
   readScenarioReportResponse,
   readTestcaseReportResponse,
 } from "@/types/report";
+import ky from "ky-universal";
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/report/v1`;
 
-export const apiReportApi = {
+export const clientReportApi = {
   readScenarioReport: async (): Promise<readScenarioReportResponse> => {
     const response = await ky.get(`${BASE_URL}/scenario`, {
       credentials: "include",
