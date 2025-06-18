@@ -33,48 +33,54 @@ async def read_root() -> Response:
     )
 
 
+
+
 @router.post("/api/spec/v1/analyze")
 async def analyze_spec(
-    projectId: str = Form(...),
-    requirementFile: UploadFile = File(...),
-    interfaceDesign: UploadFile = File(...),
-    interfaceDef: UploadFile = File(...),
-    databaseDesign: UploadFile = File(...),
+    project_id: str = Form(...),
+    requirement_file: UploadFile = File(...),
+    interface_design: UploadFile = File(...),
+    interface_def: UploadFile = File(...),
+    database_design: UploadFile = File(...),
 ):
     """
-    명세서 분석 api
+    명세서 분석 API
 
-    명세서 파일을 바탕으로 파싱을 진행한다.
+    명세서 파일을 파싱하고, 파싱 결과를 정보저장 API로 전달한다.
 
     Args:
         project_id (str): 분석 대상 프로젝트 ID
-        requirementFile (UploadFile): 요구사항 정의서 엑셀 파일
-        interfaceDesign (UploadFile): 인터페이스 설계서 엑셀 파일
-        interfaceDef (UploadFile): 인터페이스 정의서 엑셀 파일
-        database_design (UploadFile): DB 설계서 엑셀 파일
+        requirement_file (UploadFile): 요구사항 정의서
+        interface_design (UploadFile): 인터페이스 설계서
+        interface_def (UploadFile): 인터페이스 정의서
+        database_design (UploadFile): DB 설계서
     """
     try:
         result = await formatter(
-            requirementFile, interfaceDesign, interfaceDef, databaseDesign
-        )  # 파일 추가
-    except ValidationError as e:
-        logging.warning("명세서 Validation 실패: %s", e)
-        raise HTTPException(status_code=422, detail=str(e))
+            requirement_file, interface_design, interface_def, database_design
+        )
     except Exception as e:
-        logging.error("분석 중 예외 발생: %s", e)
-        logging.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=f"{type(e).__name__}: {e}")
+        logging.error("[formatter 실패] %s", traceback.format_exc())
+        raise HTTPException(
+            status_code=500,
+            detail={"error": "분석 실패", "reason": f"{type(e).__name__}: {e}"},
+        )
 
     result_dict = result.model_dump()
-    result_dict.pop("projectId", None)
+    result_dict.pop("project_id", None)
 
     try:
-        response = await save_to_info_api(projectId, result_dict)
+        response = await save_to_info_api(project_id, result_dict)
     except Exception as e:
-        logging.error("정보저장API 호출 실패: %s", e)
-        raise HTTPException(status_code=502, detail="정보 저장 실패")
+        logging.error("[정보저장 API 실패] %s", traceback.format_exc())
+        raise HTTPException(
+            status_code=502,
+            detail={"error": "정보 저장 실패", "reason": f"{type(e).__name__}: {e}"},
+        )
 
-    return response
+    return {
+        "message": "분석 및 저장 성공",
+    }
 
 
 @router.post("/api/scenario/v1/generate")

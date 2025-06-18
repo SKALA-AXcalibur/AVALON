@@ -1,5 +1,5 @@
 # ai/dto/request/spec/api.py
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List, Optional
 
 from dto.request.spec.param import Param

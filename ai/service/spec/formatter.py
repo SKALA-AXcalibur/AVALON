@@ -10,18 +10,18 @@ from dto.request.spec.spec_upload_request import SpecUploadRequest
 
 
 async def formatter(
-    requirementFile: UploadFile,
-    interfaceDesign: UploadFile,
-    interfaceDef: UploadFile,
-    databaseDesign: UploadFile,
+    requirement_file: UploadFile,
+    interface_design: UploadFile,
+    interface_def: UploadFile,
+    database_design: UploadFile,
 ):
     """
     여러 명세 관련 엑셀 파일을 파싱하여 SpecUploadRequest 객체로 통합 포맷팅하는 함수
 
-    :param requirementFile: 요구사항정의서 엑셀 (UploadFile)
-    :param interfaceDesign: 인터페이스설계서 엑셀 (UploadFile)
-    :param interfaceDef: 인터페이스정의서 엑셀 (UploadFile)
-    :param databaseDesign: 테이블정의서(컬럼) 엑셀 (UploadFile)
+    :requirement_file: 요구사항정의서 엑셀 (UploadFile)
+    :interface_design: 인터페이스설계서 엑셀 (UploadFile)
+    :interface_def: 인터페이스정의서 엑셀 (UploadFile)
+    :database_design: 테이블정의서(컬럼) 엑셀 (UploadFile)
     :return: SpecUploadRequest 객체 (파싱된 결과가 모두 들어감)
 
     동작 순서:
@@ -33,21 +33,21 @@ async def formatter(
     """
     try:
         parser_req = RequirementParserService()
-        req_result = await parser_req.parse_requirement_file(requirementFile)
+        req_result = await parser_req.parse_requirement_file(requirement_file)
 
         parser_impl = InterfaceImplParserService()
-        impl_result = await parser_impl.parse_interface_file(interfaceDesign)
+        impl_result = await parser_impl.parse_interface_file(interface_design)
 
         parser_def = InterfaceDefParserService()
-        def_result = await parser_def.map_req_ids_to_apis(interfaceDef, impl_result)
+        def_result = await parser_def.map_req_ids_to_apis(interface_def, impl_result)
 
         parser_db = DbDesignParserService()
-        db_result = await parser_db.parse_dbdesign_file(databaseDesign)
+        db_result = await parser_db.parse_dbdesign_file(database_design)
 
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"정보저장API 호출 실패: {str(e)}")
     spec_upload_request = SpecUploadRequest(
-        requirement=req_result, apiList=def_result, tableList=db_result
+        requirement=req_result, api_list=def_result, table_list=db_result
     )  # 요청파라미터와 맞춤
 
     return spec_upload_request

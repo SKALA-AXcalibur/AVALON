@@ -1,7 +1,7 @@
 # # ai/dto/request/spec/db.py
 
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class ColumnDto(BaseModel):

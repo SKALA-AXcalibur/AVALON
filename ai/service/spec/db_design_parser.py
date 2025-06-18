@@ -88,7 +88,7 @@ class DbDesignParserService:
             logging.warning(f"[헤더 행 탐색 실패] error: {e}")
             return []
         if header_row is None:
-            logging.warning("[헤더 미발견] 필수 헤더 행을 찾지 못했습니다. 파싱 중단.")
+            logging.warning("[헤더 미발견] 필수 헤더 행을 찾지 못했습니다.")
             return []
 
         # 병합 셀 보정
@@ -118,7 +118,7 @@ class DbDesignParserService:
                     if value is not None:
                         empty_row = False
                 if empty_row:
-                    continue  # 완전 빈 행은 skip
+                    continue 
 
                 # 테이블명 누락된 행은 skip
                 raw_table_name = row_dict.get("name")
@@ -126,14 +126,14 @@ class DbDesignParserService:
                     continue
                 table_name = str(raw_table_name).strip()
 
-                # 컬럼 데이터 구조화
+                # 컬럼 데이터
                 column_data = {
                     "col_name": str(row_dict.get("col_name") or ""),
                     "type": str(row_dict.get("type") or ""),
                     "length": (
                         int(row_dict.get("length")) if row_dict.get("length") else None
                     ),
-                    "is_pk": str(row_dict.get("is_pk") or "").strip().upper() in ["Y", "PK", "●", "O", "TRUE"],
+                    "is_pk": str(row_dict.get("is_pk") or "").strip().upper() in ["Y", "PK"],
                     "fk": str(row_dict.get("fk")) if row_dict.get("fk") else None,
                     "is_null": {
                                 "Y": True,
