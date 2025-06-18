@@ -27,10 +27,10 @@ public class DbColumnEntity extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
-    private Integer key;
+    private Integer id;
 
-    @Column(name = "name", nullable = false, length = 20)
-    private String name;
+    @Column(name = "col_name", nullable = false, length = 20)
+    private String colName;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
@@ -50,9 +50,8 @@ public class DbColumnEntity extends BaseTimeEntity {
     @Column(name = "is_null", nullable = false)
     private Boolean isNull;
 
-    // constraint는 예약어이므로 constraint_type으로 변경
-    @Column(name = "constraint_type", length = 255)
-    private String constraintType;
+    @Column(name = "const", length = 255)
+    private String constraint;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "db_design_key", nullable = false)

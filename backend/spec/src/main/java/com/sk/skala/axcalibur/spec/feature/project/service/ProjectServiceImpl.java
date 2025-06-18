@@ -156,14 +156,14 @@ public class ProjectServiceImpl implements ProjectService {
                 if (tableItem.getColumn() != null) {
                     for (ColItem colItem : tableItem.getColumn()) {
                         DbColumnEntity dbColumnEntity = DbColumnEntity.builder()
-                                .name(colItem.getName())
+                                .colName(colItem.getName())
                                 .description(colItem.getDesc())
                                 .type(colItem.getType())
                                 .length(colItem.getLength())
                                 .isPk(colItem.getIsPk())
                                 .fk(colItem.getFk())
                                 .isNull(colItem.getIsNull())
-                                .constraintType(colItem.getConstraint())
+                                .constraint(colItem.getConstraint())
                                 .dbDesignKey(dbDesign)
                                 .build();
                         dbColumnRepository.save(dbColumnEntity);
@@ -203,14 +203,14 @@ public class ProjectServiceImpl implements ProjectService {
                         .name(dbDesign.getName())
                         .column(dbDesign.getColumns().stream()
                                 .<ColItem>map(col -> ColItem.builder()
-                                        .name(col.getName())
+                                        .name(col.getColName())
                                         .desc(col.getDescription())
                                         .type(col.getType())
                                         .length(col.getLength())
                                         .isPk(col.getIsPk())
                                         .fk(col.getFk())
                                         .isNull(col.getIsNull())
-                                        .constraint(col.getConstraintType())
+                                        .constraint(col.getConstraint())
                                         .build())
                                 .collect(Collectors.toList()))
                         .build())
