@@ -22,6 +22,7 @@ import com.sk.skala.axcalibur.feature.testcase.entity.CategoryEntity;
 import com.sk.skala.axcalibur.feature.testcase.entity.ContextEntity;
 import com.sk.skala.axcalibur.feature.testcase.entity.MappingEntity;
 import com.sk.skala.axcalibur.feature.testcase.entity.ParameterEntity;
+import com.sk.skala.axcalibur.feature.testcase.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.feature.testcase.entity.TestCaseDataEntity;
 import com.sk.skala.axcalibur.feature.testcase.entity.TestCaseEntity;
 import com.sk.skala.axcalibur.feature.testcase.repository.CategoryRepository;
@@ -58,11 +59,11 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
     private final TestCaseRepository testcaseRepository;
     
     @Override
-    public List<TestcaseGenerationResponse> callFastApi(TcRequestPayload payload) {
+    public List<TestcaseGenerationResponse> callFastApi(TcRequestPayload payload, ScenarioEntity scenario) {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<TcRequestPayload> requestEntity = new HttpEntity<>(payload, headers);
 
-        String url = String.format("%s/%s", fastApiBaseUrl, payload.getScenario().getScenarioId());
+        String url = String.format("%s/%s", fastApiBaseUrl, scenario.getScenarioId());
         log.info("sending url: {}", url);
         try {
             ResponseEntity<List<TestcaseGenerationResponse>> response = restTemplate.exchange(

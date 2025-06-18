@@ -147,7 +147,6 @@ public class TcPayloadServiceImpl implements TcPayloadService{
         // 4. 최종 요청 DTO 조립
         return TcRequestPayload.builder()
             .scenario(ScenarioDto.builder()
-                .scenarioId(scenario.getScenarioId())
                 .scenarioName(scenario.getName())
                 .scenarioDesc(scenario.getDescription())
                 .validation(scenario.getValidation())
