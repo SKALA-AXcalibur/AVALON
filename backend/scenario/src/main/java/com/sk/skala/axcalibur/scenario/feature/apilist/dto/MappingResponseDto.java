@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.scenario.apilist.feature.dto;
+package com.sk.skala.axcalibur.scenario.feature.apilist.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;

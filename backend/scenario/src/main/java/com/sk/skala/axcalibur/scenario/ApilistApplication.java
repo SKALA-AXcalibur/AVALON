@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.scenario.apilist;
+package com.sk.skala.axcalibur.scenario;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

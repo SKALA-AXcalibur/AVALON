@@ -1,8 +1,8 @@
-package com.sk.skala.axcalibur.scenario.apilist.feature.entity;
+package com.sk.skala.axcalibur.scenario.feature.apilist.entity;
 
 import lombok.AllArgsConstructor;
 
-import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
+import com.sk.skala.axcalibur.scenario.global.entity.BaseTimeEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;

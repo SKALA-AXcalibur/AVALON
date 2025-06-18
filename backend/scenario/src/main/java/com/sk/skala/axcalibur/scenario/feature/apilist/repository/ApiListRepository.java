@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.sk.skala.axcalibur.scenario.feature.apilist.entity.ApiListEntity;
-import com.sk.skala.axcalibur.scenario.global.entity.ProjectEntity;
 
 @Repository
 public interface ApiListRepository extends JpaRepository<ApiListEntity, Integer> {
@@ -16,6 +15,6 @@ public interface ApiListRepository extends JpaRepository<ApiListEntity, Integer>
     Optional<ApiListEntity> findById(String id);
 
     // 프로젝트별 API 목록 조회
-    List<ApiListEntity> findByProjectKey(ProjectEntity projectKey);
+    List<ApiListEntity> findByProjectKey(Integer projectKey);
 
 }

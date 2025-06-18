@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.sk.skala.axcalibur.scenario.apilist.feature.dto.ApiMappingRequestDto;
-import com.sk.skala.axcalibur.scenario.apilist.feature.dto.MappingRequestDto;
-import com.sk.skala.axcalibur.scenario.apilist.feature.dto.MappingResponseDto;
-import com.sk.skala.axcalibur.scenario.apilist.feature.service.ApiMappingService;
+import com.sk.skala.axcalibur.scenario.feature.apilist.dto.ApiMappingRequestDto;
+import com.sk.skala.axcalibur.scenario.feature.apilist.dto.MappingRequestDto;
+import com.sk.skala.axcalibur.scenario.feature.apilist.dto.MappingResponseDto;
+import com.sk.skala.axcalibur.scenario.feature.apilist.service.ApiMappingService;
 import com.sk.skala.axcalibur.scenario.global.code.SuccessCode;
 import com.sk.skala.axcalibur.scenario.global.response.SuccessResponse;
 

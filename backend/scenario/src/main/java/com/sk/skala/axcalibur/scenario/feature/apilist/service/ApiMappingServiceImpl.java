@@ -1,11 +1,13 @@
-package com.sk.skala.axcalibur.scenario.apilist.feature.service;
+package com.sk.skala.axcalibur.scenario.feature.apilist.service;
 
-import com.sk.skala.axcalibur.scenario.apilist.feature.dto.ApiMappingRequestDto;
-import com.sk.skala.axcalibur.scenario.apilist.feature.dto.MappingRequestDto;
-import com.sk.skala.axcalibur.scenario.apilist.feature.dto.MappingResponseDto;
-import com.sk.skala.axcalibur.scenario.apilist.feature.dto.ApiDto;
-import com.sk.skala.axcalibur.scenario.apilist.feature.dto.ScenarioDto;
-import com.sk.skala.axcalibur.scenario.apilist.feature.dto.ApiMappingDto;
+import com.sk.skala.axcalibur.scenario.global.code.ErrorCode;
+import com.sk.skala.axcalibur.scenario.global.entity.AvalonCookieEntity;
+import com.sk.skala.axcalibur.scenario.feature.apilist.dto.ApiMappingRequestDto;
+import com.sk.skala.axcalibur.scenario.feature.apilist.dto.MappingRequestDto;
+import com.sk.skala.axcalibur.scenario.feature.apilist.dto.MappingResponseDto;
+import com.sk.skala.axcalibur.scenario.feature.apilist.dto.ApiDto;
+import com.sk.skala.axcalibur.scenario.feature.apilist.dto.ScenarioDto;
+import com.sk.skala.axcalibur.scenario.feature.apilist.dto.ApiMappingDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,6 +27,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.extern.slf4j.Slf4j;
 
+import com.sk.skala.axcalibur.scenario.feature.apilist.repository.ScenarioRepository;
+import com.sk.skala.axcalibur.scenario.feature.apilist.repository.ApiListRepository;
+import com.sk.skala.axcalibur.scenario.global.exception.BusinessExceptionHandler;
+import com.sk.skala.axcalibur.scenario.global.repository.AvalonCookieRepository;
+import com.sk.skala.axcalibur.scenario.feature.apilist.entity.ScenarioEntity;
+import com.sk.skala.axcalibur.scenario.feature.apilist.entity.ApiListEntity;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 public class ApiMappingServiceImpl implements ApiMappingService {
@@ -40,7 +50,19 @@ public class ApiMappingServiceImpl implements ApiMappingService {
     
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
-   
+    private final ScenarioRepository scenarioRepository;
+    private final ApiListRepository apiListRepository;
+    private final AvalonCookieRepository avalonCookieRepository;
+
+   public ApiMappingServiceImpl(
+                               ScenarioRepository scenarioRepository,
+                               ApiListRepository apiListRepository,
+                               AvalonCookieRepository avalonCookieRepository) {
+       this.scenarioRepository = scenarioRepository;
+       this.apiListRepository = apiListRepository;
+       this.avalonCookieRepository = avalonCookieRepository;
+   }
+
    /**
     * 1. API 매핑 요청 (프로젝트 ID로 API/시나리오 목록 조회)
     * @param avalon 프로젝트 ID
@@ -48,7 +70,29 @@ public class ApiMappingServiceImpl implements ApiMappingService {
     */
    @Override
    public ApiMappingRequestDto getApiMappingList(String avalon) {
-       log.info("API 매핑 요청");
+       log.info("API 매핑 요청: {}", avalon);
+    
+       // avalon 토큰으로 프로젝트 조회
+       AvalonCookieEntity avalonCookie = avalonCookieRepository.findByToken(avalon)
+            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PROJECT_NOT_FOUND));
+
+        Integer projectKey = avalonCookie.getProjectKey();
+
+        
+
+       // 프로젝트 기준으로 시나리오 목록 조회
+       List<ScenarioEntity> scenarios = scenarioRepository.findByProjectKey(projectKey);
+
+       // 프로젝트 기준으로 API 목록 조회
+       List<ApiListEntity> apis = apiListRepository.findByProjectKey(projectKey);
+
+       // 시나리오 목록 → ScenarioDto 변환
+       List<ScenarioDto> scenarioDtos = convertToScenarioDtos(scenarios);
+
+       // API 목록 → ApiDto 변환
+       List<ApiDto> apiDtos = convertToApiDtos(apis);
+
+       // 매핑 요청 데이터 생성
        return new ApiMappingRequestDto();
    }
 
@@ -306,4 +350,29 @@ public class ApiMappingServiceImpl implements ApiMappingService {
        public String getStepName() { return stepName; }
        public String getDescription() { return description; }
    }
+
+   // ScenarioEntity → ScenarioDto 변환
+   private List<ScenarioDto> convertToScenarioDtos(List<ScenarioEntity> scenarios) {
+       return scenarios.stream()
+           .map(scenario -> ScenarioDto.builder()
+               .scenarioId(scenario.getId())
+               .title(scenario.getName())
+               .description(scenario.getDescription())
+               .validation(scenario.getValidation())
+               .build())
+           .collect(Collectors.toList());
+   }
+
+   // ApiListEntity → ApiDto 변환
+   private List<ApiDto> convertToApiDtos(List<ApiListEntity> apis) {
+       return apis.stream()
+           .map(api -> ApiDto.builder()
+               .apiName(api.getName())
+               .url(api.getUrl())
+               .method(api.getMethod())
+               .description(api.getDescription())
+               .build())
+           .collect(Collectors.toList());
+   }
+   
 }
