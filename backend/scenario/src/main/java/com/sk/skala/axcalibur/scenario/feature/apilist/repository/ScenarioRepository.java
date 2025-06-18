@@ -1,0 +1,27 @@
+package com.sk.skala.axcalibur.scenario.feature.apilist.repository;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import com.sk.skala.axcalibur.scenario.feature.apilist.entity.ScenarioEntity;
+import com.sk.skala.axcalibur.scenario.global.entity.ProjectEntity;
+
+@Repository
+public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Long> {
+
+    /** 
+     * 프로젝트 키로 시나리오 조회
+     * @param projectKey 프로젝트 키
+     * @return 시나리오 리스트
+     */
+    List<ScenarioEntity> findByProjectKey(ProjectEntity projectKey);
+
+    /** 
+     * 시나리오 ID로 시나리오 조회
+     * @param id 시나리오 ID
+     * @return 시나리오
+     */
+    Optional<ScenarioEntity> findById(String id);
+}
