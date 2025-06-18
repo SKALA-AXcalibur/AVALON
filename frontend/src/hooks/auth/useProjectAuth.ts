@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { validateId } from "@/utils/validateId";
 import { clientAuthApi } from "@/services/client/clientAuthApi";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/constants/messages";
+import { clientScenarioApi } from "@/services/client/clientScenarioApi";
+import { useProjectStore } from "@/store/projectStore";
 
 export const useProjectAuth = () => {
   const [projectId, setProjectId] = useState("");
@@ -10,6 +12,7 @@ export const useProjectAuth = () => {
   const [isConfirming, setIsConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const { setProject } = useProjectStore();
 
   const setErrorMessageTimeout = () => {
     setTimeout(() => {
@@ -30,13 +33,29 @@ export const useProjectAuth = () => {
     setIsConfirming(false);
   };
 
-  const handleLogin = async (onSuccess?: () => void) => {
+  const handleLogin = async (
+    onSuccess?: (scenarioId: string | null, total: number) => void
+  ) => {
     try {
       setIsLoading(true);
 
       await clientAuthApi.login(projectId);
 
-      onSuccess?.();
+      const response = await clientScenarioApi.readProjectScenarios();
+
+      setProject({
+        id: projectId,
+        scenarios: response.scenarioList.map((scenario) => ({
+          id: scenario.id,
+          name: scenario.name,
+          testcases: [],
+        })),
+      });
+
+      onSuccess?.(
+        response.total > 0 ? response.scenarioList[0].id : null,
+        response.total
+      );
     } catch (error) {
       console.error("Login failed:", error);
       setError(ERROR_MESSAGES.PROJECT_AUTH.LOGIN_FAILED);

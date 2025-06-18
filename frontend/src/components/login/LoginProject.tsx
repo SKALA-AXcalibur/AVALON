@@ -19,8 +19,12 @@ export const LoginProject = () => {
     handleProjectIdChange(e.target.value);
   };
 
-  const onLoginSuccess = () => {
-    router.push(`/project/${projectId}/scenario/default`);
+  const onLoginSuccess = (scenarioId: string | null, total: number) => {
+    if (total > 0) {
+      router.push(`/project/${projectId}/scenario/${scenarioId}`);
+    } else {
+      router.push(`/project/${projectId}/upload`);
+    }
   };
 
   return (
