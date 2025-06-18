@@ -69,7 +69,7 @@ public class ParseControllerImpl implements ParseController {
         .body(SuccessResponse.<List<Object>>builder()
             .data(Collections.emptyList())
             .status(SuccessCode.INSERT_SUCCESS)
-            .message(SuccessCode.INSERT_SUCCESS.getMessage())
+            .message("요청 성공")
             .build());
         }
     }
