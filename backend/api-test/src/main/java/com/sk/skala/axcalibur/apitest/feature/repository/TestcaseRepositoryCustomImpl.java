@@ -41,7 +41,7 @@ public class TestcaseRepositoryCustomImpl implements TestcaseRepositoryCustom {
         )).from(testcaseEntity)
         .join(testcaseEntity.mapping, mappingEntity)
         .join(mappingEntity.scenario, scenarioEntity)
-        .join(testcaseResultEntity.testcase, testcaseEntity)
+        .join(testcaseEntity.testcaseResults, testcaseResultEntity)
         .where(scenarioEntity.in(entities),
             testcaseResultEntity.createdAt.eq(
                 // 각 testcase별로 createdAt이 최대인 레코드만 선택

@@ -61,6 +61,8 @@ public class ApiTestControllerImpl implements ApiTestController{
             .scenarioList(dto.scenarioList())
             .build();
     var list = svc.excuteTestService(req);
+    
+    // TODO: Redis Streams 이용해서 테스트 비동기 처리
 
     // return
     var res = EmptyResponseDto.builder().build();
@@ -93,6 +95,8 @@ public class ApiTestControllerImpl implements ApiTestController{
         .cursor(cursor)
         .size(size)
         .build();
+
+    // scenarioList
     var list = svc.getTestResultService(req);
 
     // return
@@ -133,6 +137,7 @@ public class ApiTestControllerImpl implements ApiTestController{
         .size(size)
         .build();
     var dto = scene.getScenarioService(scenarioId);
+    // tcList
     var list = svc.getTestCaseResultService(req);
 
     // return
