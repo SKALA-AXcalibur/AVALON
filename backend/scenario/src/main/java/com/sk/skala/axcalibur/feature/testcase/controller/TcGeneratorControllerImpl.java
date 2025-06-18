@@ -17,6 +17,7 @@ import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseGenerationResponse;
 import com.sk.skala.axcalibur.feature.testcase.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.feature.testcase.service.ProjectIdResolverService;
+import com.sk.skala.axcalibur.feature.testcase.service.TcGeneratorService;
 import com.sk.skala.axcalibur.feature.testcase.service.TcPayloadService;
 
 import com.sk.skala.axcalibur.global.code.SuccessCode;
@@ -28,6 +29,10 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 테스트케이스 생성 요청 인터페이스
  * '테스트케이스 생성 요청(IF-TC-0001)'을 실제 구현합니다.
+ * - 쿠키로부터 Project key를 전달받아 해당 프로젝트에 매핑된 시나리오와 테이블 설계서 정보를 불러옵니다.
+ * - 시나리오에 매핑된 매핑표와 각 API 정보를 조회합니다.
+ * - 시나리오 단위로 필요한 정보를 조합하여 생성 서버에 요청합니다.
+ * - TC 생성 정보를 받아와 DB에 저장합니다.
  */
 @RestController
 @RequestMapping("/tc/v1")
@@ -36,6 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TcGeneratorControllerImpl implements TcGeneratorContoller {
     private final ProjectIdResolverService projectIdResolverService;
     private final TcPayloadService tcPayloadService;
+    private final TcGeneratorService tcGeneratorService;
 
     @Override
     @PostMapping
@@ -54,10 +60,12 @@ public class TcGeneratorControllerImpl implements TcGeneratorContoller {
         for (ScenarioEntity scenario : scenarios) {
             // payload 조립
             TcRequestPayload payload = tcPayloadService.buildPayload(scenario, dbList);
+            
             // FastAPI 호출
-            // List<TestcaseGenerationResponse> response = testcaseService.callFastApi(payload);
+            List<TestcaseGenerationResponse> response = tcGeneratorService.callFastApi(payload);
+            
             // 결과 저장
-            // testcaseService.saveTestcases(response);
+            tcGeneratorService.saveTestcases(response);
         }
         
         // 응답시간 헤더에 반환

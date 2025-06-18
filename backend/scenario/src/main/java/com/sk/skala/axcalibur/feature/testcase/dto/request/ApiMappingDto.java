@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiMappingDto {
+    private Integer mappingID;           // 매핑표 ID
     private Integer step;                // 단계명(시나리오 내 호출 순서)
     private String name;                 // API이름
     private String url;                  // URL

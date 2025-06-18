@@ -15,6 +15,6 @@ import io.swagger.v3.oas.annotations.Operation;
  */
 
 public interface TcGeneratorContoller {
-    @Operation(summary = "테스트케이스 생성", description = "프론트로부터 요청받아 생성을 처리합니다.")
+    @Operation(summary = "테스트케이스 생성", description = "프론트로부터 테스트케이스 생성을 요청받아 TC를 생성합니다.")
     ResponseEntity<SuccessResponse<List<Object>>> generateTestCases(@CookieValue("avalon") String key);
 }
