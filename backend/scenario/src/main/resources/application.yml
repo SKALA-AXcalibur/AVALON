@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: spec
+  profiles:
+    include: dev
+  servlet:
+    multipart:
+      max-request-size: 10MB
+      max-file-size: 10MB
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    com:
+      sk:
+        skala:
+          axcalibur: DEBUG
