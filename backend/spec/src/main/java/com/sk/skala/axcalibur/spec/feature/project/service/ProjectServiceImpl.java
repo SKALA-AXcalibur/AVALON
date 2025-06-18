@@ -156,7 +156,7 @@ public class ProjectServiceImpl implements ProjectService {
                 if (tableItem.getColumn() != null) {
                     for (ColItem colItem : tableItem.getColumn()) {
                         DbColumnEntity dbColumnEntity = DbColumnEntity.builder()
-                                .col_name(colItem.getCol_name())
+                                .colName(colItem.getColName())
                                 .description(colItem.getDesc())
                                 .type(colItem.getType())
                                 .length(colItem.getLength())
@@ -203,7 +203,7 @@ public class ProjectServiceImpl implements ProjectService {
                         .name(dbDesign.getName())
                         .column(dbDesign.getColumns().stream()
                                 .<ColItem>map(col -> ColItem.builder()
-                                        .col_name(col.getCol_name())
+                                        .colName(col.getColName())
                                         .desc(col.getDescription())
                                         .type(col.getType())
                                         .length(col.getLength())
