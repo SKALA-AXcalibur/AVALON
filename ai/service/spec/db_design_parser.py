@@ -3,7 +3,7 @@ from fastapi import UploadFile
 from io import BytesIO
 from dto.request.spec.db import DbDesignDto, ColumnDto
 from typing import Dict, List
-from loguru import logger
+import logging
 
 class DbDesignParserService:
     """
@@ -23,7 +23,7 @@ class DbDesignParserService:
                 ):
                     return idx, row
             except Exception as e:
-                logger.warning(f"[헤더 행 추출 중 예외] row: {row_values}, error: {e}")
+                logging.warning(f"[헤더 행 추출 중 예외] row: {row_values}, error: {e}")
                 continue
         return None, None
 
@@ -61,7 +61,7 @@ class DbDesignParserService:
                     return top_left_cell.value
             return cell.value
         except Exception as e:
-            logger.warning(f"[병합 셀 값 추출 예외] row={row_idx}, col={col_idx}, error: {e}")
+            logging.warning(f"[병합 셀 값 추출 예외] row={row_idx}, col={col_idx}, error: {e}")
             return None
 
     async def parse_dbdesign_file(self, upload_file: UploadFile) -> List[DbDesignDto]:
@@ -73,17 +73,17 @@ class DbDesignParserService:
             workbook = openpyxl.load_workbook(BytesIO(contents), data_only=True)
             sheet = workbook["테이블정의서(컬럼)"]
         except Exception as e:
-            logger.warning(f"[엑셀 파일 오픈 실패] error: {e}")
+            logging.warning(f"[엑셀 파일 오픈 실패] error: {e}")
             return []
 
         required_keywords = ["Null여부", "데이터타입"]
         try:
             header_idx, header_row = self.find_custom_header_row(sheet, required_keywords)
         except Exception as e:
-            logger.warning(f"[헤더 행 탐색 실패] error: {e}")
+            logging.warning(f"[헤더 행 탐색 실패] error: {e}")
             return []
         if header_row is None:
-            logger.warning("[헤더 미발견] 필수 헤더 행을 찾지 못했습니다. 파싱 중단.")
+            logging.warning("[헤더 미발견] 필수 헤더 행을 찾지 못했습니다. 파싱 중단.")
             return []
 
         # 병합 셀 보정
@@ -93,7 +93,7 @@ class DbDesignParserService:
                 val = self.get_merged_cell_value(sheet, header_idx, i)
                 real_header.append(val if val is not None else f"COL{i}")
             except Exception as e:
-                logger.warning(f"[헤더 병합 셀 추출 실패] idx={i}, error: {e}")
+                logging.warning(f"[헤더 병합 셀 추출 실패] idx={i}, error: {e}")
                 real_header.append(f"COL{i}")
 
         header_map = self.get_header_map(real_header)
@@ -143,7 +143,7 @@ class DbDesignParserService:
                 # 테이블별로 컬럼 추가
                 table_map.setdefault(table_name, []).append(column_dto)
             except Exception as e:
-                logger.warning(f"[데이터 행 파싱 실패] row={row_idx}, error: {e}")
+                logging.warning(f"[데이터 행 파싱 실패] row={row_idx}, error: {e}")
                 continue  # 에러 발생 시 해당 행만 스킵, 전체 파싱은 계속
 
         db_designs = [

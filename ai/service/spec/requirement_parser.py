@@ -4,7 +4,6 @@ import openpyxl
 from fastapi import UploadFile
 from io import BytesIO
 from dto.request.spec.requirement import Requirement
-from dto.request.spec.spec_upload_request import SpecUploadRequest
 
 
 class RequirementParserService:

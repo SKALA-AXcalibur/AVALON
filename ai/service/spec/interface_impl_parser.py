@@ -80,14 +80,14 @@ class InterfaceImplParserService:
                 break
             try:
                 param = Param(
-                    korName=str(row[1]).strip(),
+                    name_ko=str(row[1]).strip(),
                     name=str(row[2]).strip(),
-                    itemType=str(row[3]).strip(),
+                    item_type=str(row[3]).strip(),
                     step=int(row[4]) if not pd.isna(row[4]) else 0,
-                    dataType=str(row[5]).strip(),
+                    data_type=str(row[5]).strip(),
                     length=int(row[6]) if not pd.isna(row[6]) else None,
                     format=str(row[7]).strip() if not pd.isna(row[7]) else None,
-                    default=str(row[8]).strip() if not pd.isna(row[8]) else None,
+                    defaultValue=str(row[8]).strip() if not pd.isna(row[8]) else None, # default -> defaultValue로 변경
                     required=str(row[9]).strip().upper() == 'Y',
                     upper=str(row[10]).strip() if not pd.isna(row[10]) else None,
                     desc=str(row[11]).strip() if not pd.isna(row[11]) else None,
@@ -142,7 +142,7 @@ class InterfaceImplParserService:
             method=method,
             url=url,
             path=path,
-            pathQuery=path_params,
+            path_query=path_params,
             request=req_params,
             response=res_params
         )

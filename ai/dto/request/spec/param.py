@@ -8,16 +8,16 @@ API 파라미터 공통 항목 정의
 '''
 class Param(BaseModel):
     id: Optional[str] = None  # 추가(project의 ParameterDetailDto랑 맞춤)
-    korName: str
+    name_ko: str
     name: str
-    itemType: str
+    item_type: str
     step: int
-    dataType: str
+    data_type: str
     length: Optional[int] = None
     format: Optional[str] = None
-    defaultValue: Optional[str] = None
+    default_value: Optional[str] = None
     required: bool
     upper: Optional[str] = None # str로 수정
     desc: Optional[str] = None
-    apiId: Optional[str] = None  # 추가(project의 ParameterDetailDto랑 맞춤)
-    apiName: Optional[str] = None  # 추가(project의 ParameterDetailDto랑 맞춤)
+    api_id: Optional[str] = None  # 추가(project의 ParameterDetailDto랑 맞춤)
+    api_name: Optional[str] = None  # 추가(project의 ParameterDetailDto랑 맞춤)

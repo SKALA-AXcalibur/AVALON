@@ -1,7 +1,7 @@
 import httpx
 from fastapi import HTTPException
 
-async def save_to_info_api(result: dict):
+async def save_to_info_api(project_id: str, result: dict): # project_id 추가
     """
     결과 딕셔너리를 정보저장 api로 전송하는 함수
     """
@@ -14,4 +14,4 @@ async def save_to_info_api(result: dict):
         except httpx.RequestError as e:
             raise HTTPException(status_code=502, detail=f"정보저장API 호출 실패: {str(e)}")
         except httpx.HTTPStatusError as e:
-            raise HTTPException(status_code=response.status_code, detail=f"정보저장API 응답 오류: {response.text}")
+            raise HTTPException(status_code=e.response.status_code, detail=f"정보저장API 응답 오류: {e.response.text}") # 더 안정적인 방법 사용

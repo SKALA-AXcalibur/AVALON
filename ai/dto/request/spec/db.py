@@ -9,10 +9,10 @@ class ColumnDto(BaseModel):
     desc: Optional[str] = None
     type: str
     length: Optional[int] = None
-    isPk: bool = False
+    is_pk: bool = False
     fk: Optional[str] = None
-    isNull: bool = True
-    constraint: Optional[str] = None
+    is_null: bool = True
+    const: Optional[str] = None
 
 
 class DbDesignDto(BaseModel):

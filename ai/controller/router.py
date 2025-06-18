@@ -8,7 +8,7 @@
 import logging
 import traceback
 from typing import Dict
-from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile, requests
+from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile
 from pydantic import ValidationError
 
 from service.spec.formatter import formatter
@@ -16,6 +16,7 @@ from service.spec.interface_def_parser import InterfaceDefParserService
 from service.spec.interface_impl_parser import InterfaceImplParserService
 from service.spec.db_design_parser import DbDesignParserService
 from service.spec.requirement_parser import RequirementParserService
+
 from service.spec.info_save_service import save_to_info_api
 
 router = APIRouter()
@@ -36,12 +37,26 @@ async def read_root() -> Response:
 async def analyze_spec(
     projectId: str = Form(...),
     requirementFile: UploadFile = File(...),
-    interfaceDef: UploadFile = File(...),
     interfaceDesign: UploadFile = File(...),
+    interfaceDef: UploadFile = File(...),
     databaseDesign: UploadFile = File(...),
 ):
+    """
+    명세서 분석 api
+
+    명세서 파일을 바탕으로 파싱을 진행한다.
+
+    Args:
+        project_id (str): 분석 대상 프로젝트 ID
+        requirementFile (UploadFile): 요구사항 정의서 엑셀 파일
+        interfaceDesign (UploadFile): 인터페이스 설계서 엑셀 파일
+        interfaceDef (UploadFile): 인터페이스 정의서 엑셀 파일
+        database_design (UploadFile): DB 설계서 엑셀 파일
+    """
     try:
-        result = await formatter(...)
+        result = await formatter(
+            requirementFile, interfaceDesign, interfaceDef, databaseDesign
+        )  # 파일 추가
     except ValidationError as e:
         logging.warning("명세서 Validation 실패: %s", e)
         raise HTTPException(status_code=422, detail=str(e))
