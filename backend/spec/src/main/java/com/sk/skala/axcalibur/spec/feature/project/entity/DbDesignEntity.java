@@ -31,7 +31,7 @@ public class DbDesignEntity extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
-    private Integer key;
+    private Integer id;
 
     @Column(name = "name", nullable = false, length = 20)
     private String name;
