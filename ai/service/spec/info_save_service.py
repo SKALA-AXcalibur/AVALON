@@ -1,13 +1,14 @@
+import os
 import logging
 import httpx
 from fastapi import HTTPException
-from config.setting import settings
 
 async def save_to_info_api(project_id: str, result: dict): # project_id 추가
     """
     결과 딕셔너리를 정보저장 api로 전송하는 함수
     """
-    url = f"{settings.project_api_base_url}/{project_id}" # 실제 서비스 주소로 변경 필요 (정보저장 api 경로)
+    base_url = os.getenv("PROJECT_API_BASE_URL")
+    url = f"{base_url}/{project_id}" # 실제 서비스 주소로 변경 필요 (정보저장 api 경로)
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(url, json=result)
