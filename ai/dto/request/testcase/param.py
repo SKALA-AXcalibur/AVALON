@@ -1,5 +1,5 @@
 # ai/dto/request/testcase/param.py
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 """
@@ -8,13 +8,16 @@ from typing import Optional
 """
 class Param(BaseModel):
     category: str
-    ko_name: str
+    ko_name: str = Field(default=None, alias="koName")
     name: str
     context: str
     type: str
     length: Optional[int] = None
     format: Optional[str] = None
-    default_value: Optional[str] = None
+    default_value: Optional[str] = Field(default=None, alias="defaultValue")
     required: bool
     parent: Optional[str]
     desc: Optional[str]
+
+    class Config:
+        validate_by_name = True
