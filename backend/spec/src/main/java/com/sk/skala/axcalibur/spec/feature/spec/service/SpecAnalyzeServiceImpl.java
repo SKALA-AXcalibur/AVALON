@@ -11,6 +11,7 @@ import com.sk.skala.axcalibur.spec.global.repository.FileTypeRepository;
 import com.sk.skala.axcalibur.spec.global.repository.FilePathRepository;
 import com.sk.skala.axcalibur.spec.global.code.ErrorCode;
 import com.sk.skala.axcalibur.spec.global.exception.BusinessExceptionHandler;
+import com.sk.skala.axcalibur.spec.feature.spec.enums.FileTypeName;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,10 +32,10 @@ public class SpecAnalyzeServiceImpl implements SpecAnalyzeService {
      */
     public Map<String, String> analyze(ProjectEntity project) {
         Map<String, String> paths = new HashMap<>();
-        paths.put("requirement", getPath(project, "REQUIREMENT_FILE"));
-        paths.put("interface_def", getPath(project, "INTERFACE_DEFINITION"));
-        paths.put("interface_design", getPath(project, "INTERFACE_DESIGN"));
-        paths.put("database_design", getPath(project, "DATABASE_DESIGN"));
+        paths.put("requirement", getPath(project, FileTypeName.REQUIREMENT_FILE));
+        paths.put("interface_def", getPath(project, FileTypeName.INTERFACE_DEFINITION));
+        paths.put("interface_design", getPath(project, FileTypeName.INTERFACE_DESIGN));
+        paths.put("database_design", getPath(project, FileTypeName.DATABASE_DESIGN));
         return paths;
     }
 
@@ -44,9 +45,9 @@ public class SpecAnalyzeServiceImpl implements SpecAnalyzeService {
      * @param typeName 파일 유형명 (예: REQUIREMENT_FILE 등)
      * @return 파일 경로 문자열 또는 null
      */
-    public String getPath(ProjectEntity project, String typeName) {
+    public String getPath(ProjectEntity project, FileTypeName typeName) {
         
-        FileTypeEntity typeEntity = fileTypeRepository.findByName(typeName)
+        FileTypeEntity typeEntity = fileTypeRepository.findByName(typeName.name())
         .orElseThrow(() -> new BusinessExceptionHandler(String.format("파일 유형 '%s'이(가) 존재하지 않습니다.", typeName), ErrorCode.NOT_FOUND_ERROR));
 
         return filePathRepository.findByProjectKeyAndFileTypeKey(project, typeEntity)
