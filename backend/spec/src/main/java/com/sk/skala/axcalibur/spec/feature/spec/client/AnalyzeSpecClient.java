@@ -7,8 +7,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
@@ -60,9 +60,16 @@ public class AnalyzeSpecClient {
 
         try{
             restTemplate.postForEntity(analyzeUrl, request, String.class);
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
+        } catch (HttpStatusCodeException e) {
+            // 4xx/5xx HTTP 오류
             throw new BusinessExceptionHandler(
                 String.format("FastAPI 호출 실패: %s, 응답: %s", e.getStatusCode(), e.getResponseBodyAsString()), 
+                ErrorCode.INTERNAL_SERVER_ERROR
+            );
+        } catch (RestClientException e) {
+            // RestTemplate 관련 오류
+            throw new BusinessExceptionHandler(
+                "FastAPI 통신 오류" + e.getMessage(),
                 ErrorCode.INTERNAL_SERVER_ERROR
             );
         }
