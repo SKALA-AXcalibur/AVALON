@@ -1,6 +1,5 @@
 package com.sk.skala.axcalibur.apitest.feature.repository;
 
-import static com.sk.skala.axcalibur.apitest.feature.entity.QTestcaseEntity.testcaseEntity;
 import static com.sk.skala.axcalibur.apitest.feature.entity.QTestcaseResultEntity.*;
 
 import com.querydsl.jpa.JPAExpressions;

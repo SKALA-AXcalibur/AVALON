@@ -47,7 +47,7 @@ public class TestcaseResultEntity extends BaseTimeEntity {
 
   @Column(name = "time")
   // 수행시간
-  private LocalDateTime time;
+  private Double time;
 
 
 }

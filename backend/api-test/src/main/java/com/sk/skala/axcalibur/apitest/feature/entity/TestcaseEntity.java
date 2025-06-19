@@ -42,6 +42,9 @@ public class TestcaseEntity {
   @Column(name = "expected", nullable = false, length = 200)
   private String expected;
 
+  @Column(name = "status", nullable = false)
+  private Integer status;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mapping_key", nullable = false)
   private MappingEntity mapping;

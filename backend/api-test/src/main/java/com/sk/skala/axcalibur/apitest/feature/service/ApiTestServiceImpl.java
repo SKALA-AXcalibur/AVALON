@@ -1,5 +1,6 @@
 package com.sk.skala.axcalibur.apitest.feature.service;
 
+import com.sk.skala.axcalibur.apitest.feature.dto.request.ApiTaskDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.ExcuteTestServiceRequestDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.GetTestCaseResultServiceRequestDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.GetTestResultServiceRequestDto;
@@ -11,25 +12,38 @@ import com.sk.skala.axcalibur.apitest.feature.entity.TestcaseEntity;
 import com.sk.skala.axcalibur.apitest.feature.repository.ScenarioRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepositoryCustom;
-import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepositoryCustom;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class ApiTestServiceImpl implements ApiTestService {
   private final TestcaseRepository tc;
   private final TestcaseRepositoryCustom tcCustom;
   private final TestcaseResultRepositoryCustom trCustom;
   private final ScenarioRepository scene;
+  private final RedisTemplate<String, ApiTaskDto> apiTask;
+
+  public ApiTestServiceImpl(
+      TestcaseRepository tc,
+      TestcaseRepositoryCustom tcCustom,
+      TestcaseResultRepositoryCustom trCustom,
+      ScenarioRepository scene,
+      @Qualifier("apiTaskRedisTemplate") RedisTemplate<String, ApiTaskDto> apiTask) {
+    this.tc = tc;
+    this.tcCustom = tcCustom;
+    this.trCustom = trCustom;
+    this.scene = scene;
+    this.apiTask = apiTask;
+  }
 
 
   @Override
@@ -41,8 +55,15 @@ public class ApiTestServiceImpl implements ApiTestService {
       log.warn("No scenarios provided for execution.");
       return List.of();
     }
-    
+
     // TODO: Redis Streams 이용해 비동기 처리 구현하기
+
+    // 시나리오 아이디 리스트와 프로젝트 pk로 시나리오 아이디별 api 목록(매칭표의 단계, pk 추가) 추출
+    // API 목록을 기반으로 파라미터 추출
+    // 테스트케이스 데이터를 가져와 파라미터와 결합해 API 요청 생성
+    // 테스트케이스 ID 기반으로 테스트케이스 결과 칼럼 생성(생성일자은 지금으로 동일하게 고정)
+    // redis stream에 작업 목록 추가
+    // 작업 목록 추가된 테스트케이스 ID 리스트 반환
 
 
     return List.of();
