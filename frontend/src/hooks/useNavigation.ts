@@ -59,6 +59,7 @@ export const useNavigation = (callbacks?: NavigationCallbacks) => {
     try {
       await clientTestcaseApi.generate();
       resetAllScenarios();
+      resetSidebar();
       callbacks?.onGenerateTestcasesSuccess?.();
     } catch (error) {
       console.error(error);
