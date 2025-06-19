@@ -20,6 +20,13 @@ export const ERROR_MESSAGES = {
     UPDATE_FAILED: "시나리오 수정에 실패했습니다.",
     DELETE_FAILED: "시나리오 삭제에 실패했습니다.",
   },
+
+  TESTCASE: {
+    READ_FAILED: "테스트케이스 정보를 불러오지 못했습니다.",
+    CREATE_FAILED: "테스트케이스 생성에 실패했습니다.",
+    UPDATE_FAILED: "테스트케이스 수정에 실패했습니다.",
+    DELETE_FAILED: "테스트케이스 삭제에 실패했습니다.",
+  },
 };
 
 export const SUCCESS_MESSAGES = {
@@ -31,6 +38,11 @@ export const SUCCESS_MESSAGES = {
     CREATE_SUCCESS: "시나리오가 성공적으로 생성되었습니다.",
     UPDATE_SUCCESS: "시나리오가 성공적으로 수정되었습니다.",
     DELETE_SUCCESS: "시나리오가 성공적으로 삭제되었습니다.",
+  },
+  TESTCASE: {
+    CREATE_SUCCESS: "테스트케이스가 성공적으로 생성되었습니다.",
+    UPDATE_SUCCESS: "테스트케이스가 성공적으로 수정되었습니다.",
+    DELETE_SUCCESS: "테스트케이스가 성공적으로 삭제되었습니다.",
   },
 };
 
