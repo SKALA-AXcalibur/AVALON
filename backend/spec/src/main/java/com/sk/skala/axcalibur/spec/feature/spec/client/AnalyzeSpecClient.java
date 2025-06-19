@@ -2,17 +2,18 @@ package com.sk.skala.axcalibur.spec.feature.spec.client;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders; 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.sk.skala.axcalibur.spec.global.code.ErrorCode;
@@ -27,7 +28,8 @@ import com.sk.skala.axcalibur.spec.global.exception.BusinessExceptionHandler;
 @Component
 public class AnalyzeSpecClient {
     
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private RestTemplate restTemplate;
     
     // FastAPI 호출 주소 (application.yml에 정의된 값 주입)
     @Value("${project.api.analyze-url}")
@@ -44,18 +46,12 @@ public class AnalyzeSpecClient {
      */
     public void sendFiles(String projectId, String reqPath, String defPath, String designPath, String dbPath) {
 
-        // 파일 존재 여부 확인
-        validateFileExists(reqPath);
-        validateFileExists(defPath);
-        validateFileExists(designPath);
-        validateFileExists(dbPath);
-
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
         form.add("project_id", projectId);
-        form.add("requirement_file", new FileSystemResource(reqPath));
-        form.add("interface_def", new FileSystemResource(defPath));
-        form.add("interface_design", new FileSystemResource(designPath));
-        form.add("database_design", new FileSystemResource(dbPath));
+        form.add("requirement_file", validateFileExists(reqPath));
+        form.add("interface_def", validateFileExists(defPath));
+        form.add("interface_design", validateFileExists(designPath));
+        form.add("database_design", validateFileExists(dbPath));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -63,29 +59,24 @@ public class AnalyzeSpecClient {
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(form, headers);
 
         try{
-            ResponseEntity<String> response = restTemplate.postForEntity(
-                analyzeUrl, // 추후 yml 파일에서 가져오도록 수정
-                request,
-                String.class);
-            // 응답이 2xx가 아닌 경우
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new BusinessExceptionHandler(String.format("FastAPI 호출에 실패했습니다. 상태 코드: %s", response.getStatusCode()), ErrorCode.INTERNAL_SERVER_ERROR);
-            }
-        } catch (RestClientException e) {
-            // RestTemplate 내부 오류
-            throw new BusinessExceptionHandler("FastAPI 통신 오류: " + e.getMessage(), ErrorCode.INTERNAL_SERVER_ERROR
+            restTemplate.postForEntity(analyzeUrl, request, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw new BusinessExceptionHandler(
+                String.format("FastAPI 호출 실패: %s, 응답: %s", e.getStatusCode(), e.getResponseBodyAsString()), 
+                ErrorCode.INTERNAL_SERVER_ERROR
             );
         }
     }
     
     /**
-     * 파일 존재 여부 확인
+     * 파일 존재 여부 확인 후 FileSystemResource 반환
      */
-    private void validateFileExists(String path){
+    private FileSystemResource validateFileExists(String path){
         File file = new File(path);
         if(!file.exists()) {
             throw new BusinessExceptionHandler(String.format("파일을 찾을 수 없습니다. %s", path), ErrorCode.NOT_FOUND_ERROR);       
         }
+        return new FileSystemResource(file);
     }
 
 }
