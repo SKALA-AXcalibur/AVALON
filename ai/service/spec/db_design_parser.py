@@ -1,10 +1,10 @@
 import openpyxl
+import logging
 from fastapi import UploadFile
 from io import BytesIO
 from dto.request.spec.db import DbDesignDto, ColumnDto
 from typing import Dict, List
-import logging
-
+from config import config as cfg
 
 class DbDesignParserService:
     """
@@ -32,19 +32,8 @@ class DbDesignParserService:
         """
         한글 헤더명 → 내부 속성명 매핑용 딕셔너리 생성
         """
-        header_map = {
-            "테이블 한글명": "name",
-            "컬럼 한글명": "col_name",
-            "데이터타입": "type",
-            "길이": "length",
-            "PK": "is_pk",
-            "FK": "fk",
-            "Null여부": "is_null",
-            "제약 조건": "const",
-            "설명": "desc",
-        }
         return {
-            i: header_map.get(str(header_row[i]), str(header_row[i]))
+            i: cfg.DB_HEADER_MAP.get(str(header_row[i]), str(header_row[i]))
             for i in range(len(header_row))
         }
 
@@ -74,20 +63,19 @@ class DbDesignParserService:
         try:
             contents = await upload_file.read()
             workbook = openpyxl.load_workbook(BytesIO(contents), data_only=True)
-            sheet = workbook["테이블정의서(컬럼)"]
+            sheet = workbook[cfg.DB_SHEET_NAME]
         except Exception as e:
             logging.warning(f"[엑셀 파일 오픈 실패] error: {e}")
             return []
 
-        required_keywords = ["Null여부", "데이터타입"]
         try:
             header_idx, header_row = self.find_custom_header_row(
-                sheet, required_keywords
+                sheet, cfg.DB_REQUIRED_KEYWORDS
             )
         except Exception as e:
             logging.warning(f"[헤더 행 탐색 실패] error: {e}")
             return []
-        if header_row is None:
+        if any(x is None for x in (header_idx,header_row)):
             logging.warning("[헤더 미발견] 필수 헤더 행을 찾지 못했습니다.")
             return []
 
@@ -149,10 +137,9 @@ class DbDesignParserService:
                 column_dto = ColumnDto(**column_data)
                 # 테이블별로 컬럼 추가
                 table_map.setdefault(table_name, []).append(column_dto)
-            except Exception as e:
-                logging.warning(f"[데이터 행 파싱 실패] row={row_idx}, error: {e}")
-                continue  # 에러 발생 시 해당 행만 스킵, 전체 파싱은 계속
-
+            except (ValueError, IndexError) as e:
+                logging.warning(f"[데이터 행 파싱 실패] row={row_idx}, error_type={type(e).__name__}, message={e}")
+                continue  # 해당 행만 스킵하고 계속 진행
         db_designs = [
             DbDesignDto(name=tbl_name, column=columns)
             for tbl_name, columns in table_map.items()

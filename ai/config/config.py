@@ -44,6 +44,17 @@ REQ_SHEET_NAME = "요구사항정의서"
 # 키워드
 REQ_REQUIRED_KEYWORDS = ["대분류", "중분류", "소분류"]
 
+# 요구사항 필드 목록
+REQUIRED_FIELDS = [
+    "id",       # 요구사항 ID
+    "name",     # 요구사항 이름
+    "desc",     # 설명
+    "priority", # 우선순위
+    "major",    # 대분류
+    "middle",   # 중분류
+    "minor",    # 소분류
+]
+
 
 """
 인터페이스 설계서 파서 관련 설정값

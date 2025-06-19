@@ -1,19 +1,21 @@
+import logging
 import httpx
 from fastapi import HTTPException
+from config.setting import settings
 
 async def save_to_info_api(project_id: str, result: dict): # project_id 추가
     """
     결과 딕셔너리를 정보저장 api로 전송하는 함수
     """
-    url = f"/api/project/v1/{project_id}" # 실제 서비스 주소로 변경 필요 (정보저장 api 경로)
+    url = f"{settings.project_api_base_url}/{project_id}" # 실제 서비스 주소로 변경 필요 (정보저장 api 경로)
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(url, json=result)
             response.raise_for_status()
             return response.json()
         except httpx.RequestError as e:
-            raise HTTPException(status_code=502, detail=f"정보저장API 호출 실패: {str(e)}")
+            logging.error(f"[정보저장API 호출 실패] project_id={project_id}, error={e}")
+            raise HTTPException(status_code=502, detail={"code": "G001", "message": "정보저장 API 호출 실패"})
         except httpx.HTTPStatusError as e:
-            raise HTTPException(status_code=e.response.status_code, detail=f"정보저장API 응답 오류: {e.response.text}") # 더 안정적인 방법 사용
-        except Exception as e:
-            raise HTTPException(status_code=502, detail=f"외부 API 호출 중 알 수 없는 오류: {str(e)}")
+            logging.error(f"[정보저장API 응답 오류] project_id={project_id}, status={e.response.status_code}, body={e.response.text}")
+            raise HTTPException(status_code=500, detail={"code": "G002", "message": "정보저장 API 응답 오류"})
