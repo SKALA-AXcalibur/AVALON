@@ -41,7 +41,7 @@ export const clientTestcaseApi = {
     });
   },
   generate: async (): Promise<void> => {
-    await ky.post(`${BASE_URL}/testcase`, {
+    await ky.post(`${BASE_URL}/`, {
       credentials: "include",
     });
   },
