@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sk.skala.axcalibur.spec.feature.spec.dto.EmptyResponseDto;
 import com.sk.skala.axcalibur.spec.feature.spec.dto.ProjectContext;
 import com.sk.skala.axcalibur.spec.feature.spec.client.AnalyzeSpecClient;
 import com.sk.skala.axcalibur.spec.feature.spec.service.ProjectIdResolverService;
@@ -49,7 +50,7 @@ public class ParseControllerImpl implements ParseController {
 
     @Override
     @PostMapping
-    public ResponseEntity<SuccessResponse<List<Object>>> analyzeSpec(
+    public ResponseEntity<SuccessResponse<EmptyResponseDto>> analyzeSpec(
         @CookieValue("avalon") String key ) {
 
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
@@ -74,8 +75,8 @@ public class ParseControllerImpl implements ParseController {
         return ResponseEntity
         .status(SuccessCode.INSERT_SUCCESS.getStatus())
         .headers(headers)
-        .body(SuccessResponse.<List<Object>>builder()
-            .data(Collections.emptyList())
+        .body(SuccessResponse.<EmptyResponseDto>builder()
+            .data(new EmptyResponseDto())
             .status(SuccessCode.INSERT_SUCCESS)
             .message("요청 성공")
             .build());

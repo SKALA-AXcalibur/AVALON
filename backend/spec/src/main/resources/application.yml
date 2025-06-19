@@ -27,7 +27,3 @@ logging:
       sk:
         skala:
           axcalibur: DEBUG
-
-project:
-  api:
-    analyze-url: http://localhost:8000/api/spec/v1/analyze
