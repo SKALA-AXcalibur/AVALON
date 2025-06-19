@@ -17,13 +17,11 @@ export const TestRunSidebar = ({
   const getStatusDisplay = (status: string) => {
     switch (status) {
       case "성공":
-      case "true":
         return {
           icon: "check_circle",
           className: "text-green-500",
         };
       case "실패":
-      case "false":
         return {
           icon: "cancel",
           className: "text-red-500",
