@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sk.skala.axcalibur.spec.feature.spec.dto.ProjectContext;
-import com.sk.skala.axcalibur.spec.global.entity.ProjectEntity;
-import com.sk.skala.axcalibur.spec.global.repository.ProjectRepository;
+import com.sk.skala.axcalibur.spec.feature.spec.client.AnalyzeSpecClient;
 import com.sk.skala.axcalibur.spec.feature.spec.service.ProjectIdResolverService;
 import com.sk.skala.axcalibur.spec.feature.spec.service.SpecAnalyzeService;
+import com.sk.skala.axcalibur.spec.global.entity.ProjectEntity;
+import com.sk.skala.axcalibur.spec.global.repository.ProjectRepository;
 import com.sk.skala.axcalibur.spec.global.code.ErrorCode;
 import com.sk.skala.axcalibur.spec.global.code.SuccessCode;
 import com.sk.skala.axcalibur.spec.global.exception.BusinessExceptionHandler;
@@ -43,6 +45,7 @@ public class ParseControllerImpl implements ParseController {
     private final SpecAnalyzeService specAnalyzeService;
     private final ProjectIdResolverService projectIdResolverService;
     private final ProjectRepository projectRepository;
+    private final AnalyzeSpecClient analyzeSpecClient;
 
     @Override
     @PostMapping
@@ -56,7 +59,10 @@ public class ParseControllerImpl implements ParseController {
         .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 프로젝트입니다.", ErrorCode.PROJECT_NOT_FOUND));
 
         // 서비스 호출
-        specAnalyzeService.analyze(project);
+        Map<String, String> paths = specAnalyzeService.analyze(project);
+
+        // FastAPI 호출
+        analyzeSpecClient.sendFiles(projectContext.getKey().toString(), paths.get("requirement"), paths.get("interface_def"), paths.get("interface_design"), paths.get("database_design"));
 
         // 응답시간 헤더에 반환
         HttpHeaders headers = new HttpHeaders();
