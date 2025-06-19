@@ -18,11 +18,11 @@ public class AnalyzeSpecClient {
 
     public void sendFiles(String projectId, String reqPath, String defPath, String designPath, String dbPath) {
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
-        form.add("projectId", projectId);
-        form.add("requirementFile", new FileSystemResource(reqPath));
-        form.add("interfaceDef", new FileSystemResource(defPath));
-        form.add("interfaceDesign", new FileSystemResource(designPath));
-        form.add("databaseDesign", new FileSystemResource(dbPath));
+        form.add("project_id", projectId);
+        form.add("requirement_file", new FileSystemResource(reqPath));
+        form.add("interface_def", new FileSystemResource(defPath));
+        form.add("interface_design", new FileSystemResource(designPath));
+        form.add("database_design", new FileSystemResource(dbPath));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
