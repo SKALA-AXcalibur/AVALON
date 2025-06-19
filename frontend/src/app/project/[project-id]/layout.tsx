@@ -1,4 +1,4 @@
-import Header from "@/components/common/header/Header";
+import { Navigation } from "@/components/common/Navigation";
 
 const ScenarioLayout = async ({
   children,
@@ -13,7 +13,14 @@ const ScenarioLayout = async ({
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <Header projectId={projectId} />
+      <header className="w-full border-b border-slate-200 py-4 px-4 md:px-8 bg-white">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl md:text-2xl font-bold text-slate-800 truncate">
+            {projectId}
+          </h1>
+          <Navigation />
+        </div>
+      </header>
       {children}
     </div>
   );

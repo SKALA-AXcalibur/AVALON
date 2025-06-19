@@ -14,7 +14,7 @@ export const clientTestcaseApi = {
     scenarioId: string,
     testcase: createTestcaseRequest
   ): Promise<createTestcaseResponse> => {
-    const response = await ky.post(`${BASE_URL}/${scenarioId}`, {
+    const response = await ky.post(`${BASE_URL}/scenario/${scenarioId}`, {
       credentials: "include",
       json: testcase,
     });
@@ -41,7 +41,7 @@ export const clientTestcaseApi = {
     });
   },
   generate: async (): Promise<void> => {
-    await ky.post(`${BASE_URL}/testcase`, {
+    await ky.post(`${BASE_URL}/`, {
       credentials: "include",
     });
   },

@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useProjectAuth } from "@/hooks/auth/useProjectAuth";
+import { useProjectAuth } from "@/hooks/useProjectAuth";
 
 export const LoginProjectBox = () => {
   const router = useRouter();
