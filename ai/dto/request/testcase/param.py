@@ -4,7 +4,7 @@ from typing import Optional
 
 """
 파라미터 객체 정의
-(파라미터 항목, 한글명, 영문명, 항목유형, 데이터타입, 길이, 포맷, 기본값, 필수여부, 상위항목명, 설명)
+(파라미터 항목, 한글명, 영문명, 항목유형, 데이터타입, 길이, 포맷, 기본값, 필수여부, 상위항목명, 부모항목, 설명)
 """
 class Param(BaseModel):
     category: str
@@ -16,7 +16,7 @@ class Param(BaseModel):
     format: Optional[str] = None
     default_value: Optional[str] = Field(default=None, alias="defaultValue")
     required: bool
-    parent: Optional[str]
+    parent: Optional[str] = None
     desc: Optional[str]
 
     class Config:

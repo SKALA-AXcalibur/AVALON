@@ -17,13 +17,13 @@ async def generate_tc_node(state: FlowState) -> FlowState:
     - 생성된 TC를 state에 누적
     """
     prompt = build_prompt(
-        mapping_list=state.request.api_mapping_list,
+        api_mapping_list=state.request.api_mapping_list,
         scenario=state.request.scenario,
     )
 
     # 생성된 prompt로 LLM 호출 진행
     try:
-        testcase: List[TestcaseData] = await generate_testcase_via_llm(prompt)
+        testcase: List[TestcaseData] = generate_testcase_via_llm(prompt)
 
         for tc in testcase:
             # mapping_id가 있는 상태로 올 거라고 기대
@@ -31,6 +31,7 @@ async def generate_tc_node(state: FlowState) -> FlowState:
                 raise ValueError("TC 응답에 mapping_id 누락")
 
         state.tc_list.extend(testcase) # 생성된 리스트 추가
+        
     
     except ValueError as e:
         logging.warning(f"[generate_tc_node] ValueError: {e}")

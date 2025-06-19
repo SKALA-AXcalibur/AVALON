@@ -10,7 +10,7 @@ from langchain_core.messages import AIMessage
 from service.llm_service import model, gpt_model  # 위에서 만든 claude model
 from dto.response.testcase.testcase_data import TestcaseData
 
-import logging, re
+import logging, re, json
 
 # parser: List[TestcaseData]로 결과 파싱
 parser = JsonOutputParser(pydantic_object=List[TestcaseData])
@@ -29,7 +29,9 @@ def generate_testcase_via_llm(prompt_text: str) -> List[TestcaseData]:
     GPT를 이용해 테스트케이스를 생성하고, 파싱된 객체 리스트로 반환
     """
     try:
-        return generate_tc_chain.invoke({"prompt": prompt_text})
+        raw_output = generate_tc_chain.invoke({"prompt": prompt_text})
+
+        return [TestcaseData(**item) for item in raw_output]
 
     except Exception as e:
         # LLM이 JSON이 아닌 결과를 반환했거나 파싱에 실패했을 경우
