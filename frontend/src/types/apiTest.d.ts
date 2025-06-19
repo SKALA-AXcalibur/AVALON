@@ -1,7 +1,14 @@
-import { ApiTestResult } from "@/interfaces/apiTest";
+import { ScenarioResult } from "@/interfaces/apiTest";
 
 export type runApiTestRequest = {
-  scenarioList: { scenarioId: string }[];
+  scenarioList: string[];
 };
 
-export type readApiTestResultResponse = ApiTestResult;
+export type readApiTestResultResponse = {
+  scenarioList: Omit<ScenarioResult, "tcList">[];
+};
+
+export type readApiTestScenarioResultResponse = Omit<
+  ScenarioResult,
+  "isSuccess"
+>;

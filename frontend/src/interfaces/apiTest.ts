@@ -1,20 +1,18 @@
 export interface TestcaseResult {
   tcId: string;
-  testDescription: string;
-  inputData: string;
+  description: string;
   expectedResult: string;
-  testResult: boolean;
+  isSuccess: string;
+  executedTime: string;
 }
 
 export interface ScenarioResult {
   scenarioId: string;
   scenarioName: string;
-  scenarioDescription: string;
-  scenarioExecution: boolean;
+  isSuccess: string;
   tcList: TestcaseResult[];
 }
 
 export interface ApiTestResult {
-  projectId: string;
   scenarioList: ScenarioResult[];
 }
