@@ -28,7 +28,7 @@ def build_prompt(api_mapping_list: List[ApiMapping], scenario: Scenario) -> str:
         if not api.param_list:
             prompt += "  (없음)\n"
         for param in api.param_list:
-            prompt += f"  - {param.name} ({param.type}, 길이={param.length}) | 위치: {param.context} | 필수: {'Y' if param.required else 'N'} | 설명: {param.desc}\n"
+            prompt += f"  - {param.name} ({param.type}, 길이={param.length}) | 위치: {param.context} | 필수: {'Y' if param.required else 'N'} | 상위 항목명: {param.parent} | 설명: {param.desc}\n"
 
     prompt += dedent("""
 [테스트케이스 생성 조건]
@@ -37,8 +37,10 @@ def build_prompt(api_mapping_list: List[ApiMapping], scenario: Scenario) -> str:
 3. 현재 API가 이전 API와 이어지는 흐름이라면, 응답값을 다음 API의 입력으로 연동.
     - 동적 값(ex. token 등)은 precondition에 어떤 API 응답에서 획득했는지 아래 예시와 같이 명시.
     예시: (현재 API 이름)의 (파라미터 이름)에는 (이전 API 이름)의 (파라미터 이름) 값을 사용한다.
-4. 테스트케이스에는 예상되는 status 코드 (2, 3, 4, 5 중 하나)를 포함하세요. 예를 들어, 200번대 응답이 예상된다면 2를, 400번대 응답이 예상된다면 4를 반환합니다.
-5. tc_id는 unique해야 하며, 형식은 TC-<API영문이름>-<케이스유형>-<일련번호> 로 구성하세요. 일련번호는 3자리로 구성합니다.
+4. 배열(array) 또는 객체(object) 형태의 파라미터가 포함된 경우, 내부 항목에는 해당 상위 항목명을 'parent' 필드로 명확히 작성
+    - 주어진 paramList에 'parent' 항목 정보가 포함되어 있으므로 동일하게 반영한다.
+4. 테스트케이스에는 예상되는 status 코드 (2, 3, 4, 5 중 하나)를 포함하여 작성. 예를 들어, 200번대 응답이 예상된다면 2를, 400번대 응답이 예상된다면 4를 반환
+5. tc_id는 unique해야 하며, 형식은 TC-<API영문이름>-<케이스유형>-<일련번호> 로 구성한다. 일련번호는 3자리로 구성한다.
 
 [출력 형식]
 - 오직 JSON 문자열만 반환하세요. 추가 설명, 마크다운, 코드 블럭 등은 절대 포함하지 마세요.
@@ -66,6 +68,7 @@ def build_prompt(api_mapping_list: List[ApiMapping], scenario: Scenario) -> str:
             "type": "varchar",
             "length": 20,
             "required": true,
+            "parent": "사용자 데이터",
             "desc": "조회할 사용자 ID"
         },
         "value": "abc123"
