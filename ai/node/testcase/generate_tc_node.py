@@ -4,13 +4,11 @@ from json import JSONDecodeError
 
 from dto.response.testcase.testcase_data import TestcaseData
 
-from AVALON.ai.state.testcase.flow_state import FlowState
-from service.testcase.prompt.prompt_builder import build_prompt
-from service.testcase.generator.llm_executor import generate_testcase_via_llm
+from state.testcase.flow_state import FlowState
+from prompt.testcase.prompt_builder import build_prompt
+from service.testcase.llm_executor import generate_testcase_via_llm
 
 import logging
-
-logger = logging.getLogger(__name__)
 
 async def generate_tc_node(state: FlowState) -> FlowState:
     """
