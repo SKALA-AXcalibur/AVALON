@@ -27,6 +27,24 @@ export const ERROR_MESSAGES = {
     UPDATE_FAILED: "테스트케이스 수정에 실패했습니다.",
     DELETE_FAILED: "테스트케이스 삭제에 실패했습니다.",
   },
+
+  FILE_UPLOAD: {
+    EMPTY_RESULT: "시나리오가 0개 생성되어 이동할 수 없습니다.",
+    CREATION_ERROR: "시나리오 생성 중 오류가 발생했습니다.",
+  },
+
+  FILE_VALIDATION: {
+    EMPTY: "파일을 선택해주세요.",
+    MISSING: (fileType: string, words: readonly string[]) =>
+      `${words.join(" ")} 파일이 필요합니다.`,
+    DUPLICATE: (fileType: string, words: readonly string[]) =>
+      `${words.join(" ")} 파일이 중복되었습니다.`,
+    UNMATCHED: (fileNames: string[]) =>
+      `다음 파일이 요구사항과 일치하지 않습니다: ${fileNames.join(", ")}`,
+    COUNT_MISMATCH: (required: number, actual: number) =>
+      `${required}개의 파일이 필요하지만 ${actual}개가 선택되었습니다.`,
+    INVALID_TYPE: "지원하지 않는 파일 형식입니다.",
+  },
 };
 
 export const SUCCESS_MESSAGES = {
@@ -34,25 +52,21 @@ export const SUCCESS_MESSAGES = {
     DELETE_SUCCESS: "프로젝트가 성공적으로 삭제되었습니다.",
     LOGIN_SUCCESS: "로그인이 완료되었습니다.",
   },
+
   SCENARIO: {
     CREATE_SUCCESS: "시나리오가 성공적으로 생성되었습니다.",
     UPDATE_SUCCESS: "시나리오가 성공적으로 수정되었습니다.",
     DELETE_SUCCESS: "시나리오가 성공적으로 삭제되었습니다.",
   },
+
   TESTCASE: {
     CREATE_SUCCESS: "테스트케이스가 성공적으로 생성되었습니다.",
     UPDATE_SUCCESS: "테스트케이스가 성공적으로 수정되었습니다.",
     DELETE_SUCCESS: "테스트케이스가 성공적으로 삭제되었습니다.",
   },
-};
 
-export const FILE_UPLOAD_ERROR_MESSAGE = {
-  EMPTY: "시나리오가 0개 생성되어 이동할 수 없습니다.",
-  ERROR: "시나리오 생성 중 오류가 발생했습니다.",
-};
-
-export const FILE_VALIDATION_ERROR_MESSAGE = {
-  EMPTY: "정확히 3개의 파일을 첨부해야 합니다.",
-  REQUIRED: (requiredName: string) =>
-    `'${requiredName}'이 하나만 있어야 합니다.`,
+  FILE_UPLOAD: {
+    UPLOAD_SUCCESS: "파일이 성공적으로 업로드되었습니다.",
+    VALIDATION_SUCCESS: "파일 검증이 완료되었습니다.",
+  },
 };

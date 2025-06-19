@@ -1,4 +1,4 @@
-import UploadBox from "@/components/upload/UploadBox";
+import { UploadBox } from "@/components/upload/UploadBox";
 
 const UploadPage = async () => {
   return (

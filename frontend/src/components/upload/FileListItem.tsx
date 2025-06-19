@@ -1,11 +1,12 @@
 "use client";
 
-interface FileListItemProps {
+export const FileListItem = ({
+  file,
+  onDelete,
+}: {
   file: File;
   onDelete: (file: File) => void;
-}
-
-const FileListItem = ({ file, onDelete }: FileListItemProps) => {
+}) => {
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -31,5 +32,3 @@ const FileListItem = ({ file, onDelete }: FileListItemProps) => {
     </div>
   );
 };
-
-export default FileListItem;

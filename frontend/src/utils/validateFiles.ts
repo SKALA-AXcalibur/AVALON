@@ -1,34 +1,63 @@
-import { FILE_VALIDATION_ERROR_MESSAGE } from "@/constants/messages";
+import { ERROR_MESSAGES } from "@/constants/messages";
+import { FILE_TYPES } from "@/constants/upload";
 
-const validateFiles = (files: File[]) => {
-  const requiredWords = {
-    "요구사항 정의서": ["요구사항", "정의서"],
-    "인터페이스 정의서": ["인터페이스", "정의서"],
-    "인터페이스 설계서": ["인터페이스", "설계서"],
-  };
-  const fileNames = files.map((file) => file.name);
-
-  if (files.length !== 3) {
+export const validateFiles = (files: File[]) => {
+  if (files.length === 0) {
     return {
       isValid: false,
-      errorMessage: FILE_VALIDATION_ERROR_MESSAGE.EMPTY,
+      errorMessage: ERROR_MESSAGES.FILE_VALIDATION.EMPTY,
     };
   }
 
-  for (const [requiredName, words] of Object.entries(requiredWords)) {
-    const matchingFiles = fileNames.filter((name) => {
-      const normalizedName = name.normalize("NFC");
+  for (const [fileType, config] of Object.entries(FILE_TYPES)) {
+    const { words } = config;
+
+    const matchingFiles = files.filter((file) => {
+      const normalizedName = file.name.normalize("NFC");
       return words.every((word) => normalizedName.includes(word));
     });
-    if (matchingFiles.length !== 1) {
+
+    if (matchingFiles.length === 0) {
       return {
         isValid: false,
-        errorMessage: FILE_VALIDATION_ERROR_MESSAGE.REQUIRED(requiredName),
+        errorMessage: ERROR_MESSAGES.FILE_VALIDATION.MISSING(fileType, words),
+      };
+    }
+
+    if (matchingFiles.length > 1) {
+      return {
+        isValid: false,
+        errorMessage: ERROR_MESSAGES.FILE_VALIDATION.DUPLICATE(fileType, words),
       };
     }
   }
 
+  const unmatchedFiles = files.filter((file) => {
+    const normalizedName = file.name.normalize("NFC");
+    return !Object.values(FILE_TYPES).some((config) =>
+      config.words.every((word) => normalizedName.includes(word))
+    );
+  });
+
+  if (unmatchedFiles.length > 0) {
+    return {
+      isValid: false,
+      errorMessage: ERROR_MESSAGES.FILE_VALIDATION.UNMATCHED(
+        unmatchedFiles.map((f) => f.name)
+      ),
+    };
+  }
+
+  const requiredFileCount = Object.keys(FILE_TYPES).length;
+  if (files.length !== requiredFileCount) {
+    return {
+      isValid: false,
+      errorMessage: ERROR_MESSAGES.FILE_VALIDATION.COUNT_MISMATCH(
+        requiredFileCount,
+        files.length
+      ),
+    };
+  }
+
   return { isValid: true };
 };
-
-export default validateFiles;
