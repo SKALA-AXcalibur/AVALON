@@ -26,4 +26,8 @@ export const FILE_TYPES = {
     words: ["인터페이스", "설계서"],
     key: "interfaceDesign",
   },
+  DATABASE_DESIGN: {
+    words: ["테이블", "설계서"],
+    key: "databaseDesign",
+  },
 } as const;
