@@ -18,5 +18,4 @@ import lombok.NoArgsConstructor;
 public class TcRequestPayload {
     private ScenarioDto scenario;
     private List<ApiMappingDto> apiMappingList;
-    private List<DbTableDto> dbList;
 }
