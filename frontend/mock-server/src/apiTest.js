@@ -42,11 +42,13 @@ export const setupApiTestRoutes = (server, router) => {
         const randomResult = Math.random();
         let isSuccess;
         if (randomResult < 0.7) {
-          isSuccess = true;
+          isSuccess = "성공";
+        } else if (randomResult < 0.8) {
+          isSuccess = "실패";
         } else if (randomResult < 0.9) {
-          isSuccess = false;
+          isSuccess = "실행중";
         } else {
-          isSuccess = null;
+          isSuccess = "준비중";
         }
 
         return {
@@ -58,12 +60,14 @@ export const setupApiTestRoutes = (server, router) => {
 
       // 시나리오의 전체 성공 여부 계산
       let scenarioSuccess;
-      if (updatedTestCases.every((tc) => tc.isSuccess === true)) {
-        scenarioSuccess = true;
-      } else if (updatedTestCases.some((tc) => tc.isSuccess === null)) {
-        scenarioSuccess = null;
+      if (updatedTestCases.every((tc) => tc.isSuccess === "성공")) {
+        scenarioSuccess = "성공";
+      } else if (updatedTestCases.some((tc) => tc.isSuccess === "실행중")) {
+        scenarioSuccess = "실행중";
+      } else if (updatedTestCases.some((tc) => tc.isSuccess === "실패")) {
+        scenarioSuccess = "실패";
       } else {
-        scenarioSuccess = false;
+        scenarioSuccess = "준비중";
       }
 
       return {
@@ -182,7 +186,6 @@ export const setupApiTestRoutes = (server, router) => {
       tcList: tcList.map((tc) => ({
         tcId: tc.tcId,
         description: tc.description,
-        inputData: JSON.stringify(tc.testDataList),
         expectedResult: tc.expectedResult,
         isSuccess: tc.isSuccess,
         executedTime: tc.executedTime,

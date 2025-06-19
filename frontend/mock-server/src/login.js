@@ -28,13 +28,10 @@ export const setupLoginRoutes = (server, router) => {
     });
 
     if (existingProject) {
-      // 기존 프로젝트가 있지만 쿠키가 없는 경우 쿠키 정보 업데이트
-      if (!existingProject.avalon) {
-        db.get("projects")
-          .find({ projectId: projectId })
-          .assign({ avalon: avalon })
-          .write();
-      }
+      db.get("projects")
+        .find({ projectId: projectId })
+        .assign({ avalon: avalon })
+        .write();
 
       // 기존 프로젝트 ID 반환
       return res.json({
