@@ -81,7 +81,8 @@ class InterfaceDefParserService:
                 df = xls.parse(sheet_name=sheet, header=None, nrows=5)
                 if df.astype(str).apply(lambda col: col.str.contains(INTERFACE_DEF_PARSER, na=False)).any().any():
                     return sheet
-            except Exception:
+            except Exception as e:
+                logging.warning(f"[인터페이스 정의서 시트명 추론] sheet 파싱 중 오류 발생: str{e}")
                 continue
 
         return sheet_names[-1]
