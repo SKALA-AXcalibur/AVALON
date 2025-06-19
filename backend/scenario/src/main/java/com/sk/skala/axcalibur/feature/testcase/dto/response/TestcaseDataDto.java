@@ -21,6 +21,7 @@ public class TestcaseDataDto {
     private String precondition;                // 사전조건
     private String description;                 // 테스트케이스 설명
     private String expectedResult;              // 예상 결과
+    private Integer status;                     // 예상 코드
 
     private List<TestcaseParamDto> testDataList;    // 테스트 데이터 목록 (parameter 구조 + 예상값)
 }

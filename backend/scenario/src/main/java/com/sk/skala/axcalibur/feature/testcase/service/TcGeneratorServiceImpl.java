@@ -101,6 +101,7 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
                 .description(tcData.getDescription())
                 .precondition(tcData.getPrecondition())
                 .expected(tcData.getExpectedResult())
+                .status(tcData.getStatus())
                 .mappingKey(mapping)
                 .build();
             testcaseRepository.save(testcase);

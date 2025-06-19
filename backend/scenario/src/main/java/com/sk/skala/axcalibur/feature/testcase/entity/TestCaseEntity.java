@@ -45,6 +45,9 @@ public class TestCaseEntity extends BaseTimeEntity {
     @Column(name = "expected", nullable = false, length = 200)
     private String expected;     // 예상 결과(줄글로 생성)
 
+    @Column(name = "status")
+    private Integer status;     // 예상 상태 코드
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mapping_key", nullable = false)
     private MappingEntity mappingKey;
