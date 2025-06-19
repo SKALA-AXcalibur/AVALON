@@ -1,4 +1,4 @@
-import TestcaseBox from "@/components/testcase/TestcaseBox";
+import { TestcaseBox } from "@/components/testcase/TestcaseBox";
 
 const TestcasePage = async ({
   params,
@@ -9,8 +9,18 @@ const TestcasePage = async ({
     "testcase-id": string;
   };
 }) => {
-  const { "testcase-id": testcaseId } = await params;
-  return <TestcaseBox testcaseId={testcaseId} />;
+  const {
+    "project-id": projectId,
+    "scenario-id": scenarioId,
+    "testcase-id": testcaseId,
+  } = await params;
+  return (
+    <TestcaseBox
+      projectId={projectId}
+      scenarioId={scenarioId}
+      testcaseId={testcaseId}
+    />
+  );
 };
 
 export default TestcasePage;
