@@ -129,6 +129,8 @@ public class ProjectServiceImpl implements ProjectService {
         // API 목록 데이터 저장
         if (request.getApiList() != null && !request.getApiList().isEmpty()) {
             for (ApiItem apiItem : request.getApiList()) {
+                RequestEntity linkedRequest = requestRepository.findById(apiItem.getReqId())
+                        .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
                 ApiListEntity apiEntity = ApiListEntity.builder()
                         .id(apiItem.getId())
                         .name(apiItem.getName())
@@ -137,11 +139,22 @@ public class ProjectServiceImpl implements ProjectService {
                         .url(apiItem.getUrl())
                         .path(apiItem.getPath())
                         .projectKey(project)
+                        .requestKey(linkedRequest)
                         .build();
-                    apiListRepository.save(apiEntity);
+                apiListRepository.save(apiEntity);
+
+                if (apiItem.getPathQuery() != null && !apiItem.getPathQuery().isEmpty()) {
+                    processParameterItems(apiEntity, apiItem.getPathQuery(), "PATH_QUERY");
+                }
+                if (apiItem.getRequest() != null && !apiItem.getRequest().isEmpty()) {
+                    processParameterItems(apiEntity, apiItem.getRequest(), "REQUEST");
+                }
+                if (apiItem.getResponse() != null && !apiItem.getResponse().isEmpty()) {
+                    processParameterItems(apiEntity, apiItem.getResponse(), "RESPONSE");
+                }
             }
         }
-
+ 
         // 테이블 목록 데이터 저장
         if (request.getTableList() != null && !request.getTableList().isEmpty()) {
             for (TableItem tableItem : request.getTableList()) {
@@ -411,6 +424,8 @@ public class ProjectServiceImpl implements ProjectService {
                 continue;
             }
 
+            log.info("파라미터 처리 중 - itemType: {}", paramItem.getItemType());
+
             ParameterEntity.ParameterEntityBuilder builder = ParameterEntity.builder()
                     .nameKo(paramItem.getNameKo())
                     .name(paramItem.getName())
@@ -421,7 +436,7 @@ public class ProjectServiceImpl implements ProjectService {
                     .description(paramItem.getDesc())
                     .apiListKey(apiList)
                     .categoryKey(findCategory(paramType))
-                    .contextKey(findContext(paramType));
+                    .contextKey(findContext(paramItem.getItemType()));
 
             if (paramItem.getLength() != null && paramItem.getLength() > 0) {
                 builder.length(paramItem.getLength());
@@ -452,8 +467,12 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Transactional
     private ContextEntity findContext(String name) {
+        log.info("findContext 호출됨 - name: {}", name);
         return contextRepository.findByName(name)
-                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
+                .orElseThrow(() -> {
+                    log.error("Context를 찾을 수 없습니다. name: {}", name);
+                    return new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
+                });
     }
 
     // 부모 파라미터 찾기 (Self-Join을 위한 부모 참조 검색)
