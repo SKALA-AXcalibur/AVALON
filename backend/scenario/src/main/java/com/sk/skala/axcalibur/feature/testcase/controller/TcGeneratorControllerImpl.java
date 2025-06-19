@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sk.skala.axcalibur.feature.testcase.dto.request.DbTableDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseGenerationResponse;
 import com.sk.skala.axcalibur.feature.testcase.entity.ScenarioEntity;
@@ -29,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 테스트케이스 생성 요청 인터페이스
  * '테스트케이스 생성 요청(IF-TC-0001)'을 실제 구현합니다.
- * - 쿠키로부터 Project key를 전달받아 해당 프로젝트에 매핑된 시나리오와 테이블 설계서 정보를 불러옵니다.
+ * - 쿠키로부터 Project key를 전달받아 해당 프로젝트에 매핑된 시나리오 정보를 불러옵니다.
  * - 시나리오에 매핑된 매핑표와 각 API 정보를 조회합니다.
  * - 시나리오 단위로 필요한 정보를 조합하여 생성 서버에 요청합니다.
  * - TC 생성 정보를 받아와 DB에 저장합니다.
@@ -53,13 +52,10 @@ public class TcGeneratorControllerImpl implements TcGeneratorContoller {
         // 시나리오 리스트 조회
         List<ScenarioEntity> scenarios = tcPayloadService.getScenarios(projectId);
 
-        // ERD 테이블 정보 수집
-        List<DbTableDto> dbList = tcPayloadService.getDbTableList(projectId);
-
         // 시나리오별 테스트케이스 생성 로직
         for (ScenarioEntity scenario : scenarios) {
             // payload 조립
-            TcRequestPayload payload = tcPayloadService.buildPayload(scenario, dbList);
+            TcRequestPayload payload = tcPayloadService.buildPayload(scenario);
             
             // FastAPI 호출
             TestcaseGenerationResponse response = tcGeneratorService.callFastApi(payload, scenario);

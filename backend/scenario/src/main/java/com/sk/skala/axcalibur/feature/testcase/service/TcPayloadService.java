@@ -2,7 +2,6 @@ package com.sk.skala.axcalibur.feature.testcase.service;
 
 import java.util.List;
 
-import com.sk.skala.axcalibur.feature.testcase.dto.request.DbTableDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
 import com.sk.skala.axcalibur.feature.testcase.entity.ScenarioEntity;
 
@@ -12,6 +11,5 @@ import com.sk.skala.axcalibur.feature.testcase.entity.ScenarioEntity;
  */
 public interface TcPayloadService {
     List<ScenarioEntity> getScenarios(Integer projectId);
-    List<DbTableDto> getDbTableList(Integer projectId);
-    TcRequestPayload buildPayload(ScenarioEntity scenario, List<DbTableDto> dbList);
+    TcRequestPayload buildPayload(ScenarioEntity scenario);
 }
