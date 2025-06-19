@@ -5,9 +5,9 @@ const ScenarioDetailPage = async ({
 }: {
   params: { "project-id": string; "scenario-id": string };
 }) => {
-  const { "scenario-id": scenarioId } = await params;
+  const { "project-id": projectId, "scenario-id": scenarioId } = await params;
 
-  return <ScenarioBox scenarioId={scenarioId} />;
+  return <ScenarioBox projectId={projectId} scenarioId={scenarioId} />;
 };
 
 export default ScenarioDetailPage;

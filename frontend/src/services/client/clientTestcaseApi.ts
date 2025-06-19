@@ -50,7 +50,7 @@ export const clientTestcaseApi = {
     offset: number = 0,
     query: number = 10
   ): Promise<readScenarioTestcasesResponse> => {
-    const response = await ky.get(`${BASE_URL}/${scenarioId}`, {
+    const response = await ky.get(`${BASE_URL}/scenario/${scenarioId}`, {
       credentials: "include",
       searchParams: {
         offset,

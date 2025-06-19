@@ -1,31 +1,43 @@
 "use client";
-import { useEffect, useState } from "react";
 import ScenarioGraph from "./ScenarioGraph";
-import ScenarioDesc from "./ScenarioDescription";
-import ScenarioValidation from "./ScenarioValidation";
-import ScenarioTitle from "./ScenarioTitle";
-import ScenarioNavigation from "./ScenarioNavigation";
-import useReadScenario from "@/hooks/scenario/readScenario";
-import { ScenarioInfo } from "@/interfaces/scenario";
+import TextInputBox from "../common/TextInputBox";
+import LinkButton from "../common/LinkButton";
+import ActionButton from "../common/ActionButton";
+import { useScenario } from "@/hooks/scenario/useScenario";
+import { useRouter } from "next/navigation";
 
-const ScenarioBox = ({ scenarioId }: { scenarioId: string }) => {
-  const { readScenario, isLoading } = useReadScenario(scenarioId);
-  const [scenarioInfo, setScenarioInfo] = useState<ScenarioInfo>({
-    id: scenarioId,
-    name: "",
-    graph: "",
-    description: "",
-    validation: "",
-  });
+const ScenarioBox = ({
+  projectId,
+  scenarioId,
+}: {
+  projectId: string;
+  scenarioId: string;
+}) => {
+  const router = useRouter();
+  const {
+    scenarioInfo,
+    isLoading,
+    error,
+    success,
+    handleNameChange,
+    handleDescriptionChange,
+    handleValidationChange,
+    handleCreate,
+    handleUpdate,
+    handleDelete,
+  } = useScenario(projectId, scenarioId);
 
-  useEffect(() => {
-    const fetchScenarioInfo = async () => {
-      const scenarioInfo = await readScenario();
-      if (!scenarioInfo) return;
-      setScenarioInfo(scenarioInfo);
-    };
-    fetchScenarioInfo();
-  }, [scenarioId]);
+  const onCreateSuccess = (scenarioId: string) => {
+    router.push(`/project/${projectId}/scenario/${scenarioId}`);
+  };
+
+  const onDeleteSuccess = (scenarioId: string | null, total: number) => {
+    if (total === 0) {
+      router.push(`/project/${projectId}/upload`);
+    } else {
+      router.push(`/project/${projectId}/scenario/${scenarioId}`);
+    }
+  };
 
   return (
     <>
@@ -36,23 +48,72 @@ const ScenarioBox = ({ scenarioId }: { scenarioId: string }) => {
       ) : (
         <>
           <div className="flex items-center justify-between mb-4">
-            <ScenarioTitle
-              scenarioInfo={scenarioInfo}
-              setScenarioInfo={setScenarioInfo}
-            />
-            <ScenarioNavigation scenarioInfo={scenarioInfo} />
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3">
+              <input
+                type="text"
+                value={scenarioInfo.name}
+                onChange={(e) => handleNameChange(e.target.value)}
+                className="bg-white border border-slate-200 rounded-lg px-3 py-1 min-w-[300px]"
+                placeholder="시나리오 이름을 입력하세요"
+              />
+              <span className="text-sm text-slate-500 whitespace-nowrap">
+                {scenarioInfo.id}
+              </span>
+            </h2>
+            <div className="flex gap-2">
+              <LinkButton
+                href={`/project/${projectId}/scenario/${scenarioId}/testcase/new`}
+                color="bg-sky-400 hover:bg-sky-500"
+                ariaLabel="TC 추가"
+              >
+                TC 추가
+              </LinkButton>
+              <ActionButton
+                onClick={() => handleDelete(onDeleteSuccess)}
+                color="bg-red-500 hover:bg-red-600"
+                disabled={isLoading}
+              >
+                삭제
+              </ActionButton>
+              {scenarioId === "new" ? (
+                <ActionButton
+                  onClick={() => handleCreate(onCreateSuccess)}
+                  color="bg-green-500 hover:bg-green-600"
+                  disabled={isLoading}
+                >
+                  생성
+                </ActionButton>
+              ) : (
+                <ActionButton
+                  onClick={handleUpdate}
+                  color="bg-green-500 hover:bg-green-600"
+                  disabled={isLoading}
+                >
+                  저장
+                </ActionButton>
+              )}
+            </div>
           </div>
           <ScenarioGraph graph={scenarioInfo.graph} />
-          <div className="min-h-[200px] flex gap-8">
-            <ScenarioDesc
-              scenarioInfo={scenarioInfo}
-              setScenarioInfo={setScenarioInfo}
+          <div className="h-[250px] flex gap-8">
+            <TextInputBox
+              title="상세설명"
+              value={scenarioInfo.description}
+              placeholder="시나리오에 대한 상세 설명을 입력하세요"
+              onChange={(e) => handleDescriptionChange(e.target.value)}
             />
-            <ScenarioValidation
-              scenarioInfo={scenarioInfo}
-              setScenarioInfo={setScenarioInfo}
+            <TextInputBox
+              title="검증포인트"
+              value={scenarioInfo.validation}
+              placeholder="시나리오에 대한 검증포인트를 입력하세요"
+              onChange={(e) => handleValidationChange(e.target.value)}
             />
           </div>
+          {error ? (
+            <div className="h-6 mt-1 text-sm text-red-600">{error}</div>
+          ) : (
+            <div className="h-6 mt-1 text-sm text-green-600">{success}</div>
+          )}
         </>
       )}
     </>
