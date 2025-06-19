@@ -5,6 +5,7 @@ import { clientTestcaseApi } from "@/services/client/clientTestcaseApi";
 import { clientApiTestApi } from "@/services/client/clientApiTestApi";
 import { useProjectStore } from "@/store/projectStore";
 import { useSidebarStore } from "@/store/sidebarStore";
+import { useTestResultStore } from "@/store/testResult";
 
 type ActionButton = {
   type: "action";
@@ -26,7 +27,7 @@ type NavigationButton = ActionButton | LinkButton;
 type NavigationCallbacks = {
   onLogoutSuccess?: () => void;
   onGenerateTestcasesSuccess?: () => void;
-  onRunApiTestSuccess?: () => void;
+  onRunApiTestSuccess?: (scenarioId: string) => void;
 };
 
 export const useNavigation = (callbacks?: NavigationCallbacks) => {
@@ -34,6 +35,7 @@ export const useNavigation = (callbacks?: NavigationCallbacks) => {
   const pathname = usePathname();
   const { project, resetProject, resetAllScenarios } = useProjectStore();
   const { resetSidebar } = useSidebarStore();
+  const { setTestResult } = useTestResultStore();
   const [loadingStates, setLoadingStates] = useState({
     logout: false,
     generateTestcases: false,
@@ -72,11 +74,16 @@ export const useNavigation = (callbacks?: NavigationCallbacks) => {
     setLoadingStates((prev) => ({ ...prev, runApiTest: true }));
     try {
       await clientApiTestApi.runApiTest({
-        scenarioList: project.scenarios.map((scenario) => ({
-          scenarioId: scenario.id,
+        scenarioList: project.scenarios.map((scenario) => scenario.id),
+      });
+      const testResult = await clientApiTestApi.readApiTestResult();
+      setTestResult({
+        scenarioList: testResult.scenarioList.map((scenario) => ({
+          ...scenario,
+          tcList: [],
         })),
       });
-      callbacks?.onRunApiTestSuccess?.();
+      callbacks?.onRunApiTestSuccess?.(testResult.scenarioList[0].scenarioId);
     } catch (error) {
       console.error(error);
     } finally {

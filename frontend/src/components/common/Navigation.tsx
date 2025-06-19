@@ -14,7 +14,7 @@ export const Navigation = () => {
     onGenerateTestcasesSuccess: () => {
       router.push(`/project/${projectId}/scenario/${scenarioId}`);
     },
-    onRunApiTestSuccess: () => {
+    onRunApiTestSuccess: (scenarioId: string) => {
       router.push(`/project/${projectId}/test-run/${scenarioId}`);
     },
   });
