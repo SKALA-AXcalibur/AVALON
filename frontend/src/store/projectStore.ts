@@ -13,6 +13,7 @@ interface ProjectState {
   updateTestcase: (scenarioId: string, testcase: Testcase) => void;
   deleteTestcase: (scenarioId: string, testcaseId: string) => void;
   resetProject: () => void;
+  resetAllScenarios: () => void;
 }
 
 export const useProjectStore = create<ProjectState>((set) => ({
@@ -86,4 +87,14 @@ export const useProjectStore = create<ProjectState>((set) => ({
       },
     })),
   resetProject: () => set({ project: { id: "", scenarios: [] } }),
+  resetAllScenarios: () =>
+    set((state) => ({
+      project: {
+        ...state.project,
+        scenarios: state.project.scenarios.map((s) => ({
+          ...s,
+          testcases: [],
+        })),
+      },
+    })),
 }));
