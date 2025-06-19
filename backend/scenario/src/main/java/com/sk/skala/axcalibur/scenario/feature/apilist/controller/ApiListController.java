@@ -24,7 +24,7 @@ public class ApiListController {
         this.apiMappingService = apiMappingService;
     }
 
-    // 1. API 매핑 요청 (프로젝트 ID로 API/시나리오 목록 조회)  (IF-AL-0001)
+    // 1. API 매핑 요청 (IF-AL-0001)
     @PostMapping("/generate")
     public ResponseEntity<SuccessResponse<ApiMappingRequestDto>> getApiMappingList(@CookieValue(name = "avalon") String avalon) {
         return ResponseEntity

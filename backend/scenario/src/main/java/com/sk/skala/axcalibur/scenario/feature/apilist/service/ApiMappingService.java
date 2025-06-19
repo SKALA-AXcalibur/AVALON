@@ -1,8 +1,8 @@
-package com.sk.skala.axcalibur.scenario.apilist.feature.service;
+package com.sk.skala.axcalibur.scenario.feature.apilist.service;
 
-import com.sk.skala.axcalibur.scenario.apilist.feature.dto.ApiMappingRequestDto;
-import com.sk.skala.axcalibur.scenario.apilist.feature.dto.MappingRequestDto;
-import com.sk.skala.axcalibur.scenario.apilist.feature.dto.MappingResponseDto;
+import com.sk.skala.axcalibur.scenario.feature.apilist.dto.ApiMappingRequestDto;
+import com.sk.skala.axcalibur.scenario.feature.apilist.dto.MappingRequestDto;
+import com.sk.skala.axcalibur.scenario.feature.apilist.dto.MappingResponseDto;
 
 public interface ApiMappingService {
     /**

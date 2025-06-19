@@ -1,10 +1,10 @@
-package com.sk.skala.axcalibur.scenario.apilist.feature.repository;
+package com.sk.skala.axcalibur.scenario.feature.apilist.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.sk.skala.axcalibur.scenario.apilist.feature.entity.MappingEntity;
 import com.sk.skala.axcalibur.scenario.feature.apilist.entity.ApiListEntity;
+import com.sk.skala.axcalibur.scenario.feature.apilist.entity.MappingEntity;
 import com.sk.skala.axcalibur.scenario.feature.apilist.entity.ScenarioEntity;
 
 import java.util.List;

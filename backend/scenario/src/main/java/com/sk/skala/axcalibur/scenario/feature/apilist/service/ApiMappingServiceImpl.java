@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
@@ -34,19 +33,15 @@ import com.sk.skala.axcalibur.scenario.global.repository.AvalonCookieRepository;
 import com.sk.skala.axcalibur.scenario.feature.apilist.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.scenario.feature.apilist.entity.ApiListEntity;
 import java.util.stream.Collectors;
+import io.github.cdimascio.dotenv.Dotenv;
 
 @Slf4j
 @Service
 public class ApiMappingServiceImpl implements ApiMappingService {
 
-    @Value("${llm.api.url}")
-    private String llmApiUrl;
-    
-    @Value("${llm.api.key}")
-    private String llmApiKey;
-    
-    @Value("${llm.model.name}")
-    private String modelName;
+    private final String llmApiUrl;
+    private final String llmApiKey;
+    private final String modelName;
     
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -61,6 +56,14 @@ public class ApiMappingServiceImpl implements ApiMappingService {
        this.scenarioRepository = scenarioRepository;
        this.apiListRepository = apiListRepository;
        this.avalonCookieRepository = avalonCookieRepository;
+
+       // 여기서 .env 파일의 값을 읽어옴
+       Dotenv dotenv = Dotenv.configure()
+           .directory("backend/scenario")
+           .load();
+       this.llmApiUrl = dotenv.get("LANGCHAIN_ENDPOINT");
+       this.llmApiKey = dotenv.get("LANGCHAIN_API_KEY");
+       this.modelName = dotenv.get("MODEL_NAME");
    }
 
    /**

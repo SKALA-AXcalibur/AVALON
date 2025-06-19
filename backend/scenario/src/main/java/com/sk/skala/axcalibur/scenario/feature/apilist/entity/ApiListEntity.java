@@ -1,16 +1,12 @@
 package com.sk.skala.axcalibur.scenario.feature.apilist.entity;
 
 import com.sk.skala.axcalibur.scenario.global.entity.BaseTimeEntity;
-import com.sk.skala.axcalibur.scenario.global.entity.ProjectEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -49,8 +45,9 @@ public class ApiListEntity extends BaseTimeEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;          // API 목록 설명 (TEXT)
 
-    // 연관 관계
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_key", nullable = false)
-    private ProjectEntity projectKey;             // 프로젝트 키 (N:1)
+    @Column(name = "project_key", nullable = false)
+    private Integer projectKey;             // 프로젝트 키
+
+    @Column(name = "request_key", nullable = false)
+    private Integer requestKey;             // 요청 키
 }
