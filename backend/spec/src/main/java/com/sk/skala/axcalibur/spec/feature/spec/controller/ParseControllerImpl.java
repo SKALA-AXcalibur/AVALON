@@ -55,20 +55,26 @@ public class ParseControllerImpl implements ParseController {
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
         ProjectContext projectContext = projectIdResolverService.resolveProjectId(key);
 
-        ProjectEntity project = projectRepository.findById(projectContext.getKey())
+        String projectId = projectContext.getProjectId();
+        
+        ProjectEntity project = projectRepository.findById(projectId)
         .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 프로젝트입니다.", ErrorCode.PROJECT_NOT_FOUND));
 
         // 서비스 호출
         Map<String, String> paths = specAnalyzeService.analyze(project);
+        
+        if (paths.values().contains(null)) {
+            throw new BusinessExceptionHandler("일부 파일 경로가 누락되었습니다.", ErrorCode.NOT_FOUND_ERROR);
+        }
 
         // FastAPI 호출
-        analyzeSpecClient.sendFiles(projectContext.getKey().toString(), paths.get("requirement"), paths.get("interface_def"), paths.get("interface_design"), paths.get("database_design"));
+        analyzeSpecClient.sendFiles(projectId, paths.get("requirement"), paths.get("interface_def"), paths.get("interface_design"), paths.get("database_design"));
 
         // 응답시간 헤더에 반환
         HttpHeaders headers = new HttpHeaders();
         headers.add("responseTime", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
-        // 정상 처리 응답(data는 null)
+        // 정상 처리 응답
         return ResponseEntity
         .status(SuccessCode.INSERT_SUCCESS.getStatus())
         .headers(headers)

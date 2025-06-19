@@ -47,10 +47,10 @@ public class SpecAnalyzeServiceImpl implements SpecAnalyzeService {
     public String getPath(ProjectEntity project, String typeName) {
         
         FileTypeEntity typeEntity = fileTypeRepository.findByName(typeName)
-        .orElseThrow(() -> new BusinessExceptionHandler("파일 유형이 존재하지 않습니다.", ErrorCode.NOT_FOUND_ERROR));
+        .orElseThrow(() -> new BusinessExceptionHandler(String.format("파일 유형 '%s'이(가) 존재하지 않습니다.", typeName), ErrorCode.NOT_FOUND_ERROR));
 
         return filePathRepository.findByProjectKeyAndFileTypeKey(project, typeEntity)
-        .orElseThrow(() -> new BusinessExceptionHandler("파일이 존재하지 않습니다.", ErrorCode.NOT_FOUND_ERROR))
+        .orElseThrow(() -> new BusinessExceptionHandler(String.format("프로젝트 '%s'에 대한 파일 유형 '%s'의 파일 경로를 찾을 수 없습니다.", project.getId(), typeEntity.getName()), ErrorCode.NOT_FOUND_ERROR))
         .getPath();
     }
 }

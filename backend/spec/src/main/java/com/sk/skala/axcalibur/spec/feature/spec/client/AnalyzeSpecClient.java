@@ -1,6 +1,5 @@
 package com.sk.skala.axcalibur.spec.feature.spec.client;
 
-
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders; 
@@ -70,26 +69,22 @@ public class AnalyzeSpecClient {
                 String.class);
             // 응답이 2xx가 아닌 경우
             if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new BusinessExceptionHandler("FastAPI 호출에 실패했습니다.+"+response.getStatusCode(), ErrorCode.INTERNAL_SERVER_ERROR);
+                throw new BusinessExceptionHandler(String.format("FastAPI 호출에 실패했습니다. 상태 코드: %s", response.getStatusCode()), ErrorCode.INTERNAL_SERVER_ERROR);
             }
         } catch (RestClientException e) {
             // RestTemplate 내부 오류
-            throw new BusinessExceptionHandler("FastAPI 통신 오류: " + e.getMessage(),ErrorCode.INTERNAL_SERVER_ERROR
+            throw new BusinessExceptionHandler("FastAPI 통신 오류: " + e.getMessage(), ErrorCode.INTERNAL_SERVER_ERROR
             );
         }
     }
     
-    public void setAnalyzeUrl(String analyzeUrl) {
-        this.analyzeUrl = analyzeUrl;
-    }
-
     /**
      * 파일 존재 여부 확인
      */
-    private void validateFileExists(String Path){
-        File file = new File(Path);
-        if(!file.exists() == true) {
-            throw new BusinessExceptionHandler("파일을 찾을 수 없습니다."+Path, ErrorCode.NOT_FOUND_ERROR);
+    private void validateFileExists(String path){
+        File file = new File(path);
+        if(!file.exists()) {
+            throw new BusinessExceptionHandler(String.format("파일을 찾을 수 없습니다. %s", path), ErrorCode.NOT_FOUND_ERROR);       
         }
     }
 
