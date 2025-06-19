@@ -1,7 +1,5 @@
 package com.sk.skala.axcalibur.feature.testcase.service;
 
-import java.util.List;
-
 import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseGenerationResponse;
 import com.sk.skala.axcalibur.feature.testcase.entity.ScenarioEntity;
@@ -12,6 +10,6 @@ import com.sk.skala.axcalibur.feature.testcase.entity.ScenarioEntity;
  * 생성 이후 받은 응답을 DB에 저장합니다.
  */
 public interface TcGeneratorService {
-    List<TestcaseGenerationResponse> callFastApi(TcRequestPayload payload, ScenarioEntity scenario);
-    void saveTestcases(List<TestcaseGenerationResponse> response);
+    TestcaseGenerationResponse callFastApi(TcRequestPayload payload, ScenarioEntity scenario);
+    void saveTestcases(TestcaseGenerationResponse response);
 }

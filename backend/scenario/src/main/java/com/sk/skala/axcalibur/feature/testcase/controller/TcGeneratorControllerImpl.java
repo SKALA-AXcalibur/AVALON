@@ -62,7 +62,7 @@ public class TcGeneratorControllerImpl implements TcGeneratorContoller {
             TcRequestPayload payload = tcPayloadService.buildPayload(scenario, dbList);
             
             // FastAPI 호출
-            List<TestcaseGenerationResponse> response = tcGeneratorService.callFastApi(payload, scenario);
+            TestcaseGenerationResponse response = tcGeneratorService.callFastApi(payload, scenario);
             
             // 결과 저장
             tcGeneratorService.saveTestcases(response);
