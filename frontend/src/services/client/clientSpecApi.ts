@@ -9,6 +9,7 @@ export const clientSpecApi = {
     formData.append("requirementFile", files.requirementFile);
     formData.append("interfaceDef", files.interfaceDef);
     formData.append("interfaceDesign", files.interfaceDesign);
+    formData.append("databaseDesign", files.databaseDesign);
     await ky.post(`${BASE_URL}/`, {
       credentials: "include",
       body: formData,
