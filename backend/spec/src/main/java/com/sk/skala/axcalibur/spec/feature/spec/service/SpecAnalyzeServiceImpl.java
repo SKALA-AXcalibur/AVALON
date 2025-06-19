@@ -43,7 +43,6 @@ public class SpecAnalyzeServiceImpl implements SpecAnalyzeService {
      * 프로젝트와 파일 유형명을 기준으로 해당 파일의 경로를 반환합니다.
      * @param project  프로젝트 엔티티
      * @param typeName 파일 유형명 (예: REQUIREMENT_FILE 등)
-     * @return 파일 경로 문자열 또는 null
      */
     public String getPath(ProjectEntity project, FileTypeName typeName) {
         
