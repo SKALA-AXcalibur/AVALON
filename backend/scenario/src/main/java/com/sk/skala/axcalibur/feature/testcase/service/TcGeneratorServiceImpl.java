@@ -1,7 +1,6 @@
 package com.sk.skala.axcalibur.feature.testcase.service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.sk.skala.axcalibur.feature.testcase.dto.request.ApiParamDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseDataDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseGenerationResponse;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseParamDto;
 import com.sk.skala.axcalibur.feature.testcase.entity.CategoryEntity;
@@ -59,20 +59,26 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
     private final TestCaseRepository testcaseRepository;
     
     @Override
-    public List<TestcaseGenerationResponse> callFastApi(TcRequestPayload payload, ScenarioEntity scenario) {
+    public TestcaseGenerationResponse callFastApi(TcRequestPayload payload, ScenarioEntity scenario) {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<TcRequestPayload> requestEntity = new HttpEntity<>(payload, headers);
 
         String url = String.format("%s/%s", fastApiBaseUrl, scenario.getScenarioId());
         log.info("sending url: {}", url);
         try {
-            ResponseEntity<List<TestcaseGenerationResponse>> response = restTemplate.exchange(
+            ResponseEntity<TestcaseGenerationResponse> response = restTemplate.exchange(
                 url,
                 HttpMethod.POST,
                 requestEntity,
-                new ParameterizedTypeReference<List<TestcaseGenerationResponse>>() {}
+                new ParameterizedTypeReference<>() {}
             );
-            return response.getBody();
+
+            TestcaseGenerationResponse body = response.getBody();
+            if (body == null || body.getTcList() == null) {
+                throw new BusinessExceptionHandler("FastAPI 응답이 비어있습니다.", ErrorCode.IO_ERROR);
+            }
+
+            return body;
         } catch (RestClientException e) {
             log.error("FastAPI 호출 실패: {}", e.getMessage(), e);
             throw new BusinessExceptionHandler("FastAPI 호출 중 오류가 발생했습니다.", ErrorCode.IO_ERROR);
@@ -80,18 +86,21 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
     }
     
     @Override
-    public void saveTestcases(List<TestcaseGenerationResponse> response) {
-        for (TestcaseGenerationResponse res: response) {
+    public void saveTestcases(TestcaseGenerationResponse response) {
+        Map<String, CategoryEntity> categoryCache = new HashMap<>();
+        Map<String, ContextEntity> contextCache = new HashMap<>();
+
+        for (TestcaseDataDto tcData: response.getTcList()) {
             // 매핑표 ID로 매핑 정보 조회
-            MappingEntity mapping = mappingRepository.findById(res.getMappingId())
+            MappingEntity mapping = mappingRepository.findById(tcData.getMappingId())
                 .orElseThrow(() -> new BusinessExceptionHandler("매핑 정보 없음", ErrorCode.NOT_FOUND_ERROR));
 
             // 1. TestCase 저장
             TestCaseEntity testcase = TestCaseEntity.builder()
-                .id(res.getTcId())
-                .description(res.getDescription())
-                .precondition(res.getPrecondition())
-                .expected(res.getExpectedResult())
+                .id(tcData.getTcId())
+                .description(tcData.getDescription())
+                .precondition(tcData.getPrecondition())
+                .expected(tcData.getExpectedResult())
                 .mappingKey(mapping)
                 .build();
             testcaseRepository.save(testcase);
@@ -99,14 +108,20 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
             // 파라미터 이름 기준 저장된 엔티티 저장할 map(상위항목)
             Map<String, ParameterEntity> savedParamMap = new HashMap<>();
 
-            for (TestcaseParamDto paramDto : res.getTestData()) {
+            for (TestcaseParamDto paramDto : tcData.getTestDataList()) {
                 ApiParamDto param = paramDto.getParam();
 
-                CategoryEntity category = categoryRepository.findByName(param.getCategory())
-                    .orElseThrow(() -> new BusinessExceptionHandler("카테고리 없음", ErrorCode.NOT_FOUND_ERROR));
-                ContextEntity context = contextRepository.findByName(param.getContext())
-                    .orElseThrow(() -> new BusinessExceptionHandler("컨텍스트 없음", ErrorCode.NOT_FOUND_ERROR));
-
+                CategoryEntity category = categoryCache.computeIfAbsent(
+                    param.getCategory(),
+                    name -> categoryRepository.findByName(name)
+                        .orElseThrow(() -> new BusinessExceptionHandler("카테고리 없음", ErrorCode.NOT_FOUND_ERROR))
+                );
+                ContextEntity context = contextCache.computeIfAbsent(
+                    param.getContext(),
+                    name -> contextRepository.findByName(name)
+                        .orElseThrow(() -> new BusinessExceptionHandler("컨텍스트 없음", ErrorCode.NOT_FOUND_ERROR))
+                );
+                
                 // 상위 항목 처리
                 ParameterEntity parent = param.getParent() != null
                     ? savedParamMap.get(param.getParent()) : null;
