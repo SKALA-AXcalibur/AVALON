@@ -2,7 +2,9 @@ package com.sk.skala.axcalibur.spec.feature.project.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.io.IOException;
@@ -90,85 +92,134 @@ public class ProjectServiceImpl implements ProjectService {
 
         // 요구사항 데이터 저장
         if (request.getRequirement() != null && !request.getRequirement().isEmpty()) {
-            for (ReqItem reqItem : request.getRequirement()) {
-                RequestEntity.RequestEntityBuilder reqBuilder = RequestEntity.builder()
-                        .id(reqItem.getId())
-                        .name(reqItem.getName())
-                        .description(reqItem.getDesc())
-                        .projectKey(project);
+            List<RequestEntity> requestEntities = request.getRequirement().stream()
+                .map((ReqItem reqItem) -> {
+                    RequestEntity.RequestEntityBuilder reqBuilder = RequestEntity.builder()
+                            .id(reqItem.getId())
+                            .name(reqItem.getName())
+                            .description(reqItem.getDesc())
+                            .projectKey(project);
 
-                // 분류 정보 처리 (없으면 자동 생성)
-                if (reqItem.getPriority() != null) {
-                    PriorityEntity priority = findAndCreatePriority(reqItem.getPriority());
-                    reqBuilder.priorityKey(priority);
-                }
-                if (reqItem.getMajor() != null) {
-                    RequestMajorEntity major = findAndCreateRequestMajor(reqItem.getMajor());
-                    reqBuilder.majorKey(major);
-                }
-                if (reqItem.getMiddle() != null) {
-                    RequestMiddleEntity middle = findAndCreateRequestMiddle(reqItem.getMiddle());
-                    reqBuilder.middleKey(middle);
-                }
-                if (reqItem.getMinor() != null) {
-                    RequestMinorEntity minor = findAndCreateRequestMinor(reqItem.getMinor());
-                    reqBuilder.minorKey(minor);
-                }
+                    // 분류 정보 처리 (없으면 자동 생성)
+                    if (reqItem.getPriority() != null) {
+                        PriorityEntity priority = findAndCreatePriority(reqItem.getPriority());
+                        reqBuilder.priorityKey(priority);
+                    }
+                    if (reqItem.getMajor() != null) {
+                        RequestMajorEntity major = findAndCreateRequestMajor(reqItem.getMajor());
+                        reqBuilder.majorKey(major);
+                    }
+                    if (reqItem.getMiddle() != null) {
+                        RequestMiddleEntity middle = findAndCreateRequestMiddle(reqItem.getMiddle());
+                        reqBuilder.middleKey(middle);
+                    }
+                    if (reqItem.getMinor() != null) {
+                        RequestMinorEntity minor = findAndCreateRequestMinor(reqItem.getMinor());
+                        reqBuilder.minorKey(minor);
+                    }
 
-                RequestEntity reqEntity = reqBuilder.build();
+                    RequestEntity reqEntity = reqBuilder.build();
 
-                log.info(" Request 저장 전 확인 - majorKey: {}, middleKey: {}, minorKey: {}, priorityKey: {}",
-                        reqEntity.getMajorKey() != null ? reqEntity.getMajorKey().getKey() : "null",
-                        reqEntity.getMiddleKey() != null ? reqEntity.getMiddleKey().getKey() : "null",
-                        reqEntity.getMinorKey() != null ? reqEntity.getMinorKey().getKey() : "null",
-                        reqEntity.getPriorityKey() != null ? reqEntity.getPriorityKey().getKey() : "null");
-                requestRepository.save(reqEntity);
-            }
+                    log.info(" Request 저장 전 확인 - majorKey: {}, middleKey: {}, minorKey: {}, priorityKey: {}",
+                            reqEntity.getMajorKey() != null ? reqEntity.getMajorKey().getKey() : "null",
+                            reqEntity.getMiddleKey() != null ? reqEntity.getMiddleKey().getKey() : "null",
+                            reqEntity.getMinorKey() != null ? reqEntity.getMinorKey().getKey() : "null",
+                            reqEntity.getPriorityKey() != null ? reqEntity.getPriorityKey().getKey() : "null");
+                    
+                    return reqEntity;
+                })
+                .collect(Collectors.toList());
+            
+            // 배치 저장
+            requestRepository.saveAll(requestEntities);
         }
 
         // API 목록 데이터 저장
         if (request.getApiList() != null && !request.getApiList().isEmpty()) {
-            for (ApiItem apiItem : request.getApiList()) {
-                RequestEntity linkedRequest = requestRepository.findById(apiItem.getReqId())
-                        .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
-                ApiListEntity apiEntity = ApiListEntity.builder()
-                        .id(apiItem.getId())
-                        .name(apiItem.getName())
-                        .description(apiItem.getDesc())
-                        .method(apiItem.getMethod())
-                        .url(apiItem.getUrl())
-                        .path(apiItem.getPath())
-                        .projectKey(project)
-                        .requestKey(linkedRequest)
-                        .build();
-                apiListRepository.save(apiEntity);
+            // reqId 수집
+            List<String> reqIds = request.getApiList().stream()
+                .map(ApiItem::getReqId)
+                .distinct()
+                .collect(Collectors.toList());
 
+            // DB에서 한 번에 조회
+            List<RequestEntity> requestEntities = requestRepository.findByIdIn(reqIds);
+
+            // Map 생성
+            Map<String, RequestEntity> requestMap = requestEntities.stream()
+                .collect(Collectors.toMap(RequestEntity::getId, Function.identity()));
+        
+            // API 엔티티 생성
+            List<ApiListEntity> apiEntities = request.getApiList().stream()
+                .map(apiItem -> {
+                    RequestEntity linkedRequest = requestMap.get(apiItem.getReqId());
+                    if(linkedRequest == null) {
+                        throw new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
+                    }
+                    return ApiListEntity.builder()
+                            .id(apiItem.getId())
+                            .name(apiItem.getName())
+                            .description(apiItem.getDesc())
+                            .method(apiItem.getMethod())
+                            .url(apiItem.getUrl())
+                            .path(apiItem.getPath())
+                            .projectKey(project)
+                            .requestKey(linkedRequest)
+                            .build();
+                })
+                .collect(Collectors.toList());
+            
+            // API 엔티티들 배치 저장
+            List<ApiListEntity> savedApiEntities = apiListRepository.saveAll(apiEntities);
+            
+            // 파라미터 처리 - 배치 처리로 개선
+            List<ParameterEntity> allParameters = new ArrayList<>();
+            
+            for (int i = 0; i < request.getApiList().size(); i++) {
+                ApiItem apiItem = request.getApiList().get(i);
+                ApiListEntity savedApiEntity = savedApiEntities.get(i);
+                
+                // PATH_QUERY 파라미터들 수집
                 if (apiItem.getPathQuery() != null && !apiItem.getPathQuery().isEmpty()) {
-                    processParameterItems(apiEntity, apiItem.getPathQuery(), "PATH_QUERY");
+                    allParameters.addAll(createParameterEntitiesFromItems(savedApiEntity, apiItem.getPathQuery(), "PATH_QUERY"));
                 }
+                
+                // REQUEST 파라미터들 수집
                 if (apiItem.getRequest() != null && !apiItem.getRequest().isEmpty()) {
-                    processParameterItems(apiEntity, apiItem.getRequest(), "REQUEST");
+                    allParameters.addAll(createParameterEntitiesFromItems(savedApiEntity, apiItem.getRequest(), "REQUEST"));
                 }
+                
+                // RESPONSE 파라미터들 수집
                 if (apiItem.getResponse() != null && !apiItem.getResponse().isEmpty()) {
-                    processParameterItems(apiEntity, apiItem.getResponse(), "RESPONSE");
+                    allParameters.addAll(createParameterEntitiesFromItems(savedApiEntity, apiItem.getResponse(), "RESPONSE"));
                 }
+            }
+            
+            // 모든 파라미터를 한 번에 배치 저장
+            if (!allParameters.isEmpty()) {
+                parameterRepository.saveAll(allParameters);
             }
         }
  
         // 테이블 목록 데이터 저장
         if (request.getTableList() != null && !request.getTableList().isEmpty()) {
-            for (TableItem tableItem : request.getTableList()) {
-                // 테이블 목록 저장
-                DbDesignEntity dbDesignEntity = DbDesignEntity.builder()
+            // 테이블 엔티티들을 배치로 생성
+            List<DbDesignEntity> tableEntities = request.getTableList().stream()
+                .map((TableItem tableItem) -> DbDesignEntity.builder()
                         .name(tableItem.getName())
                         .projectKey(project)
-                        .build();
-                DbDesignEntity dbDesign = dbDesignRepository.save(dbDesignEntity);
-
-                // 컬럼 목록 저장
-                if (tableItem.getColumn() != null) {
-                    for (ColItem colItem : tableItem.getColumn()) {
-                        DbColumnEntity dbColumnEntity = DbColumnEntity.builder()
+                        .build())
+                .collect(Collectors.toList());
+            
+            // 테이블 배치 저장
+            List<DbDesignEntity> savedTables = dbDesignRepository.saveAll(tableEntities);
+            
+            // 컬럼들을 평면화하여 배치 처리
+            List<DbColumnEntity> allColumns = request.getTableList().stream()
+                .flatMap((TableItem tableItem) -> {
+                    int tableIndex = request.getTableList().indexOf(tableItem);
+                    return tableItem.getColumn().stream()
+                        .map(colItem -> DbColumnEntity.builder()
                                 .colName(colItem.getColName())
                                 .description(colItem.getDesc())
                                 .type(colItem.getType())
@@ -177,12 +228,13 @@ public class ProjectServiceImpl implements ProjectService {
                                 .fk(colItem.getFk())
                                 .isNull(colItem.getIsNull())
                                 .constraint(colItem.getConstraint())
-                                .dbDesignKey(dbDesign)
-                                .build();
-                        dbColumnRepository.save(dbColumnEntity);
-                    }
-                }
-            }
+                                .dbDesignKey(savedTables.get(tableIndex))
+                                .build());
+                })
+                .collect(Collectors.toList());
+            
+            // 컬럼 배치 저장
+            dbColumnRepository.saveAll(allColumns);
         }
 
         log.info("프로젝트 목록 저장 완료. projectId: {}", projectId);
@@ -228,12 +280,33 @@ public class ProjectServiceImpl implements ProjectService {
                                 .collect(Collectors.toList()))
                         .build())
                 .collect(Collectors.toList());
+        
+        // 요구사항 정보 조회 및 변환 (기존 convertToDetailedResponse의 로직)
+        List<RequestEntity> requests = requestRepository.findByProjectKey(project);
+        List<RequirementInfoDto> requirements = requests.stream()
+                .map(req -> new RequirementInfoDto(
+                        req.getId(),
+                        req.getName(),
+                        req.getDescription(),
+                        req.getPriorityKey().getName(),
+                        req.getMajorKey().getName(),
+                        req.getMiddleKey().getName(),
+                        req.getMinorKey().getName()))
+                .collect(Collectors.toList());
 
-        // 기존 응답 DTO에 테이블 리스트 추가
+        // API 목록 정보 조회 및 변환 (기존 convertToDetailedResponse의 로직)
+        List<ApiListEntity> apiLists = apiListRepository.findByProjectKey(project);
+        List<ApiInfoDto> apiInfos = apiLists.stream()
+                .map(this::convertApiEntityToDto)
+                .collect(Collectors.toList());
+
+        // 최종 응답 DTO 생성
         return ProjectResponseDto.builder()
                 .projectId(project.getId())
                 .avalon(avalon)
-                .tableList(tableList) // 테이블 리스트 추가
+                .tableList(tableList)
+                .requirement(requirements)
+                .apiList(apiInfos)
                 .build();
     }
 
@@ -330,37 +403,11 @@ public class ProjectServiceImpl implements ProjectService {
         return Generators.timeBasedReorderedGenerator().generate().toString().replace("-", "");
     }
 
-    // 프로젝트 엔티티를 상세 응답 DTO로 변환
-
-    private ProjectResponseDto convertToDetailedResponse(ProjectEntity project, String avalon) {
-
-        // 요구사항 정보 조회 및 변환
-        List<RequestEntity> requests = requestRepository.findByProjectKey(project);
-        List<RequirementInfoDto> requirements = requests.stream()
-                .map(req -> new RequirementInfoDto(
-                        req.getId(),
-                        req.getName(),
-                        req.getDescription(),
-                        req.getPriorityKey().getName(),
-                        req.getMajorKey().getName(),
-                        req.getMiddleKey().getName(),
-                        req.getMinorKey().getName()))
-                .collect(Collectors.toList());
-
-        // API 목록 정보 조회 및 변환
-        List<ApiListEntity> apiLists = apiListRepository.findByProjectKey(project);
-        List<ApiInfoDto> apiInfos = apiLists.stream()
-                .map(this::convertApiEntityToDto)
-                .collect(Collectors.toList());
-
-        return new ProjectResponseDto(project.getId(), avalon,
-                project.getId(), requirements, apiInfos);
-    }
-
     // API 엔티티를 DTO로 변환 (파라미터 계층 구조 포함)
 
     private ApiInfoDto convertApiEntityToDto(ApiListEntity api) {
-        List<ParameterEntity> parameters = parameterRepository.findByApiListKey(api);
+        // JOIN FETCH로 파라미터와 부모를 한 번에 조회
+        List<ParameterEntity> parameters = parameterRepository.findByApiListKeyWithParent(api);
 
         // 파라미터 타입별로 분류하여 변환
         List<ParameterDetailDto> pathQueryParams = parameters.stream()
@@ -390,7 +437,6 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     // 파라미터 엔티티를 DTO로 변환 (Self-Join 관계 처리)
-
     private ParameterDetailDto convertParameterEntityToDto(ParameterEntity param) {
         ParameterDetailDto.ParameterDetailDtoBuilder builder = ParameterDetailDto.builder()
                 .nameKo(param.getNameKo())
@@ -401,6 +447,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .format(param.getFormat())
                 .defaultValue(param.getDefaultValue())
                 .required(param.getRequired())
+                // JOIN FETCH로 가져왔기 때문에 추가 쿼리 없이 부모 정보 사용 가능
                 .upper(param.getParentKey() != null ? param.getParentKey().getKey() : null)
                 .desc(param.getDescription());
 
@@ -411,48 +458,53 @@ public class ProjectServiceImpl implements ProjectService {
         return builder.build();
     }
 
-
-
     // 파라미터 목록을 DB에 저장 (Self-Join 구조 처리)
 
     @Transactional
     private void processParameterItems(ApiListEntity apiList, List<ParameterItem> paramItems, String paramType) {
-        for (ParameterItem paramItem : paramItems) {
-            if (isEmptyParameter(paramItem)) {
-                log.debug("빈 파라미터 데이터 스킵 - name: {}, nameKo: {}, dataType: {}",
-                        paramItem.getName(), paramItem.getNameKo(), paramItem.getDataType());
-                continue;
-            }
+        List<ParameterEntity> parameterEntities = createParameterEntitiesFromItems(apiList, paramItems, paramType);
+        // 배치 저장
+        parameterRepository.saveAll(parameterEntities);
+    }
 
-            log.info("파라미터 처리 중 - itemType: {}", paramItem.getItemType());
+    // 파라미터 엔티티들을 생성하는 메서드 (저장하지 않고 엔티티만 생성)
+    private List<ParameterEntity> createParameterEntitiesFromItems(ApiListEntity apiList, List<ParameterItem> paramItems, String paramType) {
+        // 카테고리와 컨텍스트를 미리 조회
+        CategoryEntity category = findCategory(paramType);
+        
+        return paramItems.stream()
+            .filter(paramItem -> !isEmptyParameter(paramItem))
+            .map(paramItem -> {
+                log.info("파라미터 엔티티 생성 중 - itemType: {}", paramItem.getItemType());
 
-            ParameterEntity.ParameterEntityBuilder builder = ParameterEntity.builder()
-                    .nameKo(paramItem.getNameKo())
-                    .name(paramItem.getName())
-                    .dataType(paramItem.getDataType())
-                    .format(paramItem.getFormat())
-                    .defaultValue(paramItem.getDefaultValue())
-                    .required(paramItem.getRequired())
-                    .description(paramItem.getDesc())
-                    .apiListKey(apiList)
-                    .categoryKey(findCategory(paramType))
-                    .contextKey(findContext(paramItem.getItemType()));
+                ParameterEntity.ParameterEntityBuilder builder = ParameterEntity.builder()
+                        .nameKo(paramItem.getNameKo())
+                        .name(paramItem.getName())
+                        .dataType(paramItem.getDataType())
+                        .format(paramItem.getFormat())
+                        .defaultValue(paramItem.getDefaultValue())
+                        .required(paramItem.getRequired())
+                        .description(paramItem.getDesc())
+                        .apiListKey(apiList)
+                        .categoryKey(category)
+                        .contextKey(findContext(paramItem.getItemType()));
 
-            if (paramItem.getLength() != null && paramItem.getLength() > 0) {
-                builder.length(paramItem.getLength());
-            }
-
-            if (paramItem.getUpper() != null) {
-                ParameterEntity parent = findParentParameter(paramItem.getUpper());
-                if (parent == null) {
-                    log.error("부모 파라미터를 찾을 수 없습니다. upper: {}", paramItem.getUpper());
-                    throw new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
+                if (paramItem.getLength() != null && paramItem.getLength() > 0) {
+                    builder.length(paramItem.getLength());
                 }
-                builder.parentKey(parent);
-            }
 
-            parameterRepository.save(builder.build());
-        }
+                if (paramItem.getUpper() != null) {
+                    ParameterEntity parent = findParentParameter(paramItem.getUpper());
+                    if (parent == null) {
+                        log.error("부모 파라미터를 찾을 수 없습니다. upper: {}", paramItem.getUpper());
+                        throw new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
+                    }
+                    builder.parentKey(parent);
+                }
+
+                return builder.build();
+            })
+            .collect(Collectors.toList());
     }
 
     // 카테고리 조회
