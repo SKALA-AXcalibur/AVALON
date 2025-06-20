@@ -3,7 +3,6 @@ package com.sk.skala.axcalibur.apitest.feature.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
 import lombok.Builder;
 
 @Builder
@@ -22,7 +21,7 @@ public record TestcaseInfoResponseDto(
     String isSuccess,
     @Nullable
     @Schema(description = "테스트케이스 수행 시간")
-    LocalDateTime excutedTime
+    Double excutedTime
 ) {
 
 }

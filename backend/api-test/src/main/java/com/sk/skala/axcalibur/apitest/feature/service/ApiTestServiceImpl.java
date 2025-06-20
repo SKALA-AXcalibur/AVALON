@@ -164,7 +164,7 @@ public class ApiTestServiceImpl implements ApiTestService {
           Integer id = entry.getKey();
           var tc = entry.getValue();
           String isSuccess;
-          LocalDateTime time = null;
+          Double time = null;
 
           if(!trMap.containsKey(id)) {
             isSuccess = "준비중";

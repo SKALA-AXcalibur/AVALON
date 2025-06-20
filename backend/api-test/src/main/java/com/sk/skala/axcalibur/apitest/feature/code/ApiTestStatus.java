@@ -1,5 +1,6 @@
 package com.sk.skala.axcalibur.apitest.feature.code;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum ApiTestStatus {
   CREATED("CREATED", "테스트 생성됨"),
@@ -25,5 +26,15 @@ public enum ApiTestStatus {
 
   public String getDesc() {
     return desc;
+  }
+
+  @JsonCreator
+  public static ApiTestStatus fromCode(String code) {
+    for (ApiTestStatus status : ApiTestStatus.values()) {
+      if (status.getCode().equalsIgnoreCase(code)) {
+        return status;
+      }
+    }
+    throw new IllegalArgumentException("Unknown status code: " + code);
   }
 }
