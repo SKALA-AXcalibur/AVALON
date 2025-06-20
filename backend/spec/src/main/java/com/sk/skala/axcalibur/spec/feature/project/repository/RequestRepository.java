@@ -30,4 +30,7 @@ public interface RequestRepository extends JpaRepository<RequestEntity, Integer>
 
     // request.id으로 요구사항 조회
     Optional<RequestEntity> findById(String id);
+
+    // request.id으로 요구사항 조회
+    List<RequestEntity> findByIdIn(List<String> ids);
 }
