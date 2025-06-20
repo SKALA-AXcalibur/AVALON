@@ -15,23 +15,41 @@ export const clientApiTestApi = {
     });
   },
   readApiTestResult: async (
-    cursor: number = 0,
-    size: number = 10
+    cursor?: string,
+    size?: number
   ): Promise<readApiTestResultResponse> => {
+    const searchParams: Record<string, string | number> = {};
+
+    if (cursor !== undefined) {
+      searchParams.cursor = cursor;
+    }
+    if (size !== undefined) {
+      searchParams.size = size;
+    }
+
     const response = await ky.get(`${BASE_URL}/result`, {
       credentials: "include",
-      searchParams: { cursor, size },
+      searchParams,
     });
     return response.json();
   },
   readApiTestScenarioResult: async (
     scenarioId: string,
-    cursor: number = 0,
-    size: number = 10
+    cursor?: string,
+    size?: number
   ): Promise<readApiTestScenarioResultResponse> => {
+    const searchParams: Record<string, string | number> = {};
+
+    if (cursor !== undefined) {
+      searchParams.cursor = cursor;
+    }
+    if (size !== undefined) {
+      searchParams.size = size;
+    }
+
     const response = await ky.get(`${BASE_URL}/result/${scenarioId}`, {
       credentials: "include",
-      searchParams: { cursor, size },
+      searchParams,
     });
     return response.json();
   },

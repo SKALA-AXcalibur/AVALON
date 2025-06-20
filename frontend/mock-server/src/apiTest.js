@@ -96,7 +96,7 @@ export const setupApiTestRoutes = (server, router) => {
   // 시나리오별 테스트 결과 조회
   server.get("/api/test/v1/result", (req, res) => {
     const avalon = req.cookies?.avalon;
-    const { cursor, size = 10 } = req.query;
+    const { cursor, size } = req.query;
 
     if (!avalon) {
       return res.status(401).json({ error: "Authentication required" });
@@ -113,7 +113,7 @@ export const setupApiTestRoutes = (server, router) => {
       (scenario) => "isSuccess" in scenario
     );
 
-    // cursor 기반 페이지네이션
+    // cursor 기반 페이지네이션 (cursor가 있을 때만)
     if (cursor) {
       const cursorIndex = scenarioList.findIndex(
         (scenario) => scenario.id === cursor
@@ -123,8 +123,13 @@ export const setupApiTestRoutes = (server, router) => {
       }
     }
 
-    // size만큼만 반환
-    scenarioList = scenarioList.slice(0, size);
+    // size만큼만 반환 (size가 있을 때만)
+    if (size) {
+      const sizeNum = parseInt(size, 10);
+      if (!isNaN(sizeNum) && sizeNum > 0) {
+        scenarioList = scenarioList.slice(0, sizeNum);
+      }
+    }
 
     // 응답 데이터 구성
     const response = {
@@ -142,7 +147,7 @@ export const setupApiTestRoutes = (server, router) => {
   server.get("/api/test/v1/result/:scenarioId", (req, res) => {
     const avalon = req.cookies?.avalon;
     const { scenarioId } = req.params;
-    const { cursor, size = 10 } = req.query;
+    const { cursor, size } = req.query;
 
     if (!avalon) {
       return res.status(401).json({ error: "Authentication required" });
@@ -168,7 +173,7 @@ export const setupApiTestRoutes = (server, router) => {
 
     let tcList = scenario.testcaseList;
 
-    // cursor 기반 페이지네이션
+    // cursor 기반 페이지네이션 (cursor가 있을 때만)
     if (cursor) {
       const cursorIndex = tcList.findIndex((tc) => tc.tcId === cursor);
       if (cursorIndex !== -1) {
@@ -176,8 +181,13 @@ export const setupApiTestRoutes = (server, router) => {
       }
     }
 
-    // size만큼만 반환
-    tcList = tcList.slice(0, size);
+    // size만큼만 반환 (size가 있을 때만)
+    if (size) {
+      const sizeNum = parseInt(size, 10);
+      if (!isNaN(sizeNum) && sizeNum > 0) {
+        tcList = tcList.slice(0, sizeNum);
+      }
+    }
 
     // 응답 데이터 구성
     const response = {
