@@ -53,4 +53,8 @@ public class ApiListEntity extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
     private ProjectEntity projectKey;             // 프로젝트 키 (N:1)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "request_key", nullable = false)
+    private RequestEntity requestKey;           // 요구사항 키 (N:1)
 }

@@ -3,6 +3,8 @@ package com.sk.skala.axcalibur.spec.feature.project.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.sk.skala.axcalibur.spec.feature.project.entity.ApiListEntity;
@@ -15,6 +17,10 @@ public interface ParameterRepository extends JpaRepository<ParameterEntity, Inte
 
     // API별 파라미터 목록 조회
     List<ParameterEntity> findByApiListKey(ApiListEntity apiListKey);
+
+    // Self-Join을 위한 JOIN FETCH 쿼리
+    @Query("SELECT p FROM ParameterEntity p LEFT JOIN FETCH p.parentKey WHERE p.apiListKey = :apiListKey")
+    List<ParameterEntity> findByApiListKeyWithParent(@Param("apiListKey") ApiListEntity apiListKey);
 
     // 카테고리별 파라미터 목록 조회
     List<ParameterEntity> findByCategoryKey(CategoryEntity categoryKey);
