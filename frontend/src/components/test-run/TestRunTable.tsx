@@ -1,7 +1,26 @@
 "use client";
 import { TestcaseResult } from "@/interfaces/apiTest";
 
-const TestRunTable = ({ testcaseList }: { testcaseList: TestcaseResult[] }) => {
+export const TestRunTable = ({
+  testcaseList,
+}: {
+  testcaseList: TestcaseResult[];
+}) => {
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case "성공":
+        return "bg-green-100 text-green-700";
+      case "실패":
+        return "bg-red-100 text-red-700";
+      case "실행중":
+        return "bg-yellow-100 text-yellow-700";
+      case "준비중":
+        return "bg-gray-100 text-gray-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
   return (
     <div className="bg-white border border-slate-200 rounded-lg mb-8 overflow-x-auto">
       <table className="min-w-full text-left table-fixed">
@@ -12,9 +31,6 @@ const TestRunTable = ({ testcaseList }: { testcaseList: TestcaseResult[] }) => {
             </th>
             <th className="w-[200px] px-4 py-2 text-xs font-bold text-slate-600">
               테스트 내용
-            </th>
-            <th className="w-[200px] px-4 py-2 text-xs font-bold text-slate-600">
-              입력 데이터
             </th>
             <th className="w-[200px] px-4 py-2 text-xs font-bold text-slate-600">
               기대 결과
@@ -36,30 +52,25 @@ const TestRunTable = ({ testcaseList }: { testcaseList: TestcaseResult[] }) => {
                   {tc.tcId}
                 </td>
                 <td className="px-4 py-2 text-sm text-slate-600 truncate">
-                  {tc.testDescription}
-                </td>
-                <td className="px-4 py-2 text-sm text-slate-600 truncate">
-                  {tc.inputData}
+                  {tc.description}
                 </td>
                 <td className="px-4 py-2 text-sm text-slate-600 truncate">
                   {tc.expectedResult}
                 </td>
                 <td className="px-4 py-2">
                   <span
-                    className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${
-                      tc.testResult
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
+                    className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle(
+                      tc.isSuccess
+                    )}`}
                   >
-                    {tc.testResult ? "성공" : "실패"}
+                    {tc.isSuccess}
                   </span>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan={5} className="px-4 py-16 text-center text-slate-500">
+              <td colSpan={4} className="px-4 py-16 text-center text-slate-500">
                 테스트 케이스가 없습니다.
               </td>
             </tr>
@@ -69,5 +80,3 @@ const TestRunTable = ({ testcaseList }: { testcaseList: TestcaseResult[] }) => {
     </div>
   );
 };
-
-export default TestRunTable;

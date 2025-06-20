@@ -1,48 +1,74 @@
 "use client";
 import Link from "next/link";
-import { ApiTestResult } from "@/interfaces/apiTest";
 import ActionButton from "@/components/common/ActionButton";
-import { useReadScenarioReport } from "@/hooks/test-run/readScenarioReport";
+import { useTestResultStore } from "@/store/testResult";
+import { useTestRun } from "@/hooks/useTestRun";
 
-const TestRunSidebar = ({
-  apiTestResult,
+export const TestRunSidebar = ({
+  projectId,
+  scenarioId,
 }: {
-  apiTestResult: ApiTestResult;
+  projectId: string;
+  scenarioId: string;
 }) => {
-  const { readScenarioReport, isLoading: isReadingScenarioReport } =
-    useReadScenarioReport();
+  const { testResult } = useTestResultStore();
+  const { readScenarioReport, loadingStates } = useTestRun(scenarioId);
+
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case "성공":
+        return {
+          icon: "check_circle",
+          className: "text-green-500",
+        };
+      case "실패":
+        return {
+          icon: "cancel",
+          className: "text-red-500",
+        };
+      case "실행중":
+        return {
+          icon: "pending",
+          className: "text-yellow-500",
+        };
+      case "준비중":
+        return {
+          icon: "schedule",
+          className: "text-gray-500",
+        };
+      default:
+        return {
+          icon: "help",
+          className: "text-gray-500",
+        };
+    }
+  };
 
   return (
     <aside className="w-72 bg-slate-50 border-r border-slate-200 flex flex-col">
       <div className="flex-1 p-6 overflow-y-auto">
-        {apiTestResult.scenarioList.map((s) => (
-          <Link
-            key={s.scenarioId}
-            href={`/project/${apiTestResult.projectId}/test-run/${s.scenarioId}`}
-          >
-            <div
+        {testResult.scenarioList.map((s) => {
+          const statusDisplay = getStatusDisplay(s.isSuccess);
+          return (
+            <Link
               key={s.scenarioId}
-              className="mb-8 flex items-center justify-between"
+              href={`/project/${projectId}/test-run/${s.scenarioId}`}
             >
-              <div className="font-bold text-slate-800">{s.scenarioName}</div>
-              <span
-                className={`material-icons ${
-                  s.scenarioExecution ? "text-green-500" : "text-red-500"
-                }`}
-              >
-                {s.scenarioExecution ? "pass" : "fail"}
-              </span>
-            </div>
-          </Link>
-        ))}
+              <div className="mb-8 flex items-center justify-between hover:bg-slate-100 p-2 rounded transition-colors">
+                <div className="font-bold text-slate-800">{s.scenarioName}</div>
+                <span className={`material-icons ${statusDisplay.className}`}>
+                  {statusDisplay.icon}
+                </span>
+              </div>
+            </Link>
+          );
+        })}
       </div>
       <div className="p-6 border-t border-slate-200">
         <ActionButton
-          onClick={() => {
-            readScenarioReport();
-          }}
+          onClick={readScenarioReport}
           color="w-full bg-emerald-500 hover:bg-emerald-600 justify-center"
-          isLoading={isReadingScenarioReport}
+          disabled={loadingStates.scenarioReport}
         >
           시나리오 다운로드
         </ActionButton>
@@ -50,5 +76,3 @@ const TestRunSidebar = ({
     </aside>
   );
 };
-
-export default TestRunSidebar;
