@@ -1,6 +1,5 @@
 package com.sk.skala.axcalibur.apitest.feature.config;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -38,13 +37,12 @@ public class RedisStreamConfig {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.registerModule(new JavaTimeModule()); // LocalDateTime 직렬화를 위한 모듈 추가
     objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // 날짜를 타임스탬프가 아닌 ISO-8601 형식으로 직렬화
-    objectMapper.activateDefaultTyping(objectMapper.getPolymorphicTypeValidator(),
-        ObjectMapper.DefaultTyping.NON_FINAL,
-        JsonTypeInfo.As.PROPERTY);
+    // 타입 정보 제거 - 역직렬화 문제 방지
 
     template.setConnectionFactory(redisConnectionFactory);
     var keySerializer = new StringRedisSerializer();
-    Jackson2JsonRedisSerializer<ApiTaskDto> serializer = new Jackson2JsonRedisSerializer<>(objectMapper, ApiTaskDto.class);
+    Jackson2JsonRedisSerializer<ApiTaskDto> serializer = new Jackson2JsonRedisSerializer<>(objectMapper,
+        ApiTaskDto.class);
 
     // 직렬화 설정
     // Key: String 형식으로 직렬화
@@ -63,4 +61,3 @@ public class RedisStreamConfig {
   }
 
 }
-
