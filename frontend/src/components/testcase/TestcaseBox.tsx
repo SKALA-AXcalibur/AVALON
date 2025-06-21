@@ -32,7 +32,7 @@ export const TestcaseBox = ({
 
   const onCreateSuccess = (tcId: string) => {
     router.push(
-      `/project/${projectId}/scenario/${scenarioId}/testcase/${tcId}`
+      `/project/${projectId}/scenario/${scenarioId}/testcase/${tcId}`,
     );
   };
 

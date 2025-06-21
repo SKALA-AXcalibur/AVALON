@@ -37,7 +37,7 @@ export const UploadBox = () => {
   const findFileByType = (type: keyof typeof FILE_TYPES) => {
     const { words } = FILE_TYPES[type];
     return files.find((file) =>
-      words.every((word) => file.name.normalize("NFC").includes(word))
+      words.every((word) => file.name.normalize("NFC").includes(word)),
     );
   };
 
@@ -73,7 +73,7 @@ export const UploadBox = () => {
     if (isLoading) {
       const totalSteps = Object.keys(STEP_NAMES).length;
       const currentStepIndex = Object.keys(STEP_NAMES).findIndex(
-        (stepKey) => Number(stepKey) === step
+        (stepKey) => Number(stepKey) === step,
       );
       const displayStep = currentStepIndex >= 0 ? currentStepIndex + 1 : 1;
 

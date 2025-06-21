@@ -16,7 +16,7 @@ export const clientApiTestApi = {
   },
   readApiTestResult: async (
     cursor?: string,
-    size?: number
+    size?: number,
   ): Promise<readApiTestResultResponse> => {
     const searchParams: Record<string, string | number> = {};
 
@@ -36,7 +36,7 @@ export const clientApiTestApi = {
   readApiTestScenarioResult: async (
     scenarioId: string,
     cursor?: string,
-    size?: number
+    size?: number,
   ): Promise<readApiTestScenarioResultResponse> => {
     const searchParams: Record<string, string | number> = {};
 

@@ -39,7 +39,7 @@ export const Sidebar = ({
 
   const handleTestcaseClick = (scenarioId: string, testcaseId: string) => {
     router.push(
-      `/project/${projectId}/scenario/${scenarioId}/testcase/${testcaseId}`
+      `/project/${projectId}/scenario/${scenarioId}/testcase/${testcaseId}`,
     );
   };
 

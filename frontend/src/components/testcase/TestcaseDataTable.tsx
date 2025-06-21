@@ -15,7 +15,7 @@ export const TestcaseDataTable = ({
     if (rows.length === 0 && testDataList.length > 0) {
       setRows(testDataList);
     }
-  }, [testDataList]);
+  }, [testDataList, rows]);
 
   const addRow = () => {
     const newRows = [...rows, { key: "", type: "string" as const, value: "" }];

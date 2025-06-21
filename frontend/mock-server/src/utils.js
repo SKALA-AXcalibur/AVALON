@@ -124,7 +124,7 @@ export const generateRandomTestDataValue = (type) => {
       return Math.random() > 0.5;
     case "date":
       return new Date(
-        Date.now() - Math.floor(Math.random() * 10000000000)
+        Date.now() - Math.floor(Math.random() * 10000000000),
       ).toISOString();
     case "array":
       return [1, 2, 3];

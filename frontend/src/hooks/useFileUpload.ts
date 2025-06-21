@@ -88,7 +88,7 @@ export const useFileUpload = (callbacks?: FileUploadCallbacks) => {
 
       while (currentStep !== UPLOAD_STEPS.COMPLETE) {
         const currentStepData = uploadSteps.find(
-          (s) => s.stepType === currentStep
+          (s) => s.stepType === currentStep,
         );
 
         if (!currentStepData) {
