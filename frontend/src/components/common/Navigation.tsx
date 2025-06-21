@@ -1,6 +1,6 @@
 "use client";
-import ActionButton from "@/components/common/ActionButton";
-import LinkButton from "@/components/common/LinkButton";
+import { ActionButton } from "@/components/common/ActionButton";
+import { LinkButton } from "@/components/common/LinkButton";
 import { useNavigation } from "@/hooks/useNavigation";
 import { useRouter } from "next/navigation";
 

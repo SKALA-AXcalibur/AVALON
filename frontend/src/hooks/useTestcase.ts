@@ -7,7 +7,7 @@ import { TestcaseInfo, TestData } from "@/interfaces/testcase";
 export const useTestcase = (
   projectId: string,
   scenarioId: string,
-  testcaseId: string
+  testcaseId: string,
 ) => {
   const { addTestcase, updateTestcase, deleteTestcase } = useProjectStore();
 

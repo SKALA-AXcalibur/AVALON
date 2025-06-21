@@ -1,4 +1,4 @@
-const ActionButton = ({
+export const ActionButton = ({
   onClick,
   color,
   disabled,
@@ -19,5 +19,3 @@ const ActionButton = ({
     </button>
   );
 };
-
-export default ActionButton;

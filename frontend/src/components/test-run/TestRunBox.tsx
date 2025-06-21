@@ -1,6 +1,6 @@
 "use client";
 import { TestRunTable } from "./TestRunTable";
-import ActionButton from "@/components/common/ActionButton";
+import { ActionButton } from "@/components/common/ActionButton";
 import { useTestRun } from "@/hooks/useTestRun";
 
 export const TestRunBox = ({ scenarioId }: { scenarioId: string }) => {

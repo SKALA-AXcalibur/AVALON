@@ -60,7 +60,7 @@ export const TestRunTable = ({
                 <td className="px-4 py-2">
                   <span
                     className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle(
-                      tc.isSuccess
+                      tc.isSuccess,
                     )}`}
                   >
                     {tc.isSuccess}

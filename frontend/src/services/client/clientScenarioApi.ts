@@ -18,7 +18,7 @@ export const clientScenarioApi = {
     return response.json();
   },
   createScenario: async (
-    scenario: createScenarioRequest
+    scenario: createScenarioRequest,
   ): Promise<createScenarioResponse> => {
     const response = await ky.post(`${BASE_URL}/`, {
       credentials: "include",
@@ -36,7 +36,7 @@ export const clientScenarioApi = {
   },
   updateScenario: async (
     scenarioId: string,
-    scenario: updateScenarioRequest
+    scenario: updateScenarioRequest,
   ): Promise<void> => {
     await ky.put(`${BASE_URL}/${scenarioId}`, {
       credentials: "include",
@@ -50,7 +50,7 @@ export const clientScenarioApi = {
   },
   readProjectScenarios: async (
     offset: number = 0,
-    query: number = 10
+    query: number = 10,
   ): Promise<readProjectScenariosResponse> => {
     const response = await ky.get(`${BASE_URL}/project`, {
       credentials: "include",

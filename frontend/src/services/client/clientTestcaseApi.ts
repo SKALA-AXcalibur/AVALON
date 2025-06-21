@@ -12,7 +12,7 @@ const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/tc/v1`;
 export const clientTestcaseApi = {
   createTestcase: async (
     scenarioId: string,
-    testcase: createTestcaseRequest
+    testcase: createTestcaseRequest,
   ): Promise<createTestcaseResponse> => {
     const response = await ky.post(`${BASE_URL}/scenario/${scenarioId}`, {
       credentials: "include",
@@ -28,7 +28,7 @@ export const clientTestcaseApi = {
   },
   updateTestcase: async (
     testcaseId: string,
-    testcase: updateTestcaseRequest
+    testcase: updateTestcaseRequest,
   ): Promise<void> => {
     await ky.put(`${BASE_URL}/${testcaseId}`, {
       credentials: "include",
@@ -48,7 +48,7 @@ export const clientTestcaseApi = {
   readScenarioTestcases: async (
     scenarioId: string,
     offset: number = 0,
-    query: number = 10
+    query: number = 10,
   ): Promise<readScenarioTestcasesResponse> => {
     const response = await ky.get(`${BASE_URL}/scenario/${scenarioId}`, {
       credentials: "include",

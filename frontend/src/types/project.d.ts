@@ -1,8 +1,6 @@
 import { Scenario } from "@/interfaces/scenario";
 
-type Project = {
+export type Project = {
   id: string;
   scenarios: Scenario[];
 };
-
-export type { Project };

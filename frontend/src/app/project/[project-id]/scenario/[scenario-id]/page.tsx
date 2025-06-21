@@ -1,4 +1,4 @@
-import ScenarioBox from "@/components/scenario/ScenarioBox";
+import { ScenarioBox } from "@/components/scenario/ScenarioBox";
 
 const ScenarioDetailPage = async ({
   params,

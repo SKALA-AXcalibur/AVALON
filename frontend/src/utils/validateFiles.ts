@@ -35,7 +35,7 @@ export const validateFiles = (files: File[]) => {
   const unmatchedFiles = files.filter((file) => {
     const normalizedName = file.name.normalize("NFC");
     return !Object.values(FILE_TYPES).some((config) =>
-      config.words.every((word) => normalizedName.includes(word))
+      config.words.every((word) => normalizedName.includes(word)),
     );
   });
 
@@ -43,7 +43,7 @@ export const validateFiles = (files: File[]) => {
     return {
       isValid: false,
       errorMessage: ERROR_MESSAGES.FILE_VALIDATION.UNMATCHED(
-        unmatchedFiles.map((f) => f.name)
+        unmatchedFiles.map((f) => f.name),
       ),
     };
   }
@@ -54,7 +54,7 @@ export const validateFiles = (files: File[]) => {
       isValid: false,
       errorMessage: ERROR_MESSAGES.FILE_VALIDATION.COUNT_MISMATCH(
         requiredFileCount,
-        files.length
+        files.length,
       ),
     };
   }

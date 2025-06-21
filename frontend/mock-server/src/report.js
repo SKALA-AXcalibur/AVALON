@@ -23,7 +23,7 @@ export const setupReportRoutes = (server, router) => {
       const reportPath = path.join(
         process.cwd(),
         "reports",
-        "시나리오 리포트.csv"
+        "시나리오 리포트.csv",
       );
 
       // 파일을 버퍼로 읽어오기
@@ -72,7 +72,7 @@ export const setupReportRoutes = (server, router) => {
       const reportPath = path.join(
         process.cwd(),
         "reports",
-        "테스트케이스 리포트.csv"
+        "테스트케이스 리포트.csv",
       );
 
       // 파일을 버퍼로 읽어오기

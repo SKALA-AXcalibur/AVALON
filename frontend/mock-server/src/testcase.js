@@ -86,7 +86,7 @@ export const setupTestcaseRoutes = (server, router) => {
 
     const tcList = scenario.testcaseList.slice(
       parseInt(offset, 10),
-      parseInt(offset, 10) + parseInt(query, 10)
+      parseInt(offset, 10) + parseInt(query, 10),
     );
     const tcTotal = scenario.testcaseList.length;
 
@@ -210,7 +210,7 @@ export const setupTestcaseRoutes = (server, router) => {
     let deleted = false;
     const updatedScenarioList = project.scenarioList.map((scenario) => {
       const updatedTestcaseList = scenario.testcaseList.filter(
-        (tc) => tc.tcId !== tcId
+        (tc) => tc.tcId !== tcId,
       );
       if (updatedTestcaseList.length !== scenario.testcaseList.length) {
         deleted = true;

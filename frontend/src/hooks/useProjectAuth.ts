@@ -34,7 +34,7 @@ export const useProjectAuth = () => {
   };
 
   const handleLogin = async (
-    onSuccess?: (scenarioId: string | null, total: number) => void
+    onSuccess?: (scenarioId: string | null, total: number) => void,
   ) => {
     try {
       setIsLoading(true);
@@ -54,7 +54,7 @@ export const useProjectAuth = () => {
 
       onSuccess?.(
         response.total > 0 ? response.scenarioList[0].id : null,
-        response.total
+        response.total,
       );
     } catch (error) {
       console.error("Login failed:", error);

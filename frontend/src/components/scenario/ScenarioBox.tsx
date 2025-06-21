@@ -1,12 +1,12 @@
 "use client";
-import ScenarioGraph from "./ScenarioGraph";
-import TextInputBox from "../common/TextInputBox";
-import LinkButton from "../common/LinkButton";
-import ActionButton from "../common/ActionButton";
+import { ScenarioGraph } from "./ScenarioGraph";
+import { TextInputBox } from "../common/TextInputBox";
+import { LinkButton } from "../common/LinkButton";
+import { ActionButton } from "../common/ActionButton";
 import { useScenario } from "@/hooks/useScenario";
 import { useRouter } from "next/navigation";
 
-const ScenarioBox = ({
+export const ScenarioBox = ({
   projectId,
   scenarioId,
 }: {
@@ -119,5 +119,3 @@ const ScenarioBox = ({
     </>
   );
 };
-
-export default ScenarioBox;

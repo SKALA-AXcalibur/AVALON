@@ -109,7 +109,7 @@ export const useScenario = (projectId: string, scenarioId: string) => {
   };
 
   const handleDelete = async (
-    onSuccess?: (scenarioId: string | null, total: number) => void
+    onSuccess?: (scenarioId: string | null, total: number) => void,
   ) => {
     try {
       setIsLoading(true);

@@ -130,7 +130,7 @@ export const setupScenarioRoutes = (server, router) => {
 
     // 시나리오 찾기
     const scenarioIndex = project.scenarioList.findIndex(
-      (s) => s.id === scenarioId
+      (s) => s.id === scenarioId,
     );
     if (scenarioIndex === -1) {
       return res.status(404).json({ error: "Scenario not found" });
@@ -242,7 +242,7 @@ export const setupScenarioRoutes = (server, router) => {
 
     const scenarioList = project.scenarioList.slice(
       parseInt(offset, 10),
-      parseInt(offset, 10) + parseInt(query, 10)
+      parseInt(offset, 10) + parseInt(query, 10),
     );
 
     res.json({

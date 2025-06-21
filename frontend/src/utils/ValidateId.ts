@@ -1,7 +1,7 @@
 import { ERROR_MESSAGES } from "@/constants/messages";
 
 export const validateId = (
-  id: string
+  id: string,
 ): { isValid: boolean; errorMessage?: string } => {
   if (!id) {
     return { isValid: false, errorMessage: ERROR_MESSAGES.ID_VALIDATION.EMPTY };

@@ -20,9 +20,8 @@ export const useTestRun = (scenarioId: string) => {
     const fetchScenarioResult = async () => {
       try {
         setLoadingStates((prev) => ({ ...prev, scenarioResult: true }));
-        const scenarioResult = await clientApiTestApi.readApiTestScenarioResult(
-          scenarioId
-        );
+        const scenarioResult =
+          await clientApiTestApi.readApiTestScenarioResult(scenarioId);
         setScenario(scenarioResult);
       } catch (error) {
         console.error(error);
