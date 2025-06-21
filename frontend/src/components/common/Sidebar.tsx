@@ -1,8 +1,8 @@
 "use client";
 import { useProjectStore } from "@/store/projectStore";
 import { useRouter } from "next/navigation";
-import LinkButton from "./LinkButton";
-import useReadScenarioTestcases from "@/hooks/testcase/readScenarioTestcases";
+import { LinkButton } from "./LinkButton";
+import { useProject } from "@/hooks/useProject";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { useEffect } from "react";
 
@@ -17,7 +17,7 @@ export const Sidebar = ({
   const { project } = useProjectStore();
   const { openScenarios, addOpenScenario, toggleOpenScenario, isOpen } =
     useSidebarStore();
-  const { readScenarioTestcases } = useReadScenarioTestcases();
+  const { readScenarioTestcases } = useProject();
 
   useEffect(() => {
     if (!isOpen(scenarioId)) {
@@ -39,7 +39,7 @@ export const Sidebar = ({
 
   const handleTestcaseClick = (scenarioId: string, testcaseId: string) => {
     router.push(
-      `/project/${projectId}/scenario/${scenarioId}/testcase/${testcaseId}`
+      `/project/${projectId}/scenario/${scenarioId}/testcase/${testcaseId}`,
     );
   };
 

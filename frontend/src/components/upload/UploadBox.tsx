@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FileInputBox } from "./FileInputBox";
 import { FileListItem } from "./FileListItem";
-import ActionButton from "../common/ActionButton";
+import { ActionButton } from "../common/ActionButton";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import { useProjectStore } from "@/store/projectStore";
 import { validateFiles } from "@/utils/validateFiles";
@@ -37,7 +37,7 @@ export const UploadBox = () => {
   const findFileByType = (type: keyof typeof FILE_TYPES) => {
     const { words } = FILE_TYPES[type];
     return files.find((file) =>
-      words.every((word) => file.name.normalize("NFC").includes(word))
+      words.every((word) => file.name.normalize("NFC").includes(word)),
     );
   };
 
@@ -73,7 +73,7 @@ export const UploadBox = () => {
     if (isLoading) {
       const totalSteps = Object.keys(STEP_NAMES).length;
       const currentStepIndex = Object.keys(STEP_NAMES).findIndex(
-        (stepKey) => Number(stepKey) === step
+        (stepKey) => Number(stepKey) === step,
       );
       const displayStep = currentStepIndex >= 0 ? currentStepIndex + 1 : 1;
 

@@ -1,4 +1,4 @@
-const TextInputBox = ({
+export const TextInputBox = ({
   title,
   value,
   placeholder,
@@ -21,5 +21,3 @@ const TextInputBox = ({
     </div>
   );
 };
-
-export default TextInputBox;

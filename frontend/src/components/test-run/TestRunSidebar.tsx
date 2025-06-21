@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import ActionButton from "@/components/common/ActionButton";
+import { ActionButton } from "@/components/common/ActionButton";
 import { useTestResultStore } from "@/store/testResult";
 import { useTestRun } from "@/hooks/useTestRun";
 
