@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { TestData } from "@/interfaces/testcase";
 
-const TestcaseDataTable = ({
+export const TestcaseDataTable = ({
   testDataList,
   onTestDataListChange,
 }: {
@@ -121,5 +121,3 @@ const TestcaseDataTable = ({
     </div>
   );
 };
-
-export default TestcaseDataTable;

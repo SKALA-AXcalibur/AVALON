@@ -1,8 +1,8 @@
 "use client";
-import TestcaseDataTable from "./TestcaseDataTable";
-import TextInputBox from "../common/TextInputBox";
-import LinkButton from "../common/LinkButton";
-import ActionButton from "../common/ActionButton";
+import { TestcaseDataTable } from "./TestcaseDataTable";
+import { TextInputBox } from "../common/TextInputBox";
+import { LinkButton } from "../common/LinkButton";
+import { ActionButton } from "../common/ActionButton";
 import { useTestcase } from "@/hooks/useTestcase";
 import { useRouter } from "next/navigation";
 

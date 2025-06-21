@@ -1,7 +1,7 @@
 "use client";
 import { useProjectStore } from "@/store/projectStore";
 import { useRouter } from "next/navigation";
-import LinkButton from "./LinkButton";
+import { LinkButton } from "./LinkButton";
 import { useProject } from "@/hooks/useProject";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { useEffect } from "react";

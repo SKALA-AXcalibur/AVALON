@@ -1,4 +1,4 @@
-const ScenarioGraph = ({ graph }: { graph: string }) => {
+export const ScenarioGraph = ({ graph }: { graph: string }) => {
   return (
     <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 mb-4">
       {/* mermaid 코드 기반 그래프 출력 */}
@@ -12,5 +12,3 @@ const ScenarioGraph = ({ graph }: { graph: string }) => {
     </div>
   );
 };
-
-export default ScenarioGraph;

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FileInputBox } from "./FileInputBox";
 import { FileListItem } from "./FileListItem";
-import ActionButton from "../common/ActionButton";
+import { ActionButton } from "../common/ActionButton";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import { useProjectStore } from "@/store/projectStore";
 import { validateFiles } from "@/utils/validateFiles";
