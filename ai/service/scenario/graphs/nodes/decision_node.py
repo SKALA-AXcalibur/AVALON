@@ -34,7 +34,7 @@ def should_regenerate(
             return "failed"
 
         # 80점 이상이면 완료
-        if overall_score >= 90:
+        if overall_score >= 80:
             logging.info("검증 통과 - 완료")
             return "complete"
 
