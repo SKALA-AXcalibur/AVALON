@@ -9,29 +9,27 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 파라미터 저장 테이블
+ * 데이터베이스의 'parameter' 테이블과 매핑
+ */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "parameter", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"id"})
-})
+@Table(name = "parameter")
 public class ParameterEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
     private Integer key;                 // 파라미터 키 (PK, AUTO_INCREMENT)
-    
-    @Column(name = "id", nullable = false, length = 30)
-    private String id;                   // 파라미터 ID (UNIQUE)
 
     @Column(name = "name_ko", length = 100)
     private String nameKo;              // 파라미터 한글명

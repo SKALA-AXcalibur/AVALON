@@ -39,6 +39,6 @@ public class TestCaseDataEntity {
     @JoinColumn(name = "parameter_key", nullable = false)
     private ParameterEntity parameterKey;   // parameter 정보
 
-    @Column(name = "value", length = 50)
+    @Column(name = "value", columnDefinition = "TEXT")
     private String value;                   // 데이터 값
 }

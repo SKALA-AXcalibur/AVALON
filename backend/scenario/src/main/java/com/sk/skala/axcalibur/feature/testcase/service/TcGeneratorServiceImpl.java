@@ -8,10 +8,13 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.sk.skala.axcalibur.feature.testcase.dto.request.ApiParamDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
@@ -58,13 +61,23 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
     private final TestCaseDataRepository testcaseDataRepository;
     private final TestCaseRepository testcaseRepository;
     
+    // FastAPI로 생성 요청 전송하는 함수
     @Override
     public TestcaseGenerationResponse callFastApi(TcRequestPayload payload, ScenarioEntity scenario) {
         HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
         HttpEntity<TcRequestPayload> requestEntity = new HttpEntity<>(payload, headers);
 
-        String url = String.format("%s/%s", fastApiBaseUrl, scenario.getScenarioId());
+        // fastAPI 서버/api/tc/v1/{scenarioId} 로 요청 전송
+        String url = UriComponentsBuilder
+            .fromUriString(fastApiBaseUrl)
+            .pathSegment(scenario.getScenarioId().toString())
+            .build()
+            .toUriString();
+
         log.info("sending url: {}", url);
+
         try {
             ResponseEntity<TestcaseGenerationResponse> response = restTemplate.exchange(
                 url,
@@ -85,8 +98,11 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
         }
     }
     
+    // fastAPI로부터 생성 내용 응답 받아 저장하는 함수
+    @Transactional
     @Override
     public void saveTestcases(TestcaseGenerationResponse response) {
+        // category와 context 탐색 결과 저장해두는 cache용 hashmap
         Map<String, CategoryEntity> categoryCache = new HashMap<>();
         Map<String, ContextEntity> contextCache = new HashMap<>();
 
@@ -106,23 +122,33 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
                 .build();
             testcaseRepository.save(testcase);
 
-            // 파라미터 이름 기준 저장된 엔티티 저장할 map(상위항목)
+            // 파라미터 이름 기준 저장된 엔티티 저장할 map(상위항목 탐색 용)
             Map<String, ParameterEntity> savedParamMap = new HashMap<>();
+
+            // TC parameter가 없는 경우
+            if (tcData.getTestDataList().isEmpty()) {
+                log.warn("TC {}는 테스트 파라미터가 없습니다", tcData.getTcId());
+            }
 
             for (TestcaseParamDto paramDto : tcData.getTestDataList()) {
                 ApiParamDto param = paramDto.getParam();
+                
+                // 빈 리스트가 아닐 경우 이름, 타입에 대한 존재 여부 검증 수행
+                validateParam(param);
 
-                CategoryEntity category = categoryCache.computeIfAbsent(
-                    param.getCategory(),
+                String categoryName = param.getCategory().trim();
+                CategoryEntity category = categoryCache.computeIfAbsent( // 캐시된 카테고리 조회, 없으면 DB에서 조회
+                    categoryName,
                     name -> categoryRepository.findByName(name)
-                        .orElseThrow(() -> new BusinessExceptionHandler("카테고리 없음", ErrorCode.NOT_FOUND_ERROR))
+                        .orElseThrow(() -> new BusinessExceptionHandler("카테고리 없음: " + name, ErrorCode.NOT_FOUND_ERROR))
                 );
-                ContextEntity context = contextCache.computeIfAbsent(
+
+                ContextEntity context = contextCache.computeIfAbsent( // 캐시된 항목 유형 조회, 없으면 DB에서 조회
                     param.getContext(),
                     name -> contextRepository.findByName(name)
                         .orElseThrow(() -> new BusinessExceptionHandler("컨텍스트 없음", ErrorCode.NOT_FOUND_ERROR))
                 );
-                
+
                 // 상위 항목 처리
                 ParameterEntity parent = param.getParent() != null
                     ? savedParamMap.get(param.getParent()) : null;
@@ -143,7 +169,8 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
                         .parentKey(parent)
                         .build()
                 );
-
+                
+                // 저장된 parameter는 이후 상위항목 조회를 위해 map에 저장
                 savedParamMap.put(param.getName(), parameter);
 
                 testcaseDataRepository.save(
@@ -154,6 +181,19 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
                         .build()
                 );
             }
+        }
+    }
+    
+    // Not Null이여야되는 파라미터 항목 여부 검증
+    private void validateParam(ApiParamDto param) {
+        if (param.getName() == null || param.getName().isBlank()) {
+            throw new BusinessExceptionHandler("파라미터 name 누락", ErrorCode.BAD_REQUEST_ERROR);
+        }
+        if (param.getType() == null) {
+            throw new BusinessExceptionHandler("파라미터 type 누락", ErrorCode.BAD_REQUEST_ERROR);
+        }
+        if (param.getRequired() == null) {
+            throw new BusinessExceptionHandler("파라미터 필수 여부 누락", ErrorCode.BAD_REQUEST_ERROR);
         }
     }
 }
