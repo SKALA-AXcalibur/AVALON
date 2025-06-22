@@ -17,6 +17,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 시나리오 항목 테이블
+ * 데이터베이스의 'scenario' 테이블과 매핑
+ */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

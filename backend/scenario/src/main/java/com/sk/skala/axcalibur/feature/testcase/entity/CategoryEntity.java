@@ -14,6 +14,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 데이터 파라미터의 항목 저장 테이블
+ * 데이터베이스의 'category' 테이블과 매핑
+ */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
