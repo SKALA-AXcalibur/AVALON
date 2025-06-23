@@ -103,10 +103,11 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
     @Transactional
     @Override
     public void saveTestcases(TestcaseGenerationResponse response) {
-        // category와 context 탐색 결과 저장해두는 cache용 hashmap
+        // category와 context 탐색 결과 저장하는 캐싱용 hashmap 정의
         Map<String, CategoryEntity> categoryCache = new HashMap<>();
         Map<String, ContextEntity> contextCache = new HashMap<>();
 
+        // 안정적인 parent-key 탐색 위해 2-pass 방식으로 저장 진행
         for (TestcaseDataDto tcData: response.getTcList()) {
             // 매핑표 ID로 매핑 정보 조회
             MappingEntity mapping = mappingRepository.findById(tcData.getMappingId())
@@ -125,8 +126,10 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
 
             // 파라미터 이름 기준 저장된 엔티티 저장할 map(상위항목 탐색 용)
             Map<String, ParameterEntity> savedParamMap = new HashMap<>();
+            
+            // 1st pass: ParameterEntity 먼저 저장
 
-            // TC parameter가 없는 경우
+            // TC parameter가 없는 경우(로깅용)
             if (tcData.getTestDataList().isEmpty()) {
                 log.warn("TC {}는 테스트 파라미터가 없습니다", tcData.getTcId());
             }
@@ -144,18 +147,14 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
                         .orElseThrow(() -> new BusinessExceptionHandler("카테고리 없음: " + name, ErrorCode.NOT_FOUND_ERROR))
                 );
                 
+                ApiListEntity apiList = mapping.getApiListKey();
+
                 ContextEntity context = contextCache.computeIfAbsent( // 캐시된 항목 유형 조회, 없으면 DB에서 조회
                     param.getContext(),
                     name -> contextRepository.findByName(name)
                         .orElseThrow(() -> new BusinessExceptionHandler("컨텍스트 없음", ErrorCode.NOT_FOUND_ERROR))
                 );
-
-                // 상위 항목 처리
-                ParameterEntity parent = param.getParent() != null
-                    ? savedParamMap.get(param.getParent()) : null;
-                
                 // key와 name으로 parameter 찾기(parameter 중복 저장 방지)
-                ApiListEntity apiList = mapping.getApiListKey();
                 ParameterEntity parameter;
 
                 if (param.getParamId() != null) {
@@ -178,13 +177,27 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
                                 .categoryKey(category)
                                 .contextKey(context)
                                 .apiListKey(apiList)
-                                .parentKey(parent)
+                                .parentKey(null)
                                 .build()
                         ));
                 }
                 
                 // 저장된 parameter는 이후 상위항목 조회를 위해 map에 저장
                 savedParamMap.put(param.getName(), parameter);
+            }
+            
+            // 2nd pass: parentKey 연결 및 TestCaseDataEntity 저장
+            for (TestcaseParamDto paramDto : tcData.getTestDataList()) {
+                ApiParamDto param = paramDto.getParam();
+                ParameterEntity parameter = savedParamMap.get(param.getName());
+
+                if (param.getParent() != null) {
+                    ParameterEntity parent = savedParamMap.get(param.getParent());
+                    if (parameter.getParentKey() == null && parent != null) {
+                        parameter.setParentKey(parent);
+                        parameterRepository.save(parameter); // 다시 저장하여 parentKey 반영
+                    }
+                }
 
                 testcaseDataRepository.save(
                     TestCaseDataEntity.builder()
