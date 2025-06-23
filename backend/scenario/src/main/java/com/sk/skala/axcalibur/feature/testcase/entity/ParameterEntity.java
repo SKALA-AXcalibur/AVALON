@@ -14,12 +14,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 파라미터 저장 테이블
  * 데이터베이스의 'parameter' 테이블과 매핑
+ * 부모키 조회 -> 저장 위해 Setter 정의
  */
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

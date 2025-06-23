@@ -20,6 +20,7 @@ import com.sk.skala.axcalibur.feature.testcase.service.TcGeneratorService;
 import com.sk.skala.axcalibur.feature.testcase.service.TcPayloadService;
 
 import com.sk.skala.axcalibur.global.code.SuccessCode;
+import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -53,15 +54,20 @@ public class TcGeneratorControllerImpl implements TcGeneratorController {
         List<ScenarioEntity> scenarios = tcPayloadService.getScenarios(projectId);
 
         // 시나리오별 테스트케이스 생성 로직
+        // 저장에 실패할 경우 에러메시지를 띄우고 다음 시나리오로 넘어감
         for (ScenarioEntity scenario : scenarios) {
-            // payload 조립
-            TcRequestPayload payload = tcPayloadService.buildPayload(scenario);
-            
-            // FastAPI 호출
-            TestcaseGenerationResponse response = tcGeneratorService.callFastApi(payload, scenario);
-            
-            // 결과 저장
-            tcGeneratorService.saveTestcases(response);
+            try {
+                // payload 조립
+                TcRequestPayload payload = tcPayloadService.buildPayload(scenario);
+                // FastAPI 호출
+                TestcaseGenerationResponse response = tcGeneratorService.callFastApi(payload, scenario);
+                // 결과 저장
+                tcGeneratorService.saveTestcases(response);
+            } catch (BusinessExceptionHandler e) {
+                log.warn("[시나리오 {}] 비즈니스 예외 발생: {}", scenario.getScenarioId(), e.getMessage());
+            } catch (Exception e) {
+                log.error("[시나리오 {}] 처리 중 예상치 못한 예외 발생", scenario.getScenarioId(), e);
+            }
         }
         
         // 응답시간 헤더에 반환
