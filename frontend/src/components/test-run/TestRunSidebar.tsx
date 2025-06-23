@@ -1,18 +1,9 @@
 "use client";
 import Link from "next/link";
-import { ActionButton } from "@/components/common/ActionButton";
 import { useTestResultStore } from "@/store/testResult";
-import { useTestRun } from "@/hooks/useTestRun";
 
-export const TestRunSidebar = ({
-  projectId,
-  scenarioId,
-}: {
-  projectId: string;
-  scenarioId: string;
-}) => {
+export const TestRunSidebar = ({ projectId }: { projectId: string }) => {
   const { testResult } = useTestResultStore();
-  const { readScenarioReport, loadingStates } = useTestRun(scenarioId);
 
   const getStatusDisplay = (status: string) => {
     switch (status) {
@@ -63,15 +54,6 @@ export const TestRunSidebar = ({
             </Link>
           );
         })}
-      </div>
-      <div className="p-6 border-t border-slate-200">
-        <ActionButton
-          onClick={readScenarioReport}
-          color="w-full bg-emerald-500 hover:bg-emerald-600 justify-center"
-          disabled={loadingStates.scenarioReport}
-        >
-          시나리오 다운로드
-        </ActionButton>
       </div>
     </aside>
   );

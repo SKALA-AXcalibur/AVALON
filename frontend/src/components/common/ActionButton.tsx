@@ -1,19 +1,26 @@
+import { ComponentProps } from "react";
+
+interface ActionButtonProps extends ComponentProps<"button"> {
+  children: React.ReactNode;
+  color?: string;
+  loading?: boolean;
+}
+
 export const ActionButton = ({
-  onClick,
+  children,
   color,
   disabled,
-  children,
-}: {
-  onClick: () => void | Promise<void>;
-  color: string;
-  disabled?: boolean;
-  children: React.ReactNode;
-}) => {
+  ...props
+}: ActionButtonProps) => {
+  const baseStyle =
+    "px-4 py-2 rounded-md font-bold transition-colors duration-200 cursor-pointer disabled:cursor-not-allowed";
+  const defaultColor = "text-slate-700 bg-transparent hover:text-red-600";
+
   return (
     <button
-      onClick={onClick}
-      className={`${color} text-white rounded-lg px-4 py-2 flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+      className={`${baseStyle} ${color || defaultColor}`}
       disabled={disabled}
+      {...props}
     >
       {children}
     </button>
