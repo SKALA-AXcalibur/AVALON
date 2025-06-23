@@ -28,7 +28,7 @@ import org.springframework.test.context.TestPropertySource;
         "logging.level.com.sk.skala.axcalibur.apitest.feature.service.RedisStreamListener=WARN"
 })
 @DisplayName("Redis Streams 성능 테스트")
-// @EnabledIfSystemProperty(named = "performance.test", matches = "true")
+@EnabledIfSystemProperty(named = "performance.test", matches = "true")
 class RedisStreamPerformanceTest {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
