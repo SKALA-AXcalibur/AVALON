@@ -1,6 +1,8 @@
 package com.sk.skala.axcalibur.feature.testcase.service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -44,22 +46,36 @@ public class TcPayloadServiceImpl implements TcPayloadService{
     // fastAPI로 보낼 TcRequestPayload 형식의 객체 조합하는 함수
     @Override
     public TcRequestPayload buildPayload(ScenarioEntity scenario) {
-        // 1. API매핑표 관련 정보 조회
+        // API매핑표 관련 정보 조회
         List<MappingEntity> mappings = mappingRepository.findByScenarioKey_Id(scenario.getId());
 
-        // 2. 각 API별로 파라미터 조회 및 DTO 조립
+        // 해당 시나리오에서 참조되는 모든 API id 모음
+        List<Integer> apiIds = mappings.stream()
+                                        .map(m -> m.getApiListKey().getId())
+                                        .toList();
+
+        // 필요한 파라미터 정보 미리 가져오기
+        Map<Integer, List<ParameterEntity>> paramMapByApiId =
+                parameterRepository.findByApiListKey_IdIn(apiIds).stream()
+                .collect(Collectors.groupingBy(p -> p.getApiListKey().getId()));
+
+        // 각 API별로 파라미터 조회 및 DTO 조립
         List<ApiMappingDto> apiMappingList = mappings.stream()
-            .map(mapping -> {
-                ApiListEntity api = mapping.getApiListKey();
-                List<ParameterEntity> params = parameterRepository.findByApiListKey_Id(api.getId());
+        .map(mapping -> {
 
-                List<ApiParamDto> paramDtoList = params.stream()
-                    .map(param -> {
-                        if (param.getCategoryKey() == null || param.getContextKey() == null) {
-                            throw new BusinessExceptionHandler("파라미터의 category/context 정보가 유효하지 않습니다.", ErrorCode.NOT_VALID_ERROR);
-                        }
+            ApiListEntity api = mapping.getApiListKey();
+            List<ParameterEntity> params = paramMapByApiId
+                    .getOrDefault(api.getId(), Collections.emptyList());
 
-                        return ApiParamDto.builder()
+            // 파라미터 DTO 변환
+            List<ApiParamDto> paramDtoList = params.stream()
+                .map(param -> {
+                    if (param.getCategoryKey() == null || param.getContextKey() == null) {
+                        throw new BusinessExceptionHandler(
+                                "파라미터의 category/context 정보가 유효하지 않습니다.",
+                                ErrorCode.NOT_VALID_ERROR);
+                    }
+                    return ApiParamDto.builder()
                             .paramId(param.getId())
                             .category(param.getCategoryKey().getName())
                             .koName(param.getNameKo())
@@ -70,13 +86,16 @@ public class TcPayloadServiceImpl implements TcPayloadService{
                             .format(param.getFormat())
                             .defaultValue(param.getDefaultValue())
                             .required(param.getRequired())
-                            .parent(param.getParentKey() != null ? param.getParentKey().getName() : null)
+                            .parent(param.getParentKey() != null
+                                    ? param.getParentKey().getName()
+                                    : null)
                             .desc(param.getDescription())
                             .build();
-                    })
-                    .collect(Collectors.toList());
+                })
+                .toList();
 
-                return ApiMappingDto.builder()
+            // ApiMappingDto 변환
+            return ApiMappingDto.builder()
                     .mappingId(mapping.getId())
                     .step(mapping.getStep())
                     .name(api.getName())
@@ -86,8 +105,9 @@ public class TcPayloadServiceImpl implements TcPayloadService{
                     .desc(api.getDescription())
                     .paramList(paramDtoList)
                     .build();
-            })
-            .collect(Collectors.toList());
+        })
+        .toList();
+
         
         // 3. 최종 요청 DTO 조립
         return TcRequestPayload.builder()

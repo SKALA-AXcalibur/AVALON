@@ -2,7 +2,6 @@ package com.sk.skala.axcalibur.feature.testcase.controller;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.http.HttpHeaders;
@@ -45,7 +44,7 @@ public class TcGeneratorControllerImpl implements TcGeneratorController {
 
     @Override
     @PostMapping
-    public ResponseEntity<SuccessResponse<List<Object>>> generateTestCases(@CookieValue("avalon") String key) {
+    public ResponseEntity<SuccessResponse<Void>> generateTestCases(@CookieValue("avalon") String key) {
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
         Integer projectId = projectIdResolverService.resolveProjectId(key);
 
@@ -56,11 +55,12 @@ public class TcGeneratorControllerImpl implements TcGeneratorController {
         // 시나리오별 테스트케이스 생성 로직
         // 저장에 실패할 경우 에러메시지를 띄우고 다음 시나리오로 넘어감
         for (ScenarioEntity scenario : scenarios) {
+            // payload 조립
+            TcRequestPayload payload = tcPayloadService.buildPayload(scenario);
+            // FastAPI 호출
+            TestcaseGenerationResponse response = tcGeneratorService.callFastApi(payload, scenario);
+
             try {
-                // payload 조립
-                TcRequestPayload payload = tcPayloadService.buildPayload(scenario);
-                // FastAPI 호출
-                TestcaseGenerationResponse response = tcGeneratorService.callFastApi(payload, scenario);
                 // 결과 저장
                 tcGeneratorService.saveTestcases(response);
             } catch (BusinessExceptionHandler e) {
@@ -76,8 +76,8 @@ public class TcGeneratorControllerImpl implements TcGeneratorController {
         return ResponseEntity
         .status(SuccessCode.INSERT_SUCCESS.getStatus())
         .headers(headers)
-        .body(SuccessResponse.<List<Object>>builder()
-            .data(Collections.emptyList())  // 빈 리스트 반환
+        .body(SuccessResponse.<Void>builder()
+            .data(null)  // 빈 객체 반환
             .status(SuccessCode.INSERT_SUCCESS)
             .message(SuccessCode.INSERT_SUCCESS.getMessage())
             .build());

@@ -22,7 +22,7 @@ public class ProjectIdResolverServiceImpl implements ProjectIdResolverService {
 
     public Integer resolveProjectId(String key) {
         AvalonCookieEntity cookie = avalonCookieRepository.findById(key)
-            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_VALID_COOKIE_ERROR));
+            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_COOKIE_ERROR));
 
         return cookie.getProjectKey();
     }
