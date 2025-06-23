@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/tc/v1")
 @RequiredArgsConstructor
 @Slf4j
-public class TcGeneratorControllerImpl implements TcGeneratorContoller {
+public class TcGeneratorControllerImpl implements TcGeneratorController {
     private final ProjectIdResolverService projectIdResolverService;
     private final TcPayloadService tcPayloadService;
     private final TcGeneratorService tcGeneratorService;

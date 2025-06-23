@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiParamDto {
+    private Integer paramId;        // 파라미터 ID
     private String category;        // 파라미터 항목
     private String koName;          // 한글명
     private String name;            // 영문명
