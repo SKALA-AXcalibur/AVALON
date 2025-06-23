@@ -30,7 +30,7 @@ public class DbColumnEntity extends BaseTimeEntity {
     private Integer key;
 
     @Column(name = "col_name", nullable = false, length = 20)
-    private String col_name;
+    private String colName;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
