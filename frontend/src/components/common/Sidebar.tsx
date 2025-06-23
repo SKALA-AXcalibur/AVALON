@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useProject } from "@/hooks/useProject";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { useEffect } from "react";
+import { FaCaretDown, FaCaretRight } from "react-icons/fa";
 
 export const Sidebar = ({
   projectId,
@@ -52,11 +53,15 @@ export const Sidebar = ({
                 className="mr-2 focus:outline-none text-xl cursor-pointer"
                 onClick={() => handleToggleClick(scenario.id)}
               >
-                {scenario.testcases.length > 0
-                  ? openScenarios.has(scenario.id)
-                    ? "⏷"
-                    : "⏵"
-                  : "⏵"}
+                {scenario.testcases.length > 0 ? (
+                  openScenarios.has(scenario.id) ? (
+                    <FaCaretDown />
+                  ) : (
+                    <FaCaretRight />
+                  )
+                ) : (
+                  <FaCaretRight />
+                )}
               </button>
               <span
                 className={`cursor-pointer hover:text-red-600 ${
@@ -77,7 +82,7 @@ export const Sidebar = ({
                         handleTestcaseClick(scenario.id, testcase.tcId)
                       }
                       className={
-                        "block rounded-lg px-4 py-2 text-slate-600 hover:bg-red-50 cursor-pointer text-sm"
+                        "block rounded-lg px-4 py-2 text-slate-600 hover:bg-slate-100 cursor-pointer text-sm"
                       }
                     >
                       {testcase.tcId}
