@@ -19,7 +19,7 @@ import org.springframework.data.redis.core.StreamOperations;
 class RedisStreamInitializerTest {
 
     @Mock
-    private RedisTemplate<String, ApiTaskDto> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Mock
     private StreamOperations<String, Object, Object> streamOperations;
@@ -36,7 +36,7 @@ class RedisStreamInitializerTest {
     void initializeStreamAndGroup_shouldCreateGroup_whenSuccessful() {
         // Given
         when(streamOperations.createGroup(eq(StreamConstants.STREAM_KEY), eq(StreamConstants.GROUP_NAME)))
-            .thenReturn("OK");
+                .thenReturn("OK");
 
         // When
         redisStreamInitializer.initializeStreamAndGroup();

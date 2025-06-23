@@ -13,38 +13,23 @@ import com.sk.skala.axcalibur.apitest.feature.repository.ScenarioRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepositoryCustom;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepositoryCustom;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class ApiTestServiceImpl implements ApiTestService {
   private final TestcaseRepository tc;
   private final TestcaseRepositoryCustom tcCustom;
   private final TestcaseResultRepositoryCustom trCustom;
   private final ScenarioRepository scene;
-  private final RedisTemplate<String, ApiTaskDto> apiTask;
-
-  public ApiTestServiceImpl(
-      TestcaseRepository tc,
-      TestcaseRepositoryCustom tcCustom,
-      TestcaseResultRepositoryCustom trCustom,
-      ScenarioRepository scene,
-      @Qualifier("apiTaskRedisTemplate") RedisTemplate<String, ApiTaskDto> apiTask) {
-    this.tc = tc;
-    this.tcCustom = tcCustom;
-    this.trCustom = trCustom;
-    this.scene = scene;
-    this.apiTask = apiTask;
-  }
-
 
   @Override
   public List<String> excuteTestService(ExcuteTestServiceRequestDto dto) {
@@ -64,7 +49,6 @@ public class ApiTestServiceImpl implements ApiTestService {
     // 테스트케이스 ID 기반으로 테스트케이스 결과 칼럼 생성(생성일자은 지금으로 동일하게 고정)
     // redis stream에 작업 목록 추가
     // 작업 목록 추가된 테스트케이스 ID 리스트 반환
-
 
     return List.of();
   }
@@ -98,8 +82,7 @@ public class ApiTestServiceImpl implements ApiTestService {
     // dtoList를 scenarioId 기준으로 그룹핑 (중복 방지, 성능 개선)
     var scenarioMap = scenarios.stream().collect(Collectors.toMap(
         ScenarioEntity::getScenarioId,
-        scene -> scene
-    ));
+        scene -> scene));
 
     var dtoMap = dtoList.stream().collect(Collectors.groupingBy(TestcaseSuccessResponseDto::scenarioId));
     return dtoMap.entrySet().stream()
@@ -109,7 +92,7 @@ public class ApiTestServiceImpl implements ApiTestService {
           var list = entry.getValue();
           String success;
 
-          if(list.stream().anyMatch(t -> Boolean.FALSE.equals(t.success()))) {
+          if (list.stream().anyMatch(t -> Boolean.FALSE.equals(t.success()))) {
             success = "실패";
           } else if (list.stream().anyMatch(t -> t.success() == null)) {
             success = "실행중";
@@ -149,8 +132,9 @@ public class ApiTestServiceImpl implements ApiTestService {
       var cursor = dto.cursor() == null ? "" : dto.cursor();
       var size = dto.size();
       var page = PageRequest.of(0, size, Sort.by("id").ascending());
-      testcases = tc.findByMapping_Scenario_ProjectKeyAndMapping_Scenario_ScenarioIdAndTestcaseIdGreaterThanOrderByIdAsc(
-          key, scenarioId, cursor, page);
+      testcases = tc
+          .findByMapping_Scenario_ProjectKeyAndMapping_Scenario_ScenarioIdAndTestcaseIdGreaterThanOrderByIdAsc(
+              key, scenarioId, cursor, page);
     }
     var testcaseResults = trCustom.findLastResultByTestcaseIn(testcases);
 
@@ -166,9 +150,9 @@ public class ApiTestServiceImpl implements ApiTestService {
           String isSuccess;
           Double time = null;
 
-          if(!trMap.containsKey(id)) {
+          if (!trMap.containsKey(id)) {
             isSuccess = "준비중";
-          } else if (trMap.get(id).getSuccess() == null ) {
+          } else if (trMap.get(id).getSuccess() == null) {
             isSuccess = "실행중";
           } else if (trMap.get(id).getSuccess()) {
             isSuccess = "성공";
@@ -187,7 +171,6 @@ public class ApiTestServiceImpl implements ApiTestService {
               .isSuccess(isSuccess)
               .excutedTime(time)
               .build();
-        }
-    ).toList();
+        }).toList();
   }
 }

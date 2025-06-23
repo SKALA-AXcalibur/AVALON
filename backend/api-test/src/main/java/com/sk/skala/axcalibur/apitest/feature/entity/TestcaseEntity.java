@@ -30,7 +30,7 @@ public class TestcaseEntity {
   @Column(name = "`key`", nullable = false)
   private Integer id;
 
-  @Column(name = "id", nullable = false, unique = true, length = 20)
+  @Column(name = "id", nullable = false, unique = true, length = 50)
   private String testcaseId;
 
   @Column(name = "description", nullable = false, columnDefinition = "TEXT")
@@ -48,7 +48,6 @@ public class TestcaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "mapping_key", nullable = false)
   private MappingEntity mapping;
-
 
   @OneToMany(mappedBy = "testcase")
   private List<TestcaseDataEntity> testcaseDatas; // 테스트 케이스에 속한 데이터 목록
