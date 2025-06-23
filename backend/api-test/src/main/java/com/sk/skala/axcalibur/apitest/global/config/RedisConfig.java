@@ -8,11 +8,12 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.hash.HashMapper;
+import org.springframework.data.redis.hash.Jackson2HashMapper;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,13 +37,11 @@ public class RedisConfig {
   @Value("${spring.data.redis.password}")
   private String password;
 
-
   @Bean
   public RedisConnectionFactory redisConnectionFactory() {
 
     RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
     config.setPassword(password);
-
 
     return new LettuceConnectionFactory(config);
   }
@@ -53,15 +52,21 @@ public class RedisConfig {
   }
 
   @Bean
+  public HashMapper<Object, String, Object> hashMapper() {
+    return new Jackson2HashMapper(false);
+  }
+
+  @Bean
   @Primary
   public RedisTemplate<String, Object> redisTemplate(
       RedisConnectionFactory redisConnectionFactory,
-      RedisSerializer<Object> springSessionDefaultRedisSerializer
-  ) {
+      RedisSerializer<Object> springSessionDefaultRedisSerializer) {
     RedisTemplate<String, Object> template = new RedisTemplate<>();
     template.setConnectionFactory(redisConnectionFactory);
     template.setKeySerializer(new StringRedisSerializer());
     template.setValueSerializer(springSessionDefaultRedisSerializer);
+    template.setHashKeySerializer(new StringRedisSerializer());
+    template.setHashValueSerializer(springSessionDefaultRedisSerializer);
     return template;
   }
 }

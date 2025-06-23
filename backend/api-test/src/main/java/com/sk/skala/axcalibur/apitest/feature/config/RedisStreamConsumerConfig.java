@@ -2,7 +2,6 @@ package com.sk.skala.axcalibur.apitest.feature.config;
 
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import com.sk.skala.axcalibur.apitest.feature.code.StreamConstants;
-import com.sk.skala.axcalibur.apitest.feature.dto.request.ApiTaskDto;
 import com.sk.skala.axcalibur.apitest.feature.service.RedisStreamListener;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,7 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.stream.Consumer;
-import org.springframework.data.redis.connection.stream.ObjectRecord;
+import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
@@ -57,20 +56,20 @@ public class RedisStreamConsumerConfig {
    * StreamMessageListenerContainer를 설정하고 실행하는 빈 설정
    * Redis Stream으로부터 메시지를 수신하고 처리하는 컨테이너를 구성합니다.
    *
-   * @param connectionFactory Redis 연결 팩토리
+   * @param connectionFactory         Redis 연결 팩토리
    * @param virtualThreadTaskExecutor 가상 스레드 기반 작업 실행기
    * @return 구성된 StreamMessageListenerContainer 인스턴스
    */
   @Bean(initMethod = "start", destroyMethod = "stop")
-  public StreamMessageListenerContainer<String, ObjectRecord<String, ApiTaskDto>> streamMessageListenerContainer(
+  public StreamMessageListenerContainer<String, MapRecord<String, String, String>> streamMessageListenerContainer(
       RedisConnectionFactory connectionFactory,
       TaskExecutor virtualThreadTaskExecutor) {
 
     // 컨테이너 옵션 설정
     var options = StreamMessageListenerContainer.StreamMessageListenerContainerOptions.builder()
-        .pollTimeout(Duration.ofSeconds(1))  // 메시지가 없을 때 대기 시간 설정
-        .batchSize(10)                       // 한 번에 최대 10개 메시지 가져오기
-        .targetType(ApiTaskDto.class)        // 메시지를 ApiTask 객체로 자동 변환
+        .pollTimeout(Duration.ofSeconds(1)) // 메시지가 없을 때 대기 시간 설정
+        .batchSize(10) // 한 번에 최대 10개 메시지 가져오기
+        // MapRecord 사용 시 targetType 제거
         .executor(virtualThreadTaskExecutor) // 리스너 실행을 위한 실행기(가상 스레드) 주입
         .build();
 
@@ -81,10 +80,11 @@ public class RedisStreamConsumerConfig {
     // 소비자 그룹과 이름을 지정하고, 아직 처리되지 않은 새 메시지부터 읽도록 설정
     var consumer = Consumer.from(StreamConstants.GROUP_NAME, "avalon-" + UUIDv7.generate().toString()); // 고유한 소비자 ID 생성
     container.receive(
-        consumer,                                                   // 소비자 정보
-        StreamOffset.create(StreamConstants.STREAM_KEY,             // 스트림 키
-                           ReadOffset.lastConsumed()),              // 마지막으로 소비된 메시지 이후부터 읽기
-        this.listener                                               // 메시지 처리 리스너
+        consumer, // 소비자 정보
+        StreamOffset.create(
+            StreamConstants.STREAM_KEY, // 스트림 키
+            ReadOffset.lastConsumed()), // 마지막으로 소비된 메시지 이후부터 읽기
+        this.listener // 메시지 처리 리스너
     );
 
     return container;
