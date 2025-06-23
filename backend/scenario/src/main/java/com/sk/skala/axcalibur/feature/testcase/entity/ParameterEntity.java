@@ -22,7 +22,6 @@ import lombok.Setter;
  * 부모키 조회 -> 저장 위해 Setter 정의
  */
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -71,6 +70,7 @@ public class ParameterEntity {
     @JoinColumn(name = "context_key", nullable = false)
     private ContextEntity contextKey;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_key")
     private ParameterEntity parentKey;

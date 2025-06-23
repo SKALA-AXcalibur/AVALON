@@ -65,8 +65,6 @@ public class TcGeneratorControllerImpl implements TcGeneratorController {
                 tcGeneratorService.saveTestcases(response);
             } catch (BusinessExceptionHandler e) {
                 log.warn("[시나리오 {}] 비즈니스 예외 발생: {}", scenario.getScenarioId(), e.getMessage());
-            } catch (Exception e) {
-                log.error("[시나리오 {}] 처리 중 예상치 못한 예외 발생", scenario.getScenarioId(), e);
             }
         }
         

@@ -1,6 +1,6 @@
 package com.sk.skala.axcalibur.feature.testcase.entity;
 
-import java.time.LocalDateTime;
+import com.sk.skala.axcalibur.global.entity.BaseTimeEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(name = "scenario")
-public class ScenarioEntity {
+public class ScenarioEntity extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
@@ -47,9 +47,6 @@ public class ScenarioEntity {
 
     @Column(name = "flow_chart")
     private String flowChart;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
