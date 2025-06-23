@@ -33,7 +33,7 @@ public class TestCaseEntity extends BaseTimeEntity {
     @Column(name = "`key`")
     private Integer key;         // 테스트케이스 ID(PK, AUTO_INCREMENT)
 
-    @Column(name = "id", nullable = false, length = 30, unique = true)
+    @Column(name = "id", nullable = false, length = 50, unique = true)
     private String id;           // 테스트케이스 ID
 
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
