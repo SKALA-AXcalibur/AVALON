@@ -32,7 +32,7 @@ public class ParameterEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
-    private Integer key;                 // 파라미터 키 (PK, AUTO_INCREMENT)
+    private Integer id;                 // 파라미터 키 (PK, AUTO_INCREMENT)
 
     @Column(name = "name_ko", length = 100)
     private String nameKo;              // 파라미터 한글명

@@ -31,10 +31,10 @@ public class TestCaseEntity extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
-    private Integer key;         // 테스트케이스 ID(PK, AUTO_INCREMENT)
+    private Integer id;         // 테스트케이스 ID(PK, AUTO_INCREMENT)
 
     @Column(name = "id", nullable = false, length = 50, unique = true)
-    private String id;           // 테스트케이스 ID
+    private String testcaseId;           // 테스트케이스 ID
 
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;  // 설명
