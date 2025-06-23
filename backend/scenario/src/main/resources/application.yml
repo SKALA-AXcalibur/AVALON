@@ -14,7 +14,12 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MariaDBDialect
-
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            read-timeout: 180000
 
 server:
   port: 8080
