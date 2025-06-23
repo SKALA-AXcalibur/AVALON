@@ -11,7 +11,17 @@ const createScenario = () => {
     name: generateRandomName(),
     description: generateRandomDescription(),
     validation: generateRandomValidation(),
-    graph: "",
+    graph: `graph LR
+    A[시작] --> B{조건 확인}
+    B -->|성공| C[처리 실행]
+    B -->|실패| D[에러 처리]
+    C --> E[결과 검증]
+    E -->|통과| F[성공 응답]
+    E -->|실패| G[실패 응답]
+    D --> H[에러 응답]
+    F --> I[종료]
+    G --> I
+    H --> I`,
     testcaseList: [],
   };
 };
@@ -130,7 +140,7 @@ export const setupScenarioRoutes = (server, router) => {
 
     // 시나리오 찾기
     const scenarioIndex = project.scenarioList.findIndex(
-      (s) => s.id === scenarioId,
+      (s) => s.id === scenarioId
     );
     if (scenarioIndex === -1) {
       return res.status(404).json({ error: "Scenario not found" });
@@ -242,7 +252,7 @@ export const setupScenarioRoutes = (server, router) => {
 
     const scenarioList = project.scenarioList.slice(
       parseInt(offset, 10),
-      parseInt(offset, 10) + parseInt(query, 10),
+      parseInt(offset, 10) + parseInt(query, 10)
     );
 
     res.json({
