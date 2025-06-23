@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,9 +23,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "mapping", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"id"})
-})
+@Table(name = "mapping")
 public class MappingEntity {
 
     @Id
@@ -34,7 +31,7 @@ public class MappingEntity {
     @Column(name = "`key`")
     private Integer id;        // 매핑표 키(PK, AUTO_INCREMENT)
     
-    @Column(name = "id", nullable = false, length = 30)
+    @Column(name = "id", nullable = false, length = 30, unique = true)
     private String mappingId;      // 매핑표 ID(프로젝트별 유니크)
 
     @Column(name = "step")

@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,16 +23,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "api_list", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"id"})
-})
+@Table(name = "api_list")
 public class ApiListEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
     private Integer id;          // API 목록 키 (PK, AUTO_INCREMENT)
 
-    @Column(name = "id", nullable = false, length = 30)
+    @Column(name = "id", nullable = false, length = 30, unique = true)
     private String apiListId;            // API 목록 ID (프로젝트별 유니크)
 
     @Column(name = "name", nullable = false, length = 20)
