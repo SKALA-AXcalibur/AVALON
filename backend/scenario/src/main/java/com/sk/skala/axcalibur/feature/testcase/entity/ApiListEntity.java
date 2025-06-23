@@ -31,10 +31,10 @@ public class ApiListEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
-    private Integer key;          // API 목록 키 (PK, AUTO_INCREMENT)
+    private Integer id;          // API 목록 키 (PK, AUTO_INCREMENT)
 
     @Column(name = "id", nullable = false, length = 30)
-    private String id;            // API 목록 ID (프로젝트별 유니크)
+    private String apiListId;            // API 목록 ID (프로젝트별 유니크)
 
     @Column(name = "name", nullable = false, length = 20)
     private String name;                 // API 목록 명 (NOT NULL, 최대 20자)

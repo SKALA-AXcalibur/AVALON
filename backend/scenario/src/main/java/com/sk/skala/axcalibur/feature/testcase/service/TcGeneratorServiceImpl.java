@@ -115,7 +115,7 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
 
             // 1. TestCase 저장
             TestCaseEntity testcase = TestCaseEntity.builder()
-                .id(tcData.getTcId())
+                .testcaseId(tcData.getTcId())
                 .description(tcData.getDescription())
                 .precondition(tcData.getPrecondition())
                 .expected(tcData.getExpectedResult())
@@ -163,7 +163,7 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
                         .orElseThrow(() -> new BusinessExceptionHandler("파라미터 ID가 유효하지 않습니다: " + param.getParamId(), ErrorCode.NOT_FOUND_ERROR));
                 } else {
                     // 없으면 name 기준 새 parameter 항목 생성
-                    parameter = parameterRepository.findByApiListKey_KeyAndName(apiList.getKey(), param.getName())
+                    parameter = parameterRepository.findByApiListKey_IdAndName(apiList.getId(), param.getName())
                         .orElseGet(() -> parameterRepository.save(
                             ParameterEntity.builder()
                                 .nameKo(param.getKoName())

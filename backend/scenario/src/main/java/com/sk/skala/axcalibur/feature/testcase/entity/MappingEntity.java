@@ -32,10 +32,10 @@ public class MappingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
-    private Integer key;        // 매핑표 키(PK, AUTO_INCREMENT)
+    private Integer id;        // 매핑표 키(PK, AUTO_INCREMENT)
     
     @Column(name = "id", nullable = false, length = 30)
-    private String id;           // 매핑표 ID(프로젝트별 유니크)
+    private String mappingId;      // 매핑표 ID(프로젝트별 유니크)
 
     @Column(name = "step")
     private Integer step;         // 단계명

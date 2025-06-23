@@ -51,7 +51,7 @@ public class TcPayloadServiceImpl implements TcPayloadService{
         List<ApiMappingDto> apiMappingList = mappings.stream()
             .map(mapping -> {
                 ApiListEntity api = mapping.getApiListKey();
-                List<ParameterEntity> params = parameterRepository.findByApiListKey_Key(api.getKey());
+                List<ParameterEntity> params = parameterRepository.findByApiListKey_Id(api.getId());
 
                 List<ApiParamDto> paramDtoList = params.stream()
                     .map(param -> {
@@ -60,7 +60,7 @@ public class TcPayloadServiceImpl implements TcPayloadService{
                         }
 
                         return ApiParamDto.builder()
-                            .paramId(param.getKey())
+                            .paramId(param.getId())
                             .category(param.getCategoryKey().getName())
                             .koName(param.getNameKo())
                             .name(param.getName())
@@ -77,7 +77,7 @@ public class TcPayloadServiceImpl implements TcPayloadService{
                     .collect(Collectors.toList());
 
                 return ApiMappingDto.builder()
-                    .mappingId(mapping.getKey())
+                    .mappingId(mapping.getId())
                     .step(mapping.getStep())
                     .name(api.getName())
                     .url(api.getUrl())
