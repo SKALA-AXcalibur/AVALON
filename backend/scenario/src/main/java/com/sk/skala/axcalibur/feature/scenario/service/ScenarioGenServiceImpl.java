@@ -178,7 +178,6 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
             .map(entity -> {
                 List<ColItem> columns = entity.getColumns().stream()
                     .map(col -> ColItem.builder()
-                        .name(col.getCol_name())
                         .colName(col.getCol_name())
                         .desc(col.getDescription())
                         .type(col.getType())

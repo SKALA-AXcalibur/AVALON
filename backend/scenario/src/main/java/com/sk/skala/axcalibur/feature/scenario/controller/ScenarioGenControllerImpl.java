@@ -29,7 +29,7 @@ import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/scenario/v1/create")
+@RequestMapping("/scenario/v1/create")
 @RequiredArgsConstructor
 public class ScenarioGenControllerImpl implements ScenarioGenController {
 

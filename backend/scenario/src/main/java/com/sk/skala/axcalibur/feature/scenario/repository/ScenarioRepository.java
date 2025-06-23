@@ -13,8 +13,8 @@ import java.util.List;
 public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Integer> {  
 
     // 프로젝트 키로 시나리오 목록 조회 (생성일 기준 내림차순)
-    @Query("SELECT s FROM ScenarioEntity s WHERE s.projectKey.key = :projectKey ORDER BY s.createdAt DESC")
-    List<ScenarioEntity> findByProjectKeyOrderByCreatedAtDesc(@Param("projectKey") Integer projectKey);
+    @Query("SELECT s FROM ScenarioEntity s WHERE s.projectKey.key = :projectKey ORDER BY s.createAt DESC")
+    List<ScenarioEntity> findByProjectKeyOrderByCreateAtDesc(@Param("projectKey") Integer projectKey);
     
     // 프로젝트 키로 시나리오 개수 조회
     @Query("SELECT COUNT(s) FROM ScenarioEntity s WHERE s.projectKey.key = :projectKey")
