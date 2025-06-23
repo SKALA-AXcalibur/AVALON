@@ -21,6 +21,7 @@ import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseDataDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseGenerationResponse;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseParamDto;
+import com.sk.skala.axcalibur.feature.testcase.entity.ApiListEntity;
 import com.sk.skala.axcalibur.feature.testcase.entity.CategoryEntity;
 import com.sk.skala.axcalibur.feature.testcase.entity.ContextEntity;
 import com.sk.skala.axcalibur.feature.testcase.entity.MappingEntity;
@@ -142,7 +143,7 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
                     name -> categoryRepository.findByName(name)
                         .orElseThrow(() -> new BusinessExceptionHandler("카테고리 없음: " + name, ErrorCode.NOT_FOUND_ERROR))
                 );
-
+                
                 ContextEntity context = contextCache.computeIfAbsent( // 캐시된 항목 유형 조회, 없으면 DB에서 조회
                     param.getContext(),
                     name -> contextRepository.findByName(name)
@@ -152,23 +153,35 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
                 // 상위 항목 처리
                 ParameterEntity parent = param.getParent() != null
                     ? savedParamMap.get(param.getParent()) : null;
+                
+                // key와 name으로 parameter 찾기(parameter 중복 저장 방지)
+                ApiListEntity apiList = mapping.getApiListKey();
+                ParameterEntity parameter;
 
-                ParameterEntity parameter = parameterRepository.save(
-                    ParameterEntity.builder()
-                        .nameKo(param.getKoName())
-                        .name(param.getName())
-                        .dataType(param.getType())
-                        .length(param.getLength())
-                        .format(param.getFormat())
-                        .defaultValue(param.getDefaultValue())
-                        .required(param.getRequired())
-                        .description(param.getDesc())
-                        .categoryKey(category)
-                        .contextKey(context)
-                        .apiListKey(mapping.getApiListKey())
-                        .parentKey(parent)
-                        .build()
-                );
+                if (param.getParamId() != null) {
+                    // paramId가 있으면 DB에서 조회
+                    parameter = parameterRepository.findById(param.getParamId())
+                        .orElseThrow(() -> new BusinessExceptionHandler("파라미터 ID가 유효하지 않습니다: " + param.getParamId(), ErrorCode.NOT_FOUND_ERROR));
+                } else {
+                    // 없으면 name 기준 새 parameter 항목 생성
+                    parameter = parameterRepository.findByApiListKey_KeyAndName(apiList.getKey(), param.getName())
+                        .orElseGet(() -> parameterRepository.save(
+                            ParameterEntity.builder()
+                                .nameKo(param.getKoName())
+                                .name(param.getName())
+                                .dataType(param.getType())
+                                .length(param.getLength())
+                                .format(param.getFormat())
+                                .defaultValue(param.getDefaultValue())
+                                .required(param.getRequired())
+                                .description(param.getDesc())
+                                .categoryKey(category)
+                                .contextKey(context)
+                                .apiListKey(apiList)
+                                .parentKey(parent)
+                                .build()
+                        ));
+                }
                 
                 // 저장된 parameter는 이후 상위항목 조회를 위해 map에 저장
                 savedParamMap.put(param.getName(), parameter);

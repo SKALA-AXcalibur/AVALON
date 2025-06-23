@@ -47,27 +47,24 @@ public class TcPayloadServiceImpl implements TcPayloadService{
         // 1. API매핑표 관련 정보 조회
         List<MappingEntity> mappings = mappingRepository.findByScenarioKey_Id(scenario.getId());
 
-        // 2. 매핑표에 해당하는 API 목록 조회
-        List<ApiListEntity> apis = mappings.stream()
-            .map(MappingEntity::getApiListKey)
-            .collect(Collectors.toList());
-        
-        // 3. 각 API별로 파라미터 조회 및 DTO 조립
-        List<ApiMappingDto> apiMappingList = apis.stream()
-            .map(api -> {   // apis List 순회하며 각 api 별 DTO 생성
-                List<ParameterEntity> params = parameterRepository.findByApiListKey_Key(api.getKey()); // 해당 API의 모든 파라미터 가져오는 작업
+        // 2. 각 API별로 파라미터 조회 및 DTO 조립
+        List<ApiMappingDto> apiMappingList = mappings.stream()
+            .map(mapping -> {
+                ApiListEntity api = mapping.getApiListKey();
+                List<ParameterEntity> params = parameterRepository.findByApiListKey_Key(api.getKey());
 
                 List<ApiParamDto> paramDtoList = params.stream()
                     .map(param -> {
                         if (param.getCategoryKey() == null || param.getContextKey() == null) {
                             throw new BusinessExceptionHandler("파라미터의 category/context 정보가 유효하지 않습니다.", ErrorCode.NOT_VALID_ERROR);
                         }
-                        
-                        return ApiParamDto.builder() // 조회된 파라미터 리스트를 DTO로 변환
-                            .category(param.getCategoryKey().getName()) // 카테고리 키 조회하여 카테고리 이름으로 반환
+
+                        return ApiParamDto.builder()
+                            .paramId(param.getKey())
+                            .category(param.getCategoryKey().getName())
                             .koName(param.getNameKo())
                             .name(param.getName())
-                            .context(param.getContextKey().getName())   // 항목 키 조회하여 항목 이름으로 반환
+                            .context(param.getContextKey().getName())
                             .type(param.getDataType())
                             .length(param.getLength())
                             .format(param.getFormat())
@@ -78,17 +75,10 @@ public class TcPayloadServiceImpl implements TcPayloadService{
                             .build();
                     })
                     .collect(Collectors.toList());
-                
-                Integer step = mappings.stream()
-                    .filter(m -> m.getApiListKey().getKey().equals(api.getKey()))
-                    .findFirst()
-                    .map(MappingEntity::getStep)
-                    .orElseThrow(() ->
-                        new BusinessExceptionHandler("API에 대한 매핑 정보가 존재하지 않습니다.", ErrorCode.NOT_FOUND_ERROR));
-                
+
                 return ApiMappingDto.builder()
-                    .mappingId(api.getKey())
-                    .step(step)
+                    .mappingId(mapping.getKey())
+                    .step(mapping.getStep())
                     .name(api.getName())
                     .url(api.getUrl())
                     .path(api.getPath())
@@ -99,7 +89,7 @@ public class TcPayloadServiceImpl implements TcPayloadService{
             })
             .collect(Collectors.toList());
         
-        // 4. 최종 요청 DTO 조립
+        // 3. 최종 요청 DTO 조립
         return TcRequestPayload.builder()
             .scenario(ScenarioDto.builder()
                 .scenarioName(scenario.getName())
