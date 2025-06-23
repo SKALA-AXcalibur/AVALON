@@ -19,7 +19,7 @@ public class ApiItem {
     private String method;                      // API HTTP Method
     private String url;                         // API URL
     private String path;                        // API Path
-    private String requestKey;                  // 요구사항 키(추가)
+    private String reqId;                       // 요구사항 아이디
 
     private List<ParameterItem> pathQuery;      // Path/Query 파라미터 목록
     private List<ParameterItem> request;        // Request 파라미터 목록  
