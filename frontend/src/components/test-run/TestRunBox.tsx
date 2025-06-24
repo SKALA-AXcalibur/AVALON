@@ -4,7 +4,7 @@ import { ActionButton } from "@/components/common/ActionButton";
 import { useTestRun } from "@/hooks/useTestRun";
 
 export const TestRunBox = ({ scenarioId }: { scenarioId: string }) => {
-  const { scenario, loadingStates, readTestcaseReport } =
+  const { scenario, loadingStates, readScenarioReport, readTestcaseReport } =
     useTestRun(scenarioId);
 
   return (
@@ -18,17 +18,26 @@ export const TestRunBox = ({ scenarioId }: { scenarioId: string }) => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-slate-800">
               {scenario.scenarioName}
-              <span className="text-sm text-slate-500">
+              <span className="text-sm text-slate-500 ml-2">
                 {scenario.scenarioId}
               </span>
             </h2>
-            <ActionButton
-              onClick={readTestcaseReport}
-              color="bg-emerald-500 hover:bg-emerald-600"
-              disabled={loadingStates.testcaseReport}
-            >
-              테스트케이스 다운로드
-            </ActionButton>
+            <div className="flex gap-2">
+              <ActionButton
+                onClick={readScenarioReport}
+                color="bg-transparent text-slate-700 hover:text-orange-500"
+                disabled={loadingStates.scenarioReport}
+              >
+                시나리오 다운로드
+              </ActionButton>
+              <ActionButton
+                onClick={readTestcaseReport}
+                color="bg-transparent text-slate-700 hover:text-orange-500"
+                disabled={loadingStates.testcaseReport}
+              >
+                테스트케이스 다운로드
+              </ActionButton>
+            </div>
           </div>
           <TestRunTable testcaseList={scenario.tcList} />
         </>
