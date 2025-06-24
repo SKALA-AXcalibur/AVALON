@@ -29,7 +29,7 @@ def build_regeneration_prompt(state: FlowState) -> str:
         for param in api.param_list:
             param_spec_map[param.param_id] = {
                 "name": param.name,
-                "type": param.type,
+                "type": param.data_type,
                 "required": param.required
             }
 

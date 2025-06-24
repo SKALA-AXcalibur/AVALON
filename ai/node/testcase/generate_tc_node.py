@@ -1,6 +1,6 @@
 # ai/service/testcase/node/generate_tc_node.py
+
 from typing import List
-from json import JSONDecodeError
 
 from dto.response.testcase.testcase_data import TestcaseData
 from state.testcase.flow_state import FlowState

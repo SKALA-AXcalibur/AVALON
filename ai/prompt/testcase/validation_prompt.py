@@ -19,7 +19,7 @@ def build_validation_prompt(state: FlowState) -> str:
                 {
                     "param_id": param.param_id,
                     "name": param.name,
-                    "type": param.type,
+                    "type": param.data_type,
                     "length": param.length,
                     "required": param.required
                 }
