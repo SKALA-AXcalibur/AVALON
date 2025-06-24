@@ -11,14 +11,14 @@ import com.sk.skala.axcalibur.feature.testcase.dto.request.ApiMappingDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.ApiParamDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.ScenarioDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
-import com.sk.skala.axcalibur.feature.testcase.entity.ApiListEntity;
-import com.sk.skala.axcalibur.feature.testcase.entity.MappingEntity;
-import com.sk.skala.axcalibur.feature.testcase.entity.ParameterEntity;
-import com.sk.skala.axcalibur.feature.testcase.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.feature.testcase.repository.MappingRepository;
 import com.sk.skala.axcalibur.feature.testcase.repository.ParameterRepository;
 import com.sk.skala.axcalibur.feature.testcase.repository.ScenarioRepository;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
+import com.sk.skala.axcalibur.global.entity.ApiListEntity;
+import com.sk.skala.axcalibur.global.entity.MappingEntity;
+import com.sk.skala.axcalibur.global.entity.ParameterEntity;
+import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 
 import lombok.RequiredArgsConstructor;

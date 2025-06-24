@@ -1,6 +1,7 @@
 package com.sk.skala.axcalibur.feature.testcase.entity;
 
 import com.sk.skala.axcalibur.global.entity.BaseTimeEntity;
+import com.sk.skala.axcalibur.global.entity.MappingEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

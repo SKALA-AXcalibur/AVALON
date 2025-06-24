@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.feature.testcase.entity;
+package com.sk.skala.axcalibur.global.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

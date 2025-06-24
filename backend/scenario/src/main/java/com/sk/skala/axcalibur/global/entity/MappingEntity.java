@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.feature.testcase.entity;
+package com.sk.skala.axcalibur.global.entity;
 
 import java.time.LocalDateTime;
 

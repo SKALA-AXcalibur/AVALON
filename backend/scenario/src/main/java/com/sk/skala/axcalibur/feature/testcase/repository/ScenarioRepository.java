@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.sk.skala.axcalibur.feature.testcase.entity.ScenarioEntity;
+import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 
 public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Integer> {
     List<ScenarioEntity> findByProject_Id(Integer projectId);

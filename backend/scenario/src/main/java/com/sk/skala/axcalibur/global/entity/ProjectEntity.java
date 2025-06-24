@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.feature.testcase.entity;
+package com.sk.skala.axcalibur.global.entity;
 
 import jakarta.persistence.*;
 
@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import com.sk.skala.axcalibur.global.entity.BaseTimeEntity;
 
 /**
  * 프로젝트 정보를 담는 엔티티
