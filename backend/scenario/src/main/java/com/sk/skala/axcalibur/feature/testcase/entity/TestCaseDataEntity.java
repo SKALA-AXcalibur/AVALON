@@ -1,5 +1,7 @@
 package com.sk.skala.axcalibur.feature.testcase.entity;
 
+import com.sk.skala.axcalibur.global.entity.ParameterEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

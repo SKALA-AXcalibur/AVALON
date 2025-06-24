@@ -2,9 +2,9 @@ package com.sk.skala.axcalibur.feature.testcase.service;
 
 import org.springframework.stereotype.Service;
 
-import com.sk.skala.axcalibur.feature.testcase.entity.AvalonCookieEntity;
 import com.sk.skala.axcalibur.feature.testcase.repository.AvalonCookieRepository;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
+import com.sk.skala.axcalibur.global.entity.AvalonCookieEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 
 import lombok.RequiredArgsConstructor;

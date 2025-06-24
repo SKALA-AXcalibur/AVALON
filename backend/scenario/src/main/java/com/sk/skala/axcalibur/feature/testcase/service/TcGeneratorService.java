@@ -2,7 +2,7 @@ package com.sk.skala.axcalibur.feature.testcase.service;
 
 import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseGenerationResponse;
-import com.sk.skala.axcalibur.feature.testcase.entity.ScenarioEntity;
+import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 
 /**
  * TC 생성 단계의 서비스
