@@ -38,15 +38,11 @@ def build_prompt(api_mapping_list: List[ApiMapping], scenario: Scenario) -> str:
 1. 정상 / 경계값 / 비정상 3가지 유형으로 작성(각 유형 별 하나씩만 생성한다.)
 2. 반드시 시나리오의 검증 포인트를 고려하여 생성.
 3. 현재 API가 이전 API와 이어지는 흐름이라면, 응답값을 다음 API의 입력으로 연동.
-    - 동적 값(ex. token 등)은 precondition에 어떤 API 응답에서 획득했는지 아래 예시와 같이 명시.
+    - 동적 값(ex. token 등)은 precondition에 어떤 API 응답에서 획득했는지 아래 예시와 **동일하게** 명시.
     예시: (현재 API 이름)의 (파라미터 이름)에는 (이전 API 이름)의 (파라미터 이름) 값을 사용함
-4. 배열(array) 또는 객체(object) 형태의 파라미터가 포함된 경우, 내부 항목에는 해당 상위 항목명을 'parent' 필드로 명확히 작성
-    - 주어진 paramList에 'parent' 항목 정보가 포함되어 있으므로 동일하게 반영한다.
-5. 테스트케이스에는 예상되는 status 코드 (2, 3, 4, 5 중 하나)를 포함하여 작성. 예를 들어, 200번대 응답이 예상된다면 2를, 400번대 응답이 예상된다면 4를 반환
-6. tc_id는 unique해야 하며, 형식은 TC-<API영문이름>-<케이스유형>-<일련번호>-<%UUID%> 로 구성한다. 일련번호는 3자리로 구성한다.
-7. `category` 값은 path/query, request, response 중 하나이며 paramList에서 받은 값을 **변경 없이 그대로 사용**합니다.
-   (예: category 가 "request" 이면 출력도 "request")
-8. 각 파라미터에는 paramId 항목도 포함되어야 하며, paramList 내 param_id 값을 그대로 반영한다.
+4. 테스트케이스에는 예상되는 status 코드 (2, 3, 4, 5 중 하나)를 포함하여 작성. 예를 들어, 200번대 응답이 예상된다면 2를, 400번대 응답이 예상된다면 4를 반환
+5. tc_id는 unique해야 하며, 형식은 TC-<API영문이름>-<케이스유형>-<일련번호>-<%UUID%> 로 구성한다. 일련번호는 3자리로 구성한다.
+6. 각 파라미터에는 paramId 항목이 포함되어야 하며, paramList 내 param_id 값을 그대로 반영한다.
 
 ※ 유의사항
 - 각 value는 실제 사용 가능한 자연스러운 예시로 작성하세요.
@@ -77,18 +73,7 @@ def build_prompt(api_mapping_list: List[ApiMapping], scenario: Scenario) -> str:
     "status": 2,
     "test_data_list": [
         {
-        "param": {
-            "paramId": 1,
-            "category": "path/query",
-            "koName": "사용자ID",
-            "name": "userId",
-            "context": "path",
-            "type": "varchar",
-            "length": 20,
-            "required": true,
-            "parent": "사용자 데이터",
-            "desc": "조회할 사용자 ID"
-        },
+        "paramId": 1,
         "value": "abc123"
         }, ...
     ]
