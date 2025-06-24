@@ -2,7 +2,7 @@ package com.sk.skala.axcalibur.feature.scenario.entity;
 
 import java.util.List;
 
-import com.sk.skala.axcalibur.feature.scenario.entity.ProjectEntity;
+import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 import com.sk.skala.axcalibur.global.entity.BaseTimeEntity;
 
 import jakarta.persistence.CascadeType;

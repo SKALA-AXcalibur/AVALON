@@ -3,7 +3,6 @@ package com.sk.skala.axcalibur.feature.scenario.service;
 import java.util.List;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioGenRequestDto;
-import com.sk.skala.axcalibur.feature.scenario.dto.request.item.TableItem;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.item.ScenarioListResponse;
 
 public interface ScenarioGenService {

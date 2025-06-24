@@ -3,7 +3,7 @@ package com.sk.skala.axcalibur.feature.scenario.repository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.sk.skala.axcalibur.feature.scenario.entity.AvalonCookieEntity;
+import com.sk.skala.axcalibur.global.entity.AvalonCookieEntity;
 
 import java.util.Optional;
 

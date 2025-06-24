@@ -3,8 +3,8 @@ package com.sk.skala.axcalibur.feature.scenario.service;
 import org.springframework.stereotype.Service;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.ProjectContext;
-import com.sk.skala.axcalibur.feature.scenario.entity.AvalonCookieEntity;
-import com.sk.skala.axcalibur.feature.scenario.entity.ProjectEntity;
+import com.sk.skala.axcalibur.global.entity.AvalonCookieEntity;
+import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 import com.sk.skala.axcalibur.feature.scenario.repository.AvalonCookieRepository;
 import com.sk.skala.axcalibur.feature.scenario.repository.ProjectRepository;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * Redis에서 쿠키의 key를 기반으로 실제 project key와 id를 추출합니다.
  */
 @Slf4j
-@Service
+@Service("scenarioProjectIdResolverService")
 @RequiredArgsConstructor
 public class ProjectIdResolverServiceImpl implements ProjectIdResolverService {
     private final AvalonCookieRepository avalonCookieRepository;

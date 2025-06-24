@@ -1,6 +1,6 @@
 package com.sk.skala.axcalibur.feature.scenario.dto;
 
-import com.sk.skala.axcalibur.feature.scenario.entity.ProjectEntity;
+import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 
 import lombok.Getter;
 
@@ -14,7 +14,7 @@ public class ProjectContext {
     private final String projectId;
 
     public ProjectContext(ProjectEntity entity) {
-        this.key = entity.getKey();
-        this.projectId = entity.getId();
+        this.key = entity.getId();
+        this.projectId = entity.getProjectId();
     }
 }

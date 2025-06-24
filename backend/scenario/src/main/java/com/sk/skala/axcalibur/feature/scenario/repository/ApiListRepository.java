@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.sk.skala.axcalibur.feature.scenario.entity.ApiListEntity;
+import com.sk.skala.axcalibur.global.entity.ApiListEntity;
 
 import java.util.List;
 

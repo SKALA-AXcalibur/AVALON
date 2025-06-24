@@ -1,6 +1,7 @@
 package com.sk.skala.axcalibur.feature.scenario.entity;
 
 import com.sk.skala.axcalibur.global.entity.BaseTimeEntity;
+import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,18 +31,18 @@ public class RequestEntity extends BaseTimeEntity {
     private Integer key;             // 요구사항 키 (PK, AUTO_INCREMENT)
 
     @Column(name = "id", nullable = false, length = 20, unique = true)
-    private String id;               // 요구사항 아이디 
+    private String requestId;        // 요구사항 아이디 (변수명 변경)
 
     @Column(name = "name", nullable = false, length = 50)
     private String name;             // 요구사항 이름
 
     @Column(name = "description", columnDefinition = "TEXT")
-    private String description;                  // 요구사항 설명
+    private String description;      // 요구사항 설명
 
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
-    private ProjectEntity projectKey;             // 프로젝트 (N:1)
+    private ProjectEntity project;             // 프로젝트 (N:1)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "priority_key", nullable = false)

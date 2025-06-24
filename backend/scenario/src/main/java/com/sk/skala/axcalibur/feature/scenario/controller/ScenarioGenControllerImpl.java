@@ -21,7 +21,7 @@ import com.sk.skala.axcalibur.feature.scenario.dto.response.item.ScenarioListRes
 import com.sk.skala.axcalibur.feature.scenario.client.ScenarioGenClient;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioGenService;
 import com.sk.skala.axcalibur.feature.scenario.repository.AvalonCookieRepository;
-import com.sk.skala.axcalibur.feature.scenario.entity.AvalonCookieEntity;
+import com.sk.skala.axcalibur.global.entity.AvalonCookieEntity;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;

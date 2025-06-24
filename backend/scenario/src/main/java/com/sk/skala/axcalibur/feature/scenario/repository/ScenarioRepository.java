@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.sk.skala.axcalibur.feature.scenario.entity.ScenarioEntity;
+import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 
 import java.util.List;
 

@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.sk.skala.axcalibur.feature.scenario.entity.ProjectEntity;
+import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<ProjectEntity, Integer> {

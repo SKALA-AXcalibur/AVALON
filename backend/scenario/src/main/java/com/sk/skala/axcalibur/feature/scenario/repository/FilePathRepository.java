@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.sk.skala.axcalibur.feature.scenario.entity.FileTypeEntity;
 import com.sk.skala.axcalibur.feature.scenario.entity.FilePathEntity;
-import com.sk.skala.axcalibur.feature.scenario.entity.ProjectEntity;
+import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 
 // 6. 필요한 Repository들
 public interface FilePathRepository extends JpaRepository<FilePathEntity, Integer> {

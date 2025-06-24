@@ -15,12 +15,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioGenRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ApiItem;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ReqItem;
-import com.sk.skala.axcalibur.feature.scenario.dto.request.item.TableItem;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.item.ScenarioListResponse;
-import com.sk.skala.axcalibur.feature.scenario.entity.ApiListEntity;
-import com.sk.skala.axcalibur.feature.scenario.entity.ProjectEntity;
+import com.sk.skala.axcalibur.global.entity.ApiListEntity;
+import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 import com.sk.skala.axcalibur.feature.scenario.entity.RequestEntity;
-import com.sk.skala.axcalibur.feature.scenario.entity.ScenarioEntity;
+import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.feature.scenario.repository.ApiListRepository;
 import com.sk.skala.axcalibur.feature.scenario.repository.ProjectRepository;
 import com.sk.skala.axcalibur.feature.scenario.repository.RequestRepository;
@@ -57,7 +56,7 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
             log.info("요청 데이터 수집 완료 - 요구사항: {}개, API: {}개", 
                 requirements.size(), apiList.size());
             
-            String projectId = project.getId();
+            String projectId = project.getProjectId();
             log.info("프로젝트 ID 설정: {}", projectId);
             
             return ScenarioGenRequestDto.builder()
@@ -99,19 +98,19 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
 
                 // 2. DB 엔티티로 매핑
                 ScenarioEntity entity = ScenarioEntity.builder()
-                    .id(newScenarioId) // Spring에서 생성
+                    .scenarioId(newScenarioId) // Spring에서 생성
                     .name(scenarioNode.get("title").asText())
                     .description(scenarioNode.get("description").asText())
                     .validation(scenarioNode.get("validation").asText())
-                    .flow_chart(null) // 플로우차트는 추후
-                    .projectKey(project)
+                    .flowChart(null) // 플로우차트는 추후
+                    .project(project)
                     .build();
 
                 scenarioRepository.save(entity);
 
                 // 3. 응답용 DTO로 변환
                 responseList.add(ScenarioListResponse.builder()
-                    .id(entity.getId())
+                    .id(entity.getScenarioId())
                     .name(entity.getName())
                     .build());
             }
@@ -133,7 +132,7 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
         
         return requestEntities.stream()
             .map(entity -> ReqItem.builder()
-                .id(entity.getId())
+                .id(entity.getRequestId())
                 .name(entity.getName())
                 .desc(entity.getDescription())
                 .priority(entity.getPriorityKey().getName())
@@ -152,17 +151,12 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
         
         return apiEntities.stream()
             .map(entity -> ApiItem.builder()
-                .id(entity.getId())
+                .id(entity.getApiListId())
                 .name(entity.getName())
                 .desc(entity.getDescription())
                 .method(entity.getMethod())
-                .url(entity.getUrl())
                 .path(entity.getPath())
-                .reqId(entity.getRequestKey().getId())
-                // 파라미터는 빈 리스트로 설정 (ParameterRepository 없음)
-                // .pathQuery(new ArrayList<>())
-                // .request(new ArrayList<>())
-                // .response(new ArrayList<>())
+                .reqId(entity.getId().toString())
                 .build())
             .collect(Collectors.toList());
     }

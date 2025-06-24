@@ -1,6 +1,7 @@
 package com.sk.skala.axcalibur.feature.scenario.entity;
 
 import com.sk.skala.axcalibur.global.entity.BaseTimeEntity;
+import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,7 +42,7 @@ public class FilePathEntity extends BaseTimeEntity {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
-    private ProjectEntity projectKey;
+    private ProjectEntity id;
 
     // 같은 유형의 파일이 있으면 이름과 경로를 업데이트
     public void updateFileInfo(String path, String name) {
