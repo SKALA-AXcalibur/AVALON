@@ -35,11 +35,13 @@ export const LoginProjectBox = () => {
             name="projectId"
             value={projectId}
             onChange={handleChange}
-            className={`w-full border rounded-lg px-4 py-3 text-lg ${error
+            className={`w-full border rounded-lg px-4 py-3 text-lg ${
+              error
                 ? "border-red-500 focus:border-red-500"
                 : "border-gray-300 focus:border-blue-500"
-              } focus:outline-none focus:ring-2 focus:ring-opacity-50 ${error ? "focus:ring-red-500" : "focus:ring-blue-500"
-              }`}
+            } focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
+              error ? "focus:ring-red-500" : "focus:ring-blue-500"
+            }`}
             placeholder="project id"
           />
         </div>
