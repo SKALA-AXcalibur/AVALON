@@ -88,13 +88,13 @@ public enum ErrorCode {
 	DATABASE_OPERATION_FAILED(500, "DB001", "Database Connection Exception"),
 
 	SAMPLE_INPUT_ERROR(400, "SM001", "에러 샘플 1"),
-	SAMPLE_PROCESSING_ERROR(500, "SM002", "에러 샘플 2")
+	SAMPLE_PROCESSING_ERROR(500, "SM002", "에러 샘플 2"),
 
-
-
-
-
-
+	// 인증되지 않은 쿠키값인 경우
+	UNAUTHORIZED_COOKIE_ERROR(401, "G015", "인증되지 않은 쿠키입니다. "),
+	
+	// 외부 API에서 응답 시간이 지연되는 경우
+	GATEWAY_TIMEOUT_ERROR(504, "G016", "Gateway Timeout (외부 시스템 응답 지연)")
 
 	; // End
 	/**
