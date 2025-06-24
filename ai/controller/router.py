@@ -8,7 +8,8 @@
 import logging
 import traceback
 from typing import Dict
-from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile, Body
+from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
 from service.spec.formatter import formatter
@@ -18,6 +19,15 @@ from service.spec.db_design_parser import DbDesignParserService
 from service.spec.requirement_parser import RequirementParserService
 
 from service.spec.info_save_service import save_to_info_api
+
+from dto.request.testcase.tc_generation_request import TestcaseGenerationRequest
+from service.testcase.tc_generation_flow import build_testcase_flow
+from service.testcase.tc_response_builder import build_tc_response_from_state
+
+from state.testcase.flow_state import FlowState
+
+import logging
+
 
 router = APIRouter()
 
@@ -99,3 +109,23 @@ async def generate_flow_chart() -> Response:
     """
 
     return Response()
+
+
+@router.post("/api/tc/v1/{scenario_id}")
+async def generate_testcases(scenario_id: str, request: TestcaseGenerationRequest = Body(...)) -> JSONResponse:
+    """
+    API 매핑표와 시나리오 관련 문서 활용하여 TC 생성 및 검증 진행
+    """
+    logging.info(f"[TC 생성 요청] scenario_id: {scenario_id}") # 진입점 확인
+    state = FlowState(scenario_id=scenario_id, request=request)
+    
+    # 그래프 빌드
+    graph = build_testcase_flow()
+    
+    # 그래프 실행
+    result: FlowState = await graph.ainvoke(state)
+    
+    # 응답 조합
+    response = build_tc_response_from_state(result)
+
+    return JSONResponse(content=response.model_dump(by_alias=True, mode="json"))
