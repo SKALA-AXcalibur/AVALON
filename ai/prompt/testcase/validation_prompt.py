@@ -64,7 +64,7 @@ def build_validation_prompt(state: FlowState) -> str:
 - `True`를 반환할 때는 **절대로 설명을 추가하지 마세요.**
 - 사소한 표현 차이는 무시하고, **정말 중요한 조건 누락만 False**로 판단해주세요.
 
-[응답 예시]  
+[응답 예시]
 [True, (False, "파라미터 ID 불일치"), True, True]
 
 [API 파라미터 정보]
