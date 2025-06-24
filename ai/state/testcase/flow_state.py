@@ -11,9 +11,11 @@ TC 생성 STATE 정의
 - 생성된 TC 목록
 - TC에 대한 coverage 값(검증률)
 - regenerated 필요한 tc id 및 사유
+- 재시도 횟수
 """
 class FlowState(BaseModel):
     request: TestcaseGenerationRequest
     tc_list: List[TestcaseData] = []
     coverage: Optional[float] = None
     revalidation_targets: List[Tuple[str, str]] = []  # (tc_list index, reason)
+    retry_count: int = 0
