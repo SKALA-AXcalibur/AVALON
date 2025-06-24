@@ -10,6 +10,7 @@ from state.testcase.flow_state import FlowState
 
 def build_regeneration_prompt(state: FlowState) -> str:
     """
+    TC 재생성 프롬프트 제작 함수
     재생성 대상 TC 목록과 사유를 바탕으로 LLM에 전달할 프롬프트를 생성합니다.
     """
     scenario: Scenario = state.request.scenario
