@@ -5,7 +5,7 @@ from json import JSONDecodeError
 from dto.response.testcase.testcase_data import TestcaseData
 
 from state.testcase.flow_state import FlowState
-from prompt.testcase.prompt_builder import build_prompt
+from prompt.testcase.generation_prompt import build_generation_prompt
 from service.testcase.llm_executor import generate_testcase_via_llm
 
 import logging
@@ -16,7 +16,7 @@ async def generate_tc_node(state: FlowState) -> FlowState:
     - 프롬프트 구성 및 TC 생성 수행
     - 생성된 TC를 state에 누적
     """
-    prompt = build_prompt(
+    prompt = build_generation_prompt(
         api_mapping_list=state.request.api_mapping_list,
         scenario=state.request.scenario,
     )
