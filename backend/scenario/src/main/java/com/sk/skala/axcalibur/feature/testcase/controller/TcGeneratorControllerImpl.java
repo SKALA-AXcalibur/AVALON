@@ -2,7 +2,6 @@ package com.sk.skala.axcalibur.feature.testcase.controller;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -11,15 +10,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
-import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseGenerationResponse;
-import com.sk.skala.axcalibur.feature.testcase.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.feature.testcase.service.ProjectIdResolverService;
-import com.sk.skala.axcalibur.feature.testcase.service.TcGeneratorService;
-import com.sk.skala.axcalibur.feature.testcase.service.TcPayloadService;
+import com.sk.skala.axcalibur.feature.testcase.service.TcFacade;
 
 import com.sk.skala.axcalibur.global.code.SuccessCode;
-import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -28,10 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 테스트케이스 생성 요청 인터페이스
  * '테스트케이스 생성 요청(IF-TC-0001)'을 실제 구현합니다.
- * - 쿠키로부터 Project key를 전달받아 해당 프로젝트에 매핑된 시나리오 정보를 불러옵니다.
- * - 시나리오에 매핑된 매핑표와 각 API 정보를 조회합니다.
- * - 시나리오 단위로 필요한 정보를 조합하여 생성 서버에 요청합니다.
- * - TC 생성 정보를 받아와 DB에 저장합니다.
+ * - 쿠키로부터 project ID를 불러와 TC 생성 요청을 진행합니다.
+ * - 생성 결과를 반환합니다.
  */
 @RestController
 @RequestMapping("/tc/v1")
@@ -39,8 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TcGeneratorControllerImpl implements TcGeneratorController {
     private final ProjectIdResolverService projectIdResolverService;
-    private final TcPayloadService tcPayloadService;
-    private final TcGeneratorService tcGeneratorService;
+    private final TcFacade tcFacade;
 
     @Override
     @PostMapping
@@ -48,26 +39,9 @@ public class TcGeneratorControllerImpl implements TcGeneratorController {
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
         Integer projectId = projectIdResolverService.resolveProjectId(key);
 
-        // project ID로 필요 DB 조회 -> fastAPI 측에 필요한 생성 정보 + 생성 요청 전달
-        // 시나리오 리스트 조회
-        List<ScenarioEntity> scenarios = tcPayloadService.getScenarios(projectId);
+        // 테스트케이스 전체 생성 요청
+        tcFacade.generateAllTestcases(projectId);
 
-        // 시나리오별 테스트케이스 생성 로직
-        // 저장에 실패할 경우 에러메시지를 띄우고 다음 시나리오로 넘어감
-        for (ScenarioEntity scenario : scenarios) {
-            // payload 조립
-            TcRequestPayload payload = tcPayloadService.buildPayload(scenario);
-            // FastAPI 호출
-            TestcaseGenerationResponse response = tcGeneratorService.callFastApi(payload, scenario);
-
-            try {
-                // 결과 저장
-                tcGeneratorService.saveTestcases(response);
-            } catch (BusinessExceptionHandler e) {
-                log.warn("[시나리오 {}] 비즈니스 예외 발생: {}", scenario.getScenarioId(), e.getMessage());
-            }
-        }
-        
         // 응답시간 헤더에 반환
         HttpHeaders headers = new HttpHeaders();
         headers.add("responseTime", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
