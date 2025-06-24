@@ -3,7 +3,7 @@ import { TestRunBox } from "@/components/test-run/TestRunBox";
 const TestRunPage = async ({
   params,
 }: {
-  params: { "project-id": string; "scenario-id": string };
+  params: Promise<{ "project-id": string; "scenario-id": string }>;
 }) => {
   const { "scenario-id": scenarioId } = await params;
 
