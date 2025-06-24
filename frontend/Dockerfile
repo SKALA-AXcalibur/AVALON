@@ -33,7 +33,7 @@ ENV PORT=3000
 
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+  adduser --system --uid 1001 nextjs
 
 # Install curl for health checks
 RUN apk add --no-cache curl

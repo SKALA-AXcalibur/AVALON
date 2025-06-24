@@ -60,9 +60,8 @@ export const Sidebar = ({
                   : "⏵"}
               </button>
               <span
-                className={`cursor-pointer hover:text-sky-600 ${
-                  scenario.id === scenarioId ? "text-sky-600" : ""
-                }`}
+                className={`cursor-pointer hover:text-sky-600 ${scenario.id === scenarioId ? "text-sky-600" : ""
+                  }`}
                 onClick={() => handleScenarioClick(scenario.id)}
               >
                 {scenario.name}

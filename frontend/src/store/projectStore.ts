@@ -63,11 +63,11 @@ export const useProjectStore = create<ProjectState>((set) => ({
         scenarios: state.project.scenarios.map((s) =>
           s.id === scenarioId
             ? {
-                ...s,
-                testcases: s.testcases.map((t) =>
-                  t.tcId === testcase.tcId ? testcase : t,
-                ),
-              }
+              ...s,
+              testcases: s.testcases.map((t) =>
+                t.tcId === testcase.tcId ? testcase : t,
+              ),
+            }
             : s,
         ),
       },
@@ -79,9 +79,9 @@ export const useProjectStore = create<ProjectState>((set) => ({
         scenarios: state.project.scenarios.map((s) =>
           s.id === scenarioId
             ? {
-                ...s,
-                testcases: s.testcases.filter((t) => t.tcId !== testcaseId),
-              }
+              ...s,
+              testcases: s.testcases.filter((t) => t.tcId !== testcaseId),
+            }
             : s,
         ),
       },
