@@ -6,7 +6,7 @@ from typing import Dict, Any, List
 from anthropic import Anthropic
 from dotenv import load_dotenv
 
-from service.aplist.prompts.mapping_validation_prompt import create_mapping_validation_prompt
+from ai.service.apilist.prompts.mapping_validation_prompt import create_mapping_validation_prompt
 
 # .env 파일 로드
 load_dotenv()

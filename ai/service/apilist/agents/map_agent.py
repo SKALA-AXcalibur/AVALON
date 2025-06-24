@@ -5,7 +5,7 @@ from typing import Dict, Any, List
 from anthropic import Anthropic
 from dotenv import load_dotenv
 
-from service.aplist.prompts.map_prompt import (
+from ai.service.apilist.prompts.map_prompt import (
     create_semantic_mapping_prompt,
     get_semantic_mapping_system_prompt
 )

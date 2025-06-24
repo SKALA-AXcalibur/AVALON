@@ -6,7 +6,7 @@
 """
 from fastapi import APIRouter, Response, Request
 from fastapi.responses import JSONResponse
-from ai.dto.response.aplist.apilist_response import ApiListResponse, ApiItem, ScenarioItem
+from ai.dto.response.apilist.apilist_response import ApiListResponse, ApiItem, ScenarioItem
 from ai.service.apilist.state.mapping_state import create_initial_mapping_state
 from ai.service.apilist.graphs.nodes.map_node import map_node
 from ai.service.apilist.graphs.nodes.mapping_generation_node import mapping_generation_node
