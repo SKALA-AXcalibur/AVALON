@@ -54,7 +54,7 @@ public class ScenarioGenControllerImpl implements ScenarioGenController {
             log.info("FastAPI 요청 데이터 준비 완료");
             
             // FastAPI로 시나리오 생성 요청 전송하고 응답 받기
-            String fastApiResponse = scenarioGenClient.sendInfoAndGetResponse(projectKey.toString(), requestDto);
+            String fastApiResponse = scenarioGenClient.sendInfoAndGetResponse(requestDto);
             log.info("FastAPI 시나리오 생성 완료");
             
             // FastAPI 응답을 파싱해서 DB에 저장하고 응답 DTO 생성

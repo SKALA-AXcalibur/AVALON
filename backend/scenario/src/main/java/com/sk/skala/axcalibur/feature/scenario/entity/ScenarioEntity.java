@@ -35,8 +35,11 @@ public class ScenarioEntity extends BaseTimeEntity {
     @Column(name = "name", nullable = false, length = 50)
     private String name; 
     
-    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "validation", columnDefinition = "TEXT")
+    private String validation;
     
     @Column(name = "flow_chart", columnDefinition = "TEXT")
     private String flow_chart;

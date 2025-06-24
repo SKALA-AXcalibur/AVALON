@@ -14,17 +14,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioGenRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ApiItem;
-import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ColItem;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ReqItem;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.item.TableItem;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.item.ScenarioListResponse;
 import com.sk.skala.axcalibur.feature.scenario.entity.ApiListEntity;
-import com.sk.skala.axcalibur.feature.scenario.entity.DbDesignEntity;
 import com.sk.skala.axcalibur.feature.scenario.entity.ProjectEntity;
 import com.sk.skala.axcalibur.feature.scenario.entity.RequestEntity;
 import com.sk.skala.axcalibur.feature.scenario.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.feature.scenario.repository.ApiListRepository;
-import com.sk.skala.axcalibur.feature.scenario.repository.DbDesignRepository;
 import com.sk.skala.axcalibur.feature.scenario.repository.ProjectRepository;
 import com.sk.skala.axcalibur.feature.scenario.repository.RequestRepository;
 import com.sk.skala.axcalibur.feature.scenario.repository.ScenarioRepository;
@@ -39,7 +36,6 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
     private final ProjectRepository projectRepository;
     private final RequestRepository requestRepository;
     private final ApiListRepository apiListRepository;
-    private final DbDesignRepository dbDesignRepository;
     private final ScenarioRepository scenarioRepository;
     private final ObjectMapper objectMapper;
 
@@ -57,17 +53,17 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
             
             // API 정보 수집  
             List<ApiItem> apiList = collectApiList(projectKey);
+
+            log.info("요청 데이터 수집 완료 - 요구사항: {}개, API: {}개", 
+                requirements.size(), apiList.size());
             
-            // 테이블 정보 수집
-            List<TableItem> tableList = collectTableList(projectKey);
-            
-            log.info("요청 데이터 수집 완료 - 요구사항: {}개, API: {}개, 테이블: {}개", 
-                requirements.size(), apiList.size(), tableList.size());
+            String projectId = project.getId();
+            log.info("프로젝트 ID 설정: {}", projectId);
             
             return ScenarioGenRequestDto.builder()
+                .projectId(projectId)
                 .requirement(requirements)
                 .apiList(apiList)
-                .tableList(tableList)
                 .build();
                 
         } catch (Exception e) {
@@ -84,7 +80,7 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
         try {
             // FastAPI 응답 JSON 파싱
             JsonNode jsonNode = objectMapper.readTree(fastApiResponse);
-            JsonNode scenarioListNode = jsonNode.get("scenarioList");
+            JsonNode scenarioListNode = jsonNode.get("scenario_list");
             
             if (scenarioListNode == null || !scenarioListNode.isArray()) {
                 throw new BusinessExceptionHandler("잘못된 시나리오 응답 형식입니다.", ErrorCode.INTERNAL_SERVER_ERROR);
@@ -98,21 +94,25 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
             
             // 각 시나리오를 DB에 저장
             for (JsonNode scenarioNode : scenarioListNode) {
+                // 1. 새로운 시나리오 ID 생성
+                String newScenarioId = generateNewScenarioId();
+
+                // 2. DB 엔티티로 매핑
                 ScenarioEntity entity = ScenarioEntity.builder()
-                    .id(scenarioNode.get("id").asText())
-                    .name(scenarioNode.get("name").asText())
-                    .description(scenarioNode.get("description") != null ? scenarioNode.get("description").asText() : null)
-                    .flow_chart(scenarioNode.get("flowChart") != null ? scenarioNode.get("flowChart").asText() : null)
+                    .id(newScenarioId) // Spring에서 생성
+                    .name(scenarioNode.get("title").asText())
+                    .description(scenarioNode.get("description").asText())
+                    .validation(scenarioNode.get("validation").asText())
+                    .flow_chart(null) // 플로우차트는 추후
                     .projectKey(project)
                     .build();
-                
-                ScenarioEntity saved = scenarioRepository.save(entity);
-                log.info("시나리오 저장 완료 - scenarioKey: {}, scenarioId: {}", saved.getKey(), saved.getId());
-                
-                // 응답 DTO로 변환
+
+                scenarioRepository.save(entity);
+
+                // 3. 응답용 DTO로 변환
                 responseList.add(ScenarioListResponse.builder()
-                    .id(saved.getId())
-                    .name(saved.getName())
+                    .id(entity.getId())
+                    .name(entity.getName())
                     .build());
             }
             
@@ -160,40 +160,26 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
                 .path(entity.getPath())
                 .reqId(entity.getRequestKey().getId())
                 // 파라미터는 빈 리스트로 설정 (ParameterRepository 없음)
-                .pathQuery(new ArrayList<>())
-                .request(new ArrayList<>())
-                .response(new ArrayList<>())
+                // .pathQuery(new ArrayList<>())
+                // .request(new ArrayList<>())
+                // .response(new ArrayList<>())
                 .build())
             .collect(Collectors.toList());
     }
 
-    // 테이블 정보 수집
-    @Override
-    public List<TableItem> collectTableList(Integer projectKey) {
-        log.debug("테이블 정보 수집 중...");
-        
-        List<DbDesignEntity> dbDesignEntities = dbDesignRepository.findByProjectKeyWithColumns(projectKey);
-        
-        return dbDesignEntities.stream()
-            .map(entity -> {
-                List<ColItem> columns = entity.getColumns().stream()
-                    .map(col -> ColItem.builder()
-                        .colName(col.getColName())
-                        .desc(col.getDescription())
-                        .type(col.getType())
-                        .length(col.getLength())
-                        .isPk(col.getIsPk())
-                        .fk(col.getFk())
-                        .isNull(col.getIsNull())
-                        .constraint(col.getConstraintType())
-                        .build())
-                    .collect(Collectors.toList());
-                
-                return TableItem.builder()
-                    .name(entity.getName())
-                    .column(columns)
-                    .build();
-            })
-            .collect(Collectors.toList());
+    private String generateNewScenarioId() {
+        // DB에서 현재 최대 시나리오 ID를 조회해서 +1
+        // 예시: scenario-001, scenario-002 ...
+        String maxId = scenarioRepository.findMaxScenarioId(); // 이 메서드는 직접 구현 필요
+        int nextNum = 1;
+        if (maxId != null && maxId.startsWith("scenario-")) {
+            try {
+                nextNum = Integer.parseInt(maxId.substring(9)) + 1;
+            } catch (NumberFormatException e) {
+                // 무시하고 1로 둠
+            }
+        }
+        return String.format("scenario-%03d", nextNum);
     }
+
 }

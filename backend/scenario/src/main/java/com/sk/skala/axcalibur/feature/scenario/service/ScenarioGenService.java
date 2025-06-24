@@ -22,11 +22,4 @@ public interface ScenarioGenService {
      * @return 시나리오 응답 목록
      */
     List<ScenarioListResponse> parseAndSaveScenarios(String fastApiResponse, Integer projectKey);
-
-    /**
-     * 프로젝트의 테이블 정보 수집
-     * @param projectKey 프로젝트 키
-     * @return 테이블 정보 목록
-     */
-    List<TableItem> collectTableList(Integer projectKey);
 }

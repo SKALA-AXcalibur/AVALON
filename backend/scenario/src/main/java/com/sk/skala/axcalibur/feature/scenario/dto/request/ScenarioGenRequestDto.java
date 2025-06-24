@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ApiItem;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ReqItem;
-import com.sk.skala.axcalibur.feature.scenario.dto.request.item.TableItem;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,8 +19,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ScenarioGenRequestDto {
     
+    private String projectId;
     private List<ReqItem> requirement;
     private List<ApiItem> apiList;
-    private List<TableItem> tableList;
     
 }

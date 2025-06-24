@@ -2,19 +2,17 @@ package com.sk.skala.axcalibur.feature.scenario.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * ScenarioGenClient    
@@ -22,11 +20,12 @@ import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
  * - 요청: camelCase → snake_case 변환
  * - 응답: snake_case → camelCase 변환
  */ 
+@Slf4j
 @Component
 public class ScenarioGenClient {
     
     @Autowired
-    private RestTemplate restTemplate;
+    private WebClient webClient;
     
     // 요청용: camelCase → snake_case
     private final ObjectMapper requestMapper;
@@ -55,23 +54,25 @@ public class ScenarioGenClient {
     
     /**
      * FastAPI로 시나리오 생성 요청 전송하고 응답 받기
-     * @param projectId 프로젝트 ID
      * @param requestBody 전송할 요청 데이터 (camelCase)
      * @return FastAPI 응답 JSON (camelCase로 변환됨)
      */
-    public String sendInfoAndGetResponse(String projectId, Object requestBody) {
+    public String sendInfoAndGetResponse(Object requestBody) {
 
         try {
             //  camelCase 객체 → snake_case JSON 문자열
             String jsonBody = requestMapper.writeValueAsString(requestBody);
             
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
-
-            // FastAPI로 요청 전송하고 응답 받기
-            ResponseEntity<String> response = restTemplate.postForEntity(generateScenarioUrl, entity, String.class);
-            String fastApiResponse = response.getBody();
+            log.info("FastAPI로 전송할 JSON: {}", jsonBody);
+            
+            // WebClient로 요청 전송하고 응답 받기
+            String fastApiResponse = webClient.post()
+                .uri(generateScenarioUrl)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(jsonBody)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block(); // 동기 방식으로 실행
             
             // 응답 검증
             if (fastApiResponse == null || fastApiResponse.trim().isEmpty()) {
@@ -84,24 +85,17 @@ public class ScenarioGenClient {
             
             return camelCaseResponse; // camelCase로 변환된 JSON 반환
             
+        } catch (WebClientResponseException e) {
+            // 4xx/5xx HTTP 오류
+            throw new BusinessExceptionHandler(
+                String.format("FastAPI 호출 실패: %s, 응답: %s", e.getStatusCode(), e.getResponseBodyAsString()), 
+                ErrorCode.INTERNAL_SERVER_ERROR
+            );
         } catch (Exception e) {
-            if (e instanceof HttpStatusCodeException) {
-                HttpStatusCodeException httpException = (HttpStatusCodeException) e;
-                throw new BusinessExceptionHandler(
-                    String.format("FastAPI 호출 실패: %s, 응답: %s", httpException.getStatusCode(), httpException.getResponseBodyAsString()), 
-                    ErrorCode.INTERNAL_SERVER_ERROR
-                );
-            } else if (e instanceof RestClientException) {
-                throw new BusinessExceptionHandler(
-                    "FastAPI 통신 오류: " + e.getMessage(),
-                    ErrorCode.INTERNAL_SERVER_ERROR
-                );
-            } else {
-                throw new BusinessExceptionHandler(
-                    "JSON 변환 오류: " + e.getMessage(),
-                    ErrorCode.INTERNAL_SERVER_ERROR
-                );
-            }
+            throw new BusinessExceptionHandler(
+                "JSON 변환 오류: " + e.getMessage(),
+                ErrorCode.INTERNAL_SERVER_ERROR
+            );
         }
     }
 }

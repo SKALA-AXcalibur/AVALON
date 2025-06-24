@@ -39,5 +39,10 @@ public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Intege
     // 프로젝트 키로 시나리오 목록 조회 (간단 버전)
     @Query("SELECT s FROM ScenarioEntity s WHERE s.projectKey.key = :projectKey")
     List<ScenarioEntity> findByProjectKey(@Param("projectKey") Integer projectKey);
+
+    // 시나리오 ID 중 최대 번호 조회 (scenario-001 형식에서 001 부분의 최대값)
+    @Query("SELECT MAX(s.id) FROM ScenarioEntity s")
+    String findMaxScenarioId();
+    
 }
 
