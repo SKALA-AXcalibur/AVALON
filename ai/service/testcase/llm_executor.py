@@ -12,8 +12,8 @@ from pydantic import ValidationError
 from service.llm_service import gpt_model
 from dto.response.testcase.testcase_data import TestcaseData
 
-import logging
 import ast
+import logging
 import re
 
 # parser: List[TestcaseData]로 결과 파싱

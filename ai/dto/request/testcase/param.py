@@ -12,7 +12,7 @@ class Param(BaseModel):
     ko_name: str = Field(default=None, alias="koName")
     name: str
     context: str
-    type: str
+    data_type: str  = Field(..., alias="type")
     length: Optional[int] = None
     format: Optional[str] = None
     default_value: Optional[str] = Field(default=None, alias="defaultValue")

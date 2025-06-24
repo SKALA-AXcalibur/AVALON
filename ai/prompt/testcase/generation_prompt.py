@@ -32,7 +32,7 @@ def build_generation_prompt(api_mapping_list: List[ApiMapping], scenario: Scenar
         if not api.param_list:
             prompt += "  (없음)\n"
         for param in api.param_list:
-            prompt += f"  - ID: {param.param_id} | 영문명: {param.name} | 한글명: {param.ko_name} | data type={param.type}, 길이={param.length}, category={param.category}, context {param.context} | 필수: {'Y' if param.required else 'N'} | 상위 항목명: {param.parent} | 설명: {param.desc}\n"
+            prompt += f"  - ID: {param.param_id} | 영문명: {param.name} | 한글명: {param.ko_name} | data type={param.data_type}, 길이={param.length}, category={param.category}, context {param.context} | 필수: {'Y' if param.required else 'N'} | 상위 항목명: {param.parent} | 설명: {param.desc}\n"
 
     prompt += dedent("""
 [테스트케이스 생성 조건]
