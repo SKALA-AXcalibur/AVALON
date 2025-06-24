@@ -9,7 +9,7 @@ from service.testcase.llm_executor import generate_testcase_via_llm
 
 import logging
 
-async def generate_tc_node(state: FlowState) -> FlowState:
+def generate_tc_node(state: FlowState) -> FlowState:
     """
     TC 생성 노드 정의 (진입점 전용)
     - 프롬프트 구성 및 TC 생성 수행
@@ -33,12 +33,6 @@ async def generate_tc_node(state: FlowState) -> FlowState:
 
     except (ValueError, TypeError, AttributeError) as e:
         logging.warning(f"[generate_tc_node] 잘못된 응답 형식 - scenario_id={scenario_id} - {type(e).__name__}: {e}")
-
-    except JSONDecodeError as e:
-        logging.error(f"[generate_tc_node] JSON 파싱 실패 - scenario_id={scenario_id} - {e}")
-
-    except TimeoutError as e:
-        logging.error(f"[generate_tc_node] LLM 응답 시간 초과 - scenario_id={scenario_id} - {e}")
 
     except Exception:
         logging.exception(f"[generate_tc_node] TC 생성 중 알 수 없는 오류 발생 - scenario_id={scenario_id}")

@@ -41,7 +41,7 @@ def validate_tc_node(state: FlowState) -> FlowState:
     except (ValueError, TypeError, AttributeError) as e:
         logging.warning(f"[validate_tc_node] 잘못된 응답 형식 - scenario_id={scenario_id} - {type(e).__name__}: {e}")
 
-    except TimeoutError as e:
+    except RuntimeError as e:
         logging.error(f"[validate_tc_node] LLM 응답 시간 초과 - scenario_id={scenario_id}: {e}")
 
     except Exception:

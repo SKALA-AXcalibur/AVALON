@@ -2,7 +2,6 @@
 
 from typing import List, Union, Tuple, Optional
 
-import ast
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.exceptions import OutputParserException
@@ -13,7 +12,9 @@ from pydantic import ValidationError
 from service.llm_service import gpt_model
 from dto.response.testcase.testcase_data import TestcaseData
 
-import logging, re
+import logging
+import ast
+import re
 
 # parser: List[TestcaseData]로 결과 파싱
 parser = JsonOutputParser(pydantic_object=List[TestcaseData])

@@ -16,7 +16,7 @@ def build_validation_prompt(state: FlowState) -> str:
             "mapping_id": api.mapping_id,
             "param_list": [
                 {
-                    "paramId": param.param_id,
+                    "param_id": param.param_id,
                     "name": param.name,
                     "type": param.type,
                     "length": param.length,
@@ -30,12 +30,12 @@ def build_validation_prompt(state: FlowState) -> str:
     # 테스트케이스 요약
     testcase_summary = [
         {   
-            "mappingId": tc.mapping_id,
-            "tcId": tc.tc_id,
+            "mapping_id": tc.mapping_id,
+            "tc_id": tc.tc_id,
             "precondition": tc.precondition,
             "expected_result": tc.expected_result,
             "status": tc.status,
-            "input": [{"paramId": p.param_id, "value": p.value} for p in tc.test_data_list]
+            "input": [{"param_id": p.param_id, "value": p.value} for p in tc.test_data_list]
         }
         for tc in state.tc_list
     ]

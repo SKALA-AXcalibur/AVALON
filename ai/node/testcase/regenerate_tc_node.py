@@ -36,8 +36,8 @@ def regenerate_tc_node(state: FlowState) -> FlowState:
 
     except (ValueError, TypeError) as e:
         logging.warning(f"[regenerate_tc_node] 입력 값 오류 - scenario_id={scenario_id}: {e}")
-    except TimeoutError as e:
-        logging.error(f"[regenerate_tc_node] LLM 응답 시간 초과 - scenario_id={scenario_id}: {e}")
+    except RuntimeError as e:
+        logging.error(f"[regenerate_tc_node] LLM 호출 실패 - scenario_id={scenario_id}: {e}")
     except Exception as e:
         logging.exception(f"[regenerate_tc_node] 알 수 없는 예외 발생 - scenario_id={scenario_id}: {e}")
 

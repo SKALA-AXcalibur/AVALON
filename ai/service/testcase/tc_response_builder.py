@@ -4,9 +4,9 @@ from dto.response.testcase.tc_generation_response import TestcaseGenerationRespo
 from state.testcase.flow_state import FlowState
 from datetime import datetime
 
-def build_tc_response_from_state(state: FlowState) -> TestcaseGenerationResponse:
+def build_tc_response_from_state(state: dict) -> TestcaseGenerationResponse:
     """
-    FlowState 객체를 바탕으로 최종 응답 객체 구성
+    LangGraph에서 반환된 dict 형태의 state를 기반으로 최종 응답 객체 구성
     """
     flow_state = FlowState(**state)
 

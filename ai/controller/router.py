@@ -26,9 +26,6 @@ from service.testcase.tc_response_builder import build_tc_response_from_state
 
 from state.testcase.flow_state import FlowState
 
-import logging
-
-
 router = APIRouter()
 
 
@@ -123,7 +120,7 @@ async def generate_testcases(scenario_id: str, request: TestcaseGenerationReques
     graph = build_testcase_flow()
     
     # 그래프 실행
-    result: FlowState = await graph.ainvoke(state)
+    result: dict = await graph.ainvoke(state)
     
     # 응답 조합
     response = build_tc_response_from_state(result)
