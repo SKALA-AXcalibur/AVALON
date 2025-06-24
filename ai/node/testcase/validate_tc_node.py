@@ -59,7 +59,10 @@ def regenerate_decision_fn(state: FlowState) -> str:
     revalidation_targets에 재생성 대상이 있는지 판단하여 분기
     - 없으면: "pass"
     - 있으면: "fail"
+    - 재검증 3번 이상: "giveup"
     """
     if not state.revalidation_targets:
         return "pass"
+    if state.retry_count >= 3:
+        return "giveup"  # 3회 실패 시
     return "fail"

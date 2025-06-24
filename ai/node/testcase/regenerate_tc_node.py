@@ -29,6 +29,9 @@ def regenerate_tc_node(state: FlowState) -> FlowState:
         state.tc_list = updated_tc_list
         state.revalidation_targets = []  # 검증 완료 후 초기화
 
+        # 6. 재생성 횟수 count
+        state.retry_count += 1
+
     except Exception as e:
         logging.exception("[regenerate_tc_node] TC 재생성 실패: %s", str(e))
 
