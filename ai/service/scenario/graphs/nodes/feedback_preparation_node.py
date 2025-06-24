@@ -9,7 +9,7 @@ def feedback_preparation_node(state: ScenarioState) -> Dict[str, Any]:
     """
     검증 결과를 다음 생성에 활용할 피드백으로 변환
         {
-            "feedback_data": {...},         # 피드백 데이터 
+            "feedback_data": {...},         # 피드백 데이터
             "current_step": "feedback_prepared",  # 현재 상태 표시
             "ready_for_regeneration": True         # 재생성 가능 여부
         }
@@ -18,8 +18,8 @@ def feedback_preparation_node(state: ScenarioState) -> Dict[str, Any]:
 
     try:
         # 상태에서 필요 데이터 추출
-        validation_result = state.get("validation_result") # 검증 결과
-        current_attempt = state.get("attempt_count", 1) # 시도 횟수
+        validation_result = state.get("validation_result")  # 검증 결과
+        current_attempt = state.get("attempt_count", 1)  # 시도 횟수
 
         # 검증 결과가 없으면 실패
         if not validation_result:
@@ -61,7 +61,8 @@ def _extract_feedback_from_validation(validation_result) -> Dict[str, Any]:
         "issues": [],
         "suggestions": [],
         "focus_areas": [],
-        "improvement_priority": validation_result.validation_result.improvement_priority or []
+        "improvement_priority": validation_result.validation_result.improvement_priority
+        or [],
     }
 
     # 각 시나리오별 이슈와 제안사항 수집
