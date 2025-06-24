@@ -5,8 +5,8 @@ from typing import List, Optional
 class ParameterItem(BaseModel):
     name_ko: str
     name: str
-    item_type: str 
-    data_type: Optional[str] 
+    item_type: str
+    data_type: Optional[str]
     required: bool
     step: Optional[int] = None
     length: Optional[int] = None
@@ -36,7 +36,7 @@ class ApiItem(BaseModel):
     desc: str
     method: str
     path: str
-    path_query: List[PathQueryItem] 
+    path_query: List[PathQueryItem]
     request: List[RequestItem]
     response: List[ResponseItem]
 
@@ -68,7 +68,6 @@ class TableItem(BaseModel):
 
 
 class ScenarioRequest(BaseModel):
-    project_id: str 
+    project_id: str
     requirement: List[RequirementItem]
-    api_list: List[ApiItem] 
-    table_list: List[TableItem] 
+    api_list: List[ApiItem]

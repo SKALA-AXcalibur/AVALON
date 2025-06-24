@@ -2,18 +2,19 @@
 import json
 import logging
 import re
+import yaml
 from typing import Any, Dict
 
 from service.llm_service import call_model
 from dto.response.scenario.scenario_response import ScenarioResponse
-from ai.service.scenario.prompts.scenario_prompt import SCENARIO_GENERATION_PROMPT
+from service.scenario.prompts.scenario_prompt import SCENARIO_GENERATION_PROMPT
 
 
 class ScenarioGenerator:
     """
     시나리오 생성을 위한 에이전트
     LLM을 호출하여 시나리오 데이터를 생성
-    """ 
+    """
 
     def generate_scenario_request(self, request: Any) -> ScenarioResponse:
         """
@@ -38,7 +39,8 @@ class ScenarioGenerator:
             raise RuntimeError(f"시나리오 생성 실패: {e}")
 
     def generate_scenario_with_feedback(
-        self, request: Any, feedback_data: Dict[str, Any]) -> ScenarioResponse:
+        self, request: Any, feedback_data: Dict[str, Any]
+    ) -> ScenarioResponse:
         """
         피드백을 반영한 시나리오 재생성
         """
@@ -57,21 +59,38 @@ class ScenarioGenerator:
             # 응답 반환
             return ScenarioResponse(**parsed_json)
         except Exception as e:
-            logging.exception("[ScenarioGenerator Error] 피드백 반영 시나리오 생성 중 예외 발생")
+            logging.exception(
+                "[ScenarioGenerator Error] 피드백 반영 시나리오 생성 중 예외 발생"
+            )
             raise RuntimeError(f"피드백 반영 시나리오 생성 실패: {e}")
 
     def _build_prompt(self, request: Any) -> str:
         """
-        입력 요청 객체를 기반으로 프롬프트 생성
+        입력 요청 객체를 기반으로 프롬프트 생성 (YAML 형태로 변환)
         """
-        input_json = json.dumps(request.model_dump(), ensure_ascii=False, indent=2)
-        return SCENARIO_GENERATION_PROMPT.format(data=input_json)
+        # Pydantic 모델을 dict로 변환
+        request_dict = request.model_dump()
 
-    def _build_prompt_with_feedback(self, request: Any, feedback_data: Dict[str, Any]) -> str:
+        # YAML로 변환
+        yaml_data = yaml.dump(
+            request_dict, default_flow_style=False, allow_unicode=True, sort_keys=False
+        )
+
+        return SCENARIO_GENERATION_PROMPT.format(data=yaml_data)
+
+    def _build_prompt_with_feedback(
+        self, request: Any, feedback_data: Dict[str, Any]
+    ) -> str:
         """
-        피드백을 반영한 프롬프트 생성
+        피드백을 반영한 프롬프트 생성 (YAML 형태로 변환)
         """
-        input_json = json.dumps(request.model_dump(), ensure_ascii=False, indent=2)
+        # Pydantic 모델을 dict로 변환
+        request_dict = request.model_dump()
+
+        # YAML로 변환
+        yaml_data = yaml.dump(
+            request_dict, default_flow_style=False, allow_unicode=True, sort_keys=False
+        )
 
         # 피드백 내용 추출 (최대 3개까지만 사용)
         issues = [issue.get("issue", "") for issue in feedback_data.get("issues", [])]
@@ -84,7 +103,7 @@ class ScenarioGenerator:
         feedback_text += "\n".join([f"- {issue}" for issue in issues[:3]])  # 최대 3개만
         feedback_text += "\n" + "\n".join(
             [f"- {suggestion}" for suggestion in suggestions[:3]]
-        ) 
+        )
 
         # 피드백 요약 프롬프트 생성
         return f"""
@@ -92,7 +111,7 @@ class ScenarioGenerator:
 
 위 개선점을 반영하여 시나리오를 다시 생성해주세요.
 
-{SCENARIO_GENERATION_PROMPT.format(data=input_json)}
+{SCENARIO_GENERATION_PROMPT.format(data=yaml_data)}
 """
 
     def _call_llm(self, prompt: str) -> str:
@@ -117,4 +136,6 @@ class ScenarioGenerator:
             return json.loads(json_str)
         except json.JSONDecodeError as e:
             logging.error(f"[JSON 파싱 실패] 원문: {json_str[:200]}...")
-            raise ValueError("Claude 응답에서 유효한 JSON을 추출하지 못했습니다.") from e
+            raise ValueError(
+                "Claude 응답에서 유효한 JSON을 추출하지 못했습니다."
+            ) from e

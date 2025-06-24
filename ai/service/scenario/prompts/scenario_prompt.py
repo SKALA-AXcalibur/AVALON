@@ -17,24 +17,40 @@ SCENARIO_GENERATION_PROMPT = """
 
 ## 예시: 인증 및 컨텐츠 관리 플로우
 ### 입력:
-```json
-{{
-  "project_id": "AVALON-AUTH-001",
-  "requirement": [
-    {{"name": "사용자 로그인", "desc": "이메일과 비밀번호로 시스템 로그인", "major": "인증관리", "middle": "로그인", "minor": "일반로그인"}},
-    {{"name": "게시글 작성", "desc": "로그인한 사용자가 새 게시글 작성", "major": "게시판관리", "middle": "글관리", "minor": "글작성"}},
-    {{"name": "로그아웃", "desc": "사용자 세션 종료", "major": "인증관리", "middle": "로그아웃", "minor": "일반로그아웃"}}
-  ],
-  "api_list": [
-    {{"id": 1, "name": "로그인 API", "desc": "사용자 인증 처리", "method": "POST", "url": "https://api.example.com", "path": "/auth/login"}},
-    {{"id": 2, "name": "게시글 작성 API", "desc": "새 게시글 등록", "method": "POST", "url": "https://api.example.com", "path": "/posts"}},
-    {{"id": 3, "name": "로그아웃 API", "desc": "사용자 로그아웃 처리", "method": "POST", "url": "https://api.example.com", "path": "/auth/logout"}}
-  ],
-  "table_list": [
-    {{"name": "users", "col_name": "id", "type": "int", "isNull": false, "isPk": true, "fk": ""}},
-    {{"name": "users", "col_name": "email", "type": "varchar(255)", "isNull": false, "isPk": false, "fk": ""}}
-  ]
-}}
+```yaml
+project_id: AVALON-AUTH-001
+requirement:
+  - name: 사용자 로그인
+    desc: 이메일과 비밀번호로 시스템 로그인
+    major: 인증관리
+    middle: 로그인
+    minor: 일반로그인
+  - name: 게시글 작성
+    desc: 로그인한 사용자가 새 게시글 작성
+    major: 게시판관리
+    middle: 글관리
+    minor: 글작성
+  - name: 로그아웃
+    desc: 사용자 세션 종료
+    major: 인증관리
+    middle: 로그아웃
+    minor: 일반로그아웃
+api_list:
+  - id: 1
+    name: 로그인 API
+    desc: 사용자 인증 처리
+    method: POST
+    path: /auth/login
+  - id: 2
+    name: 게시글 작성 API
+    desc: 새 게시글 등록
+    method: POST
+    path: /posts
+  - id: 3
+    name: 로그아웃 API
+    desc: 사용자 로그아웃 처리
+    method: POST
+    path: /auth/logout
 ```
 
 ### 출력:
