@@ -1,44 +1,41 @@
 "use client";
 import Link from "next/link";
-import { ActionButton } from "@/components/common/ActionButton";
 import { useTestResultStore } from "@/store/testResult";
-import { useTestRun } from "@/hooks/useTestRun";
+import {
+  FaCheckCircle,
+  FaTimesCircle,
+  FaHourglassHalf,
+  FaRocket,
+} from "react-icons/fa";
 
-export const TestRunSidebar = ({
-  projectId,
-  scenarioId,
-}: {
-  projectId: string;
-  scenarioId: string;
-}) => {
+export const TestRunSidebar = ({ projectId }: { projectId: string }) => {
   const { testResult } = useTestResultStore();
-  const { readScenarioReport, loadingStates } = useTestRun(scenarioId);
 
   const getStatusDisplay = (status: string) => {
     switch (status) {
       case "성공":
         return {
-          icon: "check_circle",
+          icon: <FaCheckCircle />,
           className: "text-green-500",
         };
       case "실패":
         return {
-          icon: "cancel",
+          icon: <FaTimesCircle />,
           className: "text-red-500",
         };
       case "실행중":
         return {
-          icon: "pending",
+          icon: <FaHourglassHalf />,
           className: "text-yellow-500",
         };
       case "준비중":
         return {
-          icon: "schedule",
+          icon: <FaRocket />,
           className: "text-gray-500",
         };
       default:
         return {
-          icon: "help",
+          icon: <FaRocket />,
           className: "text-gray-500",
         };
     }
@@ -56,22 +53,13 @@ export const TestRunSidebar = ({
             >
               <div className="mb-8 flex items-center justify-between hover:bg-slate-100 p-2 rounded transition-colors">
                 <div className="font-bold text-slate-800">{s.scenarioName}</div>
-                <span className={`material-icons ${statusDisplay.className}`}>
+                <span className={`text-xl ${statusDisplay.className}`}>
                   {statusDisplay.icon}
                 </span>
               </div>
             </Link>
           );
         })}
-      </div>
-      <div className="p-6 border-t border-slate-200">
-        <ActionButton
-          onClick={readScenarioReport}
-          color="w-full bg-emerald-500 hover:bg-emerald-600 justify-center"
-          disabled={loadingStates.scenarioReport}
-        >
-          시나리오 다운로드
-        </ActionButton>
       </div>
     </aside>
   );

@@ -32,7 +32,7 @@ export const TestcaseBox = ({
 
   const onCreateSuccess = (tcId: string) => {
     router.push(
-      `/project/${projectId}/scenario/${scenarioId}/testcase/${tcId}`,
+      `/project/${projectId}/scenario/${scenarioId}/testcase/${tcId}`
     );
   };
 
@@ -54,15 +54,22 @@ export const TestcaseBox = ({
             </h2>
             <div className="flex gap-2">
               <LinkButton
+                href={`/project/${projectId}/scenario/new`}
+                color="bg-transparent text-slate-700 hover:text-orange-500"
+                ariaLabel="시나리오 추가"
+              >
+                시나리오 추가
+              </LinkButton>
+              <LinkButton
                 href={`/project/${projectId}/scenario/${scenarioId}/testcase/new`}
-                color="bg-sky-400 hover:bg-sky-500"
+                color="bg-transparent text-slate-700 hover:text-orange-500"
                 ariaLabel="TC 추가"
               >
                 TC 추가
               </LinkButton>
               <ActionButton
                 onClick={() => handleDelete(onDeleteSuccess)}
-                color="bg-red-500 hover:bg-red-600"
+                color="bg-transparent text-slate-700 hover:text-orange-500"
                 disabled={isLoading}
               >
                 삭제
@@ -70,7 +77,7 @@ export const TestcaseBox = ({
               {testcaseId === "new" ? (
                 <ActionButton
                   onClick={() => handleCreate(onCreateSuccess)}
-                  color="bg-green-500 hover:bg-green-600"
+                  color="bg-transparent text-slate-700 hover:text-orange-500"
                   disabled={isLoading}
                 >
                   생성
@@ -78,7 +85,7 @@ export const TestcaseBox = ({
               ) : (
                 <ActionButton
                   onClick={handleUpdate}
-                  color="bg-green-500 hover:bg-green-600"
+                  color="bg-transparent text-slate-700 hover:text-orange-500"
                   disabled={isLoading}
                 >
                   저장

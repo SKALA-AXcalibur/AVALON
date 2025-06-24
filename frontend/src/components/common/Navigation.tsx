@@ -26,12 +26,7 @@ export const Navigation = () => {
       {buttons.map((button, index) => {
         if (button.type === "link") {
           return (
-            <LinkButton
-              key={index}
-              href={button.href}
-              color={button.color}
-              ariaLabel={button.text}
-            >
+            <LinkButton key={index} href={button.href} ariaLabel={button.text}>
               {button.text}
             </LinkButton>
           );
@@ -40,7 +35,6 @@ export const Navigation = () => {
             <ActionButton
               key={index}
               onClick={button.onClick}
-              color={button.color}
               disabled={button.loading}
             >
               {button.text}

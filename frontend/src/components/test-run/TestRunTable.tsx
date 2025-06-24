@@ -35,7 +35,7 @@ export const TestRunTable = ({
             <th className="w-[200px] px-4 py-2 text-xs font-bold text-slate-600">
               기대 결과
             </th>
-            <th className="w-[100px] px-4 py-2 text-xs font-bold text-slate-600">
+            <th className="w-[100px] px-4 py-2 text-xs font-bold text-slate-600 text-center">
               성공여부
             </th>
           </tr>
@@ -57,10 +57,10 @@ export const TestRunTable = ({
                 <td className="px-4 py-2 text-sm text-slate-600 truncate">
                   {tc.expectedResult}
                 </td>
-                <td className="px-4 py-2">
+                <td className="px-4 py-2 text-center">
                   <span
                     className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle(
-                      tc.isSuccess,
+                      tc.isSuccess
                     )}`}
                   >
                     {tc.isSuccess}

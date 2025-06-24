@@ -5,10 +5,10 @@ const ScenarioLayout = async ({
   params,
 }: {
   children: React.ReactNode;
-  params: {
+  params: Promise<{
     "project-id": string;
     "scenario-id": string;
-  };
+  }>;
 }) => {
   const { "project-id": projectId, "scenario-id": scenarioId } = await params;
 
