@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.ApiTaskDto;
+import com.sk.skala.axcalibur.apitest.global.code.ErrorCode;
+import com.sk.skala.axcalibur.apitest.global.exception.BusinessExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.LinkedMultiValueMap;
@@ -11,6 +13,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * ApiTaskDto와 Map<String, String> 간의 변환을 담당하는 유틸리티 클래스
@@ -20,6 +23,8 @@ public class ApiTaskDtoConverter {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Logger log = LoggerFactory.getLogger(ApiTaskDtoConverter.class);
+    private static final TypeReference<Map<String, Object>> typeRef = new TypeReference<Map<String, Object>>() {
+    };
 
     /**
      * ApiTaskDto를 Map<String, String>으로 변환
@@ -45,8 +50,9 @@ public class ApiTaskDtoConverter {
             try {
                 map.put("reqHeader", objectMapper.writeValueAsString(dto.reqHeader()));
             } catch (JsonProcessingException e) {
-                log.error("Failed to serialize reqHeader: {}", e.getMessage());
-                throw new RuntimeException("Failed to serialize reqHeader", e);
+                log.error("ApiTaskDtoConverter.toMap: Failed to serialize reqHeader: {}", e.getMessage());
+                throw new BusinessExceptionHandler("ApiTaskDtoConverter.toMap: Failed to serialize reqHeader",
+                        ErrorCode.JACKSON_PROCESS_ERROR, e);
             }
         }
 
@@ -54,8 +60,9 @@ public class ApiTaskDtoConverter {
             try {
                 map.put("reqBody", objectMapper.writeValueAsString(dto.reqBody()));
             } catch (JsonProcessingException e) {
-                log.error("Failed to serialize reqBody: {}", e.getMessage());
-                throw new RuntimeException("Failed to serialize reqBody", e);
+                log.error("ApiTaskDtoConverter.toMap: Failed to serialize reqBody: {}", e.getMessage());
+                throw new BusinessExceptionHandler("ApiTaskDtoConverter.toMap: Failed to serialize reqBody",
+                        ErrorCode.JACKSON_PROCESS_ERROR, e);
             }
         }
 
@@ -63,8 +70,9 @@ public class ApiTaskDtoConverter {
             try {
                 map.put("resHeader", objectMapper.writeValueAsString(dto.resHeader()));
             } catch (JsonProcessingException e) {
-                log.error("Failed to serialize resHeader: {}", e.getMessage());
-                throw new RuntimeException("Failed to serialize resHeader", e);
+                log.error("ApiTaskDtoConverter.toMap: Failed to serialize resHeader: {}", e.getMessage());
+                throw new BusinessExceptionHandler("ApiTaskDtoConverter.toMap: Failed to serialize resHeader",
+                        ErrorCode.JACKSON_PROCESS_ERROR, e);
             }
         }
 
@@ -72,8 +80,9 @@ public class ApiTaskDtoConverter {
             try {
                 map.put("resBody", objectMapper.writeValueAsString(dto.resBody()));
             } catch (JsonProcessingException e) {
-                log.error("Failed to serialize resBody: {}", e.getMessage());
-                throw new RuntimeException("Failed to serialize resBody", e);
+                log.error("ApiTaskDtoConverter.toMap: Failed to serialize resBody: {}", e.getMessage());
+                throw new BusinessExceptionHandler("ApiTaskDtoConverter.toMap: Failed to serialize resBody",
+                        ErrorCode.JACKSON_PROCESS_ERROR, e);
             }
         }
 
@@ -100,16 +109,18 @@ public class ApiTaskDtoConverter {
                     .resHeader(deserializeMultiValueMap(map.get("resHeader")))
                     .resBody(deserializeMap(map.get("resBody")))
                     .build();
-        } catch (Exception e) {
-            log.error("Failed to convert map to ApiTaskDto: {}", e.getMessage());
-            throw new RuntimeException("Failed to convert map to ApiTaskDto", e);
+        } catch (PatternSyntaxException e) {
+            log.error("ApiTaskDtoConverter.fromMap: Failed to convert map to ApiTaskDto: {}", e.getMessage());
+            throw new BusinessExceptionHandler("ApiTaskDtoConverter.fromMap: Failed to convert map to ApiTaskDto",
+                    ErrorCode.DESERIALIZE_ERROR, e);
         }
     }
 
     /**
      * 문자열을 Integer로 안전하게 파싱 (이중 따옴표 제거 포함)
      */
-    private static Integer parseInteger(String value) {
+    private static Integer parseInteger(String value) throws PatternSyntaxException {
+        log.debug("ApiTaskDtoConverter.parseInteger: Parsing value to Integer: {}", value);
         if (value == null || value.trim().isEmpty()) {
             return null;
         }
@@ -121,7 +132,8 @@ public class ApiTaskDtoConverter {
     /**
      * 문자열에서 이중 따옴표 제거
      */
-    private static String cleanString(String value) {
+    private static String cleanString(String value) throws PatternSyntaxException {
+        log.debug("ApiTaskDtoConverter.cleanString: Cleaning string value: {}", value);
         if (value == null) {
             return null;
         }
@@ -139,9 +151,6 @@ public class ApiTaskDtoConverter {
         }
 
         try {
-            // @SuppressWarnings("unchecked")
-            TypeReference<Map<String, Object>> typeRef = new TypeReference<Map<String, Object>>() {
-            };
             Map<String, Object> tempMap = objectMapper.readValue(json, typeRef);
             MultiValueMap<String, String> result = new LinkedMultiValueMap<>();
 
@@ -157,7 +166,8 @@ public class ApiTaskDtoConverter {
 
             return result;
         } catch (JsonProcessingException e) {
-            log.error("Failed to deserialize MultiValueMap: {}", e.getMessage());
+            log.error("ApiTaskDtoConverter.deserializeMultiValueMap: Failed to deserialize MultiValueMap: {}",
+                    e.getMessage());
             return null;
         }
     }
@@ -172,11 +182,9 @@ public class ApiTaskDtoConverter {
         }
 
         try {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> result = objectMapper.readValue(json, Map.class);
-            return result;
+            return objectMapper.readValue(json, typeRef);
         } catch (JsonProcessingException e) {
-            log.error("Failed to deserialize Map: {}", e.getMessage());
+            log.error("ApiTaskDtoConverter.deserializeMap: Failed to deserialize Map: {}", e.getMessage());
             return null;
         }
     }

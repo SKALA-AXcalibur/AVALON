@@ -6,6 +6,11 @@ import static org.mockito.Mockito.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk.skala.axcalibur.apitest.feature.code.StreamConstants;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.ApiTaskDto;
+import com.sk.skala.axcalibur.apitest.feature.repository.ApiTestDetailRepository;
+import com.sk.skala.axcalibur.apitest.feature.repository.ApiTestRepository;
+import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepository;
+import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepository;
+import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepositoryCustom;
 import com.sk.skala.axcalibur.apitest.feature.util.ApiTaskDtoConverter;
 
 import java.util.HashMap;
@@ -29,6 +34,10 @@ import org.springframework.web.client.RestClient;
 @DisplayName("Redis Stream Listener 테스트")
 @TestPropertySource("logging.level.com.sk.skala.axcalibur.apitest.feature.service.RedisStreamListener=DEBUG")
 class RedisStreamListenerTest {
+    // TODO: RedisStreamListener 다시 테스트
+
+    @Mock
+    private RestClient rest;
 
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
@@ -36,11 +45,26 @@ class RedisStreamListenerTest {
     @Mock
     private StreamOperations<String, Object, Object> streamOperations;
 
+    @Mock
+    private TestcaseResultRepository tr;
+
+    @Mock
+    private TestcaseRepository tc;
+
+    @Mock
+    private TestcaseResultRepositoryCustom trc;
+
+    @Mock
+    private ApiTestRepository at;
+
+    @Mock
+    private ApiTestDetailRepository ad;
+
     private RedisStreamListener redisStreamListener;
 
     @BeforeEach
     void setUp() {
-        redisStreamListener = new RedisStreamListener(RestClient.create(), redisTemplate);
+        redisStreamListener = new RedisStreamListener(5, rest, redisTemplate, tr, tc, trc, at, ad);
         when(redisTemplate.opsForStream()).thenReturn(streamOperations);
     }
 
@@ -178,28 +202,16 @@ class RedisStreamListenerTest {
      * 테스트용 ApiTaskDto 생성 헬퍼 메서드
      */
     private ApiTaskDto createApiTaskDto(String method, String uri,
-            MultiValueMap<String, String> headers,
-            Map<String, Object> body) {
-        return ApiTaskDto.builder()
-                .id(1)
-                .resultId(101)
-                .precondition("테스트 사전조건")
-                .step(1)
-                .method(method)
-                .uri(uri)
-                .reqHeader(headers)
-                .reqBody(body)
-                .statusCode(2) // 2XX 응답 기대
-                .resHeader(null)
-                .resBody(null)
-                .build();
+            MultiValueMap<String, String> headers, Map<String, Object> body) {
+        return ApiTaskDto.builder().id(1).resultId(101).precondition("테스트 사전조건").step(1).attempt(1)
+                .method(method).uri(uri).reqHeader(headers).reqBody(body).statusCode(2) // 2XX 응답 기대
+                .resHeader(null).resBody(null).build();
     }
 
     /**
      * 테스트용 MapRecord 생성 헬퍼 메서드
      */
     private MapRecord<String, String, String> createMapRecord(String id, Map<String, String> data) {
-        return MapRecord.create(StreamConstants.STREAM_KEY, data)
-                .withId(RecordId.of(id));
+        return MapRecord.create(StreamConstants.STREAM_KEY, data).withId(RecordId.of(id));
     }
 }

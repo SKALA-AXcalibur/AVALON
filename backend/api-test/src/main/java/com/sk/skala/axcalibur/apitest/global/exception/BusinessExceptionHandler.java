@@ -8,9 +8,10 @@ import lombok.Getter;
  * 에러를 사용하기 위한 구현체
  */
 
-public class BusinessExceptionHandler extends RuntimeException{
+public class BusinessExceptionHandler extends RuntimeException {
 	@Getter
 	private final ErrorCode errorCode;
+
 	@Builder
 	public BusinessExceptionHandler(String message, ErrorCode errorCode) {
 		super(message);
@@ -20,6 +21,12 @@ public class BusinessExceptionHandler extends RuntimeException{
 	@Builder
 	public BusinessExceptionHandler(ErrorCode errorCode) {
 		super(errorCode.getMessage());
+		this.errorCode = errorCode;
+	}
+
+	@Builder
+	public BusinessExceptionHandler(String message, ErrorCode errorCode, Throwable cause) {
+		super(message, cause);
 		this.errorCode = errorCode;
 	}
 

@@ -6,6 +6,8 @@ import com.sk.skala.axcalibur.apitest.feature.service.RedisStreamListener;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -26,6 +28,12 @@ import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 @RequiredArgsConstructor
 @Slf4j
 public class RedisStreamConsumerConfig {
+
+  @Value("${spring.data.redis.stream.container.batch-size:10}")
+  private final Integer batch;
+
+  @Value("${spring.data.redis.stream.container.poll-timeout:1}")
+  private final Integer pollTimeout;
 
   /**
    * Redis Stream에서 수신한 메시지를 처리하는 리스너
@@ -48,7 +56,7 @@ public class RedisStreamConsumerConfig {
   @Bean
   public TaskExecutor virtualThreadTaskExecutor() {
     SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
-    executor.setVirtualThreads(true); // 가상 스레드 사용 활성화!
+    executor.setVirtualThreads(true); // 가상 스레드 사용 활성화
     return executor;
   }
 
@@ -67,9 +75,8 @@ public class RedisStreamConsumerConfig {
 
     // 컨테이너 옵션 설정
     var options = StreamMessageListenerContainer.StreamMessageListenerContainerOptions.builder()
-        .pollTimeout(Duration.ofSeconds(1)) // 메시지가 없을 때 대기 시간 설정
-        .batchSize(10) // 한 번에 최대 10개 메시지 가져오기
-        // MapRecord 사용 시 targetType 제거
+        .pollTimeout(Duration.ofSeconds(pollTimeout)) // 메시지가 없을 때 대기 시간 설정
+        .batchSize(batch) // 한 번에 최대 10개 메시지 가져오기
         .executor(virtualThreadTaskExecutor) // 리스너 실행을 위한 실행기(가상 스레드) 주입
         .build();
 

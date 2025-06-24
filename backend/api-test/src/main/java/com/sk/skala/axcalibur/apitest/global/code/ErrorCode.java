@@ -13,7 +13,8 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
 	/**
-	 * ******************************* Global Error CodeList ***************************************
+	 * ******************************* Global Error CodeList
+	 * ***************************************
 	 * HTTP Status Code
 	 * 400 : Bad Request
 	 * 401 : Unauthorized
@@ -74,22 +75,21 @@ public enum ErrorCode {
 	INTERNAL_SERVER_ERROR(500, "G999", "Internal Server Error Exception"),
 
 	/**
-	 * ******************************* Custom Error CodeList ***************************************
+	 * ******************************* Custom Error CodeList
+	 * ***************************************
 	 */
 	SAMPLE_INPUT_ERROR(400, "SM001", "에러 샘플 1"),
 	SAMPLE_PROCESSING_ERROR(500, "SM002", "에러 샘플 2"),
 
-	SCENARIO_NOT_FOUND_ERROR(404, "SN001", "해당 시나리오를 찾을 수 없습니다."),
-
-
-
-
-
-
+	SCENARIO_NOT_FOUND_ERROR(404, "TR001", "시나리오를 찾을 수 없음"),
+	DESERIALIZE_ERROR(400, "TR002", "ApiTaskDto 역직렬화 실패"),
+	UNVALID_TESTCASE_ERROR(404, "TR003", "유효하지 않은 테스트 케이스")
 
 	; // End
+
 	/**
-	 * ******************************* Error Code Constructor ***************************************
+	 * ******************************* Error Code Constructor
+	 * ***************************************
 	 */
 	// 에러 코드의 '코드 상태'을 반환한다.
 	private final int status;

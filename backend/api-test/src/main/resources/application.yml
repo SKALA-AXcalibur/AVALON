@@ -10,6 +10,35 @@ spring:
   threads:
     virtual:
       enabled: true
+  data:
+    # Redis Stream Pending 메시지 재할당 설정
+    redis:
+      stream:
+        container:
+          # 한 번에 처리할 메시지 배치 크기
+          batch-size: 10
+          # 처리 중인 메시지가 없을 경우 Polling 대기 시간 (초)
+          poll-time-out: 1
+        listener:
+          # api 테스트 재시도 가능 횟수
+          max-retry-count: 5
+        pending:
+          # pending 메시지가 재할당되기 위한 최소 idle 시간 (밀리초)
+          # 기본값: 2분 (120,000ms)
+          min-idle-time: 120000
+          # 한 번에 처리할 pending 메시지 배치 크기
+          batch-size: 10
+          # pending 메시지 재할당 기능 활성화 여부
+          reclaim:
+            enabled: true
+
+org:
+  springframework:
+    web:
+      client:
+        rest-client:
+          connect-timeout: 10  # 연결 타임아웃 (초)
+          read-timeout: 90  # 읽기 타임아웃 (초)
 
 server:
   servlet:
@@ -23,4 +52,3 @@ logging:
         skala:
           axcalibur:
             apitest: info
-
