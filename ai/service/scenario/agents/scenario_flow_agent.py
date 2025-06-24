@@ -2,6 +2,7 @@
 import json
 import re
 import logging
+import yaml
 
 from dto.request.scenario.scenario_flow_request import ScenarioFlowRequest
 from dto.response.scenario.scenario_flow_response import ScenarioFlowResponse
@@ -15,7 +16,9 @@ class ScenarioFlowAgent:
     LLM을 호출하여 Mermaid 형식의 str 생성
     """
 
-    async def generate_scenario_flow(self, request: ScenarioFlowRequest) -> ScenarioFlowResponse:
+    async def generate_scenario_flow(
+        self, request: ScenarioFlowRequest
+    ) -> ScenarioFlowResponse:
         """
         주어진 시나리오 요청 데이터를 바탕으로 Mermaid 흐름도를 반환
         """
@@ -34,9 +37,16 @@ class ScenarioFlowAgent:
 
     def _build_prompt(self, request: ScenarioFlowRequest) -> str:
         """
-        시나리오 요청 데이터를 JSON 문자열로 직렬화
+        시나리오 요청 데이터를 YAML 문자열로 직렬화
         """
-        scenario_input = json.dumps(request.model_dump(by_alias=True), ensure_ascii=False, indent=2)
+        # Pydantic 모델을 dict로 변환
+        request_dict = request.model_dump(by_alias=True)
+
+        # YAML로 변환
+        scenario_input = yaml.dump(
+            request_dict, default_flow_style=False, allow_unicode=True, sort_keys=False
+        )
+
         return SCENARIO_FLOW_PROMPT.format(data=scenario_input)
 
     def _call_llm(self, prompt: str) -> str:
