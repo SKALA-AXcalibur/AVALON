@@ -45,18 +45,9 @@ public class ApiTaskDtoTest {
         dataMap.put("result", "ok");
         resBody.put("data", dataMap);
 
-        testDto = ApiTaskDto.builder()
-                .id(100)
-                .resultId(200)
-                .precondition("사전조건 테스트")
-                .step(1)
-                .method("POST")
-                .uri("/api/test")
-                .reqHeader(reqHeader).reqBody(reqBody)
-                .statusCode(2)
-                .resHeader(resHeader)
-                .resBody(resBody)
-                .build();
+        testDto = ApiTaskDto.builder().id(100).resultId(200).precondition("사전조건 테스트").step(1)
+                .attempt(1).method("POST").uri("/api/test").reqHeader(reqHeader).reqBody(reqBody)
+                .statusCode(2).resHeader(resHeader).resBody(resBody).build();
     }
 
     @Test
@@ -82,11 +73,11 @@ public class ApiTaskDtoTest {
         final ApiTaskDto deserializedDto = (ApiTaskDto) deserializedObject;
 
         // 모든 필드가 정확히 복원되었는지 검증
-        assertAll(
-                () -> assertThat(deserializedDto.id()).isEqualTo(testDto.id()),
+        assertAll(() -> assertThat(deserializedDto.id()).isEqualTo(testDto.id()),
                 () -> assertThat(deserializedDto.resultId()).isEqualTo(testDto.resultId()),
                 () -> assertThat(deserializedDto.precondition()).isEqualTo(testDto.precondition()),
                 () -> assertThat(deserializedDto.step()).isEqualTo(testDto.step()),
+                () -> assertThat(deserializedDto.attempt()).isEqualTo(testDto.attempt()),
                 () -> assertThat(deserializedDto.method()).isEqualTo(testDto.method()),
                 () -> assertThat(deserializedDto.uri()).isEqualTo(testDto.uri()),
                 () -> assertThat(deserializedDto.statusCode()).isEqualTo(testDto.statusCode()),
@@ -118,17 +109,11 @@ public class ApiTaskDtoTest {
     @DisplayName("null 값이 포함된 ApiTaskDto 직렬화/역직렬화 테스트")
     void testRedisSerializationWithNullValues() {
         // given
-        ApiTaskDto dtoWithNulls = ApiTaskDto.builder()
-                .id(1)
-                .resultId(2)
-                .precondition(null) // null 값
-                .step(1)
-                .method("GET")
-                .uri("/api/test")
-                .reqHeader(null) // null 값
+        ApiTaskDto dtoWithNulls = ApiTaskDto.builder().id(1).resultId(2).precondition(null) // null
+                                                                                            // 값
+                .step(1).attempt(1).method("GET").uri("/api/test").reqHeader(null) // null 값
                 .reqBody(null) // null 값
-                .statusCode(2)
-                .resHeader(null) // null 값
+                .statusCode(2).resHeader(null) // null 값
                 .resBody(null) // null 값
                 .build();
 
@@ -145,8 +130,7 @@ public class ApiTaskDtoTest {
         final ApiTaskDto deserializedDto = (ApiTaskDto) deserializedObject;
         assertThat(deserializedDto).isEqualTo(dtoWithNulls);
 
-        assertAll(
-                () -> assertThat(deserializedDto.precondition()).isNull(),
+        assertAll(() -> assertThat(deserializedDto.precondition()).isNull(),
                 () -> assertThat(deserializedDto.reqHeader()).isNull(),
                 () -> assertThat(deserializedDto.reqBody()).isNull(),
                 () -> assertThat(deserializedDto.resHeader()).isNull(),
@@ -175,8 +159,7 @@ public class ApiTaskDtoTest {
 
         // ObjectHashMapper는 복합 객체(MultiValueMap 등)의 완전한 직렬화에 제한이 있음
         // 기본 필드들이 정확히 복원되었는지 검증
-        assertAll(
-                () -> assertThat(deserializedDto.id()).isEqualTo(testDto.id()),
+        assertAll(() -> assertThat(deserializedDto.id()).isEqualTo(testDto.id()),
                 () -> assertThat(deserializedDto.resultId()).isEqualTo(testDto.resultId()),
                 () -> assertThat(deserializedDto.method()).isEqualTo(testDto.method()),
                 () -> assertThat(deserializedDto.uri()).isEqualTo(testDto.uri()),
@@ -223,6 +206,7 @@ public class ApiTaskDtoTest {
         assertThat(jsonHashData.get("statusCode")).isEqualTo(2);
         assertThat(jsonHashData.get("precondition")).isEqualTo("사전조건 테스트");
         assertThat(jsonHashData.get("step")).isEqualTo(1);
+        assertThat(jsonHashData.get("attempt")).isEqualTo(1);
 
         // 복합 객체들은 JSON 문자열로 직렬화됨
         assertThat(jsonHashData.get("reqHeader")).isNotNull();
@@ -268,19 +252,9 @@ public class ApiTaskDtoTest {
     @DisplayName("HashMapper null 값 처리 비교 테스트")
     void testHashMappersWithNullValues() {
         // given
-        ApiTaskDto dtoWithNulls = ApiTaskDto.builder()
-                .id(1)
-                .resultId(2)
-                .precondition(null)
-                .step(1)
-                .method("GET")
-                .uri("/api/test")
-                .reqHeader(null)
-                .reqBody(null)
-                .statusCode(2)
-                .resHeader(null)
-                .resBody(null)
-                .build();
+        ApiTaskDto dtoWithNulls = ApiTaskDto.builder().id(1).resultId(2).precondition(null).step(1)
+                .attempt(1).method("GET").uri("/api/test").reqHeader(null).reqBody(null)
+                .statusCode(2).resHeader(null).resBody(null).build();
 
         ObjectHashMapper objectHashMapper = new ObjectHashMapper();
         Jackson2HashMapper jackson2HashMapper = new Jackson2HashMapper(false);
@@ -303,10 +277,10 @@ public class ApiTaskDtoTest {
         assertThat(jsonMappedResult).isEqualTo(dtoWithNulls);
 
         // 기본 필드들이 정확히 복원되었는지 검증
-        assertAll(
-                () -> assertThat(jsonMappedResult.id()).isEqualTo(1),
+        assertAll(() -> assertThat(jsonMappedResult.id()).isEqualTo(1),
                 () -> assertThat(jsonMappedResult.resultId()).isEqualTo(2),
                 () -> assertThat(jsonMappedResult.step()).isEqualTo(1),
+                () -> assertThat(jsonMappedResult.attempt()).isEqualTo(1),
                 () -> assertThat(jsonMappedResult.method()).isEqualTo("GET"),
                 () -> assertThat(jsonMappedResult.uri()).isEqualTo("/api/test"),
                 () -> assertThat(jsonMappedResult.statusCode()).isEqualTo(2),
@@ -321,7 +295,8 @@ public class ApiTaskDtoTest {
     @DisplayName("Jackson2JsonRedisSerializer(Class) 기본 생성자 테스트")
     void testJackson2JsonRedisSerializerWithClass() {
         // given
-        Jackson2JsonRedisSerializer<ApiTaskDto> serializer = new Jackson2JsonRedisSerializer<>(ApiTaskDto.class);
+        Jackson2JsonRedisSerializer<ApiTaskDto> serializer =
+                new Jackson2JsonRedisSerializer<>(ApiTaskDto.class);
 
         // when - 직렬화
         byte[] serializedData = serializer.serialize(testDto);
@@ -346,14 +321,14 @@ public class ApiTaskDtoTest {
         assertThat(deserializedDto).isEqualTo(testDto);
 
         // 모든 필드가 정확히 복원되었는지 검증
-        assertAll(
-                () -> assertThat(deserializedDto.id()).isEqualTo(testDto.id()),
+        assertAll(() -> assertThat(deserializedDto.id()).isEqualTo(testDto.id()),
                 () -> assertThat(deserializedDto.resultId()).isEqualTo(testDto.resultId()),
                 () -> assertThat(deserializedDto.method()).isEqualTo(testDto.method()),
                 () -> assertThat(deserializedDto.uri()).isEqualTo(testDto.uri()),
                 () -> assertThat(deserializedDto.statusCode()).isEqualTo(testDto.statusCode()),
                 () -> assertThat(deserializedDto.precondition()).isEqualTo(testDto.precondition()),
                 () -> assertThat(deserializedDto.step()).isEqualTo(testDto.step()),
+                () -> assertThat(deserializedDto.attempt()).isEqualTo(testDto.attempt()),
                 () -> assertThat(deserializedDto.reqHeader()).isEqualTo(testDto.reqHeader()),
                 () -> assertThat(deserializedDto.reqBody()).isEqualTo(testDto.reqBody()),
                 () -> assertThat(deserializedDto.resHeader()).isEqualTo(testDto.resHeader()),
@@ -369,8 +344,8 @@ public class ApiTaskDtoTest {
         // customMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
         // false);
 
-        Jackson2JsonRedisSerializer<ApiTaskDto> serializer = new Jackson2JsonRedisSerializer<>(customMapper,
-                ApiTaskDto.class);
+        Jackson2JsonRedisSerializer<ApiTaskDto> serializer =
+                new Jackson2JsonRedisSerializer<>(customMapper, ApiTaskDto.class);
 
         // when - 직렬화
         byte[] serializedData = serializer.serialize(testDto);
@@ -380,7 +355,8 @@ public class ApiTaskDtoTest {
         assertThat(serializedData).hasSizeGreaterThan(0);
 
         String jsonString = new String(serializedData);
-        System.out.println("Jackson2JsonRedisSerializer (Custom ObjectMapper) - JSON: " + jsonString);
+        System.out
+                .println("Jackson2JsonRedisSerializer (Custom ObjectMapper) - JSON: " + jsonString);
 
         // when - 역직렬화
         ApiTaskDto deserializedDto = serializer.deserialize(serializedData);
@@ -398,7 +374,8 @@ public class ApiTaskDtoTest {
         TypeFactory typeFactory = mapper.getTypeFactory();
         var javaType = typeFactory.constructType(ApiTaskDto.class);
 
-        Jackson2JsonRedisSerializer<ApiTaskDto> serializer = new Jackson2JsonRedisSerializer<>(mapper, javaType);
+        Jackson2JsonRedisSerializer<ApiTaskDto> serializer =
+                new Jackson2JsonRedisSerializer<>(mapper, javaType);
 
         // when - 직렬화
         byte[] serializedData = serializer.serialize(testDto);
@@ -422,21 +399,12 @@ public class ApiTaskDtoTest {
     @DisplayName("Jackson2JsonRedisSerializer null 값 처리 테스트")
     void testJackson2JsonRedisSerializerWithNullValues() {
         // given
-        ApiTaskDto dtoWithNulls = ApiTaskDto.builder()
-                .id(1)
-                .resultId(2)
-                .precondition(null)
-                .step(1)
-                .method("GET")
-                .uri("/api/test")
-                .reqHeader(null)
-                .reqBody(null)
-                .statusCode(2)
-                .resHeader(null)
-                .resBody(null)
-                .build();
+        ApiTaskDto dtoWithNulls = ApiTaskDto.builder().id(1).resultId(2).precondition(null).step(1)
+                .attempt(1).method("GET").uri("/api/test").reqHeader(null).reqBody(null)
+                .statusCode(2).resHeader(null).resBody(null).build();
 
-        Jackson2JsonRedisSerializer<ApiTaskDto> serializer = new Jackson2JsonRedisSerializer<>(ApiTaskDto.class);
+        Jackson2JsonRedisSerializer<ApiTaskDto> serializer =
+                new Jackson2JsonRedisSerializer<>(ApiTaskDto.class);
 
         // when - 직렬화
         byte[] serializedData = serializer.serialize(dtoWithNulls);
@@ -459,10 +427,10 @@ public class ApiTaskDtoTest {
         assertThat(deserializedDto).isEqualTo(dtoWithNulls);
 
         // null 값들이 올바르게 복원되었는지 검증
-        assertAll(
-                () -> assertThat(deserializedDto.id()).isEqualTo(1),
+        assertAll(() -> assertThat(deserializedDto.id()).isEqualTo(1),
                 () -> assertThat(deserializedDto.resultId()).isEqualTo(2),
                 () -> assertThat(deserializedDto.step()).isEqualTo(1),
+                () -> assertThat(deserializedDto.attempt()).isEqualTo(1),
                 () -> assertThat(deserializedDto.method()).isEqualTo("GET"),
                 () -> assertThat(deserializedDto.uri()).isEqualTo("/api/test"),
                 () -> assertThat(deserializedDto.statusCode()).isEqualTo(2),
@@ -477,9 +445,10 @@ public class ApiTaskDtoTest {
     @DisplayName("Jackson2JsonRedisSerializer와 GenericJackson2JsonRedisSerializer 비교 테스트")
     void testJacksonSerializersComparison() {
         // given
-        Jackson2JsonRedisSerializer<ApiTaskDto> specificSerializer = new Jackson2JsonRedisSerializer<>(
-                ApiTaskDto.class);
-        GenericJackson2JsonRedisSerializer genericSerializer = new GenericJackson2JsonRedisSerializer();
+        Jackson2JsonRedisSerializer<ApiTaskDto> specificSerializer =
+                new Jackson2JsonRedisSerializer<>(ApiTaskDto.class);
+        GenericJackson2JsonRedisSerializer genericSerializer =
+                new GenericJackson2JsonRedisSerializer();
 
         // when - 각각 직렬화
         byte[] specificSerialized = specificSerializer.serialize(testDto);

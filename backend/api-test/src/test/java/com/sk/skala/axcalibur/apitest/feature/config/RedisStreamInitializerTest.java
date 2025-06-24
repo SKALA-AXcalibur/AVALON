@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.sk.skala.axcalibur.apitest.feature.code.StreamConstants;
-import com.sk.skala.axcalibur.apitest.feature.dto.request.ApiTaskDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,14 +34,15 @@ class RedisStreamInitializerTest {
     @Test
     void initializeStreamAndGroup_shouldCreateGroup_whenSuccessful() {
         // Given
-        when(streamOperations.createGroup(eq(StreamConstants.STREAM_KEY), eq(StreamConstants.GROUP_NAME)))
-                .thenReturn("OK");
+        when(streamOperations.createGroup(eq(StreamConstants.STREAM_KEY),
+                eq(StreamConstants.GROUP_NAME))).thenReturn("OK");
 
         // When
         redisStreamInitializer.initializeStreamAndGroup();
 
         // Then
-        verify(streamOperations).createGroup(StreamConstants.STREAM_KEY, StreamConstants.GROUP_NAME);
+        verify(streamOperations).createGroup(StreamConstants.STREAM_KEY,
+                StreamConstants.GROUP_NAME);
     }
 
     @Test
@@ -60,7 +60,8 @@ class RedisStreamInitializerTest {
         redisStreamInitializer.initializeStreamAndGroup();
 
         // Then
-        verify(streamOperations).createGroup(StreamConstants.STREAM_KEY, StreamConstants.GROUP_NAME);
+        verify(streamOperations).createGroup(StreamConstants.STREAM_KEY,
+                StreamConstants.GROUP_NAME);
     }
 
     @Test
@@ -78,6 +79,7 @@ class RedisStreamInitializerTest {
         redisStreamInitializer.initializeStreamAndGroup();
 
         // Then
-        verify(streamOperations).createGroup(StreamConstants.STREAM_KEY, StreamConstants.GROUP_NAME);
+        verify(streamOperations).createGroup(StreamConstants.STREAM_KEY,
+                StreamConstants.GROUP_NAME);
     }
 }

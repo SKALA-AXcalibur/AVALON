@@ -22,11 +22,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
-@TestPropertySource(properties = {
-        "spring.data.redis.host=localhost",
-        "spring.data.redis.port=6379",
-        "logging.level.com.sk.skala.axcalibur.apitest.feature.service.RedisStreamListener=WARN"
-})
+@TestPropertySource(properties = {"spring.data.redis.host=localhost", "spring.data.redis.port=6379",
+        "logging.level.com.sk.skala.axcalibur.apitest.feature.service.RedisStreamListener=WARN"})
 @DisplayName("Redis Streams 성능 테스트")
 @EnabledIfSystemProperty(named = "performance.test", matches = "true")
 class RedisStreamPerformanceTest {
@@ -39,23 +36,24 @@ class RedisStreamPerformanceTest {
         try {
             // 컨슈머 그룹이 존재하는지 확인하고 생성
             try {
-                redisTemplate.opsForStream().createGroup(StreamConstants.STREAM_KEY, StreamConstants.GROUP_NAME);
+                redisTemplate.opsForStream().createGroup(StreamConstants.STREAM_KEY,
+                        StreamConstants.GROUP_NAME);
             } catch (Exception e) {
                 // 그룹이 이미 존재하는 경우 무시
             }
             // PENDING 메시지들을 ACK 처리하여 정리
-            var pendingMessages = redisTemplate.opsForStream()
-                    .pending(StreamConstants.STREAM_KEY, StreamConstants.GROUP_NAME);
+            var pendingMessages = redisTemplate.opsForStream().pending(StreamConstants.STREAM_KEY,
+                    StreamConstants.GROUP_NAME);
 
             if (pendingMessages != null && pendingMessages.getTotalPendingMessages() > 0) {
-                var pendingDetails = redisTemplate.opsForStream()
-                        .pending(StreamConstants.STREAM_KEY, StreamConstants.GROUP_NAME,
-                                org.springframework.data.domain.Range.unbounded(),
-                                pendingMessages.getTotalPendingMessages());
+                var pendingDetails = redisTemplate.opsForStream().pending(
+                        StreamConstants.STREAM_KEY, StreamConstants.GROUP_NAME,
+                        org.springframework.data.domain.Range.unbounded(),
+                        pendingMessages.getTotalPendingMessages());
 
                 for (var pending : pendingDetails) {
-                    redisTemplate.opsForStream().acknowledge(StreamConstants.STREAM_KEY, StreamConstants.GROUP_NAME,
-                            pending.getId());
+                    redisTemplate.opsForStream().acknowledge(StreamConstants.STREAM_KEY,
+                            StreamConstants.GROUP_NAME, pending.getId());
                 }
             }
         } catch (Exception e) {
@@ -73,12 +71,8 @@ class RedisStreamPerformanceTest {
         for (int i = 0; i < messageCount; i++) {
             final int messageId = i;
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                ApiTaskDto apiTaskDto = createApiTaskDto(
-                        "GET",
-                        "https://httpbin.org/delay/1",
-                        null,
-                        null,
-                        messageId);
+                ApiTaskDto apiTaskDto = createApiTaskDto("GET", "https://httpbin.org/delay/1", null,
+                        null, messageId);
                 var dataMap = ApiTaskDtoConverter.toMap(apiTaskDto);
                 var record = MapRecord.create(StreamConstants.STREAM_KEY, dataMap);
                 redisTemplate.opsForStream().add(record);
@@ -92,7 +86,8 @@ class RedisStreamPerformanceTest {
         Instant sendEndTime = Instant.now();
         Duration sendDuration = Duration.between(startTime, sendEndTime);
 
-        System.out.println("Message transmission completion time: " + sendDuration.toMillis() + "ms");
+        System.out
+                .println("Message transmission completion time: " + sendDuration.toMillis() + "ms");
 
         // Then - 모든 메시지가 처리될 때까지 대기 (최대 5분)
         long processingStartTime = System.currentTimeMillis();
@@ -108,7 +103,8 @@ class RedisStreamPerformanceTest {
                 } else {
                     Thread.sleep(1000); // 1초 대기
                     if (pendingMessages != null) {
-                        System.out.println("message left: " + pendingMessages.getTotalPendingMessages());
+                        System.out.println(
+                                "message left: " + pendingMessages.getTotalPendingMessages());
                     }
                 }
             } catch (Exception e) {
@@ -124,9 +120,10 @@ class RedisStreamPerformanceTest {
         System.out.println("=== Performance test results ===");
         System.out.println("total number of messages: " + messageCount);
         System.out.println("Total processing time: " + totalDuration.toMillis() + "ms");
-        System.out.println("Average processing time per message: " + (totalDuration.toMillis() / messageCount) + "ms");
-        System.out.println(
-                "throughput per second: " + (messageCount * 1000.0 / totalDuration.toMillis()) + " messages/sec");
+        System.out.println("Average processing time per message: "
+                + (totalDuration.toMillis() / messageCount) + "ms");
+        System.out.println("throughput per second: "
+                + (messageCount * 1000.0 / totalDuration.toMillis()) + " messages/sec");
 
         assertThat(allProcessed).isTrue();
         assertThat(totalDuration.toMinutes()).isLessThan(5); // 5분 이내 완료
@@ -145,12 +142,9 @@ class RedisStreamPerformanceTest {
         for (int i = 0; i < messageCount; i++) {
             final int messageId = i;
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                ApiTaskDto apiTaskDto = createApiTaskDto(
-                        "GET",
-                        "https://httpbin.org/uuid", // 빠른 응답 엔드포인트
-                        null,
-                        null,
-                        messageId);
+                ApiTaskDto apiTaskDto = createApiTaskDto("GET", "https://httpbin.org/uuid", // 빠른 응답
+                                                                                            // 엔드포인트
+                        null, null, messageId);
                 var dataMap = ApiTaskDtoConverter.toMap(apiTaskDto);
                 var record = MapRecord.create(StreamConstants.STREAM_KEY, dataMap);
                 redisTemplate.opsForStream().add(record);
@@ -188,8 +182,8 @@ class RedisStreamPerformanceTest {
         System.out.println("=== Concurrent processing test results ===");
         System.out.println("transfer success: " + successCount.get() + "/" + messageCount);
         System.out.println("Total processing time: " + totalDuration.toMillis() + "ms");
-        System.out.println(
-                "throughput per second: " + (messageCount * 1000.0 / totalDuration.toMillis()) + " messages/sec");
+        System.out.println("throughput per second: "
+                + (messageCount * 1000.0 / totalDuration.toMillis()) + " messages/sec");
 
         assertThat(successCount.get()).isEqualTo(messageCount);
         assertThat(allProcessed).isTrue();
@@ -208,12 +202,8 @@ class RedisStreamPerformanceTest {
 
         // When
         for (int i = 0; i < messageCount; i++) {
-            ApiTaskDto apiTaskDto = createApiTaskDto(
-                    "GET",
-                    "https://httpbin.org/get",
-                    null,
-                    null,
-                    i);
+            ApiTaskDto apiTaskDto =
+                    createApiTaskDto("GET", "https://httpbin.org/get", null, null, i);
             var dataMap = ApiTaskDtoConverter.toMap(apiTaskDto);
             var record = MapRecord.create(StreamConstants.STREAM_KEY, dataMap);
             redisTemplate.opsForStream().add(record);
@@ -239,20 +229,11 @@ class RedisStreamPerformanceTest {
     /**
      * 성능 테스트용 ApiTaskDto 생성 헬퍼 메서드
      */
-    private ApiTaskDto createApiTaskDto(String method, String uri,
-            Object headers, Object body, int messageId) {
-        return ApiTaskDto.builder()
-                .id(messageId)
-                .resultId(messageId + 10000)
-                .precondition("Performance test - " + messageId)
-                .step(1)
-                .method(method)
-                .uri(uri)
-                .reqHeader(null)
-                .reqBody(null)
-                .statusCode(2) // 2XX 응답 기대
-                .resHeader(null)
-                .resBody(null)
-                .build();
+    private ApiTaskDto createApiTaskDto(String method, String uri, Object headers, Object body,
+            int messageId) {
+        return ApiTaskDto.builder().id(messageId).resultId(messageId + 10000)
+                .precondition("Performance test - " + messageId).step(1).attempt(1).method(method)
+                .uri(uri).reqHeader(null).reqBody(null).statusCode(2) // 2XX 응답 기대
+                .resHeader(null).resBody(null).build();
     }
 }

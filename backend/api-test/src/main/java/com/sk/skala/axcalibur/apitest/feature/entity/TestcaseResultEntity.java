@@ -10,7 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,6 +47,5 @@ public class TestcaseResultEntity extends BaseTimeEntity {
   @Column(name = "time")
   // 수행시간
   private Double time;
-
 
 }
