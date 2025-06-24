@@ -1,11 +1,11 @@
 "use client";
 import { ChangeEvent } from "react";
 
-interface FileInputBoxProps {
+export const FileInputBox = ({
+  onFileSelect,
+}: {
   onFileSelect: (files: File[]) => void;
-}
-
-const FileInputBox = ({ onFileSelect }: FileInputBoxProps) => {
+}) => {
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const fileList = Array.from(e.target.files);
@@ -39,5 +39,3 @@ const FileInputBox = ({ onFileSelect }: FileInputBoxProps) => {
     </div>
   );
 };
-
-export default FileInputBox;

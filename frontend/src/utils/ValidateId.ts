@@ -1,25 +1,25 @@
-const validateId = (
-  Id: string
+import { ERROR_MESSAGES } from "@/constants/messages";
+
+export const validateId = (
+  id: string,
 ): { isValid: boolean; errorMessage?: string } => {
-  if (!Id) {
-    return { isValid: false, errorMessage: "ID를 입력해주세요." };
+  if (!id) {
+    return { isValid: false, errorMessage: ERROR_MESSAGES.ID_VALIDATION.EMPTY };
   }
 
-  if (Id.length < 5 || Id.length > 30) {
+  if (id.length < 5 || id.length > 30) {
     return {
       isValid: false,
-      errorMessage: "ID는 5자 이상 30자 이하여야 합니다.",
+      errorMessage: ERROR_MESSAGES.ID_VALIDATION.LENGTH,
     };
   }
 
-  if (!/^[a-zA-Z0-9-]+$/.test(Id)) {
+  if (!/^[a-zA-Z0-9-]+$/.test(id)) {
     return {
       isValid: false,
-      errorMessage: "ID는 영문자와 숫자, -로만 구성되어야 합니다.",
+      errorMessage: ERROR_MESSAGES.ID_VALIDATION.FORMAT,
     };
   }
 
   return { isValid: true };
 };
-
-export default validateId;

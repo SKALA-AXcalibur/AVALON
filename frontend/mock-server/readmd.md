@@ -7,7 +7,6 @@ json-server를 활용한 프론트엔드 테스트 서버입니다. 인터페이
 ### Install & Run
 
 ```bash
-# mock-server 폴더 내에서 진행
 npm install
 npm start
 ```

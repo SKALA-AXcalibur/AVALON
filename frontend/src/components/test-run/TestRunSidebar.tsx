@@ -1,47 +1,78 @@
 "use client";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { ActionButton } from "@/components/common/ActionButton";
+import { useTestResultStore } from "@/store/testResult";
+import { useTestRun } from "@/hooks/useTestRun";
 
-const scenarioList = [
-  {
-    id: "scenario-1",
-    title: "시나리오 #1",
-    icon: "fail",
-    iconColor: "text-red-500",
-  },
-  {
-    id: "scenario-2",
-    title: "시나리오 #2",
-    icon: "success",
-    iconColor: "text-green-500",
-  },
-];
+export const TestRunSidebar = ({
+  projectId,
+  scenarioId,
+}: {
+  projectId: string;
+  scenarioId: string;
+}) => {
+  const { testResult } = useTestResultStore();
+  const { readScenarioReport, loadingStates } = useTestRun(scenarioId);
 
-const TestRunSidebar = () => {
-  const params = useParams();
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case "성공":
+        return {
+          icon: "check_circle",
+          className: "text-green-500",
+        };
+      case "실패":
+        return {
+          icon: "cancel",
+          className: "text-red-500",
+        };
+      case "실행중":
+        return {
+          icon: "pending",
+          className: "text-yellow-500",
+        };
+      case "준비중":
+        return {
+          icon: "schedule",
+          className: "text-gray-500",
+        };
+      default:
+        return {
+          icon: "help",
+          className: "text-gray-500",
+        };
+    }
+  };
 
   return (
     <aside className="w-72 bg-slate-50 border-r border-slate-200 flex flex-col">
       <div className="flex-1 p-6 overflow-y-auto">
-        {scenarioList.map((s) => (
-          <Link
-            key={s.id}
-            href={`/project/${params["project-id"]}/test-run/${s.id}`}
-          >
-            <div key={s.id} className="mb-8 flex items-center justify-between">
-              <div className="font-bold text-slate-800">{s.title}</div>
-              <span className={`material-icons ${s.iconColor}`}>{s.icon}</span>
-            </div>
-          </Link>
-        ))}
+        {testResult.scenarioList.map((s) => {
+          const statusDisplay = getStatusDisplay(s.isSuccess);
+          return (
+            <Link
+              key={s.scenarioId}
+              href={`/project/${projectId}/test-run/${s.scenarioId}`}
+            >
+              <div className="mb-8 flex items-center justify-between hover:bg-slate-100 p-2 rounded transition-colors">
+                <div className="font-bold text-slate-800">{s.scenarioName}</div>
+                <span className={`material-icons ${statusDisplay.className}`}>
+                  {statusDisplay.icon}
+                </span>
+              </div>
+            </Link>
+          );
+        })}
       </div>
       <div className="p-6 border-t border-slate-200">
-        <button className="w-full bg-emerald-500 text-white rounded-lg py-3 flex items-center justify-center gap-2">
+        <ActionButton
+          onClick={readScenarioReport}
+          color="w-full bg-emerald-500 hover:bg-emerald-600 justify-center"
+          disabled={loadingStates.scenarioReport}
+        >
           시나리오 다운로드
-        </button>
+        </ActionButton>
       </div>
     </aside>
   );
 };
-
-export default TestRunSidebar;

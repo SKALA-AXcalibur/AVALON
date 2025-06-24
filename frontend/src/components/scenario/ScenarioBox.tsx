@@ -1,88 +1,121 @@
 "use client";
-import { Scenario, useScenarioStore } from "@/store/scenarioStore";
-import { useState, useEffect } from "react";
+import { ScenarioGraph } from "./ScenarioGraph";
+import { TextInputBox } from "../common/TextInputBox";
+import { LinkButton } from "../common/LinkButton";
+import { ActionButton } from "../common/ActionButton";
+import { useScenario } from "@/hooks/useScenario";
+import { useRouter } from "next/navigation";
 
-const mockScenario = [
-  {
-    id: "scenario-1",
-    title: "시나리오 #1",
-    description: "사용자 로그인 후 글쓰기 및 로그아웃을 실행한다.",
-    verify: "로그인 성공 여부 확인",
-    testcaseIds: ["TC-001", "TC-002"],
-  },
-  {
-    id: "scenario-2",
-    title: "시나리오 #2",
-    description: "사용자 로그아웃을 실행한다.",
-    verify: "로그아웃 성공 여부 확인",
-    testcaseIds: ["TC-001", "TC-002", "TC-003"],
-  },
-];
+export const ScenarioBox = ({
+  projectId,
+  scenarioId,
+}: {
+  projectId: string;
+  scenarioId: string;
+}) => {
+  const router = useRouter();
+  const {
+    scenarioInfo,
+    isLoading,
+    error,
+    success,
+    handleNameChange,
+    handleDescriptionChange,
+    handleValidationChange,
+    handleCreate,
+    handleUpdate,
+    handleDelete,
+  } = useScenario(projectId, scenarioId);
 
-const ScenarioBox = () => {
-  const { scenario } = useScenarioStore();
-  const [currentScenario, setCurrentScenario] = useState<Scenario>(scenario);
+  const onCreateSuccess = (scenarioId: string) => {
+    router.push(`/project/${projectId}/scenario/${scenarioId}`);
+  };
 
-  useEffect(() => {
-    const found = mockScenario.find((s) => s.id === scenario.id);
-    if (found) {
-      setCurrentScenario(found);
+  const onDeleteSuccess = (scenarioId: string | null, total: number) => {
+    if (total === 0) {
+      router.push(`/project/${projectId}/upload`);
+    } else {
+      router.push(`/project/${projectId}/scenario/${scenarioId}`);
     }
-  }, [scenario.id]);
+  };
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-slate-800">
-          {currentScenario.id} {currentScenario.title}
-        </h2>
-        <div className="flex gap-2">
-          <button className="bg-sky-400 text-white rounded-lg px-4 py-2">
-            TC 추가
-          </button>
-          <button className="bg-red-500 text-white rounded-lg px-4 py-2">
-            삭제
-          </button>
-          <button className="bg-green-500 text-white rounded-lg px-4 py-2">
-            저장
-          </button>
+      {isLoading ? (
+        <div className="flex items-center justify-center h-full">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
         </div>
-      </div>
-      <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 mb-4">
-        {/* mermaid 코드 기반 그래프 출력 */}
-      </div>
-      <div className="flex gap-8">
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 flex-1">
-          <h3 className="font-medium text-slate-700 mb-2">상세설명</h3>
-          <textarea
-            value={currentScenario?.description}
-            onChange={(e) =>
-              setCurrentScenario({
-                ...currentScenario,
-                description: e.target.value,
-              })
-            }
-            className="w-full h-32 p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-            placeholder="시나리오에 대한 상세 설명을 입력하세요"
-          />
-        </div>
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 flex-1">
-          <h3 className="font-medium text-slate-700 mb-2">검증포인트</h3>
-          <textarea
-            value={currentScenario?.verify}
-            onChange={(e) =>
-              setCurrentScenario({
-                ...currentScenario,
-                verify: e.target.value,
-              })
-            }
-            className="w-full h-32 p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-            placeholder="검증해야 할 포인트들을 입력하세요"
-          />
-        </div>
-      </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3">
+              <input
+                type="text"
+                value={scenarioInfo.name}
+                onChange={(e) => handleNameChange(e.target.value)}
+                className="bg-white border border-slate-200 rounded-lg px-3 py-1 min-w-[300px]"
+                placeholder="시나리오 이름을 입력하세요"
+              />
+              <span className="text-sm text-slate-500 whitespace-nowrap">
+                {scenarioInfo.id}
+              </span>
+            </h2>
+            <div className="flex gap-2">
+              <LinkButton
+                href={`/project/${projectId}/scenario/${scenarioId}/testcase/new`}
+                color="bg-sky-400 hover:bg-sky-500"
+                ariaLabel="TC 추가"
+              >
+                TC 추가
+              </LinkButton>
+              <ActionButton
+                onClick={() => handleDelete(onDeleteSuccess)}
+                color="bg-red-500 hover:bg-red-600"
+                disabled={isLoading}
+              >
+                삭제
+              </ActionButton>
+              {scenarioId === "new" ? (
+                <ActionButton
+                  onClick={() => handleCreate(onCreateSuccess)}
+                  color="bg-green-500 hover:bg-green-600"
+                  disabled={isLoading}
+                >
+                  생성
+                </ActionButton>
+              ) : (
+                <ActionButton
+                  onClick={handleUpdate}
+                  color="bg-green-500 hover:bg-green-600"
+                  disabled={isLoading}
+                >
+                  저장
+                </ActionButton>
+              )}
+            </div>
+          </div>
+          <ScenarioGraph graph={scenarioInfo.graph} />
+          <div className="h-[250px] flex gap-8">
+            <TextInputBox
+              title="상세설명"
+              value={scenarioInfo.description}
+              placeholder="시나리오에 대한 상세 설명을 입력하세요"
+              onChange={(e) => handleDescriptionChange(e.target.value)}
+            />
+            <TextInputBox
+              title="검증포인트"
+              value={scenarioInfo.validation}
+              placeholder="시나리오에 대한 검증포인트를 입력하세요"
+              onChange={(e) => handleValidationChange(e.target.value)}
+            />
+          </div>
+          {error ? (
+            <div className="h-6 mt-1 text-sm text-red-600">{error}</div>
+          ) : (
+            <div className="h-6 mt-1 text-sm text-green-600">{success}</div>
+          )}
+        </>
+      )}
     </>
   );
 };
-
-export default ScenarioBox;

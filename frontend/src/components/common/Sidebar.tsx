@@ -1,115 +1,102 @@
 "use client";
 import { useProjectStore } from "@/store/projectStore";
-import { useScenarioStore } from "@/store/scenarioStore";
-import { useTestcaseStore } from "@/store/testcaseStore";
-import { useSidebarStore } from "@/store/sidebarStore";
 import { useRouter } from "next/navigation";
+import { LinkButton } from "./LinkButton";
+import { useProject } from "@/hooks/useProject";
+import { useSidebarStore } from "@/store/sidebarStore";
+import { useEffect } from "react";
 
-const mockScenarioList = [
-  {
-    id: "scenario-1",
-    title: "시나리오 #1",
-    testcaseIds: ["TC-001", "TC-002"],
-  },
-  {
-    id: "scenario-2",
-    title: "시나리오 #2",
-    testcaseIds: ["TC-001", "TC-002", "TC-003"],
-  },
-];
-
-const Sidebar = () => {
+export const Sidebar = ({
+  projectId,
+  scenarioId,
+}: {
+  projectId: string;
+  scenarioId: string;
+}) => {
   const router = useRouter();
   const { project } = useProjectStore();
-  const { setScenario } = useScenarioStore();
-  const { setTestcase } = useTestcaseStore();
-  const { openIndex, setOpenIndex } = useSidebarStore();
+  const { openScenarios, addOpenScenario, toggleOpenScenario, isOpen } =
+    useSidebarStore();
+  const { readScenarioTestcases } = useProject();
 
-  const handleScenarioClick = (scenarioId: string, idx: number) => {
-    setOpenIndex(idx);
-    setScenario({
-      id: scenarioId,
-      title: "",
-      description: "",
-      verify: "",
-      testcaseIds: [],
-    });
-    router.push(`/project/${project.id}/scenario/${scenarioId}`);
+  useEffect(() => {
+    if (!isOpen(scenarioId)) {
+      addOpenScenario(scenarioId);
+      readScenarioTestcases(scenarioId);
+    }
+  }, [scenarioId, addOpenScenario, readScenarioTestcases, isOpen]);
+
+  const handleToggleClick = async (scenarioId: string) => {
+    toggleOpenScenario(scenarioId);
+    if (isOpen(scenarioId)) {
+      readScenarioTestcases(scenarioId);
+    }
+  };
+
+  const handleScenarioClick = (scenarioId: string) => {
+    router.push(`/project/${projectId}/scenario/${scenarioId}`);
   };
 
   const handleTestcaseClick = (scenarioId: string, testcaseId: string) => {
-    setTestcase({
-      id: testcaseId,
-      precondition: "",
-      content: "",
-      parameters: {},
-      expected: "",
-    });
     router.push(
-      `/project/${project.id}/scenario/${scenarioId}/testcase/${testcaseId}`
+      `/project/${projectId}/scenario/${scenarioId}/testcase/${testcaseId}`,
     );
   };
 
-  const handleAddScenario = () => {
-    setScenario({
-      id: "",
-      title: "",
-      description: "",
-      verify: "",
-      testcaseIds: [],
-    });
-    router.push(`/project/${project.id}/scenario/`);
-  };
-
   return (
-    <aside className="w-72 bg-slate-50 border-r border-slate-200 flex flex-col">
+    <aside className="w-72 bg-slate-50 border-r border-slate-200 flex flex-col h-[calc(100vh-84px)]">
       <div className="flex-1 p-6 overflow-y-auto">
-        {mockScenarioList.map((scenario, idx) => (
-          <div key={scenario.id} className="mb-4">
+        {project.scenarios.map((scenario) => (
+          <div key={scenario.id} className="mb-2">
             <div className="flex items-center w-full font-bold text-slate-800">
               <button
-                className="mr-2 focus:outline-none"
-                onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+                className="mr-2 focus:outline-none text-xl cursor-pointer"
+                onClick={() => handleToggleClick(scenario.id)}
               >
-                {scenario.testcaseIds.length > 0
-                  ? openIndex === idx
+                {scenario.testcases.length > 0
+                  ? openScenarios.has(scenario.id)
                     ? "⏷"
                     : "⏵"
                   : "⏵"}
               </button>
               <span
-                className="cursor-pointer hover:text-sky-600"
-                onClick={() => handleScenarioClick(scenario.id, idx)}
+                className={`cursor-pointer hover:text-sky-600 ${scenario.id === scenarioId ? "text-sky-600" : ""
+                  }`}
+                onClick={() => handleScenarioClick(scenario.id)}
               >
-                {scenario.title}
+                {scenario.name}
               </span>
             </div>
-            {scenario.testcaseIds.length > 0 && openIndex === idx && (
-              <div className="mt-2 ml-6">
-                {scenario.testcaseIds.map((testcaseId) => (
-                  <div
-                    key={testcaseId}
-                    onClick={() => handleTestcaseClick(scenario.id, testcaseId)}
-                    className="block rounded-lg px-4 py-2 text-slate-600 hover:bg-sky-50 cursor-pointer"
-                  >
-                    {testcaseId}
-                  </div>
-                ))}
-              </div>
-            )}
+            {scenario.testcases.length > 0 &&
+              openScenarios.has(scenario.id) && (
+                <div className="ml-2">
+                  {scenario.testcases.map((testcase) => (
+                    <div
+                      key={testcase.tcId}
+                      onClick={() =>
+                        handleTestcaseClick(scenario.id, testcase.tcId)
+                      }
+                      className={
+                        "block rounded-lg px-4 py-2 text-slate-600 hover:bg-sky-50 cursor-pointer text-sm"
+                      }
+                    >
+                      {testcase.tcId}
+                    </div>
+                  ))}
+                </div>
+              )}
           </div>
         ))}
       </div>
       <div className="p-6 border-t border-slate-200">
-        <button
-          onClick={handleAddScenario}
-          className="w-full bg-emerald-500 text-white rounded-lg py-3 flex items-center justify-center gap-2 hover:bg-emerald-600"
+        <LinkButton
+          href={`/project/${projectId}/scenario/new`}
+          color="bg-emerald-500 hover:bg-emerald-600"
+          ariaLabel="시나리오 추가"
         >
           시나리오 추가
-        </button>
+        </LinkButton>
       </div>
     </aside>
   );
 };
-
-export default Sidebar;

@@ -33,7 +33,10 @@ ENV PORT=3000
 
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+  adduser --system --uid 1001 nextjs
+
+# Install curl for health checks
+RUN apk add --no-cache curl
 
 # Copy necessary files from builder with proper ownership
 COPY --from=builder --chown=nextjs:nodejs /app/next.config.ts ./
@@ -49,7 +52,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node --version || exit 1
+  CMD curl -f http://0.0.0.0:3000/api/health || exit 1
 
 # Start the application
 CMD ["node", "server.js"]

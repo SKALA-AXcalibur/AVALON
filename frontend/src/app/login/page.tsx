@@ -1,4 +1,4 @@
-import LoginProjectBox from "@/components/login/LoginProjectBox";
+import { LoginProjectBox } from "@/components/login/LoginProjectBox";
 
 const LoginPage = () => {
   return (
