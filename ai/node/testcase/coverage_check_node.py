@@ -12,8 +12,10 @@ def coverage_check_node(state: FlowState) -> FlowState:
     coverage = len(used_api_ids) / len(all_api_ids) if all_api_ids else 0.0
     state.coverage = round(coverage, 4)
 
-    # 재생성 판단 로직
-    if coverage < 0.6:
-        state.tc_list.clear()  # 전체 재생성 위해 TC list 초기화
-        return "fail", state
-    return "pass", state
+    return state
+
+def coverage_decision_fn(state: FlowState) -> str:
+    """
+    커버리지 기준 미달 여부 판단 ("pass" or "fail")
+    """
+    return "pass" if state.coverage is not None and state.coverage >= 0.6 else "fail"

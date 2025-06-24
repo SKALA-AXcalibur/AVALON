@@ -1,3 +1,4 @@
+# ai/prompt/testcase/validation_prompt.py
 
 from typing import List
 from textwrap import dedent
@@ -6,7 +7,7 @@ from uuid import uuid4
 from dto.request.testcase.api_mapping import ApiMapping
 from dto.request.testcase.scenario import Scenario
 
-def build_prompt(api_mapping_list: List[ApiMapping], scenario: Scenario) -> str:
+def build_generation_prompt(api_mapping_list: List[ApiMapping], scenario: Scenario) -> str:
     uuid_suffix = str(uuid4())[:8]  # 예: 'f1a2c3b4'
 
     """
@@ -31,19 +32,20 @@ def build_prompt(api_mapping_list: List[ApiMapping], scenario: Scenario) -> str:
         if not api.param_list:
             prompt += "  (없음)\n"
         for param in api.param_list:
-            prompt += f"  - ID: {param.param_id} | {param.name} | 한글명({param.ko_name} ({param.type}, 길이={param.length}, category={param.category}) | context {param.context} | 필수: {'Y' if param.required else 'N'} | 상위 항목명: {param.parent} | 설명: {param.desc}\n"
+            prompt += f"  - ID: {param.param_id} | 영문명: {param.name} | 한글명: {param.ko_name} | data type={param.type}, 길이={param.length}, category={param.category}, context {param.context} | 필수: {'Y' if param.required else 'N'} | 상위 항목명: {param.parent} | 설명: {param.desc}\n"
 
     prompt += dedent("""
 [테스트케이스 생성 조건]
-1. 정상 / 경계값 / 비정상 3가지 유형으로 작성(각 유형 별 하나씩만 생성한다.)
-2. 반드시 시나리오의 검증 포인트를 고려하여 생성.
-3. 현재 API가 이전 API와 이어지는 흐름이라면, 응답값을 다음 API의 입력으로 연동.
-    - 동적 값(ex. token 등)은 precondition에 어떤 API 응답에서 획득했는지 아래 예시와 **동일하게** 명시.
-    예시: (현재 API 이름)의 (파라미터 이름)에는 (이전 API 이름)의 (파라미터 이름) 값을 사용함
-4. 테스트케이스에는 예상되는 status 코드 (2, 3, 4, 5 중 하나)를 포함하여 작성. 예를 들어, 200번대 응답이 예상된다면 2를, 400번대 응답이 예상된다면 4를 반환
-5. tc_id는 unique해야 하며, 형식은 TC-<API영문이름>-<케이스유형>-<일련번호>-<%UUID%> 로 구성한다. 일련번호는 3자리로 구성한다.
-6. 각 파라미터에는 paramId 항목이 포함되어야 하며, paramList 내 param_id 값을 그대로 반영한다.
-
+1. TC 유형: 정상·경계값·비정상 각 1건씩 작성
+2. 시나리오 검증포인트 **필수 반영**
+3. `precondition` : 이전 API가 현재 API와 이어지는 흐름일 때, 이전 값을 현재 API와 연동. 조건이 두개 이상일 경우 콤마(',')로 구분.
+    - Context는 (body, header, query, path) 중 하나.
+    형식: step (이전 step):(context)|(파라미터 이름) -> (context)|(파라미터 이름)
+    예: step 2:header|token -> header|token, step 2:body|userId -> path|userId, ...
+4. `status` : 2, 3, 4, 5 중 하나를 포함하여 작성. 예를 들어, 200번대 응답이 예상된다면 2를, 400번대 응답이 예상된다면 4를 반환
+5. tc_id는 unique해야 하며, 형식은 TC-<API영문명>-<케이스유형>-<###>-<%UUID%> 로 구성한다. (###: 3자리)
+6. `paramId`: 모든 파라미터에 기존 param id 그대로 사용
+                     
 ※ 유의사항
 - 각 value는 실제 사용 가능한 자연스러운 예시로 작성하세요.
 - 다음과 같은 잘못된 예시는 **절대** 사용하지 마세요:
