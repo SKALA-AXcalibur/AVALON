@@ -7,12 +7,14 @@ authors = [
 ]
 requires-python = ">=3.11, <3.12"
 dependencies = [
+    "dotenv>=0.9.9",
     "fastapi>=0.115.12",
     "langchain-community>=0.3.25",
     "langchain[anthropic]>=0.3.25",
     "langgraph>=0.4.8",
     "python-multipart>=0.0.20",
     "uvicorn[standard]>=0.34.3",
+    "PyYAML>=6.0",
 ]
 
 [dependency-groups]
