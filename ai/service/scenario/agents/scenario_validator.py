@@ -2,11 +2,16 @@
 import json
 import logging
 import re
+import yaml
 from typing import Any
 
 from service.llm_service import call_model
-from dto.response.scenario.scenario_validation_response import ScenarioValidationResponse
-from service.scenario.prompts.scenario_validation_prompt import SCENARIO_VALIDATION_PROMPT
+from dto.response.scenario.scenario_validation_response import (
+    ScenarioValidationResponse,
+)
+from service.scenario.prompts.scenario_validation_prompt import (
+    SCENARIO_VALIDATION_PROMPT,
+)
 
 
 class ScenarioValidator:
@@ -38,11 +43,20 @@ class ScenarioValidator:
 
     def _build_simple_prompt(self, scenarios: Any) -> str:
         """
-        시나리오만으로 검증 프롬프트 생성
+        시나리오만으로 검증 프롬프트 생성 (YAML 형태로 변환)
         """
-        scenarios_json = json.dumps(scenarios.model_dump(), ensure_ascii=False, indent=2)
-        
-        return SCENARIO_VALIDATION_PROMPT.format(scenarios=scenarios_json)
+        # Pydantic 모델을 dict로 변환
+        scenarios_dict = scenarios.model_dump()
+
+        # YAML로 변환
+        scenarios_yaml = yaml.dump(
+            scenarios_dict,
+            default_flow_style=False,
+            allow_unicode=True,
+            sort_keys=False,
+        )
+
+        return SCENARIO_VALIDATION_PROMPT.format(scenarios=scenarios_yaml)
 
     def _call_llm(self, prompt: str) -> str:
         """
@@ -50,9 +64,8 @@ class ScenarioValidator:
         """
         response = call_model(prompt)
         if isinstance(response, list):
-            return ''.join(
-                part.text if hasattr(part, 'text') else str(part)
-                for part in response
+            return "".join(
+                part.text if hasattr(part, "text") else str(part) for part in response
             )
         return response
 
@@ -60,7 +73,7 @@ class ScenarioValidator:
         """
         JSON을 추출하여 파싱
         """
-        
+
         match = re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", text)
         json_str = match.group(1) if match else text
 
@@ -68,4 +81,6 @@ class ScenarioValidator:
             return json.loads(json_str)
         except json.JSONDecodeError as e:
             logging.error(f"[JSON 파싱 실패] 원문: {json_str[:200]}...")
-            raise ValueError("Claude 응답에서 유효한 JSON을 추출하지 못했습니다.") from e
+            raise ValueError(
+                "Claude 응답에서 유효한 JSON을 추출하지 못했습니다."
+            ) from e

@@ -3,15 +3,16 @@ SCENARIO_VALIDATION_PROMPT = """
 API 테스트 시나리오 검증 전문가
 
 # 입력 데이터 구조
-scenarios: {{
-  "scenario_list": [{{
-    "scenario_id": "SCN-001",
-    "title": "시나리오 제목",
-    "description": "시나리오 설명", 
-    "validation": "검증 포인트",
-    "api_list": [{{ "id": "API_ID", "name": "API명", "desc": "설명" }}]
-  }}]
-}}
+scenarios:
+  scenario_list:
+    - scenario_id: SCN-001
+      title: 시나리오 제목
+      description: 시나리오 설명
+      validation: 검증 포인트
+      api_list:
+        - id: API_ID
+          name: API명
+          desc: 설명
 
 # 검증 기준 (100점)
 1. **완전성**(25점): 시나리오가 충분히 포괄적인가?
