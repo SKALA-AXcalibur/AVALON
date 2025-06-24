@@ -8,12 +8,12 @@ from dto.request.testcase.api_mapping import ApiMapping
 from dto.request.testcase.scenario import Scenario
 
 def build_generation_prompt(api_mapping_list: List[ApiMapping], scenario: Scenario) -> str:
-    uuid_suffix = str(uuid4())[:8]  # 예: 'f1a2c3b4'
-
     """
     TC 생성 프롬프트 제작 함수
     시나리오와 시나리오에 매핑된 API들의 파라미터 정보를 기반으로 프롬프트를 생성합니다.
     """
+    uuid_suffix = str(uuid4())[:8]
+
     prompt = f"""{scenario.scenario_name} 시나리오에 대한 테스트케이스 생성을 도와주세요.
 [시나리오 정보]
 - 시나리오명: {scenario.scenario_name}
@@ -36,33 +36,37 @@ def build_generation_prompt(api_mapping_list: List[ApiMapping], scenario: Scenar
 
     prompt += dedent("""
 [테스트케이스 생성 조건]
-1. TC 유형: 정상·경계값·비정상 각 1건씩 작성
-2. 시나리오 검증포인트 **필수 반영**
-3. `precondition` : 이전 API가 현재 API와 이어지는 흐름일 때, 이전 값을 현재 API와 연동. 조건이 두개 이상일 경우 콤마(',')로 구분.
-    - Context는 (body, header, query, path) 중 하나.
-    형식: step (이전 step):(context)|(파라미터 이름) -> (context)|(파라미터 이름)
-    예: step 2:header|token -> header|token, step 2:body|userId -> path|userId, ...
-4. `status` : 2, 3, 4, 5 중 하나를 포함하여 작성. 예를 들어, 200번대 응답이 예상된다면 2를, 400번대 응답이 예상된다면 4를 반환
-5. tc_id는 unique해야 하며, 형식은 TC-<API영문명>-<케이스유형>-<###>-<%UUID%> 로 구성한다. (###: 3자리)
-6. `paramId`: 모든 파라미터에 기존 param id 그대로 사용
-                     
-※ 유의사항
-- 각 value는 실제 사용 가능한 자연스러운 예시로 작성하세요.
-- 아래와 같은 비정상적 값은 **절대 금지됩니다**:
-    - 반복되는 의미 없는 나열: "xxxxxxxxxx", "123123123..."
-    - 과도하게 긴 문자열 (ex. 255자 이상)
-- 최대 길이 테스트가 필요한 경우에도, 의미 있는 값으로 채우세요.
-    - 예: 이메일의 경우 "long.username@example.com"
-- 모든 테스트 데이터는 해당 필드의 `length`를 **절대 초과하지 마세요.**
-- 모든 "value" 값은 반드시 문자열(string)로 작성해주세요. 숫자형 데이터도 예: "12345" 와 같이 큰따옴표로 감싸 문자열로 표현해야 합니다.
+1. TC 유형: 정상 / 경계값 / 비정상 각 1건씩 작성
+2. 시나리오의 검증 포인트 **반드시 반영**
+3. `precondition`은 이전 API 응답과 현재 API 연동 시 작성
+   - 형식: `step 2:body|userId -> path|userId` (여러 개면 콤마로 구분)
+4. `status`: 2, 3, 4, 5 중 하나의 **숫자형**
+5. `tc_id`는 `TC-<API영문명>-<유형>-<###>-<%UUID%>` 형식으로 작성
+6. 모든 `param_id`는 기존 정의된 값을 그대로 사용
 
+---
+[value 작성 규칙]
+- **모든 value는 문자열(string)** 로 작성 (숫자도 `"123"`처럼 큰따옴표로 감싸야 함)
+- value의 길이는 해당 param의 `length`를 **절대 초과하지 말 것**
+- **최대 길이 제한**: 모든 문자열은 **255자를 초과하지 말 것**
+- 아래와 같은 패턴은 **절대 금지**:
+  - 반복 문자열: `"abcabcabc"`, `"123123123"`, `"MaxLenPwd@2024!MaxLenPwd@2024!"`
+  - 무의미한 값: `"aaaaaaaaa@example.com"`, `"testtest123"`
+- 최대 길이 테스트 시에도 **의미 있는 값처럼 보이게 작성**
+  - 예: `"long.username@example.com"`, `"홍길동최대길이사용자"`
+
+---
 [출력 형식]
-- 오직 JSON 문자열만 반환하세요. 추가 설명, 마크다운, 코드 블럭 등은 절대 포함하지 마세요.
-- `.repeat()`, 문자열 연결(`+`), `//` 주석 등 JavaScript 문법은 절대 사용하지 마세요.
-- "value"에는 실제 값을 그대로 작성하세요. 예) `"value": "aaaaaaaaaa"` (50자면 실제로 50자 반복)
+- 반환값은 오직 **JSON 문자열**만 허용
+- 다음 문법은 절대 사용 금지:
+  - 마크다운, 설명, 코드블록
+  - `.repeat()`, `+` 문자열 연결, `//` 주석
+- `"value"`는 실제 문자열 **그대로** 작성할 것  
+  ✅ `"value": "홍길동최대길이사용자"`  
+  ❌ `"value": "홍길동".repeat(10)"`
 
 예외가 발생하면 응답을 버리게 되니 반드시 위 기준을 지키세요.
-                     
+
 ```json
 [
     {
@@ -74,7 +78,7 @@ def build_generation_prompt(api_mapping_list: List[ApiMapping], scenario: Scenar
     "status": 2,
     "test_data_list": [
         {
-        "paramId": 1,
+        "param_id": 1,
         "value": "abc123"
         }, ...
     ]
