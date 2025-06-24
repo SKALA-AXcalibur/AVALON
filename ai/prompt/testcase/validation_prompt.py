@@ -6,6 +6,7 @@ from state.testcase.flow_state import FlowState
 
 def build_validation_prompt(state: FlowState) -> str:
     """
+    TC 검증 프롬프트 제작 함수
     시나리오의 검증 조건과 생성된 TC 목록을 기반으로, LLM에게 각 TC가 조건을 만족하는지 확인하도록 프롬프트 생성
     """
     # 최소화된 param 정보
