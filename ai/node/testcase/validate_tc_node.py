@@ -15,6 +15,7 @@ def validate_tc_node(state: FlowState) -> FlowState:
     - 검증 조건을 만족하지 못한 테스트케이스의 tc_id를 revalidation_targets에 저장합니다.
     - 이후 노드에서 재생성 대상으로 활용할 수 있습니다.
     """
+    scenario_id = state.scenario_id
     try:
         # 프롬프트 생성
         prompt = build_validation_prompt(
@@ -22,9 +23,9 @@ def validate_tc_node(state: FlowState) -> FlowState:
         )
  
         # LLM 호출 → 결과: [true, (false, "사유"), true, ... ]
-        result_list = validate_testcase_via_llm(prompt)
+        result_list = validate_testcase_via_llm(prompt_text=prompt, scenario_id=scenario_id)
 
-        if not isinstance(result_list, list) or len(result_list) != len(state.tc_list):
+        if not result_list or not isinstance(result_list, list) or len(result_list) != len(state.tc_list):
             raise ValueError("LLM 응답 길이와 테스트케이스 수가 일치하지 않음")
 
         # 검증 실패한 항목만 추출
@@ -37,20 +38,14 @@ def validate_tc_node(state: FlowState) -> FlowState:
         # 상태 업데이트
         state.revalidation_targets = revalidation_targets
     
-    except ValueError as e:
-        logging.warning(f"[validate_tc_node] ValueError: {e}")
-
-    except TypeError as e:
-        logging.warning(f"[validate_tc_node] TypeError: {e}")
-
-    except AttributeError as e:
-        logging.warning(f"[validate_tc_node] AttributeError: {e}")
+    except (ValueError, TypeError, AttributeError) as e:
+        logging.warning(f"[validate_tc_node] 잘못된 응답 형식 - scenario_id={scenario_id} - {type(e).__name__}: {e}")
 
     except TimeoutError as e:
-        logging.error(f"[validate_tc_node] LLM 응답 Timeout: {e}")
+        logging.error(f"[validate_tc_node] LLM 응답 시간 초과 - scenario_id={scenario_id}: {e}")
 
     except Exception:
-        logging.exception("[validate_tc_node] TC 검증 실패 (Unknown Error)")
+        logging.exception(f"[validate_tc_node] TC 검증 실패 (Unknown Error) - scenario_id={scenario_id}")
     
     return state
 
