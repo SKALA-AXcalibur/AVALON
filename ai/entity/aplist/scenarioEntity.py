@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
-class Scenario(Base):
+class ScenarioEntity(Base):
     __tablename__ = "scenario"
 
     key = Column(Integer, primary_key=True, autoincrement=True)  # 시나리오 고유 키
@@ -12,16 +12,18 @@ class Scenario(Base):
     name = Column(String(50), nullable=False)  # 시나리오 이름
     description = Column(Text, nullable=False)  # 시나리오 설명
     validation = Column(Text, nullable=True)  # 검증 포인트
-    flow_chart = Column(Text, nullable=True)  # 흐름도
-    project_key = Column(Integer, ForeignKey("project.key"), nullable=False)  # 프로젝트 FK
+    flowChart = Column(Text, nullable=True)  # 흐름도
+    projectKey = Column(Integer, ForeignKey("project.key"), nullable=False)  # 프로젝트 FK
     
     # 관계 설정
     project = relationship("Project", back_populates="scenarios")
     mappings = relationship("Mapping", back_populates="scenario", cascade="all, delete-orphan")
     
-    def __init__(self, id: str, name: str, description: str, validation: str, flow_chart: str, project_key: int):
+    def __init__(self, id: str, name: str, description: str, validation: str, flowChart: str, projectKey: int):
         self.id = id
         self.name = name
         self.description = description
-        self.project_key = project_key
+        self.validation = validation
+        self.flowChart = flowChart
+        self.projectKey = projectKey
     
