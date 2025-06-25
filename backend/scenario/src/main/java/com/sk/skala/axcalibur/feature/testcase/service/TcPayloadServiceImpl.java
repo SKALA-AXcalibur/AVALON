@@ -13,7 +13,7 @@ import com.sk.skala.axcalibur.feature.testcase.dto.request.ScenarioDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
 import com.sk.skala.axcalibur.feature.testcase.repository.MappingRepository;
 import com.sk.skala.axcalibur.feature.testcase.repository.ParameterRepository;
-import com.sk.skala.axcalibur.feature.testcase.repository.ScenarioRepository;
+import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.entity.ApiListEntity;
 import com.sk.skala.axcalibur.global.entity.MappingEntity;

@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import com.sk.skala.axcalibur.feature.scenario.dto.ProjectContext;
 import com.sk.skala.axcalibur.global.entity.AvalonCookieEntity;
 import com.sk.skala.axcalibur.global.entity.ProjectEntity;
-import com.sk.skala.axcalibur.feature.scenario.repository.AvalonCookieRepository;
-import com.sk.skala.axcalibur.feature.scenario.repository.ProjectRepository;
+import com.sk.skala.axcalibur.global.repository.AvalonCookieRepository;
+import com.sk.skala.axcalibur.global.repository.ProjectRepository;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 
