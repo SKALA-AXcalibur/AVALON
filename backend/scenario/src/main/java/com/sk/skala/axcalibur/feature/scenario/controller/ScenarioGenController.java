@@ -12,6 +12,5 @@ public interface ScenarioGenController {
 
     @Operation(summary = "시나리오 생성 요청", description = "시나리오 생성을 시작합니다.")
     ResponseEntity<SuccessResponse<ScenarioGenResponseDto>> generateScenario(
-        @CookieValue("avalon") String key
-    );
+        @CookieValue("avalon") String key);
 }
