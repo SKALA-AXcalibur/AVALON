@@ -11,8 +11,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 
-// 프로젝트 목록 저장 요청 DTO (IF-PR-0001)
-// 설계서 기준: 상세한 요구사항 및 API 정보 포함
+/**
+ * 시나리오 생성 DTO
+ */
 @Getter
 @Builder
 @NoArgsConstructor
