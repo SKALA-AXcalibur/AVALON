@@ -1,11 +1,17 @@
-package com.sk.skala.axcalibur.feature.testcase.repository;
+package com.sk.skala.axcalibur.global.repository;
 
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.sk.skala.axcalibur.global.entity.ApiListEntity;
 
+@Repository
 public interface ApiListRepository extends JpaRepository<ApiListEntity, Integer> {
-    List<ApiListEntity> findByIdIn(List<Integer> ids);
+
+    // 프로젝트 키로 API 목록 조회
+    List<ApiListEntity> findByProjectKey(Integer projectKey);
 }
+
+

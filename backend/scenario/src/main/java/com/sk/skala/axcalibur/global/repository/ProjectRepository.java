@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.feature.scenario.repository;
+package com.sk.skala.axcalibur.global.repository;
 
 import java.util.Optional;
 
@@ -9,13 +9,11 @@ import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<ProjectEntity, Integer> {
-
+    
     // 프로젝트 ID로 조회 (비즈니스 키)
-    Optional<ProjectEntity> findById(String id);
-
-    // 프로젝트 키로 조회 (PK)
-    Optional<ProjectEntity> findByKey(Integer key);
+    Optional<ProjectEntity> findByProjectId(String projectId);
 
     // 프로젝트 ID 존재 여부
-    boolean existsById(String id);
+    boolean existsByProjectId(String projectId);
+
 }
