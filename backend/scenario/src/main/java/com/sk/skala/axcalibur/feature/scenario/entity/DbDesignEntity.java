@@ -21,6 +21,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 테이블설계서 정보 저장 테이블
+ * 데이터베이스의 'db_design' 테이블과 매핑
+ */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,13 +35,10 @@ public class DbDesignEntity extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
-    private Integer key;
+    private Integer id; // PK, AUTO_INCREMENT
 
     @Column(name = "name", nullable = false, length = 20)
-    private String name;
-
-    @OneToMany(mappedBy = "dbDesignKey", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DbColumnEntity> columns;
+    private String name; // 테이블 명
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)

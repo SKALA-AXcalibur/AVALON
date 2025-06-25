@@ -13,6 +13,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 요구사항 대분류 정보 저장 테이블
+ * 데이터베이스의 'request_major' 테이블과 매핑
+ */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,7 +28,7 @@ public class RequestMajorEntity extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
-    private Integer key;        // 대분류 키 (PK, AUTO_INCREMENT)
+    private Integer id;        // 대분류 키 (PK, AUTO_INCREMENT)
 
     @Column(name = "name", nullable = false, length = 20)
     private String name;             // 대분류 명

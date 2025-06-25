@@ -17,6 +17,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**     
+ * 파일 경로 정보 저장 테이블
+ * 데이터베이스의 'file_path' 테이블과 매핑
+ */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,13 +32,13 @@ public class FilePathEntity extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
-    private Integer key;
+    private Integer id; // PK, AUTO_INCREMENT
     
-    @Column(name = "path", nullable = false, unique = true, length = 100)
-    private String path;
+    @Column(name = "path", nullable = false,  length = 100)
+    private String path; // 파일 경로
 
     @Column(name = "name", length = 255, nullable = false)
-    private String name;
+    private String name; // 파일 명
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_type_key", nullable = false)
@@ -42,7 +46,7 @@ public class FilePathEntity extends BaseTimeEntity {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
-    private ProjectEntity id;
+    private ProjectEntity projectKey; // 프로젝트 키
 
     // 같은 유형의 파일이 있으면 이름과 경로를 업데이트
     public void updateFileInfo(String path, String name) {

@@ -27,8 +27,8 @@ public class FileTypeEntity extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "`key`") // 백틱키를 사용하여 key 컬럼으로 지정
-    private Integer key; 
+    @Column(name = "`key`") 
+    private Integer id; // PK, AUTO_INCREMENT
 
     @Column(name = "name", nullable = false, length = 20, unique = true)
     private String name; // 파일 유형 이름

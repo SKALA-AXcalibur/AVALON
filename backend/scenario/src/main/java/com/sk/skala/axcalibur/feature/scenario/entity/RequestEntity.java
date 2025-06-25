@@ -17,6 +17,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 요구사항 정보 저장 테이블
+ * 데이터베이스의 'request' 테이블과 매핑
+ */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,7 +32,7 @@ public class RequestEntity extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
-    private Integer key;             // 요구사항 키 (PK, AUTO_INCREMENT)
+    private Integer id;             // 요구사항 키 (PK, AUTO_INCREMENT)
 
     @Column(name = "id", nullable = false, length = 20, unique = true)
     private String requestId;        // 요구사항 아이디 (변수명 변경)
@@ -42,7 +46,7 @@ public class RequestEntity extends BaseTimeEntity {
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
-    private ProjectEntity project;             // 프로젝트 (N:1)
+    private ProjectEntity projectKey;             // 프로젝트 (N:1)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "priority_key", nullable = false)
