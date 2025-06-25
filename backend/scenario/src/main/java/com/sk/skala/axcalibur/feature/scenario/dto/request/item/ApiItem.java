@@ -1,7 +1,5 @@
 package com.sk.skala.axcalibur.feature.scenario.dto.request.item;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ApiItem {
     
-    private String id;                          // API 아이디
+    private String apiId;                       // API 아이디
     private String name;                        // API 이름
     private String desc;                        // API 설명
     private String method;                      // API HTTP Method

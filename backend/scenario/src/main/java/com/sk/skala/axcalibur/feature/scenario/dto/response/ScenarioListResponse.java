@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.feature.scenario.dto.response.item;
+package com.sk.skala.axcalibur.feature.scenario.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,9 +14,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ScenarioListResponse {
     
-    // 시나리오 아이디
-    private String id;
-    
-    // 시나리오 이름
-    private String name;
+    private String scenarioId;          // 시나리오 아이디
+    private String name;                // 시나리오 이름
 } 

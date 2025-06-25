@@ -1,6 +1,5 @@
 package com.sk.skala.axcalibur.feature.scenario.dto.request.item;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReqItem {
-    @NotBlank(message = "요구사항 아이디는 필수 입력 항목입니다.")
-    private String id;          // 요구사항 아이디
+
+    private String reqId;       // 요구사항 아이디
     private String name;        // 요구사항 이름
     private String desc;        // 요구사항 설명  
     private String priority;    // 요구사항 우선도
