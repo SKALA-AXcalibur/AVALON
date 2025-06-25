@@ -35,6 +35,8 @@ public class ApiTaskDtoConverter {
         Map<String, String> map = new HashMap<>();
 
         map.put("id", String.valueOf(dto.id()));
+        map.put("testcaseId", String.valueOf(dto.testcaseId()));
+        map.put("attempt", String.valueOf(dto.attempt()));
         map.put("resultId", String.valueOf(dto.resultId()));
         map.put("step", String.valueOf(dto.step()));
         map.put("method", dto.method());
@@ -98,8 +100,10 @@ public class ApiTaskDtoConverter {
         try {
             return ApiTaskDto.builder()
                     .id(parseInteger(map.get("id")))
+                    .testcaseId(parseInteger(map.get("testcaseId")))
                     .resultId(parseInteger(map.get("resultId")))
                     .step(parseInteger(map.get("step")))
+                    .attempt(parseInteger(map.get("attempt")))
                     .method(cleanString(map.get("method")))
                     .uri(cleanString(map.get("uri")))
                     .statusCode(parseInteger(map.get("statusCode")))

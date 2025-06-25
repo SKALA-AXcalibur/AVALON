@@ -24,8 +24,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 @SpringBootTest
-@TestPropertySource(properties = {"spring.data.redis.host=localhost", "spring.data.redis.port=6379",
-                "logging.level.com.sk.skala.axcalibur.apitest.feature.service.RedisStreamListener=DEBUG"})
+@TestPropertySource(properties = { "spring.data.redis.host=localhost", "spring.data.redis.port=6379",
+                "logging.level.com.sk.skala.axcalibur.apitest.feature.service.RedisStreamListener=DEBUG" })
 @DisplayName("Redis Streams 통합 테스트")
 class RedisStreamIntegrationTest {
 
@@ -70,8 +70,7 @@ class RedisStreamIntegrationTest {
         @Test
         @DisplayName("GET 요청 메시지가 Redis Stream을 통해 정상적으로 처리되어야 한다")
         void redisStreamIntegration_shouldProcessGetRequest() { // Given
-                ApiTaskDto apiTaskDto =
-                                createApiTaskDto("GET", "https://httpbin.org/get", null, null);
+                ApiTaskDto apiTaskDto = createApiTaskDto("GET", "https://httpbin.org/get", null, null);
 
                 // When - Redis Stream에 메시지 전송
                 var dataMap = ApiTaskDtoConverter.toMap(apiTaskDto);
@@ -217,8 +216,11 @@ class RedisStreamIntegrationTest {
         private ApiTaskDto createApiTaskDto(String method, String uri,
                         MultiValueMap<String, String> headers, Map<String, Object> body) {
                 return ApiTaskDto.builder().id((int) (Math.random() * 1000))
+                                .testcaseId((int) (Math.random() * 1000) + 1000)
                                 .resultId((int) (Math.random() * 1000) + 1000)
-                                .precondition("Integration test precondition").step(1).attempt(1)
+                                .precondition("Integration test precondition")
+                                .step(1)
+                                .attempt(1)
                                 .method(method).uri(uri).reqHeader(headers).reqBody(body)
                                 .statusCode(2) // 2XX 응답 기대
                                 .resHeader(null).resBody(null).build();

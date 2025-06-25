@@ -34,7 +34,6 @@ import org.springframework.web.client.RestClient;
 @DisplayName("Redis Stream Listener 테스트")
 @TestPropertySource("logging.level.com.sk.skala.axcalibur.apitest.feature.service.RedisStreamListener=DEBUG")
 class RedisStreamListenerTest {
-    // TODO: RedisStreamListener 다시 테스트
 
     @Mock
     private RestClient rest;
@@ -64,7 +63,7 @@ class RedisStreamListenerTest {
 
     @BeforeEach
     void setUp() {
-        redisStreamListener = new RedisStreamListener(5, rest, redisTemplate, tr, tc, trc, at, ad);
+        redisStreamListener = new RedisStreamListener(rest, redisTemplate, tr, tc, trc, at, ad);
         when(redisTemplate.opsForStream()).thenReturn(streamOperations);
     }
 
@@ -203,7 +202,7 @@ class RedisStreamListenerTest {
      */
     private ApiTaskDto createApiTaskDto(String method, String uri,
             MultiValueMap<String, String> headers, Map<String, Object> body) {
-        return ApiTaskDto.builder().id(1).resultId(101).precondition("테스트 사전조건").step(1).attempt(1)
+        return ApiTaskDto.builder().id(1).testcaseId(201).resultId(101).precondition("테스트 사전조건").step(1).attempt(1)
                 .method(method).uri(uri).reqHeader(headers).reqBody(body).statusCode(2) // 2XX 응답 기대
                 .resHeader(null).resBody(null).build();
     }

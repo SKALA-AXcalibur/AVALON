@@ -30,10 +30,10 @@ import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 public class RedisStreamConsumerConfig {
 
   @Value("${spring.data.redis.stream.container.batch-size:10}")
-  private final Integer batch;
+  private Integer batch;
 
   @Value("${spring.data.redis.stream.container.poll-timeout:1}")
-  private final Integer pollTimeout;
+  private Integer pollTimeout;
 
   /**
    * Redis Stream에서 수신한 메시지를 처리하는 리스너
