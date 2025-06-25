@@ -1,12 +1,10 @@
 package com.sk.skala.axcalibur.apitest.feature.config;
 
 import com.sk.skala.axcalibur.apitest.feature.code.StreamConstants;
-import com.sk.skala.axcalibur.apitest.feature.dto.request.ApiTaskDto;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -28,7 +26,8 @@ public class RedisStreamInitializer {
     } catch (RedisSystemException e) {
       // 그룹이 이미 존재하는 경우 발생하는 예외는 정상적인 상황
       if (e.getCause() != null && e.getCause().getMessage().contains("BUSYGROUP")) {
-        log.warn("RedisStreamInitializer.initializeStreamAndGroup: 소비자 그룹 '" + StreamConstants.GROUP_NAME + "'이(가) 이미 존재합니다.");
+        log.warn("RedisStreamInitializer.initializeStreamAndGroup: 소비자 그룹 '" + StreamConstants.GROUP_NAME
+            + "'이(가) 이미 존재합니다.");
       } else {
         log.error("RedisStreamInitializer.initializeStreamAndGroup: Redis 스트림/그룹 초기화 중 오류: {}",
             e.getMessage());

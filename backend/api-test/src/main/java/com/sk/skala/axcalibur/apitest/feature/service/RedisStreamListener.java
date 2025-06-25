@@ -43,7 +43,7 @@ import org.springframework.web.client.UnknownContentTypeException;
 public class RedisStreamListener implements StreamListener<String, MapRecord<String, String, String>> {
 
   @Value("${spring.data.redis.stream.listener.max-retry-count:5}")
-  private final Integer retry;
+  private Integer retry;
 
   private final RestClient rest;
   private final RedisTemplate<String, Object> redis;
@@ -88,6 +88,8 @@ public class RedisStreamListener implements StreamListener<String, MapRecord<Str
     // Redis에 저장해 다른 소비자가 중복 처리하지 않도록 함
     log.debug("RedisStreamListener.onMessage: Saving ApiTestDetailEntity to Redis: {}", adEntity.getId());
     ad.save(adEntity); // Redis는 Transactional 필요 없음
+
+    // TODO: 사전 조건 파싱 구현하기
 
     try {
       // 실제 API 호출 로직
