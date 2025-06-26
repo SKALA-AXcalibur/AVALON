@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseDetailResponse;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseListResponse;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
@@ -16,5 +17,8 @@ public interface TestcaseManageController {
         @RequestParam(defaultValue = "10") int query
     );
 
-    
+    ResponseEntity<SuccessResponse<TestcaseDetailResponse>> getTestcases(
+        @PathVariable String tcId,
+        @CookieValue("avalon") String key
+    );
 }

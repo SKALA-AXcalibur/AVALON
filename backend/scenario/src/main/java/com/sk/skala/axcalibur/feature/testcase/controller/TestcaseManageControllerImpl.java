@@ -33,6 +33,7 @@ public class TestcaseManageControllerImpl implements TestcaseManageController {
     private final TestcaseQueryService testcaseQueryService;
 
     // 시나리오 별 TC 조회
+    @Override
     @GetMapping("/scenario/{scenarioId}")
     public ResponseEntity<SuccessResponse<TestcaseListResponse>> getTestcaseLists(
         @PathVariable String scenarioId,
@@ -60,5 +61,26 @@ public class TestcaseManageControllerImpl implements TestcaseManageController {
                 .build()
         );
     };
+
+    @Override
+    @GetMapping("/{tcId}")
+    public ResponseEntity<SuccessResponse<TestcaseDetailResponse>> getTestcases(
+        @PathVariable String tcId,
+        @CookieValue("avalon") String key
+    ) {
+        // Redis에서 cookie 키 인증 (예외 발생 시 Global handler에서 처리)
+        projectIdResolverService.resolveProjectId(key);
+
+        // 서비스 호출
+        TestcaseDetailResponse response = testcaseQueryService.getTestcaseDetail(tcId);
+
+        return ResponseEntity.ok(
+            SuccessResponse.<TestcaseDetailResponse>builder()
+                .data(response)
+                .status(SuccessCode.SELECT_SUCCESS)
+                .message(SuccessCode.SELECT_SUCCESS.getMessage())
+                .build()
+        );
+    }
 
 }

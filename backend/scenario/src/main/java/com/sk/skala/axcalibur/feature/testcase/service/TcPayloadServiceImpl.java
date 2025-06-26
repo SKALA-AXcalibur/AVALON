@@ -91,8 +91,7 @@ public class TcPayloadServiceImpl implements TcPayloadService{
                                     : null)
                             .desc(param.getDescription())
                             .build();
-                })
-                .toList();
+                }).collect(Collectors.toList());
 
             // ApiMappingDto 변환
             return ApiMappingDto.builder()
