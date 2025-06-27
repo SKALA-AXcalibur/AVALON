@@ -21,4 +21,9 @@ public interface TestcaseManageController {
         @PathVariable String tcId,
         @CookieValue("avalon") String key
     );
+
+    ResponseEntity<SuccessResponse<Void>> deleteTestcase(
+            @PathVariable String tcId,
+            @CookieValue("avalon") String key
+    );
 }

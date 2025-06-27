@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,14 +15,13 @@ import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseDetailRespon
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseListResponse;
 import com.sk.skala.axcalibur.feature.testcase.repository.TestCaseRepository;
 import com.sk.skala.axcalibur.feature.testcase.service.ProjectIdResolverService;
+import com.sk.skala.axcalibur.feature.testcase.service.TestcaseCommandService;
 import com.sk.skala.axcalibur.feature.testcase.service.TestcaseQueryService;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-
 
 @RestController
 @RequestMapping("/tc/v1")
@@ -31,6 +32,7 @@ public class TestcaseManageControllerImpl implements TestcaseManageController {
     private final TestCaseRepository testcaseRepository;
 
     private final TestcaseQueryService testcaseQueryService;
+    private final TestcaseCommandService testcaseCommandService;
 
     // 시나리오 별 TC 조회
     @Override
@@ -82,5 +84,17 @@ public class TestcaseManageControllerImpl implements TestcaseManageController {
                 .build()
         );
     }
+    
+    @Override
+    @DeleteMapping("/{tcId}")
+    public ResponseEntity<SuccessResponse<Void>> deleteTestcase(
+            @PathVariable String tcId,
+            @CookieValue("avalon") String key
+    ) {
+        Integer projectId = projectIdResolverService.resolveProjectId(key);
 
+        testcaseCommandService.deleteTestcase(tcId, projectId);
+        
+        return ResponseEntity.ok(new SuccessResponse<>(null, SuccessCode.DELETE_SUCCESS, SuccessCode.DELETE_SUCCESS.getMessage()));
+    }
 }

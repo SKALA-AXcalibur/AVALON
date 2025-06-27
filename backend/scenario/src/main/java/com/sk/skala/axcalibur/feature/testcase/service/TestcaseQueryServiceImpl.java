@@ -17,8 +17,8 @@ import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 
 import lombok.RequiredArgsConstructor;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class TestcaseQueryServiceImpl implements TestcaseQueryService {
     private final TestCaseRepository testcaseRepository;
     private final TestCaseDataRepository testcaseDataRepository;
