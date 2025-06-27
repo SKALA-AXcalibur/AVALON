@@ -1,10 +1,7 @@
 package com.sk.skala.axcalibur.feature.testcase.controller;
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,7 +26,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
+/**
+ * 테스트케이스 관련 조회/삭제/수정 인터페이스의 실제 구현부
+ * - 시나리오 ID를 입력받아 해당 시나리오로부터 생성된 TC 리스트를 조회하는 파트를 구현합니다.
+ * - TC ID를 입력받아 조회/수정/삭제를 구현합니다.
+ */
 @RestController
 @RequestMapping("/tc/v1")
 @RequiredArgsConstructor
@@ -104,15 +105,10 @@ public class TcManageControllerImpl implements TcManageController {
         Integer projectId = projectIdResolverService.resolveProjectId(key);
 
         testcaseCommandService.deleteTestcase(tcId, projectId);
-        
-        // 응답시간 헤더에 반환
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("responseTime", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
         // 정상 처리 응답(data는 null)
         return ResponseEntity
         .status(SuccessCode.DELETE_SUCCESS.getStatus())
-        .headers(headers)
         .body(SuccessResponse.<Void>builder()
             .data(null)  // 빈 객체 반환
             .status(SuccessCode.DELETE_SUCCESS)
@@ -132,14 +128,9 @@ public class TcManageControllerImpl implements TcManageController {
         Integer projectId = projectIdResolverService.resolveProjectId(key);
         testcaseCommandService.updateTestcase(tcId, projectId, request);
 
-        // 응답시간 헤더에 반환
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("responseTime", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-
         // 정상 처리 응답(data는 null)
         return ResponseEntity
         .status(SuccessCode.UPDATE_SUCCESS.getStatus())
-        .headers(headers)
         .body(SuccessResponse.<Void>builder()
             .data(null)  // 빈 객체 반환
             .status(SuccessCode.UPDATE_SUCCESS)

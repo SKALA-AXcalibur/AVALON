@@ -57,7 +57,7 @@ public class TestCaseEntity extends BaseTimeEntity {
     @JoinColumn(name = "mapping_key", nullable = false)
     private MappingEntity mappingKey;
 
-    @OneToMany(mappedBy = "testcaseKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "testcaseKey", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<TestCaseDataEntity> dataList; // CASCADE delete를 위한 설정
 
     // TC 내용 update

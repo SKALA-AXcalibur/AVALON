@@ -17,12 +17,17 @@ import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 테스트케이스 조회 서비스 구현체
+ * - TC 상세 정보 및 연관 파라미터 조회
+ */
 @RequiredArgsConstructor
 @Service
 public class TcQueryServiceImpl implements TcQueryService {
     private final TestCaseRepository testcaseRepository;
     private final TestCaseDataRepository testcaseDataRepository;
     
+    // TC 상세 정보 조회 함수
     @Override
     @Transactional(readOnly = true)
     public TcDetailResponse getTestcaseDetail(String testcaseId) {
