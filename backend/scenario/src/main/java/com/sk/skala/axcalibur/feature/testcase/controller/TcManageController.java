@@ -5,19 +5,19 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseDetailResponse;
-import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseListResponse;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TcDetailResponse;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TcListResponse;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
-public interface TestcaseManageController {
-    ResponseEntity<SuccessResponse<TestcaseListResponse>> getTestcaseLists(
+public interface TcManageController {
+    ResponseEntity<SuccessResponse<TcListResponse>> getTestcaseLists(
         @PathVariable String scenarioId,
         @CookieValue("avalon") String key,
         @RequestParam(defaultValue = "0") int offset,
         @RequestParam(defaultValue = "10") int query
     );
 
-    ResponseEntity<SuccessResponse<TestcaseDetailResponse>> getTestcases(
+    ResponseEntity<SuccessResponse<TcDetailResponse>> getTestcases(
         @PathVariable String tcId,
         @CookieValue("avalon") String key
     );

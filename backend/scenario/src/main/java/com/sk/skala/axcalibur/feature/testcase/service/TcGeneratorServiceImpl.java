@@ -15,9 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sk.skala.axcalibur.feature.testcase.client.FastApiClient;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
-import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseDataDto;
-import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseGenerationResponse;
-import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseParamDto;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TcDataDto;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TcGenerationResponse;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TcParamDto;
 import com.sk.skala.axcalibur.feature.testcase.entity.TestCaseDataEntity;
 import com.sk.skala.axcalibur.feature.testcase.entity.TestCaseEntity;
 import com.sk.skala.axcalibur.feature.testcase.repository.MappingRepository;
@@ -53,9 +53,9 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
     
     // FastAPI로 생성 요청 전송하는 함수
     @Override
-    public TestcaseGenerationResponse callFastApi(TcRequestPayload payload, ScenarioEntity scenario) {
+    public TcGenerationResponse callFastApi(TcRequestPayload payload, ScenarioEntity scenario) {
         try {
-            TestcaseGenerationResponse response = tcGeneratorClient.generate(scenario.getScenarioId(), payload);
+            TcGenerationResponse response = tcGeneratorClient.generate(scenario.getScenarioId(), payload);
         
             if (response == null || response.getTcList() == null || response.getTcList().isEmpty()) {
                 log.error("FastAPI 응답이 비정상적으로 null이거나 비어 있음 (scenarioId: {})", scenario.getScenarioId());
@@ -104,7 +104,7 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
     // fastAPI로부터 생성 내용 응답 받아 저장하는 함수
     @Transactional
     @Override
-    public void saveTestcases(TestcaseGenerationResponse response) {
+    public void saveTestcases(TcGenerationResponse response) {
         // Set과 Map으로 저장할 데이터들이 참조할 데이터의 ID와 데이터를 한번에 캐싱해두는 방식
         // 응답에서 쓰인 paramId, mappingId만 한 번에 조회
         Set<Integer> allParamIds = response.getTcList().stream()
@@ -117,7 +117,7 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
             .collect(Collectors.toMap(ParameterEntity::getId, Function.identity()));
 
         Set<Integer> mappingIds = response.getTcList().stream()
-            .map(TestcaseDataDto::getMappingId)
+            .map(TcDataDto::getMappingId)
             .collect(Collectors.toSet());
 
         Map<Integer, MappingEntity> mappingMap = mappingRepository.findAllById(mappingIds).stream()
@@ -127,7 +127,7 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
         List<TestCaseEntity> testcaseList = new ArrayList<>();
         List<TestCaseDataEntity> testcaseDataList = new ArrayList<>();
 
-        for (TestcaseDataDto tcData : response.getTcList()) {
+        for (TcDataDto tcData : response.getTcList()) {
             // 매핑표 검증
             MappingEntity mapping = mappingMap.get(tcData.getMappingId());
             if (mapping == null) {
@@ -144,7 +144,7 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
                 .build();
             testcaseList.add(testcase);
 
-            for (TestcaseParamDto paramDto : tcData.getTestDataList()) {
+            for (TcParamDto paramDto : tcData.getTestDataList()) {
                 Integer paramId = paramDto.getParamId();
                 if (paramId == null || !paramIdMap.containsKey(paramId))
                     throw new BusinessExceptionHandler("파라미터 ID 오류: " + paramId, ErrorCode.NOT_FOUND_ERROR);

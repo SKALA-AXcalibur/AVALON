@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TestcaseCommandServiceImpl implements TestcaseCommandService {
+public class TcCommandServiceImpl implements TcCommandService {
     private final TestCaseRepository testCaseRepository;
     
     @Override

@@ -3,7 +3,6 @@ package com.sk.skala.axcalibur.feature.testcase.dto.response;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.ApiParamDto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -16,6 +15,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TestcaseParamDataDto extends ApiParamDto {
+public class TcParamDataDto extends ApiParamDto {
     private String value;
 }

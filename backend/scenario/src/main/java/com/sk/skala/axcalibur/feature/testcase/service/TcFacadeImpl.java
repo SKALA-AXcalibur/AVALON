@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
-import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseGenerationResponse;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TcGenerationResponse;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
@@ -45,7 +45,7 @@ public class TcFacadeImpl implements TcFacade {
             for (int i = 0; i < 3; i++) {
                 try {
                     TcRequestPayload payload = tcPayloadService.buildPayload(scenario);
-                    TestcaseGenerationResponse response = tcGeneratorService.callFastApi(payload, scenario);
+                    TcGenerationResponse response = tcGeneratorService.callFastApi(payload, scenario);
                     tcGeneratorService.saveTestcases(response);
                     success = true;
                     break;  // 재시도 루프 탈출

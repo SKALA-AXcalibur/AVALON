@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseDetailResponse;
-import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseListResponse;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TcDetailResponse;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TcListResponse;
 import com.sk.skala.axcalibur.feature.testcase.repository.TestCaseRepository;
 import com.sk.skala.axcalibur.feature.testcase.service.ProjectIdResolverService;
-import com.sk.skala.axcalibur.feature.testcase.service.TestcaseCommandService;
-import com.sk.skala.axcalibur.feature.testcase.service.TestcaseQueryService;
+import com.sk.skala.axcalibur.feature.testcase.service.TcCommandService;
+import com.sk.skala.axcalibur.feature.testcase.service.TcQueryService;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
@@ -30,17 +30,17 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/tc/v1")
 @RequiredArgsConstructor
 @Slf4j
-public class TestcaseManageControllerImpl implements TestcaseManageController {
+public class TcManageControllerImpl implements TcManageController {
     private final ProjectIdResolverService projectIdResolverService;
     private final TestCaseRepository testcaseRepository;
 
-    private final TestcaseQueryService testcaseQueryService;
-    private final TestcaseCommandService testcaseCommandService;
+    private final TcQueryService testcaseQueryService;
+    private final TcCommandService testcaseCommandService;
 
     // 시나리오 별 TC 조회
     @Override
     @GetMapping("/scenario/{scenarioId}")
-    public ResponseEntity<SuccessResponse<TestcaseListResponse>> getTestcaseLists(
+    public ResponseEntity<SuccessResponse<TcListResponse>> getTestcaseLists(
         @PathVariable String scenarioId,
         @CookieValue("avalon") String key,
         @RequestParam(defaultValue = "0") int offset,
@@ -56,10 +56,10 @@ public class TestcaseManageControllerImpl implements TestcaseManageController {
                                  .limit(query)
                                  .toList();
 
-        TestcaseListResponse response = new TestcaseListResponse(all.size(), sliced);
+        TcListResponse response = new TcListResponse(all.size(), sliced);
 
         return ResponseEntity.ok(
-            SuccessResponse.<TestcaseListResponse>builder()
+            SuccessResponse.<TcListResponse>builder()
                 .data(response)
                 .status(SuccessCode.SELECT_SUCCESS)
                 .message(SuccessCode.SELECT_SUCCESS.getMessage())
@@ -69,7 +69,7 @@ public class TestcaseManageControllerImpl implements TestcaseManageController {
 
     @Override
     @GetMapping("/{tcId}")
-    public ResponseEntity<SuccessResponse<TestcaseDetailResponse>> getTestcases(
+    public ResponseEntity<SuccessResponse<TcDetailResponse>> getTestcases(
         @PathVariable String tcId,
         @CookieValue("avalon") String key
     ) {
@@ -77,10 +77,10 @@ public class TestcaseManageControllerImpl implements TestcaseManageController {
         projectIdResolverService.resolveProjectId(key);
 
         // 서비스 호출
-        TestcaseDetailResponse response = testcaseQueryService.getTestcaseDetail(tcId);
+        TcDetailResponse response = testcaseQueryService.getTestcaseDetail(tcId);
 
         return ResponseEntity.ok(
-            SuccessResponse.<TestcaseDetailResponse>builder()
+            SuccessResponse.<TcDetailResponse>builder()
                 .data(response)
                 .status(SuccessCode.SELECT_SUCCESS)
                 .message(SuccessCode.SELECT_SUCCESS.getMessage())

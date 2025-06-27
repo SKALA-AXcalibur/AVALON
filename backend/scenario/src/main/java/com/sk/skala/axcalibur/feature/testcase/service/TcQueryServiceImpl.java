@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseDetailResponse;
-import com.sk.skala.axcalibur.feature.testcase.dto.response.TestcaseParamDataDto;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TcDetailResponse;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TcParamDataDto;
 import com.sk.skala.axcalibur.feature.testcase.entity.TestCaseDataEntity;
 import com.sk.skala.axcalibur.feature.testcase.entity.TestCaseEntity;
 import com.sk.skala.axcalibur.feature.testcase.repository.TestCaseDataRepository;
@@ -19,13 +19,13 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class TestcaseQueryServiceImpl implements TestcaseQueryService {
+public class TcQueryServiceImpl implements TcQueryService {
     private final TestCaseRepository testcaseRepository;
     private final TestCaseDataRepository testcaseDataRepository;
     
     @Override
     @Transactional(readOnly = true)
-    public TestcaseDetailResponse getTestcaseDetail(String testcaseId) {
+    public TcDetailResponse getTestcaseDetail(String testcaseId) {
         // 1. 테스트케이스 단건 조회
         TestCaseEntity tc = testcaseRepository.findByTestcaseId(testcaseId)
             .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
@@ -34,8 +34,8 @@ public class TestcaseQueryServiceImpl implements TestcaseQueryService {
         List<TestCaseDataEntity> dataList = testcaseDataRepository.findAllWithCategoryAndContextByTestcaseId(tc.getId());
 
         // 3. DTO 변환
-        List<TestcaseParamDataDto> testDataList = dataList.stream()
-            .map(data -> TestcaseParamDataDto.builder()
+        List<TcParamDataDto> testDataList = dataList.stream()
+            .map(data -> TcParamDataDto.builder()
                 .paramId(data.getParameterKey().getId())
                 .category(data.getParameterKey().getCategoryKey().getName())  // key → name
                 .koName(data.getParameterKey().getNameKo())
@@ -55,7 +55,7 @@ public class TestcaseQueryServiceImpl implements TestcaseQueryService {
             ).collect(Collectors.toList());
 
         // 4. 응답 DTO 조립
-        return TestcaseDetailResponse.builder()
+        return TcDetailResponse.builder()
             .tcId(tc.getTestcaseId())
             .precondition(tc.getPrecondition())
             .description(tc.getDescription())

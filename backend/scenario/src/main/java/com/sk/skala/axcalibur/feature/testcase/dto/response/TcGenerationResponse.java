@@ -15,9 +15,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TestcaseGenerationResponse {
+public class TcGenerationResponse {
     private String processedAt;             // 처리 완료 시간
     private Double validationRate;          // 검증률
 
-    private List<TestcaseDataDto> tcList;     // 테스트 데이터 목록 (parameter 구조 + 예상값)
+    private List<TcDataDto> tcList;     // 테스트 데이터 목록 (parameter 구조 + 예상값)
 }

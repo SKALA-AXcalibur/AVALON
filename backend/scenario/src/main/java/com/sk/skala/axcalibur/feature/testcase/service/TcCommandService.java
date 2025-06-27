@@ -1,5 +1,5 @@
 package com.sk.skala.axcalibur.feature.testcase.service;
 
-public interface TestcaseCommandService {
+public interface TcCommandService {
     void deleteTestcase(String testcaseId, Integer projectId);
 }

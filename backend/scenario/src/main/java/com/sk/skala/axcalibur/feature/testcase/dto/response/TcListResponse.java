@@ -7,16 +7,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * TC 목록 조회 response DTO
+ * 특정 시나리오에 매핑된 TC ID 목록을 응답으로 반환
+ */
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TestcaseDetailResponse {
-    private String tcId;
-    private String precondition;
-    private String description;
-    private String expectedResult;
-    private Integer status;
-    
-    private List<TestcaseParamDataDto> testDataList;
+public class TcListResponse {
+    Integer tcTotal;
+    List<String> tcList;
 }
