@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sk.skala.axcalibur.feature.testcase.client.FastApiClient;
-import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
-import com.sk.skala.axcalibur.feature.testcase.dto.response.TcDataDto;
+import com.sk.skala.axcalibur.feature.testcase.dto.request.TcGenerationRequest;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.TcGeneratedDataDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TcGenerationResponse;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TcParamDto;
 import com.sk.skala.axcalibur.feature.testcase.entity.TestCaseDataEntity;
@@ -53,7 +53,7 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
     
     // FastAPI로 생성 요청 전송하는 함수
     @Override
-    public TcGenerationResponse callFastApi(TcRequestPayload payload, ScenarioEntity scenario) {
+    public TcGenerationResponse callFastApi(TcGenerationRequest payload, ScenarioEntity scenario) {
         try {
             TcGenerationResponse response = tcGeneratorClient.generate(scenario.getScenarioId(), payload);
         
@@ -117,7 +117,7 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
             .collect(Collectors.toMap(ParameterEntity::getId, Function.identity()));
 
         Set<Integer> mappingIds = response.getTcList().stream()
-            .map(TcDataDto::getMappingId)
+            .map(TcGeneratedDataDto::getMappingId)
             .collect(Collectors.toSet());
 
         Map<Integer, MappingEntity> mappingMap = mappingRepository.findAllById(mappingIds).stream()
@@ -127,7 +127,7 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
         List<TestCaseEntity> testcaseList = new ArrayList<>();
         List<TestCaseDataEntity> testcaseDataList = new ArrayList<>();
 
-        for (TcDataDto tcData : response.getTcList()) {
+        for (TcGeneratedDataDto tcData : response.getTcList()) {
             // 매핑표 검증
             MappingEntity mapping = mappingMap.get(tcData.getMappingId());
             if (mapping == null) {

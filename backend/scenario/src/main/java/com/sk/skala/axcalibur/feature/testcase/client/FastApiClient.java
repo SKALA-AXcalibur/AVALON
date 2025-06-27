@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
+import com.sk.skala.axcalibur.feature.testcase.dto.request.TcGenerationRequest;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TcGenerationResponse;
 
 /**
@@ -15,5 +15,5 @@ import com.sk.skala.axcalibur.feature.testcase.dto.response.TcGenerationResponse
 public interface FastApiClient {
         @PostMapping("/api/tc/v1/{scenarioId}")
         TcGenerationResponse generate(@PathVariable String scenarioId,
-                                            @RequestBody TcRequestPayload payload);
+                                        @RequestBody TcGenerationRequest payload);
 }
