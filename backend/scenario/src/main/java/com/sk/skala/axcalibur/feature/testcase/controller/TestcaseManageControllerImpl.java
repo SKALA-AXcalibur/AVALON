@@ -1,7 +1,10 @@
 package com.sk.skala.axcalibur.feature.testcase.controller;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -95,6 +98,18 @@ public class TestcaseManageControllerImpl implements TestcaseManageController {
 
         testcaseCommandService.deleteTestcase(tcId, projectId);
         
-        return ResponseEntity.ok(new SuccessResponse<>(null, SuccessCode.DELETE_SUCCESS, SuccessCode.DELETE_SUCCESS.getMessage()));
+        // 응답시간 헤더에 반환
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("responseTime", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+
+        // 정상 처리 응답(data는 null)
+        return ResponseEntity
+        .status(SuccessCode.DELETE_SUCCESS.getStatus())
+        .headers(headers)
+        .body(SuccessResponse.<Void>builder()
+            .data(null)  // 빈 객체 반환
+            .status(SuccessCode.DELETE_SUCCESS)
+            .message(SuccessCode.DELETE_SUCCESS.getMessage())
+            .build());
     }
 }
