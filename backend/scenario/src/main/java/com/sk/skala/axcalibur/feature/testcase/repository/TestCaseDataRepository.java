@@ -18,5 +18,12 @@ public interface TestCaseDataRepository extends JpaRepository<TestCaseDataEntity
     WHERE td.testcaseKey.id = :testcaseId
     """)
     List<TestCaseDataEntity> findAllWithCategoryAndContextByTestcaseId(@Param("testcaseId") Integer testcaseId);
-
+    
+    @Query("""
+    SELECT td
+    FROM TestCaseDataEntity td
+    JOIN FETCH td.parameterKey p
+    WHERE td.testcaseKey.id = :testcaseId
+    """)
+    List<TestCaseDataEntity> findAllWithParameterByTestcaseId(@Param("testcaseId") Integer testcaseId);
 }

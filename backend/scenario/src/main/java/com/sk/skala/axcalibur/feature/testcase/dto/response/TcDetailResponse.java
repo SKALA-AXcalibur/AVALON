@@ -7,6 +7,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * TC 데이터 조회 DTO
+ * 특정 TC ID에 대한 TC 정보 반환
+ */
 @Getter
 @Builder
 @NoArgsConstructor

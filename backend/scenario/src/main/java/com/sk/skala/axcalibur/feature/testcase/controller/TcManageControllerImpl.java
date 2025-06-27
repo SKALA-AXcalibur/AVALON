@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sk.skala.axcalibur.feature.testcase.dto.request.TcUpdateRequest;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TcDetailResponse;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TcListResponse;
 import com.sk.skala.axcalibur.feature.testcase.repository.TestCaseRepository;
@@ -25,6 +26,9 @@ import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/tc/v1")
@@ -67,6 +71,7 @@ public class TcManageControllerImpl implements TcManageController {
         );
     };
 
+    // TC ID를 통한 특정 TC 조회
     @Override
     @GetMapping("/{tcId}")
     public ResponseEntity<SuccessResponse<TcDetailResponse>> getTestcases(
@@ -88,12 +93,14 @@ public class TcManageControllerImpl implements TcManageController {
         );
     }
     
+    // 특정 TC 삭제
     @Override
     @DeleteMapping("/{tcId}")
     public ResponseEntity<SuccessResponse<Void>> deleteTestcase(
-            @PathVariable String tcId,
-            @CookieValue("avalon") String key
+        @PathVariable String tcId,
+        @CookieValue("avalon") String key
     ) {
+        // Redis에서 cookie 키 인증 (예외 발생 시 Global handler에서 처리)
         Integer projectId = projectIdResolverService.resolveProjectId(key);
 
         testcaseCommandService.deleteTestcase(tcId, projectId);
@@ -110,6 +117,33 @@ public class TcManageControllerImpl implements TcManageController {
             .data(null)  // 빈 객체 반환
             .status(SuccessCode.DELETE_SUCCESS)
             .message(SuccessCode.DELETE_SUCCESS.getMessage())
+            .build());
+    }
+
+    // 특정 TC 내용 update
+    @Override
+    @PutMapping("/{tcId}")
+    public ResponseEntity<SuccessResponse<Void>> updateTestcase(
+        @PathVariable String tcId,
+        @CookieValue("avalon") String key,
+        @RequestBody TcUpdateRequest request
+    ) { 
+        // Redis에서 cookie 키 인증 (예외 발생 시 Global handler에서 처리)
+        Integer projectId = projectIdResolverService.resolveProjectId(key);
+        testcaseCommandService.updateTestcase(tcId, projectId, request);
+
+        // 응답시간 헤더에 반환
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("responseTime", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+
+        // 정상 처리 응답(data는 null)
+        return ResponseEntity
+        .status(SuccessCode.UPDATE_SUCCESS.getStatus())
+        .headers(headers)
+        .body(SuccessResponse.<Void>builder()
+            .data(null)  // 빈 객체 반환
+            .status(SuccessCode.UPDATE_SUCCESS)
+            .message(SuccessCode.UPDATE_SUCCESS.getMessage())
             .build());
     }
 }

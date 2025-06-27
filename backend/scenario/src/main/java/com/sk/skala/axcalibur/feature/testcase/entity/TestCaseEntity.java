@@ -60,4 +60,10 @@ public class TestCaseEntity extends BaseTimeEntity {
     @OneToMany(mappedBy = "testcaseKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<TestCaseDataEntity> dataList; // CASCADE delete를 위한 설정
 
+    // TC 내용 update
+    public void update(String precondition, String description, String expectedResult) {
+        this.precondition = precondition;
+        this.description = description;
+        this.expected = expectedResult;
+    }
 }
