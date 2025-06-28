@@ -10,8 +10,7 @@ def scenario_generate_node(state: ScenarioState) -> Dict[str, Any]:
     """
     시나리오 생성 노드
     """
-    logging.info("=== 시나리오 생성 노드 시작 ===")
-
+    
     try:
         # 상태에서 입력 데이터 추출
         request_data = state.get("request_data")
@@ -50,9 +49,14 @@ def scenario_generate_node(state: ScenarioState) -> Dict[str, Any]:
 
     except Exception as e:
         logging.exception("시나리오 생성 노드에서 오류 발생")
+        error_message = f"시나리오 생성 실패: {str(e)}"
+        if "timeout" in str(e).lower():
+            error_message += (
+                " (LLM API 타임아웃 - 더 간단한 요청으로 다시 시도해보세요)"
+            )
         return {
             "generated_scenarios": None,
             "current_step": "generation_failed",
             "generation_status": "failed",
-            "error_message": str(e),
+            "error_message": error_message,
         }

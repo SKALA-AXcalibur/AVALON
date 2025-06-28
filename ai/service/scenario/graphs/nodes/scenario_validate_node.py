@@ -10,7 +10,6 @@ def scenario_validate_node(state: ScenarioState) -> Dict[str, Any]:
     """
     시나리오 검증 노드
     """
-    logging.info("=== 시나리오 검증 노드 시작 ===")
 
     try:
         # 상태에서 필요 데이터 추출
@@ -20,8 +19,6 @@ def scenario_validate_node(state: ScenarioState) -> Dict[str, Any]:
         if not generated_scenarios:
             raise ValueError("generated_scenarios가 상태에 없습니다.")
 
-        logging.info(f"시나리오 검증 시작 - {current_attempt}번째 시도")
-
         # 시나리오 생성 실행
         validator = ScenarioValidator()
         validation_response = validator.validate_scenario_only(generated_scenarios)
@@ -30,12 +27,8 @@ def scenario_validate_node(state: ScenarioState) -> Dict[str, Any]:
         overall_status = (
             validation_response.validation_result.overall_status
         )  # 검증 상태
-        overall_score = validation_response.validation_result.overall_score  # 점수
+        overall_score = validation_response.validation_result.overall_score  # 검증 점수
 
-        # 검증 점수 상세 정보
-        logging.info(
-            f"시나리오 검증 완료: 상태={overall_status}, 점수={overall_score}점"
-        )
         logging.info(
             f"검증 상세: 시도횟수={current_attempt}, 시나리오개수={len(generated_scenarios.scenario_list) if hasattr(generated_scenarios, 'scenario_list') else 'N/A'}"
         )

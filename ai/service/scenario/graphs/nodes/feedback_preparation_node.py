@@ -14,7 +14,6 @@ def feedback_preparation_node(state: ScenarioState) -> Dict[str, Any]:
             "ready_for_regeneration": True         # 재생성 가능 여부
         }
     """
-    logging.info("=== 피드백 준비 노드 시작 ===")
 
     try:
         # 상태에서 필요 데이터 추출
