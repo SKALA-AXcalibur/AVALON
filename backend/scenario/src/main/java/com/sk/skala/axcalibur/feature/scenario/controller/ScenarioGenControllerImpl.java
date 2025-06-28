@@ -17,10 +17,7 @@ import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioGenResponseD
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListResponse;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioGenService;
 import com.sk.skala.axcalibur.feature.testcase.service.ProjectIdResolverService;
-import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
-import com.sk.skala.axcalibur.global.entity.AvalonCookieEntity;
-import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -58,6 +55,14 @@ public class ScenarioGenControllerImpl implements ScenarioGenController {
         List<ScenarioListResponse> savedScenarios = scenarioGenService.parseAndSaveScenarios(
             fastApiResponse.getScenarioList(), projectKey
         );
+
+        // 저장된 시나리오에서 흐름도 생성 API 호출
+        try {
+            scenarioGenService.generateAndUpdateFlowChart(savedScenarios, projectKey);
+            log.info("시나리오 흐름도 생성 완료");
+        } catch (Exception e) {
+            log.error("시나리오 흐름도 생성 실패", e);
+        }
 
         // 최종 응답 DTO 구성
         ScenarioGenResponseDto responseDto = ScenarioGenResponseDto.builder()

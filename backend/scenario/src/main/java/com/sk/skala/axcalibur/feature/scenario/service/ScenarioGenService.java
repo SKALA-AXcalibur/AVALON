@@ -2,10 +2,11 @@ package com.sk.skala.axcalibur.feature.scenario.service;
 
 import java.util.List;
 
+import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioFlowRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioGenRequestDto;
-import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListResponse;
-import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ReqItem;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ApiItem;
+import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ReqItem;
+import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListResponse;
 
 public interface ScenarioGenService {
     
@@ -23,4 +24,10 @@ public interface ScenarioGenService {
 
     // 새로운 시나리오 ID 생성
     String generateNewScenarioId(); 
+    
+    // 저장된 시나리오에서 흐름도 생성 요청 데이터 준비
+    ScenarioFlowRequestDto prepareFlowRequestData(List<ScenarioListResponse> savedScenarios, Integer projectKey);
+    
+    // 시나리오 흐름도 생성 및 DB 업데이트
+    void generateAndUpdateFlowChart(List<ScenarioListResponse> savedScenarios, Integer projectKey);
 }

@@ -8,11 +8,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sk.skala.axcalibur.feature.scenario.client.ScenarioFlowClient;
+import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioFlowDto;
+import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioFlowRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioGenRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ApiItem;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ReqItem;
+import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ScenarioFlowApi;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListResponse;
 import com.sk.skala.axcalibur.feature.scenario.entity.RequestEntity;
 import com.sk.skala.axcalibur.feature.scenario.repository.RequestRepository;
@@ -33,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
  * - 요구사항 및 API 정보 수집
  * - 시나리오 저장
  * - 새로운 시나리오 ID 생성
+ * - 시나리오 흐름도 생성
  */
 @Slf4j
 @Service
@@ -43,6 +46,7 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
     private final RequestRepository requestRepository;
     private final ApiListRepository apiListRepository;
     private final ScenarioRepository scenarioRepository;
+    private final ScenarioFlowClient scenarioFlowClient;
 
     @Override
     public ScenarioGenRequestDto prepareRequestData(Integer projectKey) {
@@ -154,6 +158,57 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
             }
         }
         return String.format("scenario-%03d", nextNum);
+    }
+
+    @Override
+    public ScenarioFlowRequestDto prepareFlowRequestData(List<ScenarioListResponse> savedScenarios, Integer projectKey) {
+        try {
+            
+            // 저장된 시나리오들을 ScenarioFlowDto로 변환
+            List<ScenarioFlowDto> scenarioFlowList = savedScenarios.stream()
+                .map(scenario -> {
+                    // 각 시나리오에 대한 API 정보 수집 (실제로는 시나리오별 API 매핑이 필요할 수 있음)
+                    List<ApiListEntity> apiEntities = apiListRepository.findByProjectKey(projectKey);
+                    List<ScenarioFlowApi> apiList = apiEntities.stream()
+                        .map(api -> new ScenarioFlowApi(
+                            api.getApiListId(),
+                            api.getName(),
+                            api.getDescription()
+                        ))
+                        .collect(Collectors.toList());
+                    
+                    return ScenarioFlowDto.builder()
+                        .id(scenario.getScenarioId())
+                        .description(scenario.getName())
+                        .apiList(apiList)
+                        .build();
+                })
+                .collect(Collectors.toList());
+            
+            return ScenarioFlowRequestDto.builder()
+                .scenarioList(scenarioFlowList)
+                .build();
+                
+        } catch (Exception e) {
+            log.error("시나리오 흐름도 요청 데이터 준비 실패", e);
+            throw new BusinessExceptionHandler("시나리오 흐름도 요청 데이터 준비 실패: " + e.getMessage(), ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void generateAndUpdateFlowChart(List<ScenarioListResponse> savedScenarios, Integer projectKey) {
+        try {
+            // 흐름도 생성 요청 데이터 준비
+            ScenarioFlowRequestDto flowRequestDto = prepareFlowRequestData(savedScenarios, projectKey);
+            
+            // FastAPI로 흐름도 생성 요청 (DB 저장은 FastAPI에서 처리)
+            scenarioFlowClient.sendInfoAndGetResponse(flowRequestDto);
+            
+        } catch (Exception e) {
+            log.error("시나리오 흐름도 생성 실패", e);
+            throw new BusinessExceptionHandler("시나리오 흐름도 생성 실패: " + e.getMessage(), ErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }
