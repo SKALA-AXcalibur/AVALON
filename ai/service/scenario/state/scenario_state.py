@@ -1,9 +1,11 @@
 # service/scenario/state/scenario_state.py
 from typing import Any, Optional, TypedDict
+from urllib import request
 
 from dto.response.scenario.scenario_response import ScenarioResponse
-from dto.response.scenario.scenario_validation_response import ScenarioValidationResponse
-
+from dto.response.scenario.scenario_validation_response import (
+    ScenarioValidationResponse,
+)
 
 
 class ScenarioState(TypedDict):
@@ -11,21 +13,13 @@ class ScenarioState(TypedDict):
     LangGraph 워크플로우 전체에서 공유하는 상태 구조 (실제 사용하는 필드만 유지)
     """
 
-    # 입력 데이터
     request_data: Any
-    # 시도 횟수
     attempt_count: int
     max_attempts: int
-
-    # 생성 결과
     generated_scenarios: Optional[ScenarioResponse]
     generation_status: str
-
-    # 검증 결과
     validation_result: Optional[ScenarioValidationResponse]
     validation_status: str
     overall_score: int
-
-    # 에러 처리
     error_message: Optional[str]
     has_error: bool

@@ -13,7 +13,6 @@ from service.scenario.agents.scenario_flow_agent import ScenarioFlowAgent
 from dto.request.scenario.scenario_request import ScenarioRequest
 from service.scenario.scenario_flow_storage_service import ScenarioFlowStorageService
 from service.scenario.graphs.scenario_graph import create_scenario_graph
-from service.scenario.state.scenario_state import create_initial_state
 import logging
 
 router = APIRouter()
@@ -34,10 +33,21 @@ async def generate_scenario(request: ScenarioRequest):
     """
     try:
         graph = create_scenario_graph()
-        initial_state = create_initial_state(request_data=request, max_attempts=3)
+        state = {
+            "request_data": request, 
+            "attempt_count": 0,
+            "max_attempts": 3,
+            "generated_scenarios": None,
+            "generation_status": "pending",
+            "validation_result": None,
+            "validation_status": "pending",
+            "overall_score": 0,
+            "error_message": None,
+            "has_error": False
+        }
 
         # 워크플로우 실행
-        final_state = graph.invoke(initial_state)
+        final_state = graph.invoke(state)
 
         # 결과 추출
         generated_scenarios = final_state.get("generated_scenarios")
