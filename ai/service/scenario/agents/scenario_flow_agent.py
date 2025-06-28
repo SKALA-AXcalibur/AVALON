@@ -24,10 +24,8 @@ class ScenarioFlowAgent:
         """
         try:
             prompt = self._build_prompt(request)
-            logging.info("[ScenarioFlowAgent] LLM 프롬프트 생성 완료")
 
             raw_response = self._call_llm(prompt)
-            logging.debug(f"[ScenarioFlowAgent] LLM 응답 수신:\n{raw_response}")
 
             mermaid_code = self._extract_mermaid(raw_response)
             return ScenarioFlowResponse(data=mermaid_code)

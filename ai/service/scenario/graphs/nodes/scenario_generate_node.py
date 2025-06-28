@@ -10,7 +10,7 @@ def scenario_generate_node(state: ScenarioState) -> Dict[str, Any]:
     """
     시나리오 생성 노드
     """
-    
+
     try:
         # 상태에서 입력 데이터 추출
         request_data = state.get("request_data")
@@ -20,7 +20,6 @@ def scenario_generate_node(state: ScenarioState) -> Dict[str, Any]:
         if not request_data:
             raise ValueError("request_data가 상태에 없습니다.")
 
-        logging.info(f"시나리오 생성 시작 - 시도 횟수: {current_attempt + 1}")
         if feedback_data:
             logging.info("이전 피드백을 반영하여 재생성합니다.")
 
