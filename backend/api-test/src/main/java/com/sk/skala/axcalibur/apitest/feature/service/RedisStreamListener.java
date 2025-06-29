@@ -14,6 +14,7 @@ import com.sk.skala.axcalibur.apitest.feature.util.ApiTaskDtoConverter;
 import com.sk.skala.axcalibur.apitest.global.code.ErrorCode;
 import com.sk.skala.axcalibur.apitest.global.exception.BusinessExceptionHandler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,6 +54,8 @@ public class RedisStreamListener implements StreamListener<String, MapRecord<Str
   private final ApiTestRepository at;
   private final ApiTestDetailRepository ad;
 
+  private final ApiTestParserService parser;
+
   @Override
   public void onMessage(MapRecord<String, String, String> message) {
     Map<String, String> value = message.getValue();
@@ -89,7 +92,30 @@ public class RedisStreamListener implements StreamListener<String, MapRecord<Str
     log.debug("RedisStreamListener.onMessage: Saving ApiTestDetailEntity to Redis: {}", adEntity.getId());
     ad.save(adEntity); // Redis는 Transactional 필요 없음
 
-    // TODO: 사전 조건 파싱 구현하기
+    // 사전 조건 파싱 구현
+    if (dto.precondition() != null && !dto.precondition().isEmpty()) {
+      log.info("RedisStreamListener.onMessage: Precondition is detected : {}", message.getId());
+      // 사전 조건을 , 로 분리한 다음 step으로 시작해서 , 으로 끝나는 부분만 추출
+      String[] parts = dto.precondition().split(",");
+      ArrayList<String> list = new ArrayList<>();
+      for (String part : parts) {
+        if (part.trim().startsWith("step") && part.trim().endsWith(",")) {
+          list.add(part.trim());
+        }
+      }
+
+      // TODO : 구현 예정 파싱 로직
+      // 파싱 로직
+
+      // path 있으면 추출 후 url 대체
+
+      // query 있으면 추출 후 url 추가 또는 대체
+
+      // header 있으면 추출
+
+      // body 있으면 추출 후
+
+    }
 
     try {
       // 실제 API 호출 로직
