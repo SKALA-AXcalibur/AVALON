@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, Any
-from service.aplist.state.mapping_state import MappingState, update_feedback_prepared
+from ai.service.apilist.state.mapping_state import MappingState, update_feedback_prepared
 
 def feedback_node(state: MappingState) -> Dict[str, Any]:
     """

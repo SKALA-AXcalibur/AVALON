@@ -1,8 +1,8 @@
 import logging
 from typing import Dict, Any
-from service.aplist.state.mapping_state import MappingState, update_mapping_generation_success, update_mapping_generation_failed
-from service.aplist.prompts.mapping_generation_prompt import create_mapping_generation_prompt
-from service.aplist.agents.map_agent import perform_semantic_mapping  # LLM 호출 재활용
+from ai.service.apilist.state.mapping_state import MappingState, update_mapping_generation_success, update_mapping_generation_failed
+from ai.service.apilist.prompts.mapping_generation_prompt import create_mapping_generation_prompt
+from ai.service.apilist.agents.map_agent import perform_semantic_mapping  # LLM 호출 재활용
 
 
 def mapping_generation_node(state: MappingState) -> Dict[str, Any]:
