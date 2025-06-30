@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sk.skala.axcalibur.feature.testcase.dto.response.ApiListResponse;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.ApiListDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,9 +17,9 @@ public class MappingRepositoryImpl implements MappingRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<ApiListResponse> findApiListByScenarioId(String scenarioId) {
+    public List<ApiListDto> findApiListByScenarioId(String scenarioId) {
         return queryFactory
-            .select(Projections.constructor(ApiListResponse.class, apiListEntity.apiListId, apiListEntity.name))
+            .select(Projections.constructor(ApiListDto.class, apiListEntity.apiListId, apiListEntity.name))
             .from(mappingEntity)
             .join(mappingEntity.apiListKey, apiListEntity)
             .join(mappingEntity.scenarioKey, scenarioEntity)
