@@ -3,7 +3,7 @@ from typing_extensions import NotRequired
 
 class MappingState(TypedDict):
    """
-   의미적 매핑 및 매핑표 생성 상태 관리
+   의미적 매핑 및 매핑표 생성/검증을 위한 상태 관리
    LangGraph에서 노드 간 데이터 전달을 위한 상태 정의
    """
    
@@ -31,10 +31,6 @@ class MappingState(TypedDict):
    validation_status: NotRequired[str]  # 검증 상태
    validation_score: NotRequired[float]  # 검증 점수
    
-   # 피드백 관련 상태
-   feedback_data: NotRequired[Optional[Dict[str, Any]]]  # 피드백 데이터
-   ready_for_regeneration: NotRequired[bool]  # 재생성 준비 완료 여부
-   
    # 진행 상태 관리
    current_step: NotRequired[str]  # 현재 단계
    attempt_count: NotRequired[int]  # 현재 시도 횟수
@@ -45,17 +41,6 @@ class MappingState(TypedDict):
    # 에러 처리
    error_message: NotRequired[Optional[str]]  # 에러 메시지
    has_error: NotRequired[bool]  # 에러 발생 여부
-
-
-class FeedbackData(TypedDict):
-   """
-   검증 결과에서 추출한 피드백 데이터 구조
-   """
-   validation_score: float  # 검증 점수
-   issues: List[Dict[str, str]]  # 이슈 목록
-   suggestions: List[Dict[str, str]]  # 개선 제안
-   focus_areas: List[str]  # 집중해야 할 영역
-   improvement_priority: List[str]  # 개선 우선순위
 
 
 class WorkflowStatus(TypedDict):
@@ -94,78 +79,83 @@ def create_initial_mapping_state(avalon: str, max_attempts: int = 3, target_scor
 # 상태 업데이트 헬퍼 함수들
 def update_map_success(state: MappingState, map_result: Dict[str, Any]) -> Dict[str, Any]:
    """의미적 매핑 성공시 상태 업데이트"""
-   return {
+   result = dict(state)  # 기존 state 복사
+   result.update({
        "semantic_mapping": map_result,
        "mapping_status": "success",
        "current_step": "map_completed",
-   }
+   })
+   return result
 
 
 def update_map_failed(state: MappingState, error_msg: str) -> Dict[str, Any]:
    """의미적 매핑 실패시 상태 업데이트"""
-   return {
+   result = dict(state)  # 기존 state 복사
+   result.update({
        "semantic_mapping": None,
        "mapping_status": "failed",
        "current_step": "map_failed",
        "error_message": error_msg,
        "has_error": True,
-   }
+   })
+   return result
 
 
 def update_mapping_generation_success(state: MappingState, mapping_table: List[Dict]) -> Dict[str, Any]:
    """매핑표 생성 성공시 상태 업데이트"""
-   return {
+   result = dict(state)  # 기존 state 복사
+   result.update({
        "generated_mapping_table": mapping_table,
        "generation_status": "success",
        "current_step": "mapping_generation_completed",
-   }
+   })
+   return result
 
 
 def update_mapping_generation_failed(state: MappingState, error_msg: str) -> Dict[str, Any]:
    """매핑표 생성 실패시 상태 업데이트"""
-   return {
+   result = dict(state)  # 기존 state 복사
+   result.update({
        "generated_mapping_table": None,
        "generation_status": "failed",
        "current_step": "mapping_generation_failed",
        "error_message": error_msg,
        "has_error": True,
-   }
+   })
+   return result
 
 
 def update_mapping_validation_success(state: MappingState, validation_result: Dict[str, Any]) -> Dict[str, Any]:
    """매핑표 검증 성공시 상태 업데이트"""
-   return {
+   result = dict(state)  # 기존 state 복사
+   result.update({
        "validation_result": validation_result,
        "validation_status": "completed",
        "validation_score": validation_result.get("score", 0.0),
        "current_step": "mapping_validation_completed",
-   }
+   })
+   return result
 
 
 def update_mapping_validation_failed(state: MappingState, error_msg: str) -> Dict[str, Any]:
    """매핑표 검증 실패시 상태 업데이트"""
-   return {
+   result = dict(state)  # 기존 state 복사
+   result.update({
        "validation_result": None,
        "validation_status": "failed",
        "current_step": "mapping_validation_failed",
        "error_message": error_msg,
        "has_error": True,
-   }
-
-
-def update_feedback_prepared(state: MappingState, feedback: FeedbackData) -> Dict[str, Any]:
-   """피드백 준비 완료시 상태 업데이트"""
-   return {
-       "feedback_data": feedback,
-       "ready_for_regeneration": True,
-       "current_step": "feedback_prepared",
-   }
+   })
+   return result
 
 
 def increment_attempt_count(state: MappingState) -> Dict[str, Any]:
    """시도 횟수 증가"""
+   result = dict(state)  # 기존 state 복사
    current_count = state.get("attempt_count", 0)
-   return {"attempt_count": current_count + 1}
+   result.update({"attempt_count": current_count + 1})
+   return result
 
 
 # 상태 검증 함수들
