@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.sk.skala.axcalibur.scenario.feature.apilist.entity.ScenarioEntity;
 
 @Repository
-public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Long> {
+public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Integer> {
 
     /** 
      * 프로젝트 키로 시나리오 조회
