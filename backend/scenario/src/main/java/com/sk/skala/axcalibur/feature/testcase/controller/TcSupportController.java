@@ -5,18 +5,17 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 
 import com.sk.skala.axcalibur.feature.testcase.dto.request.ApiParamDto;
-import com.sk.skala.axcalibur.feature.testcase.dto.request.TcUpdateRequest;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.ApiListResponse;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 /**
- * 테스트케이스 추가 관련 인터페이스(IF-TC-0007 ~ IF-TC-0010)
- * - 시나리오 ID로부터 API 목록을 조회하고, 선택한 API의 파라미터 정보를 활용해 TC를 추가합니다.
+ * 테스트케이스 추가 전 보조 정보 조회 인터페이스(IF-TC-0007, IF-TC-0008)
+ * - 테스트케이스를 수동으로 추가하기 전, 시나리오 기반으로 필요한 정보를 조회합니다.
+ * - API 조회(IF-TC-0007)
+ * - API 선택(IF-TC-0008)
  */
 public interface TcSupportController {
     ResponseEntity<SuccessResponse<List<ApiListResponse>>> getApiListByScenario(String scenarioId, String key);
 
     ResponseEntity<SuccessResponse<List<ApiParamDto>>> getParamListByApi(String scenarioId, String apiId, String key);
-
-    ResponseEntity<SuccessResponse<Void>> createTestcase(String scenarioId, String apiId, String key, TcUpdateRequest request);
 }
