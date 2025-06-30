@@ -15,10 +15,5 @@ public interface ScenarioCreateService {
      * @return 시나리오 생성 응답 DTO
      */
     ScenarioCreateResponseDto createScenario(Integer projectKey, ScenarioCreateRequestDto requestDto);
-    
-    /**
-     * 새로운 시나리오 ID 생성
-     * @return 생성된 시나리오 ID
-     */
-    String generateNewScenarioId();
+
 } 

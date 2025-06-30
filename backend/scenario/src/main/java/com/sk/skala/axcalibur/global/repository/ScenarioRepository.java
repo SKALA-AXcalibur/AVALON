@@ -17,10 +17,10 @@ public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Intege
     // 시나리오 ID로 시나리오 조회
     Optional<ScenarioEntity> findByScenarioId(String scenarioId);
     
-    // 시나리오 ID 중 최대 번호 조회 (scenario-001 형식에서 001 부분의 최대값)
-    @Query(value = "SELECT id FROM scenario WHERE id LIKE 'scenario-%' ORDER BY id DESC LIMIT 1", nativeQuery = true)
-    String findMaxScenarioId();
-    
+    // 해당 프로젝트에서 scenarioid(시나리오 번호) 중 최대값 가져오기
+    @Query("SELECT s.scenarioId FROM ScenarioEntity s WHERE s.project.id = :projectKey ORDER BY s.scenarioId DESC")
+    List<String> findMaxScenarioIdByProjectKey(Integer projectKey);
+
     // 프로젝트별 시나리오 목록 조회 (페이징)
     List<ScenarioEntity> findByProject_IdOrderByCreateAtDesc(Integer projectId, Pageable pageable);
     

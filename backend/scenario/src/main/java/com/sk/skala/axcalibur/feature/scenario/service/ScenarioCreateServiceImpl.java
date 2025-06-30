@@ -1,5 +1,7 @@
 package com.sk.skala.axcalibur.feature.scenario.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,6 +11,7 @@ import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
+import org.springframework.dao.DataIntegrityViolationException;
 import com.sk.skala.axcalibur.global.repository.ProjectRepository;
 import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
 
@@ -29,53 +32,53 @@ public class ScenarioCreateServiceImpl implements ScenarioCreateService {
     @Override
     @Transactional
     public ScenarioCreateResponseDto createScenario(Integer projectKey, ScenarioCreateRequestDto requestDto) {
-        try {
-            // 프로젝트 존재 여부 확인
-            ProjectEntity project = projectRepository.findById(projectKey)
-                .orElseThrow(() -> new BusinessExceptionHandler("프로젝트를 찾을 수 없습니다.", ErrorCode.NOT_FOUND_ERROR));
+        
+        // 프로젝트 존재 여부 확인
+        ProjectEntity project = projectRepository.findById(projectKey)
+            .orElseThrow(() -> new BusinessExceptionHandler("프로젝트를 찾을 수 없습니다.", ErrorCode.NOT_FOUND_ERROR));
 
-            // 새로운 시나리오 ID 생성
-            String newScenarioId = generateNewScenarioId();
-
-            // 시나리오 엔티티 생성 및 저장
-            ScenarioEntity scenarioEntity = ScenarioEntity.builder()
-                .scenarioId(newScenarioId)
-                .name(requestDto.getName())
-                .description(requestDto.getDescription())
-                .validation(requestDto.getValidation())
-                .project(project)
-                .build();
-
-            ScenarioEntity savedScenario = scenarioRepository.save(scenarioEntity);
-
-            log.info("새로운 시나리오 생성 완료 - ID: {}, 프로젝트: {}", newScenarioId, projectKey);
-
-            return ScenarioCreateResponseDto.builder()
-                .id(savedScenario.getScenarioId())
-                .build();
-
-        } catch (BusinessExceptionHandler e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("시나리오 생성 실패 - 프로젝트: {}, 요청: {}", projectKey, requestDto, e);
-            throw new BusinessExceptionHandler("시나리오 생성 중 오류가 발생했습니다: " + e.getMessage(), ErrorCode.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @Override
-    public String generateNewScenarioId() {
-        // 새로운 시나리오 ID 생성
-        // DB에서 현재 최대 시나리오 ID를 조회해서 +1
-        String maxId = scenarioRepository.findMaxScenarioId();
-        int nextNum = 1;
-        if (maxId != null && maxId.startsWith("scenario-")) {
+        int maxRetry = 3; // 최대 재시도 횟수
+        for(int attempt = 0; attempt < maxRetry; attempt++) {
             try {
-                nextNum = Integer.parseInt(maxId.substring(9)) + 1;
-            } catch (NumberFormatException e) {
-                log.warn("시나리오 ID 숫자 변환 실패: {}", maxId);
-                // 무시하고 1로 둠
+                // 프로젝트 내 기존 시나리오 id 목록을 조회
+                List<String> existingIds = scenarioRepository.findMaxScenarioIdByProjectKey(projectKey);
+                int maxNo = 0; // 기존 시나리오 id 중 최대 번호
+                for(String id : existingIds) {
+                    if(id.startsWith("scenario-")) {
+                        try {
+                            int no = Integer.parseInt(id.substring(9));
+                            if(no > maxNo) maxNo = no;
+                        } catch (NumberFormatException e) {
+                            log.warn("시나리오 ID 숫자 변환 실패: {}", id);
+                        }
+                    }
+                }
+                int newNo = maxNo + 1;
+                String newScenarioId = String.format("scenario-%03d", newNo); // 새로운 시나리오 ID 생성
+
+                // 시나리오 엔티티 생성 및 저장
+                ScenarioEntity scenarioEntity = ScenarioEntity.builder()
+                    .scenarioId(newScenarioId)
+                    .name(requestDto.getName())
+                    .description(requestDto.getDescription())
+                    .validation(requestDto.getValidation())
+                    .project(project)
+                    .build();
+
+                ScenarioEntity savedScenario = scenarioRepository.save(scenarioEntity);
+
+                return ScenarioCreateResponseDto.builder()
+                    .id(savedScenario.getScenarioId())
+                    .build();
+
+            } catch (DataIntegrityViolationException e) {
+                // 동시성 충돌(유니크 인덱스 위반) 시 재시도
+                log.warn("동시성 충돌로 인한 재시도({}/{}) - 프로젝트: {}", attempt+1, maxRetry, projectKey);
+                if (attempt == maxRetry - 1) {
+                    throw new BusinessExceptionHandler("시나리오 ID 중복, 재시도 실패", ErrorCode.INTERNAL_SERVER_ERROR);
+                }
             }
         }
-        return String.format("scenario-%03d", nextNum);
+        throw new BusinessExceptionHandler("시나리오 생성에 실패했습니다.", ErrorCode.INTERNAL_SERVER_ERROR);
     }
-} 
+}

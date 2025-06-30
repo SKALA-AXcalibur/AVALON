@@ -15,4 +15,9 @@ public interface ScenarioListService {
      * @return 시나리오 목록 응답 DTO
      */
     ScenarioListDto getScenarioList(Integer projectKey, int offset, int query);
+
+    /**
+     * offset, query 파라미터 검증
+     */
+    void validatePagingParameters(int offset, int query);
 } 
