@@ -42,7 +42,7 @@ public class ScenarioUpdateServiceImpl implements ScenarioUpdateService {
                 throw new BusinessExceptionHandler("해당 프로젝트의 시나리오가 아닙니다.", ErrorCode.FORBIDDEN_ERROR);
             }
             
-            // 시나리오 정보 업데이트 (Builder 패턴으로 새 객체 생성)
+            // 시나리오 정보 업데이트
             ScenarioEntity updatedScenario = ScenarioEntity.builder()
                 .id(scenario.getId())
                 .scenarioId(scenario.getScenarioId())

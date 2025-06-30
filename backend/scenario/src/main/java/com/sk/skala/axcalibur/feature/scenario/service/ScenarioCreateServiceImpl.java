@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 시나리오 생성 서비스 구현체
+ * 시나리오 추가 서비스 구현체
  */
 @Slf4j
 @Service

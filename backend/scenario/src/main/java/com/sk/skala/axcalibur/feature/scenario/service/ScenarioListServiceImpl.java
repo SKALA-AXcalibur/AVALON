@@ -29,8 +29,6 @@ public class ScenarioListServiceImpl implements ScenarioListService {
     @Override
     public ScenarioListDto getScenarioList(Integer projectKey, int offset, int query) {
         try {
-            // 페이징 파라미터 검증
-            validatePagingParameters(offset, query);
             
             // 총 개수 조회
             int total = scenarioRepository.countByProject_Id(projectKey);
@@ -60,15 +58,4 @@ public class ScenarioListServiceImpl implements ScenarioListService {
         }
     }
     
-    /**
-     * 페이징 파라미터 검증
-     */
-    private void validatePagingParameters(int offset, int query) {
-        if (offset < 0) {
-            throw new BusinessExceptionHandler("offset은 0 이상이어야 합니다.", ErrorCode.BAD_REQUEST_ERROR);
-        }
-        if (query < 1 || query > 100) {
-            throw new BusinessExceptionHandler("query는 1-100 범위여야 합니다.", ErrorCode.BAD_REQUEST_ERROR);
-        }
-    }
 } 

@@ -42,7 +42,6 @@ public class ScenarioDetailServiceImpl implements ScenarioDetailService {
                 throw new BusinessExceptionHandler("해당 프로젝트의 시나리오가 아닙니다.", ErrorCode.FORBIDDEN_ERROR);
             }
             
-            log.info("시나리오 상세 조회 완료 - ID: {}, 프로젝트: {}", scenarioId, projectKey);
             
             // DTO 변환 및 반환
             return ScenarioDetailResponseDto.builder()
