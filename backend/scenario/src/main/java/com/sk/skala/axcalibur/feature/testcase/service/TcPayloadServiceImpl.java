@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.ApiMappingDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.ApiParamDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.ScenarioDto;
-import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
+import com.sk.skala.axcalibur.feature.testcase.dto.request.TcGenerationRequest;
 import com.sk.skala.axcalibur.feature.testcase.repository.MappingRepository;
 import com.sk.skala.axcalibur.feature.testcase.repository.ParameterRepository;
 import com.sk.skala.axcalibur.feature.testcase.repository.ScenarioRepository;
@@ -45,7 +45,7 @@ public class TcPayloadServiceImpl implements TcPayloadService{
 
     // fastAPI로 보낼 TcRequestPayload 형식의 객체 조합하는 함수
     @Override
-    public TcRequestPayload buildPayload(ScenarioEntity scenario) {
+    public TcGenerationRequest buildPayload(ScenarioEntity scenario) {
         // API매핑표 관련 정보 조회
         List<MappingEntity> mappings = mappingRepository.findByScenarioKey_Id(scenario.getId());
 
@@ -91,8 +91,7 @@ public class TcPayloadServiceImpl implements TcPayloadService{
                                     : null)
                             .desc(param.getDescription())
                             .build();
-                })
-                .toList();
+                }).collect(Collectors.toList());
 
             // ApiMappingDto 변환
             return ApiMappingDto.builder()
@@ -110,7 +109,7 @@ public class TcPayloadServiceImpl implements TcPayloadService{
 
         
         // 3. 최종 요청 DTO 조립
-        return TcRequestPayload.builder()
+        return TcGenerationRequest.builder()
             .scenario(ScenarioDto.builder()
                 .scenarioName(scenario.getName())
                 .scenarioDesc(scenario.getDescription())

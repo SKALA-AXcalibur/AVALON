@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TcRequestPayload {
+public class TcGenerationRequest {
     private ScenarioDto scenario;
     private List<ApiMappingDto> apiMappingList;
 }

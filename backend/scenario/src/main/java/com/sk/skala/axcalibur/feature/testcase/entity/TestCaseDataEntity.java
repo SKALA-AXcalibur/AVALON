@@ -43,4 +43,9 @@ public class TestCaseDataEntity {
 
     @Column(name = "value", columnDefinition = "TEXT")
     private String value;                   // 데이터 값
+
+    // TC 데이터 값 update
+    public void updateValue(String value) {
+        this.value = value;
+    }
 }

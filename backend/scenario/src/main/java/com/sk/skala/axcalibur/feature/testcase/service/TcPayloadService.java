@@ -2,7 +2,7 @@ package com.sk.skala.axcalibur.feature.testcase.service;
 
 import java.util.List;
 
-import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
+import com.sk.skala.axcalibur.feature.testcase.dto.request.TcGenerationRequest;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 
 /**
@@ -11,5 +11,5 @@ import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
  */
 public interface TcPayloadService {
     List<ScenarioEntity> getScenarios(Integer projectId);
-    TcRequestPayload buildPayload(ScenarioEntity scenario);
+    TcGenerationRequest buildPayload(ScenarioEntity scenario);
 }
