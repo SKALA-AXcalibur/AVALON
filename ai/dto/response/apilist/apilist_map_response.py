@@ -1,10 +1,18 @@
+from typing import List, Dict, Any
 from pydantic import BaseModel
-from typing import List, Optional
+from datetime import datetime
 
 class ApiMappingItem(BaseModel):
-    scenarioId : str
-    apiId : str
-    step : Optional[int] = None
+    scenarioId: str
+    stepName: str
+    apiName: str
+    description: str
+    uri: str
+    method: str
+    parameters: Dict[str, Any]
+    responseStructure: Dict[str, Any]
 
-class ApiMappingResponse(BaseModel):
-    mappings : List[ApiMappingItem]
+class ApiListMapResponse(BaseModel):
+    processedAt: datetime
+    validationRate: float
+    apiMapping: List[ApiMappingItem]

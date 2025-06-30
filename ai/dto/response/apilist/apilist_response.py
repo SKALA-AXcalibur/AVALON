@@ -2,21 +2,19 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 class ApiItem(BaseModel):
-    id: str
-    name: str
-    url: str
-    path: str
+    apiName: str
+    uri: str
     method: str
     description: Optional[str] = None
-
+    parameters: Optional[str] = None
+    responseStructure: Optional[str] = None
+    
 class ScenarioItem(BaseModel):
-    id: str
-    name: str
+    scenarioId: str
+    title: str
     description: str
     validation: str
-    flowChart: Optional[str] = None
-    projectKey: int
-
+    
 class ApiListResponse(BaseModel):
     apiList: List[ApiItem]
     scenarioList: List[ScenarioItem]
