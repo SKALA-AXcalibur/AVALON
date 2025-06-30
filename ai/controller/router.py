@@ -7,12 +7,13 @@
 from fastapi import APIRouter, Response, Request
 from fastapi.responses import JSONResponse
 from ai.dto.response.apilist.apilist_response import ApiListResponse, ApiItem, ScenarioItem
+from ai.dto.request.apilist.apilist_map_request import convert_scenario_list, convert_api_list
 from ai.service.apilist.state.mapping_state import create_initial_mapping_state
 from ai.service.apilist.graphs.nodes.map_node import map_node
 from ai.service.apilist.graphs.nodes.mapping_generation_node import mapping_generation_node
 from ai.service.apilist.graphs.nodes.mapping_validation_node import mapping_validation_node
 from ai.service.apilist.graphs.nodes.decision_node import decision_node
-from ai.service.apilist.graphs.nodes.feedback_node import feedback_node
+from datetime import datetime
 
 router = APIRouter()
 
@@ -44,18 +45,12 @@ async def generate_flow_chart() -> Response:
 
 
 @router.post('/api/list/v1/generate')
-async def generate_api_list():
-    # 실제로는 DB나 백엔드에서 데이터 조회
-    api_list = [
-        ApiItem(id="api1", name="API 1", url="/api/1", path="/api/1", method="GET"),
-        # ... 실제 데이터로 채우기
-    ]
-    scenario_list = [
-        ScenarioItem(id="scn1", name="시나리오1", description="설명", validation="Y", projectKey=1),
-        # ... 실제 데이터로 채우기
-    ]
-    response = ApiListResponse(apiList=api_list, scenarioList=scenario_list)
-    return JSONResponse(content=response.dict())
+async def generate_api_list(request: Request):
+    avalon = request.cookies.get("avalon")
+    if not avalon:
+        return JSONResponse(content={"error": "avalon 쿠키가 필요합니다."}, status_code=400)
+    # 실제 매핑 요청 처리 로직(생략)
+    return JSONResponse(content={"processedAt": datetime.now().isoformat()})
 
 
 @router.post('/api/list/v1/create')
@@ -64,13 +59,56 @@ async def create_api_list(request: Request):
     if not avalon:
         return JSONResponse(content={"error": "avalon 쿠키가 필요합니다."}, status_code=400)
 
+    body = await request.json()
+    scenario_list = body.get("scenarioList", [])
+    api_list = body.get("apiList", [])
+
+    converted_scenarios = convert_scenario_list(scenario_list)
+    converted_apis = convert_api_list(api_list)
+
     state = create_initial_mapping_state(avalon=avalon)
+    state["scenarios"] = converted_scenarios
+    state["api_lists"] = converted_apis
+
     state = map_node(state)
     state = mapping_generation_node(state)
     state = mapping_validation_node(state)
     state = decision_node(state)
-    if state.get("current_step") == "feedback":
-        state = feedback_node(state)
 
-    return JSONResponse(content=state)
+    # 설계서 구조에 맞게 응답 가공
+    from ai.dto.response.apilist.apilist_validation_response import ApiListValidationResponse, ApiMappingItem
+
+    print("=== 최종 state ===")
+    print(state)
+    
+    # generated_mapping_table에서 매핑 데이터 가져오기
+    mapping_table = state.get("generated_mapping_table", [])
+    api_mapping_list = [
+        ApiMappingItem(
+            scenarioId=item["scenarioId"],
+            stepName=item["stepName"],
+            apiName=item["apiName"],
+            description=item["description"],
+            uri=item["uri"],
+            method=item["method"],
+            parameters=item["parameters"],
+            responseStructure=item["responseStructure"],
+        )
+        for item in mapping_table
+    ]
+
+    # validation_result에서 검증 점수 가져오기
+    validation_result = state.get("validation_result", {})
+    validation_score = validation_result.get("validation_score", 0.0)
+    
+    # validation_score가 없으면 validationRate에서 가져오기
+    if validation_score == 0.0:
+        validation_score = state.get("validationRate", 0.0)
+
+    response = ApiListValidationResponse(
+        processedAt=datetime.now().isoformat(),
+        validationRate=validation_score,
+        apiMapping=api_mapping_list
+    )
+    return JSONResponse(content=response.dict())
 
