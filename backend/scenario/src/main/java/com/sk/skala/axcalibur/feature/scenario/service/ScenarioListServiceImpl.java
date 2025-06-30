@@ -65,5 +65,8 @@ public class ScenarioListServiceImpl implements ScenarioListService {
         if (query < 1 || query > 100) {
             throw new BusinessExceptionHandler("query는 1 이상이어야 합니다.", ErrorCode.BAD_REQUEST_ERROR);
         }
+        if (offset % query != 0) {
+            throw new BusinessExceptionHandler("offset은 query의 배수여야 합니다.", ErrorCode.BAD_REQUEST_ERROR);
+        }
     }
 } 
