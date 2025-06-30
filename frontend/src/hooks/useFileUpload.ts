@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { clientSpecApi } from "@/services/client/clientSpecApi";
-import { clientApiListApi } from "@/services/client/clientApiListApi";
 import { clientScenarioApi } from "@/services/client/clientScenarioApi";
 import { useProjectStore } from "@/store/projectStore";
 import { uploadSpecRequest } from "@/types/spec";
@@ -10,7 +9,6 @@ import { Scenario } from "@/interfaces/scenario";
 type FileUploadCallbacks = {
   onUploadSuccess?: () => void;
   onAnalyzeSuccess?: () => void;
-  onCreateApiListSuccess?: () => void;
   onCreateScenariosSuccess?: () => void;
   onError?: (error: string) => void;
 };
@@ -61,14 +59,8 @@ export const useFileUpload = (callbacks?: FileUploadCallbacks) => {
     {
       stepType: UPLOAD_STEPS.ANALYZE,
       apiCall: () => clientSpecApi.analyze(),
-      nextStep: UPLOAD_STEPS.CREATE_API_LIST,
-      callback: callbacks?.onAnalyzeSuccess,
-    },
-    {
-      stepType: UPLOAD_STEPS.CREATE_API_LIST,
-      apiCall: () => clientApiListApi.create(),
       nextStep: UPLOAD_STEPS.CREATE_SCENARIOS,
-      callback: callbacks?.onCreateApiListSuccess,
+      callback: callbacks?.onAnalyzeSuccess,
     },
     {
       stepType: UPLOAD_STEPS.CREATE_SCENARIOS,
@@ -88,7 +80,7 @@ export const useFileUpload = (callbacks?: FileUploadCallbacks) => {
 
       while (currentStep !== UPLOAD_STEPS.COMPLETE) {
         const currentStepData = uploadSteps.find(
-          (s) => s.stepType === currentStep,
+          (s) => s.stepType === currentStep
         );
 
         if (!currentStepData) {
