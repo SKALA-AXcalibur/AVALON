@@ -1,8 +1,6 @@
 package com.sk.skala.axcalibur.scenario.feature.apilist.dto;
 
-import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.Getter;
 
 @Getter
