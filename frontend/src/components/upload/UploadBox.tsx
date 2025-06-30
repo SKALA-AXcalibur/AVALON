@@ -80,6 +80,8 @@ export const UploadBox = () => {
       return `${displayStep}/${totalSteps} ${STEP_NAMES[step]} 진행 중`;
     } else if (step === UPLOAD_STEPS.UPLOAD) {
       return "시나리오 생성하기";
+    } else if (step === UPLOAD_STEPS.COMPLETE) {
+      return "시나리오 생성 완료";
     } else {
       return `${STEP_NAMES[step]} 이어서 생성하기`;
     }
