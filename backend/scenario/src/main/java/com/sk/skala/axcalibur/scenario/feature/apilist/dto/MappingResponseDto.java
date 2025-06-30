@@ -9,11 +9,11 @@ import lombok.Getter;
 public class MappingResponseDto {
     private String processedAt;
     private Double validationRate;
-    private List<ApiMappingDto> apiMappingList;
+    private List<ApiMappingDto> apiMapping;
 
-    public MappingResponseDto(String processedAt, Double validationRate, List<ApiMappingDto> apiMappingList) {
+    public MappingResponseDto(String processedAt, Double validationRate, List<ApiMappingDto> apiMapping) {
         this.processedAt = processedAt;
         this.validationRate = validationRate;
-        this.apiMappingList = apiMappingList;
+        this.apiMapping = apiMapping;
     }
 }
