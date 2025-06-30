@@ -50,7 +50,7 @@ public class SupportQueryServiceImpl implements SupportQueryService {
     public ApiParamListResponse getParamsByApiId(String apiId) {
         ApiListEntity api = apiListRepository.findByApiListId(apiId)
             .orElseThrow(() -> new BusinessExceptionHandler(
-                "해당 apiId를 찾을 수 없습니다: ", ErrorCode.NOT_FOUND_ERROR
+                "해당 apiId를 찾을 수 없습니다: " + apiId, ErrorCode.NOT_FOUND_ERROR
             ));
 
         List<ParameterEntity> params = parameterRepository.findAllByApiListKey(api);
