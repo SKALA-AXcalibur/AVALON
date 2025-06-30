@@ -1,17 +1,18 @@
-from typing import List, Optional
+from typing import List, Dict, Any
 from pydantic import BaseModel
+from datetime import datetime
 
-class ApiMappingValidationItem(BaseModel):
+class ApiMappingItem(BaseModel):
     scenarioId: str
-    apiId: str
-    isValid: bool
-    score: float
-    message: Optional[str] = None
+    stepName: str
+    apiName: str
+    description: str
+    uri: str
+    method: str
+    parameters: Dict[str, Any]
+    responseStructure: Dict[str, Any]
 
 class ApiListValidationResponse(BaseModel):
+    processedAt: str
     validationRate: float
-    details: List[ApiMappingValidationItem]
-    needsRegeneration: bool
-    retryCount: int
-    maxRetries: int
-    errorMessage: Optional[str] = None
+    apiMapping: List[ApiMappingItem]
