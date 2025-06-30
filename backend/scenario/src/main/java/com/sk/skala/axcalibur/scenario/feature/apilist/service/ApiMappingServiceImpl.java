@@ -66,7 +66,6 @@ public class ApiMappingServiceImpl implements ApiMappingService {
 
        // 여기서 .env 파일의 값을 읽어옴
        Dotenv dotenv = Dotenv.configure()
-           .directory("backend/scenario")
            .load();
        this.llmApiUrl = dotenv.get("LANGCHAIN_ENDPOINT");
        this.llmApiKey = dotenv.get("LANGCHAIN_API_KEY");
