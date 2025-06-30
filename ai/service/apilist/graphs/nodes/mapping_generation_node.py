@@ -1,8 +1,7 @@
 import logging
 from typing import Dict, Any
 from ai.service.apilist.state.mapping_state import MappingState, update_mapping_generation_success, update_mapping_generation_failed
-from ai.service.apilist.prompts.mapping_generation_prompt import create_mapping_generation_prompt
-from ai.service.apilist.agents.map_agent import perform_semantic_mapping  # LLM 호출 재활용
+from ai.service.apilist.agents.mapping_generator import perform_mapping_generation
 
 
 def mapping_generation_node(state: MappingState) -> Dict[str, Any]:
@@ -19,13 +18,50 @@ def mapping_generation_node(state: MappingState) -> Dict[str, Any]:
         if not semantic_mapping or not scenarios or not api_lists:
             return update_mapping_generation_failed(state, "매핑표 생성에 필요한 데이터가 부족합니다.")
 
-        # LLM 프롬프트 생성
-        prompt = create_mapping_generation_prompt(semantic_mapping, scenarios, api_lists)
-        # LLM 호출 (여기서는 perform_semantic_mapping 재활용 가능)
-        generated_mapping_table = perform_semantic_mapping(scenarios, api_lists)  # 실제론 별도 LLM 호출 함수 필요
+        # 매핑표 생성 LLM 호출
+        generated_mapping_table = perform_mapping_generation(semantic_mapping, scenarios, api_lists)
 
-        # 실제론 generated_mapping_table = LLM 응답에서 추출
-        return update_mapping_generation_success(state, generated_mapping_table)
+        print("=== generated_mapping_table 타입/구조 ===")
+        print(type(generated_mapping_table), generated_mapping_table)
+
+        # LLM 응답이 mappings 구조일 경우 apiMapping 구조로 변환
+        def convert_llm_mappings_to_api_mapping(mappings, api_list):
+            print("=== convert_llm_mappings_to_api_mapping 진입 ===")
+            api_dict = {api.get('id') or api.get('api_id'): api for api in api_list}
+            print("=== api_dict value 예시 ===")
+            print(list(api_dict.values())[0])
+            api_mapping = []
+            for mapping in mappings:
+                scenario_id = mapping.get('scenario_id')
+                for related in mapping.get('related_apis', []):
+                    api_id = related.get('api_id')
+                    api_info = api_dict.get(api_id, {})
+                    api_mapping.append({
+                        "scenarioId": scenario_id,
+                        "stepName": "",  # 필요시 추가
+                        "apiName": api_info.get("apiName", ""),
+                        "description": api_info.get("description", ""),
+                        "uri": api_info.get("uri", ""),
+                        "method": api_info.get("method", ""),
+                        "parameters": api_info.get("parameters", ""),
+                        "responseStructure": api_info.get("responseStructure", "")
+                    })
+            return api_mapping
+
+        # 변환 적용
+        if isinstance(generated_mapping_table, dict):
+            if "apiMapping" in generated_mapping_table:
+                api_mapping = generated_mapping_table["apiMapping"]
+            elif "mappings" in generated_mapping_table:
+                api_mapping = convert_llm_mappings_to_api_mapping(generated_mapping_table["mappings"], api_lists)
+            else:
+                api_mapping = []
+        elif isinstance(generated_mapping_table, list):
+            api_mapping = generated_mapping_table
+        else:
+            api_mapping = []
+
+        return update_mapping_generation_success(state, api_mapping)
     except Exception as e:
         logging.error(f"매핑표 생성 노드 에러: {str(e)}")
         return update_mapping_generation_failed(state, f"매핑표 생성 중 오류: {str(e)}")
