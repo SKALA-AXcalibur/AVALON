@@ -90,49 +90,69 @@ export const generateRandomExpectedResult = () => {
   return expectedResults[Math.floor(Math.random() * expectedResults.length)];
 };
 
-// 랜덤 테스트데이터 키 생성
-export const generateRandomTestDataKey = () => {
-  const keys = [
-    "userId",
-    "productId",
-    "orderId",
-    "quantity",
-    "price",
-    "status",
-    "name",
-    "email",
-    "phone",
-    "address",
-  ];
-  return keys[Math.floor(Math.random() * keys.length)];
+export const generateRandomTestStatus = () => {
+  const statuses = [2, 3, 4, 5];
+  return statuses[Math.floor(Math.random() * statuses.length)];
 };
 
-// 랜덤 테스트데이터 타입 생성
+export const generateRandomTestDataCategory = () => {
+  const categories = ["path/query", "request", "response"];
+  return categories[Math.floor(Math.random() * categories.length)];
+};
+
+export const generateRandomTestDataKoName = () => {
+  const koNames = ["테스트", "테스트2", "테스트3"];
+  return koNames[Math.floor(Math.random() * koNames.length)];
+};
+
+export const generateRandomTestDataName = () => {
+  const names = ["test", "test2", "test3"];
+  return names[Math.floor(Math.random() * names.length)];
+};
+
+export const generateRandomTestDataContext = () => {
+  const contexts = ["path", "query", "body", "header"];
+  return contexts[Math.floor(Math.random() * contexts.length)];
+};
+
 export const generateRandomTestDataType = () => {
-  const types = ["string", "number", "boolean", "date", "array", "object"];
+  const types = ["string", "number", "boolean", "array", "object"];
   return types[Math.floor(Math.random() * types.length)];
 };
 
-// 랜덤 테스트데이터 값 생성
-export const generateRandomTestDataValue = (type) => {
-  switch (type) {
-    case "string":
-      return `test_${Math.random().toString(36).substring(2, 8)}`;
-    case "number":
-      return Math.floor(Math.random() * 1000);
-    case "boolean":
-      return Math.random() > 0.5;
-    case "date":
-      return new Date(
-        Date.now() - Math.floor(Math.random() * 10000000000),
-      ).toISOString();
-    case "array":
-      return [1, 2, 3];
-    case "object":
-      return { key: "value" };
-    default:
-      return "";
-  }
+export const generateRandomTestDataLength = () => {
+  const lengths = [10, 20, 30];
+  return lengths[Math.floor(Math.random() * lengths.length)];
+};
+
+export const generateRandomTestDataFormat = () => {
+  const formats = ["text", "json", "xml"];
+  return formats[Math.floor(Math.random() * formats.length)];
+};
+
+export const generateRandomTestDataDefaultValue = () => {
+  const defaultValues = ["test", "test2", "test3"];
+  return defaultValues[Math.floor(Math.random() * defaultValues.length)];
+};
+
+export const generateRandomTestDataRequired = () => {
+  const required = [true, false];
+  return required[Math.floor(Math.random() * required.length)];
+};
+
+export const generateRandomTestDataId = () => {
+  const parents = [1, 2, 3];
+  return parents[Math.floor(Math.random() * parents.length)];
+};
+
+export const generateRandomTestDataDesc = () => {
+  const descs = ["테스트", "테스트2", "테스트3"];
+  return descs[Math.floor(Math.random() * descs.length)];
+};
+
+export const generateRandomTestDataValue = () => {
+  const values = ["test", "test2", "test3"];
+  return values[Math.floor(Math.random() * values.length)];
 };
 
 // 랜덤 테스트케이스 상태 생성
