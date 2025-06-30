@@ -215,7 +215,7 @@ public class ApiMappingServiceImpl implements ApiMappingService {
                        step.getStepName(),
                        api.getApiName(),
                        api.getDescription(),
-                       api.getUrl(),
+                       api.getUri(),
                        api.getMethod(),
                        api.getParameters(),
                        api.getResponseStructure()
@@ -265,7 +265,7 @@ public class ApiMappingServiceImpl implements ApiMappingService {
    private boolean validateTechnicalConsistency(ApiMappingDto mapping, List<ApiDto> apiList) {
        for (ApiDto api : apiList) {
            if (api.getApiName().equals(mapping.getApiName())) {
-               return api.getUrl().equals(mapping.getUrl()) &&
+               return api.getUri().equals(mapping.getUri()) &&
                       api.getMethod().equals(mapping.getMethod());
            }
        }
@@ -403,7 +403,7 @@ public class ApiMappingServiceImpl implements ApiMappingService {
        return apis.stream()
            .map(api -> ApiDto.builder()
                .apiName(api.getName())
-               .url(api.getUrl())
+               .uri(api.getUri())
                .method(api.getMethod())
                .description(api.getDescription())
                .build())
