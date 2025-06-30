@@ -49,6 +49,7 @@ public class ScenarioUpdateServiceImpl implements ScenarioUpdateService {
             .name(requestDto.getName())
             .description(requestDto.getDescription())
             .validation(requestDto.getValidation())
+            .flowChart(scenario.getFlowChart())
             .project(scenario.getProject())
             .build();
         

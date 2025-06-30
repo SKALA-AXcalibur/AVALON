@@ -1,7 +1,5 @@
 package com.sk.skala.axcalibur.feature.scenario.service;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,18 +39,7 @@ public class ScenarioCreateServiceImpl implements ScenarioCreateService {
         for(int attempt = 0; attempt < maxRetry; attempt++) {
             try {
                 // 프로젝트 내 기존 시나리오 id 목록을 조회
-                List<String> existingIds = scenarioRepository.findMaxScenarioIdByProjectKey(projectKey);
-                int maxNo = 0; // 기존 시나리오 id 중 최대 번호
-                for(String id : existingIds) {
-                    if(id.startsWith("scenario-")) {
-                        try {
-                            int no = Integer.parseInt(id.substring(9));
-                            if(no > maxNo) maxNo = no;
-                        } catch (NumberFormatException e) {
-                            log.warn("시나리오 ID 숫자 변환 실패: {}", id);
-                        }
-                    }
-                }
+                int maxNo = scenarioRepository.findMaxScenarioNoByProjectKey(projectKey); // 기존 시나리오 id 중 최대 번호
                 int newNo = maxNo + 1;
                 String newScenarioId = String.format("scenario-%03d", newNo); // 새로운 시나리오 ID 생성
 
