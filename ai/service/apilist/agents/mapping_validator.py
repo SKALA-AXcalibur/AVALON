@@ -1,7 +1,7 @@
-
 import logging
 import json
 import os
+import re
 from typing import Dict, Any, List
 from anthropic import Anthropic
 from dotenv import load_dotenv
@@ -12,6 +12,11 @@ from ai.service.apilist.prompts.mapping_validation_prompt import create_mapping_
 load_dotenv()
 
 anthropic_client = Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
+
+def clean_llm_json(text):
+    # ```json ... ``` 또는 ``` ... ``` 코드블록 제거
+    cleaned = re.sub(r"^```json\s*|^```\s*|```$", "", text.strip(), flags=re.MULTILINE)
+    return cleaned.strip()
 
 def perform_mapping_validation(mapping_table: List[Dict]) -> Dict[str, Any]:
     """
@@ -29,7 +34,12 @@ def perform_mapping_validation(mapping_table: List[Dict]) -> Dict[str, Any]:
             ]
         )
         result_text = response.content[0].text
-        validation_result = json.loads(result_text)
+        try:
+            cleaned = clean_llm_json(result_text)
+            validation_result = json.loads(cleaned)
+        except json.JSONDecodeError as e:
+            logging.error(f"JSON 파싱 실패: {str(e)}")
+            return {"score": 0.0, "details": f"JSON 파싱 실패: {str(e)}"}
         return validation_result
     except Exception as e:
         logging.error(f"매핑표 검증 LLM 호출 에러: {str(e)}")
