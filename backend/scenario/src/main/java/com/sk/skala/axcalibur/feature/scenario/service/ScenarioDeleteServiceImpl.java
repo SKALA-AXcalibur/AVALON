@@ -45,8 +45,7 @@ public class ScenarioDeleteServiceImpl implements ScenarioDeleteService {
             }
             
             // 먼저 관련 매핑 데이터 삭제 (외래키 제약조건 해결)
-            mappingRepository.deleteByScenarioId(scenarioId);
-            log.info("시나리오 관련 매핑 데이터 삭제 완료 - 시나리오 ID: {}", scenarioId);
+            mappingRepository.deleteByScenarioKey_Id(scenario.getId());
             
             // 시나리오 삭제
             scenarioRepository.delete(scenario);
