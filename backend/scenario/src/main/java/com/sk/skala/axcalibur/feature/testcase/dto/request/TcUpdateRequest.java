@@ -21,6 +21,7 @@ public class TcUpdateRequest {
     private String precondition;
     private String description;
     private String expectedResult;
+    private Integer status;
     
     private List<TcParamDto> testDataList;  // paramId + value
 }

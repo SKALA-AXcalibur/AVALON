@@ -33,7 +33,7 @@ public class TcQueryServiceImpl implements TcQueryService {
     public TcDetailResponse getTestcaseDetail(String testcaseId) {
         // 1. 테스트케이스 단건 조회
         TestCaseEntity tc = testcaseRepository.findByTestcaseId(testcaseId)
-            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR));
+            .orElseThrow(() -> new BusinessExceptionHandler("TC ID가 존재하지 않습니다.", ErrorCode.NOT_FOUND_ERROR));
 
         // 2. 관련된 테스트 데이터 모두 조회 + 연관 Entity 포함 (category/context)
         List<TestCaseDataEntity> dataList = testcaseDataRepository.findAllWithCategoryAndContextByTestcaseId(tc.getId());
@@ -65,6 +65,7 @@ public class TcQueryServiceImpl implements TcQueryService {
             .precondition(tc.getPrecondition())
             .description(tc.getDescription())
             .expectedResult(tc.getExpected())
+            .status(tc.getStatus())
             .testDataList(testDataList)
             .build();
     }

@@ -61,9 +61,10 @@ public class TestCaseEntity extends BaseTimeEntity {
     private List<TestCaseDataEntity> dataList; // CASCADE delete를 위한 설정
 
     // TC 내용 update
-    public void update(String precondition, String description, String expectedResult) {
+    public void update(String precondition, String description, String expectedResult, Integer status) {
         this.precondition = precondition;
         this.description = description;
         this.expected = expectedResult;
+        this.status = status;
     }
 }

@@ -61,7 +61,7 @@ public class TcCommandServiceImpl implements TcCommandService {
         validateUpdateRequest(request);
         
         // TC 정보 수정
-        tc.update(request.getPrecondition(), request.getDescription(), request.getExpectedResult());
+        tc.update(request.getPrecondition(), request.getDescription(), request.getExpectedResult(), request.getStatus());
 
         // 테스트 데이터 수정
         if (request.getTestDataList() != null) {
@@ -97,6 +97,7 @@ public class TcCommandServiceImpl implements TcCommandService {
         if (request.getDescription() == null && 
             request.getExpectedResult() == null &&
             request.getPrecondition() == null &&
+            request.getStatus() == null &&
             (request.getTestDataList() == null || request.getTestDataList().isEmpty())) {
             throw new BusinessExceptionHandler("수정할 항목이 없습니다.", ErrorCode.BAD_REQUEST_ERROR);
         }
