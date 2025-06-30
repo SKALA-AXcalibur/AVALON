@@ -29,13 +29,8 @@ public class ScenarioUpdateServiceImpl implements ScenarioUpdateService {
     public void updateScenario(Integer projectKey, String scenarioId, ScenarioUpdateRequestDto requestDto) {
   
         // 시나리오 ID로 시나리오 조회
-        Optional<ScenarioEntity> scenarioOpt = scenarioRepository.findByScenarioId(scenarioId);
-        
-        if (scenarioOpt.isEmpty()) {
-            throw new BusinessExceptionHandler("시나리오를 찾을 수 없습니다.", ErrorCode.NOT_FOUND_ERROR);
-        }
-        
-        ScenarioEntity scenario = scenarioOpt.get();
+        ScenarioEntity scenario = scenarioRepository.findByScenarioId(scenarioId)
+        .orElseThrow(() -> new BusinessExceptionHandler("시나리오를 찾을 수 없습니다.", ErrorCode.NOT_FOUND_ERROR));
         
         // 해당 시나리오가 현재 프로젝트에 속하는지 확인
         if (!scenario.getProject().getId().equals(projectKey)) {
