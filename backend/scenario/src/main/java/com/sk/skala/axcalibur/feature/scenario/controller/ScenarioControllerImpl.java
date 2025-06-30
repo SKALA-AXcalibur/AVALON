@@ -29,7 +29,6 @@ import com.sk.skala.axcalibur.feature.scenario.service.ScenarioDetailService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioListService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioUpdateService;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
-import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 
 import lombok.RequiredArgsConstructor;
@@ -56,9 +55,12 @@ public class ScenarioControllerImpl implements ScenarioController {
     private final ScenarioDetailService scenarioDetailService;
     private final ProjectIdResolverService projectIdResolverService;
 
+    /**
+     * 시나리오 목록 조회
+     */
     @Override
     @GetMapping("/scenario/v1/project")
-    public ResponseEntity<SuccessResponse<ScenarioListDto>> getScenarioList(
+    public ResponseEntity<ScenarioListDto> getScenarioList(
         @CookieValue("avalon") String key,
         ScenarioListRequestDto requestDto) {
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
@@ -76,16 +78,15 @@ public class ScenarioControllerImpl implements ScenarioController {
         return ResponseEntity
             .status(SuccessCode.SELECT_SUCCESS.getStatus())
             .headers(headers)
-            .body(SuccessResponse.<ScenarioListDto>builder()
-                .data(scenarioList)
-                .status(SuccessCode.SELECT_SUCCESS)
-                .message(SuccessCode.SELECT_SUCCESS.getMessage())
-                .build());
+            .body(scenarioList);
     }
-
+    
+    /**
+     * 시나리오 추가
+     */
     @Override
     @PostMapping("/scenario/v1")
-    public ResponseEntity<SuccessResponse<ScenarioCreateResponseDto>> createScenario(
+    public ResponseEntity<ScenarioCreateResponseDto> createScenario(
         @CookieValue("avalon") String key,
         @RequestBody ScenarioCreateRequestDto requestDto) {
         
@@ -104,16 +105,15 @@ public class ScenarioControllerImpl implements ScenarioController {
         return ResponseEntity
             .status(SuccessCode.INSERT_SUCCESS.getStatus())
             .headers(headers)
-            .body(SuccessResponse.<ScenarioCreateResponseDto>builder()
-                .data(result)
-                .status(SuccessCode.INSERT_SUCCESS)
-                .message(SuccessCode.INSERT_SUCCESS.getMessage())
-                .build());
+            .body(result);
     }
 
+    /**
+     * 시나리오 수정
+     */
     @Override
     @PutMapping("/scenario/v1/{scenarioId}")
-    public ResponseEntity<SuccessResponse<Void>> updateScenario(
+    public ResponseEntity<Void> updateScenario(
         @CookieValue("avalon") String key,
         @PathVariable("scenarioId") String scenarioId,
         @RequestBody ScenarioUpdateRequestDto requestDto) {
@@ -133,25 +133,24 @@ public class ScenarioControllerImpl implements ScenarioController {
         return ResponseEntity
             .status(SuccessCode.UPDATE_SUCCESS.getStatus())
             .headers(headers)
-            .body(SuccessResponse.<Void>builder()
-                .data(null)
-                .status(SuccessCode.UPDATE_SUCCESS)
-                .message(SuccessCode.UPDATE_SUCCESS.getMessage())
-                .build());
+            .body(null);
     }
 
+    /**
+     * 시나리오 삭제
+     */
     @Override
-    @DeleteMapping("/scenario/v1/scenario/{scenarioId}")
-    public ResponseEntity<SuccessResponse<ScenarioDeleteResponseDto>> deleteScenario(
+    @DeleteMapping("/scenario/v1/scenario/{id}")
+    public ResponseEntity<ScenarioDeleteResponseDto> deleteScenario(
         @CookieValue("avalon") String key,
-        @PathVariable("scenarioId") String scenarioId) {
+        @PathVariable("id") String id) {
         
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
         ProjectContext projectContext = projectIdResolverService.resolveProjectId(key);
         Integer projectKey = projectContext.getKey();
 
         // 시나리오 삭제
-        ScenarioDeleteResponseDto result = scenarioDeleteService.deleteScenario(projectKey, scenarioId);
+        ScenarioDeleteResponseDto result = scenarioDeleteService.deleteScenario(projectKey, id);
         
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();
@@ -161,25 +160,24 @@ public class ScenarioControllerImpl implements ScenarioController {
         return ResponseEntity
             .status(SuccessCode.DELETE_SUCCESS.getStatus())
             .headers(headers)
-            .body(SuccessResponse.<ScenarioDeleteResponseDto>builder()
-                .data(result)
-                .status(SuccessCode.DELETE_SUCCESS)
-                .message(SuccessCode.DELETE_SUCCESS.getMessage())
-                .build());
+            .body(result);
     }
 
+    /**
+     * 시나리오 상세 조회
+     */
     @Override
-    @GetMapping("/scenario/v1/scenario/{scenarioId}")
-    public ResponseEntity<SuccessResponse<ScenarioDetailResponseDto>> getScenarioDetail(
+    @GetMapping("/scenario/v1/scenario/{id}")
+    public ResponseEntity<ScenarioDetailResponseDto> getScenarioDetail(
         @CookieValue("avalon") String key,
-        @PathVariable("scenarioId") String scenarioId) {
+        @PathVariable("id") String id) {
         
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
         ProjectContext projectContext = projectIdResolverService.resolveProjectId(key);
         Integer projectKey = projectContext.getKey();
 
         // 시나리오 상세 조회
-        ScenarioDetailResponseDto result = scenarioDetailService.getScenarioDetail(projectKey, scenarioId);
+        ScenarioDetailResponseDto result = scenarioDetailService.getScenarioDetail(projectKey, id);
         
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();
@@ -189,10 +187,6 @@ public class ScenarioControllerImpl implements ScenarioController {
         return ResponseEntity
             .status(SuccessCode.SELECT_SUCCESS.getStatus())
             .headers(headers)
-            .body(SuccessResponse.<ScenarioDetailResponseDto>builder()
-                .data(result)
-                .status(SuccessCode.SELECT_SUCCESS)
-                .message(SuccessCode.SELECT_SUCCESS.getMessage())
-                .build());
+            .body(result);
     }
 } 

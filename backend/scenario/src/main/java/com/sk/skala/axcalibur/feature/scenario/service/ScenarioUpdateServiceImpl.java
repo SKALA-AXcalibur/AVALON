@@ -42,14 +42,17 @@ public class ScenarioUpdateServiceImpl implements ScenarioUpdateService {
                 throw new BusinessExceptionHandler("해당 프로젝트의 시나리오가 아닙니다.", ErrorCode.FORBIDDEN_ERROR);
             }
             
-            // 시나리오 정보 업데이트 (JPA 더티 체킹 사용)
-            scenario.setName(requestDto.getName());
-            scenario.setDescription(requestDto.getDescription());
-            scenario.setValidation(requestDto.getValidation());
+            // 시나리오 정보 업데이트 (Builder 패턴으로 새 객체 생성)
+            ScenarioEntity updatedScenario = ScenarioEntity.builder()
+                .id(scenario.getId())
+                .scenarioId(scenario.getScenarioId())
+                .name(requestDto.getName())
+                .description(requestDto.getDescription())
+                .validation(requestDto.getValidation())
+                .project(scenario.getProject())
+                .build();
             
-            // @Transactional에 의해 자동으로 UPDATE 쿼리가 실행됨 (더티 체킹)
-            
-            log.info("시나리오 수정 완료 - ID: {}, 프로젝트: {}", scenarioId, projectKey);
+            scenarioRepository.save(updatedScenario);
             
         } catch (BusinessExceptionHandler e) {
             throw e;

@@ -10,6 +10,7 @@ import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
+import com.sk.skala.axcalibur.global.repository.MappingRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ScenarioDeleteServiceImpl implements ScenarioDeleteService {
 
     private final ScenarioRepository scenarioRepository;
+    private final MappingRepository mappingRepository;
 
     @Override
     @Transactional
@@ -41,6 +43,10 @@ public class ScenarioDeleteServiceImpl implements ScenarioDeleteService {
             if (!scenario.getProject().getId().equals(projectKey)) {
                 throw new BusinessExceptionHandler("해당 프로젝트의 시나리오가 아닙니다.", ErrorCode.FORBIDDEN_ERROR);
             }
+            
+            // 먼저 관련 매핑 데이터 삭제 (외래키 제약조건 해결)
+            mappingRepository.deleteByScenarioId(scenarioId);
+            log.info("시나리오 관련 매핑 데이터 삭제 완료 - 시나리오 ID: {}", scenarioId);
             
             // 시나리오 삭제
             scenarioRepository.delete(scenario);

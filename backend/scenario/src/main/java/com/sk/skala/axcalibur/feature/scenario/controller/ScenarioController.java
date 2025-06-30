@@ -16,7 +16,6 @@ import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCreateRespon
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDeleteResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDetailResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListDto;
-import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 
 
@@ -37,19 +36,19 @@ public interface ScenarioController {
      * @return 시나리오 목록 응답
      */
     @GetMapping("/scenario/v1/project")
-    ResponseEntity<SuccessResponse<ScenarioListDto>> getScenarioList(
+    ResponseEntity<ScenarioListDto> getScenarioList(
         @CookieValue("avalon") String key,
         ScenarioListRequestDto requestDto
     );
     
     /**
-     * 시나리오 생성
+     * 시나리오 추가
      * @param key 프로젝트 인증 쿠키
-     * @param requestDto 시나리오 생성 요청 DTO
-     * @return 시나리오 생성 응답
+     * @param requestDto 시나리오 추가 DTO
+     * @return 시나리오 추가 응답
      */
     @PostMapping("/scenario/v1")
-    ResponseEntity<SuccessResponse<ScenarioCreateResponseDto>> createScenario(
+    ResponseEntity<ScenarioCreateResponseDto> createScenario(
         @CookieValue("avalon") String key,
         @RequestBody ScenarioCreateRequestDto requestDto
     );
@@ -62,7 +61,7 @@ public interface ScenarioController {
      * @return 성공 응답
      */
     @PutMapping("/scenario/v1/{scenarioId}")
-    ResponseEntity<SuccessResponse<Void>> updateScenario(
+    ResponseEntity<Void> updateScenario(
         @CookieValue("avalon") String key,
         @PathVariable("scenarioId") String scenarioId,
         @RequestBody ScenarioUpdateRequestDto requestDto
@@ -71,24 +70,24 @@ public interface ScenarioController {
     /**
      * 시나리오 삭제
      * @param key 프로젝트 인증 쿠키
-     * @param scenarioId 삭제할 시나리오 ID
+     * @param id 삭제할 시나리오 ID
      * @return 삭제 응답
      */
-    @DeleteMapping("/scenario/v1/scenario/{scenarioId}")
-    ResponseEntity<SuccessResponse<ScenarioDeleteResponseDto>> deleteScenario(
+    @DeleteMapping("/scenario/v1/scenario/{id}")
+    ResponseEntity<ScenarioDeleteResponseDto> deleteScenario(
         @CookieValue("avalon") String key,
-        @PathVariable("scenarioId") String scenarioId
+        @PathVariable("id") String id
     );
     
     /**
      * 시나리오 상세 조회
      * @param key 프로젝트 인증 쿠키
-     * @param scenarioId 조회할 시나리오 ID
+     * @param id 조회할 시나리오 ID
      * @return 시나리오 상세 정보
      */
-    @GetMapping("/scenario/v1/scenario/{scenarioId}")
-    ResponseEntity<SuccessResponse<ScenarioDetailResponseDto>> getScenarioDetail(
+    @GetMapping("/scenario/v1/scenario/{id}")
+    ResponseEntity<ScenarioDetailResponseDto> getScenarioDetail(
         @CookieValue("avalon") String key,
-        @PathVariable("scenarioId") String scenarioId
+        @PathVariable("id") String id
     );
 } 
