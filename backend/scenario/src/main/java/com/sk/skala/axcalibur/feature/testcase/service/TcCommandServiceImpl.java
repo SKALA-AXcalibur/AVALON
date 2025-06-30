@@ -51,6 +51,7 @@ public class TcCommandServiceImpl implements TcCommandService {
     // TC 이름 생성을 위한 템플릿
     private static final String TESTCASE_PREFIX = "TC";
     private static final String TESTCASE_ID_TEMPLATE = "%s-%s-%s-%s"; // prefix-apiName-index-uuid
+    private static final int MAX_ID_GENERATION_RETRY = 3;
     
     // TC 삭제 구현
     @Override
@@ -183,10 +184,19 @@ public class TcCommandServiceImpl implements TcCommandService {
     private String generateTestcaseId(String apiName) {
         String prefixWithName = String.join("-", TESTCASE_PREFIX, apiName); // ex. TC-UserCreate
         int count = testCaseRepository.countByTestcaseIdStartingWith(prefixWithName); // TC-UserCreate 로 시작하는 TC ID 수 조회(일련번호 생성용)
-
         String index = String.format("%03d", count + 1);
-        String uuid = UUID.randomUUID().toString().substring(0, 8);
 
-        return String.format(TESTCASE_ID_TEMPLATE, TESTCASE_PREFIX, apiName, index, uuid);
+        // TC ID 동시성 문제 해결 위한 재시도 로직(최대 3번)
+        for (int retry = 0; retry < MAX_ID_GENERATION_RETRY; retry++) {
+            String uuid = UUID.randomUUID().toString().substring(0, 8);
+            String candidateId = String.format(TESTCASE_ID_TEMPLATE, TESTCASE_PREFIX, apiName, index, uuid);
+
+            boolean exists = testCaseRepository.existsByTestcaseId(candidateId);
+            if (!exists) {
+                return candidateId;
+            }
+        }
+
+        throw new BusinessExceptionHandler("TC ID 생성에 실패했습니다. 잠시 후 다시 시도해주세요.", ErrorCode.INTERNAL_SERVER_ERROR);
     }
 }

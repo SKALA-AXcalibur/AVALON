@@ -9,4 +9,5 @@ import com.sk.skala.axcalibur.feature.testcase.entity.TestCaseEntity;
 public interface TestCaseRepository extends JpaRepository<TestCaseEntity, Integer>, TestCaseRepositoryCustom {
     Optional<TestCaseEntity> findByTestcaseId(String testcaseId);
     Integer countByTestcaseIdStartingWith(String prefix);
+    boolean existsByTestcaseId(String testcaseId);
 }
