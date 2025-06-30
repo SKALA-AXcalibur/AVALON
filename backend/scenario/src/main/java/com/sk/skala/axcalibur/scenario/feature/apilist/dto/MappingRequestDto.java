@@ -8,4 +8,9 @@ import lombok.Getter;
 public class MappingRequestDto {
     private List<ScenarioDto> scenarioList;
     private List<ApiDto> apiList;
+
+    public MappingRequestDto(List<ScenarioDto> scenarioList, List<ApiDto> apiList) {
+        this.scenarioList = scenarioList;
+        this.apiList = apiList;
+    }
 }
