@@ -1,6 +1,84 @@
-from pydantic import BaseModel
-from typing import List
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional
+from datetime import datetime
+
+
+class ScenarioInput(BaseModel):
+    """입력 시나리오 데이터 (다양한 필드명 지원)"""
+    scenarioId: Optional[str] = Field(None, alias="scenarioId")
+    title: Optional[str] = Field(None, alias="title")
+    description: Optional[str] = None
+    validation: Optional[str] = None
+    
+    class Config:
+        validate_by_name = True
+
+
+class ApiInput(BaseModel):
+    """입력 API 데이터 (다양한 필드명 지원)"""
+    apiName: Optional[str] = Field(None, alias="apiName")
+    uri: Optional[str] = Field(None, alias="uri")
+    method: Optional[str] = None
+    description: Optional[str] = None
+    parameters: Optional[str] = None
+    responseStructure: Optional[str] = None
+    
+    class Config:
+        validate_by_name = True
+
+
 class ApiListMapRequest(BaseModel):
-    token : str
-    apiList : List[str]
-    scenarioList : List[str]
+    """API 리스트 매핑 요청 DTO"""
+    apiList: List[ApiInput] = Field(default_factory=list, alias="apiList")
+    scenarioList: List[ScenarioInput] = Field(default_factory=list, alias="scenarioList")
+    
+    class Config:
+        validate_by_name = True
+    
+    def convert_to_internal_format(self) -> Dict[str, Any]:
+        """내부 사용 형식으로 변환"""
+        converted_scenarios = list(map(lambda scenario: {
+            "scenarioId": scenario.scenarioId,
+            "title": scenario.title,
+            "description": scenario.description,
+            "validation": scenario.validation,
+            "createdAt": datetime.now().isoformat()
+        }, self.scenarioList))
+        
+        converted_apis = list(map(lambda api: {
+            "apiName": api.apiName,
+            "description": api.description,
+            "uri": api.uri,
+            "method": api.method,
+            "parameters": api.parameters,
+            "responseStructure": api.responseStructure
+        }, self.apiList))
+        
+        return {
+            "scenarios": converted_scenarios,
+            "apiList": converted_apis
+        }
+
+
+# 편의 함수들
+def convert_scenario_list(scenario_list: List[Dict]) -> List[Dict]:
+    """시나리오 리스트를 내부 형식으로 변환"""
+    return list(map(lambda s: {
+        "scenarioId": s.get("scenarioId"),
+        "title": s.get("title"),
+        "description": s.get("description"),
+        "validation": s.get("validation"),
+        "createdAt": datetime.now().isoformat()
+    }, scenario_list))
+
+
+def convert_api_list(api_list: List[Dict]) -> List[Dict]:
+    """API 리스트를 내부 형식으로 변환"""
+    return list(map(lambda a: {
+        "apiName": a.get("apiName"),
+        "uri": a.get("uri"),
+        "method": a.get("method"),
+        "description": a.get("description"),
+        "parameters": a.get("parameters"),
+        "responseStructure": a.get("responseStructure")
+    }, api_list))
