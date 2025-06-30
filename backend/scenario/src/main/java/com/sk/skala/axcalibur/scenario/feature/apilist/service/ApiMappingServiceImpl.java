@@ -20,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -42,6 +43,12 @@ public class ApiMappingServiceImpl implements ApiMappingService {
     private final String llmApiUrl;
     private final String llmApiKey;
     private final String modelName;
+    
+    @Value("${fastapi.base-url}")
+    private String fastApiBaseUrl;
+    
+    @Value("${fastapi.timeout}")
+    private int fastApiTimeout;
     
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -105,7 +112,7 @@ public class ApiMappingServiceImpl implements ApiMappingService {
     * @return MappingResponseDto 매핑 결과 데이터
     */
    @Override
-   public MappingResponseDto doApiMapping(MappingRequestDto request) {
+   public MappingResponseDto doApiMapping(MappingRequestDto request) throws com.fasterxml.jackson.core.JsonProcessingException, com.fasterxml.jackson.databind.JsonMappingException {
        log.info("API 매핑 시작");
 
        // 요청 데이터 검증
@@ -133,26 +140,51 @@ public class ApiMappingServiceImpl implements ApiMappingService {
        log.info("요청 데이터 검증 완료");
    }
 
-   private MappingResponseDto llmMapping(MappingRequestDto request) {
-       log.info("LLM 의미적 매핑 시작");
+   private MappingResponseDto llmMapping(MappingRequestDto request) throws com.fasterxml.jackson.core.JsonProcessingException, com.fasterxml.jackson.databind.JsonMappingException {
+       log.info("FastAPI 매핑 시작");
        
-       // 1. API 목록 기준으로 시나리오 단계 분리
-       List<ScenarioStep> scenarioSteps = breakDownScenarios(request);
+       // FastAPI 서버로 매핑 요청 전송
+       MappingResponseDto response = callFastApiMapping(request);
+       log.info("FastAPI 매핑 완료");
+       return response;
+   }
+
+   /**
+    * FastAPI 서버로 매핑 요청을 전송하고 결과를 받아옴
+    */
+   private MappingResponseDto callFastApiMapping(MappingRequestDto request) throws com.fasterxml.jackson.core.JsonProcessingException, com.fasterxml.jackson.databind.JsonMappingException {
+       // FastAPI 엔드포인트 URL
+       String fastApiUrl = fastApiBaseUrl + "/api/list/v1/create";
        
-       // 2. LLM 의미적 매핑 수행
-       List<ApiMappingDto> mappingTable = performSemanticMapping(scenarioSteps, request.getApiList());
+       // HTTP 헤더 설정
+       HttpHeaders headers = new HttpHeaders();
+       headers.setContentType(MediaType.APPLICATION_JSON);
        
-       // 3. 매핑표 검증
-       double validationRate = validateMappingTable(mappingTable, scenarioSteps, request.getApiList());
+       // 요청 데이터를 JSON으로 변환
+       String requestJson = objectMapper.writeValueAsString(request);
+       log.info("FastAPI 요청 데이터: {}", requestJson);
        
-       log.info("LLM 매핑 완료");
+       // HTTP 요청 생성
+       HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
        
-       // 4. 응답 생성
-       return new MappingResponseDto(
-           LocalDateTime.now().toString(),
-           validationRate,
-           mappingTable
+       // FastAPI 서버로 POST 요청 전송
+       ResponseEntity<String> response = restTemplate.exchange(
+           fastApiUrl, 
+           HttpMethod.POST, 
+           entity, 
+           String.class
        );
+       
+       log.info("FastAPI 응답 상태: {}", response.getStatusCode());
+       log.info("FastAPI 응답 데이터: {}", response.getBody());
+       
+       // 응답을 MappingResponseDto로 파싱
+       MappingResponseDto mappingResponse = objectMapper.readValue(
+           response.getBody(), 
+           MappingResponseDto.class
+       );
+       
+       return mappingResponse;
    }
 
    // API 목록 기준으로 시나리오를 단계별로 분리
@@ -376,6 +408,29 @@ public class ApiMappingServiceImpl implements ApiMappingService {
                .description(api.getDescription())
                .build())
            .collect(Collectors.toList());
+   }
+
+   public MappingRequestDto getMappingRequestDtoByAvalon(String avalon) {
+       // avalon 토큰으로 프로젝트 조회
+       AvalonCookieEntity avalonCookie = avalonCookieRepository.findByToken(avalon)
+            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PROJECT_NOT_FOUND));
+
+        Integer projectKey = avalonCookie.getProjectKey();
+
+       // 프로젝트 기준으로 시나리오 목록 조회
+       List<ScenarioEntity> scenarios = scenarioRepository.findByProjectKey(projectKey);
+
+       // 프로젝트 기준으로 API 목록 조회
+       List<ApiListEntity> apis = apiListRepository.findByProjectKey(projectKey);
+
+       // 시나리오 목록 → ScenarioDto 변환
+       List<ScenarioDto> scenarioDtos = convertToScenarioDtos(scenarios);
+
+       // API 목록 → ApiDto 변환
+       List<ApiDto> apiDtos = convertToApiDtos(apis);
+
+       // 매핑 요청 데이터 생성
+       return new MappingRequestDto(scenarioDtos, apiDtos);
    }
    
 }
