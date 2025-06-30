@@ -1,7 +1,6 @@
 package com.sk.skala.axcalibur.feature.testcase.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
 
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
@@ -14,5 +13,5 @@ import io.swagger.v3.oas.annotations.Operation;
 
 public interface TcGeneratorController {
     @Operation(summary = "테스트케이스 생성", description = "프론트로부터 테스트케이스 생성을 요청받아 TC를 생성합니다.")
-    ResponseEntity<SuccessResponse<Void>> generateTestCases(@CookieValue("avalon") String key);
+    ResponseEntity<SuccessResponse<Void>> generateTestCases(String key);
 }

@@ -13,4 +13,5 @@ public interface ParameterRepository extends JpaRepository<ParameterEntity, Inte
     Optional<ParameterEntity> findByApiListKey_IdAndName(Integer apiListId, String name);
     List<ParameterEntity> findByApiListKey_IdIn(List<Integer> apiIds);
     List<ParameterEntity> findAllByApiListKey(ApiListEntity apiListEntity);
+    List<ParameterEntity> findByIdIn(List<Integer> ids);
 }
