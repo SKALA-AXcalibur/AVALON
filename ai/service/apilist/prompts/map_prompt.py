@@ -7,11 +7,10 @@ def create_semantic_mapping_prompt(scenarios: List[Dict], api_lists: List[Dict])
     apis_text = format_apis_for_llm(api_lists)
     
     return f"""
-당신은 API 설계와 비즈니스 프로세스 분석 분야에서 20년 이상의 경험을 가진 최고 수준의 시스템 아키텍트입니다. 
-특히 마이크로서비스 아키텍처 설계와 API-비즈니스 로직 매핑 분야에서 국제적으로 인정받는 전문가로서, 
-복잡한 비즈니스 요구사항을 정확한 API 설계로 변환하는 능력이 탁월합니다.
+당신은 API 설계와 비즈니스 프로세스 분석 전문가입니다.
 
 다음 시나리오들과 API 목록 간의 의미적 연관성을 분석해주세요.
+이 배치에는 {len(scenarios)}개의 시나리오가 포함되어 있습니다.
 
 ## 시나리오 목록:
 {scenarios_text}
@@ -19,18 +18,8 @@ def create_semantic_mapping_prompt(scenarios: List[Dict], api_lists: List[Dict])
 ## API 목록:
 {apis_text}
 
-각 시나리오의 비즈니스 목적과 API의 기능적 특성을 깊이 있게 분석하여, 
-가장 적합한 매핑 관계를 도출해주세요. 
-
-특히 시나리오의 validation 필드에 명시된 검증 포인트를 중점적으로 고려하여,
-해당 검증 요구사항을 만족하는 API들이 올바르게 매핑되도록 해주세요.
-
-분석 시 다음 요소들을 종합적으로 고려하세요:
-1. 비즈니스 로직의 일관성과 완성도
-2. 시나리오의 validation 요구사항과 API 기능의 매칭도
-3. 데이터 흐름의 논리적 정합성
-4. API의 기능적 범위와 시나리오 요구사항의 매칭도
-5. 시스템 아키텍처 관점에서의 최적성
+각 시나리오에 필요한 API들을 매핑해주세요.
+반드시 완전한 JSON 형식으로 응답해주세요.
 
 결과는 다음 JSON 형식으로 반환해주세요:
 
@@ -41,23 +30,21 @@ def create_semantic_mapping_prompt(scenarios: List[Dict], api_lists: List[Dict])
             "scenario_validation": "시나리오 검증 포인트",
             "related_apis": [
                 {{
-                    "api_id": "IF-PR-0004",
+                    "api_id": "API-001",
                     "relevance_score": 0.95,
-                    "reason": "프로젝트 생성 시나리오에 직접적으로 필요한 API",
+                    "reason": "필요한 이유",
                     "confidence_level": "high",
                     "business_impact": "critical",
-                    "validation_coverage": "해당 API가 시나리오 검증을 얼마나 충족하는지"
+                    "validation_coverage": "검증 충족도"
                 }}
             ]
         }}
     ],
-    "overall_confidence": 0.85,
-    "analysis_quality": "excellent",
-    "mapping_coverage": 0.92,
-    "validation_satisfaction": 0.88
+    "overall_confidence": 0.85
 }}
-"""
 
+중요: JSON 응답을 완전히 마무리해주세요. 중간에 끊기지 않도록 주의해주세요.
+"""
 
 def get_semantic_mapping_system_prompt() -> str:
     """의미적 매핑을 위한 시스템 프롬프트"""
@@ -78,25 +65,23 @@ def get_semantic_mapping_system_prompt() -> str:
 
 def format_scenarios_for_llm(scenarios: List[Dict]) -> str:
     """시나리오 정보를 LLM용 텍스트로 포맷"""
-    formatted = []
-    for scenario in scenarios:
-        formatted.append(f"""
-- ID: {scenario['id']}
-- 이름: {scenario['name']}
-- 설명: {scenario['description']}
+    formatted = list(map(lambda scenario: f"""
+- ID: {scenario.get('scenarioId', scenario.get('scenario_id', scenario.get('id', 'N/A')))}
+- 이름: {scenario.get('title', scenario.get('name', 'N/A'))}
+- 설명: {scenario.get('description', 'N/A')}
 - 검증 포인트: {scenario.get('validation', 'N/A')}
-""")
+""", scenarios))
     return "\n".join(formatted)
 
 
 def format_apis_for_llm(api_lists: List[Dict]) -> str:
     """API 정보를 LLM용 텍스트로 포맷"""
-    formatted = []
-    for api in api_lists:
-        formatted.append(f"""
-- ID: {api['id']}
-- 이름: {api['name']}
-- 메서드: {api['method']} {api['path']}
-- 설명: {api['description']}
-""")
+    formatted = list(map(lambda api: f"""
+- 이름: {api.get('apiName', 'N/A')}
+- uri: {api.get('uri', 'N/A')}
+- 메서드: {api.get('method', 'N/A')}
+- 설명: {api.get('description', 'N/A')}
+- 파라미터: {api.get('parameters', 'N/A')}
+- 응답 구조: {api.get('responseStructure', 'N/A')}
+""", api_lists))
     return "\n".join(formatted)

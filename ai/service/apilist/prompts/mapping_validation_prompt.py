@@ -1,50 +1,22 @@
 from typing import List, Dict
 
+
 def create_mapping_validation_prompt(mapping_table: List[Dict]) -> str:
     """
-    매핑표 검증을 위한 LLM 프롬프트 생성
+    매핑표 검증을 위한 LLM 프롬프트 생성 - 개선된 버전
     """
+    # 매핑표를 간소화하여 토큰 절약
+    mapping_summary = format_mapping_table_simple(mapping_table)
+    
     return f"""
-당신은 소프트웨어 품질 보증과 시스템 검증 분야에서 30년 이상의 경험을 가진 
-최고 수준의 품질 보증 전문가입니다. 특히 엔터프라이즈 시스템의 API 설계 검증과 
-비즈니스 로직 정확성 검증 분야에서 국제적으로 인정받는 전문가로서, 
-복잡한 시스템의 품질을 정확하게 평가하는 능력이 탁월합니다.
+소프트웨어 품질 보증 전문가로서 이 매핑표를 검증해주세요.
 
-아래는 시나리오-API 매핑표입니다.
+[매핑표 요약]
+{mapping_summary}
 
-[매핑표]
-{mapping_table}
+시나리오의 validation 필드에 명시된 검증 포인트를 만족하는지 검증해주세요.
 
-이 매핑표가 시나리오와 API의 목적에 맞게 잘 매핑되어 있는지 
-엄격한 품질 기준에 따라 종합적으로 검증해주세요.
-
-특히 각 시나리오의 validation 필드에 명시된 검증 포인트가 
-매핑표의 API 호출 시퀀스에서 완전히 구현되고 있는지를 중점적으로 검증해주세요.
-
-검증 시 다음 항목들을 세밀하게 분석하세요:
-
-1. **비즈니스 로직 정확성 (40점)**
-   - 시나리오의 비즈니스 목적이 API 호출로 정확히 구현되는가
-   - 시나리오의 validation 요구사항이 모든 API 호출에서 충족되는가
-   - API 호출 순서가 비즈니스 프로세스와 일치하는가
-   - 누락된 비즈니스 단계가 있는가
-
-2. **검증 요구사항 충족도 (30점)**
-   - 시나리오의 validation 포인트가 적절한 API로 구현되는가
-   - 검증에 필요한 모든 데이터가 API 호출에서 수집되는가
-   - 검증 로직이 올바른 순서로 실행되는가
-   - 검증 결과가 적절히 처리되는가
-
-3. **기술적 정합성 (20점)**
-   - API 파라미터와 데이터 타입이 올바른가
-   - API 응답 처리가 적절한가
-   - 에러 처리 로직이 충분한가
-
-4. **구현 가능성 (10점)**
-   - 실제 개발팀이 구현할 수 있는 수준인가
-   - 명확하고 모호하지 않은가
-
-다음 JSON 형식으로 검증 결과를 반환해주세요:
+**반드시 다음 JSON 형식으로만 응답해주세요:**
 
 {{
     "validation_score": 85,
@@ -53,8 +25,8 @@ def create_mapping_validation_prompt(mapping_table: List[Dict]) -> str:
         "business_logic_accuracy": {{
             "score": 35,
             "max_score": 40,
-            "issues": ["문제점1", "문제점2"],
-            "strengths": ["강점1", "강점2"]
+            "issues": ["문제점1"],
+            "strengths": ["강점1"]
         }},
         "validation_requirement_satisfaction": {{
             "score": 25,
@@ -75,14 +47,101 @@ def create_mapping_validation_prompt(mapping_table: List[Dict]) -> str:
             "strengths": ["구현 강점"]
         }}
     }},
-    "validation_coverage_analysis": {{
-        "covered_validation_points": ["충족된 검증 포인트 목록"],
-        "missing_validation_points": ["누락된 검증 포인트 목록"],
-        "coverage_percentage": 85
-    }},
     "critical_issues": ["치명적 문제점 목록"],
     "improvement_suggestions": ["개선 제안 목록"],
-    "recommendation": "pass|fail|retry",
+    "recommendation": "pass",
     "confidence_level": 0.92
+}}
+
+**주의: JSON 끝에 모든 중괄호와 대괄호를 반드시 닫아주세요.**
+"""
+
+
+def format_mapping_table_simple(mapping_table: List[Dict]) -> str:
+    """매핑표를 간단하게 포맷 - 토큰 절약"""
+    if not mapping_table:
+        return "매핑표가 비어있음"
+    
+    formatted = []
+    for i, mapping in enumerate(mapping_table):
+        if i >= 10:  # 처음 10개만 표시
+            formatted.append("... (나머지 생략)")
+            break
+            
+        formatted.append(f"""
+{mapping.get('scenarioId')}: {mapping.get('stepName')} -> {mapping.get('apiName')}
+- URI: {mapping.get('uri')} ({mapping.get('method')})
+- 설명: {mapping.get('description', '')[:50]}...
+""")
+    return "\n".join(formatted)
+
+
+def create_quick_validation_prompt(mapping_count: int, scenario_count: int) -> str:
+    """
+    빠른 검증을 위한 간소화된 프롬프트
+    """
+    return f"""
+매핑표 검증: {mapping_count}개 매핑, {scenario_count}개 시나리오
+
+다음 기준으로 평가하세요:
+1. 비즈니스 로직 정확성 (40점)
+2. 검증 요구사항 충족 (30점)  
+3. 기술적 일관성 (20점)
+4. 구현 가능성 (10점)
+
+**JSON으로만 응답:**
+
+{{
+    "validation_score": 85,
+    "overall_assessment": "good",
+    "recommendation": "pass",
+    "confidence_level": 0.92,
+    "critical_issues": [],
+    "improvement_suggestions": []
+}}
+"""
+
+
+def create_detailed_validation_prompt(mapping_table: List[Dict], scenarios: List[Dict]) -> str:
+    """
+    상세 검증을 위한 프롬프트 (필요시 사용)
+    """
+    scenario_validations = {}
+    for scenario in scenarios:
+        scenario_validations[scenario.get('scenarioId')] = scenario.get('validation', '')
+    
+    mapping_by_scenario = {}
+    for mapping in mapping_table:
+        scenario_id = mapping.get('scenarioId')
+        if scenario_id not in mapping_by_scenario:
+            mapping_by_scenario[scenario_id] = []
+        mapping_by_scenario[scenario_id].append(mapping)
+    
+    analysis_text = []
+    for scenario_id, mappings in mapping_by_scenario.items():
+        validation_req = scenario_validations.get(scenario_id, '')
+        analysis_text.append(f"""
+{scenario_id}: {len(mappings)}개 API 매핑
+검증 요구사항: {validation_req[:100]}...
+매핑된 API들: {', '.join([m.get('apiName', '') for m in mappings[:3]])}...
+""")
+    
+    return f"""
+매핑표 상세 검증을 수행하세요.
+
+{chr(10).join(analysis_text)}
+
+각 시나리오의 검증 요구사항이 매핑된 API들로 충족되는지 평가하세요.
+
+**JSON 응답:**
+{{
+    "validation_score": 85,
+    "detailed_analysis": {{
+        "business_logic_accuracy": {{"score": 35, "max_score": 40}},
+        "validation_requirement_satisfaction": {{"score": 25, "max_score": 30}},
+        "technical_consistency": {{"score": 18, "max_score": 20}},
+        "implementation_feasibility": {{"score": 8, "max_score": 10}}
+    }},
+    "recommendation": "pass"
 }}
 """
