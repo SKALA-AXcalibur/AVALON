@@ -24,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PostMapping;
+
 
 /**
  * 테스트케이스 관련 조회/삭제/수정 인터페이스의 실제 구현부
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * - TC 상세 정보 조회(IF-TC-0004)
  * - TC 수정(IF-TC-0005)
  * - TC 삭제(IF-TC-0006)
+ * - TC 추가(IF-TC-0010)
  */
 @RestController
 @RequestMapping("/tc/v1")
@@ -61,13 +64,13 @@ public class TcManageControllerImpl implements TcManageController {
 
         TcListResponse response = new TcListResponse((int) paged.getTotalElements(), paged.getContent());
         
-        return ResponseEntity.ok(
-            SuccessResponse.<TcListResponse>builder()
+        return ResponseEntity
+            .status(SuccessCode.SELECT_SUCCESS.getStatus())
+            .body(SuccessResponse.<TcListResponse>builder()
                 .data(response)
                 .status(SuccessCode.SELECT_SUCCESS)
                 .message(SuccessCode.SELECT_SUCCESS.getMessage())
-                .build()
-        );
+                .build());
     };
 
     // IF-TC-0004: TC ID를 통한 특정 TC 조회
@@ -83,13 +86,13 @@ public class TcManageControllerImpl implements TcManageController {
         // 서비스 호출
         TcDetailResponse response = testcaseQueryService.getTestcaseDetail(tcId);
 
-        return ResponseEntity.ok(
-            SuccessResponse.<TcDetailResponse>builder()
+        return ResponseEntity
+            .status(SuccessCode.SELECT_SUCCESS.getStatus())
+            .body(SuccessResponse.<TcDetailResponse>builder()
                 .data(response)
                 .status(SuccessCode.SELECT_SUCCESS)
                 .message(SuccessCode.SELECT_SUCCESS.getMessage())
-                .build()
-        );
+                .build());
     }
     
     // IF-TC-0005: 특정 TC 내용 update
@@ -133,6 +136,29 @@ public class TcManageControllerImpl implements TcManageController {
             .data(null)  // 빈 객체 반환
             .status(SuccessCode.DELETE_SUCCESS)
             .message(SuccessCode.DELETE_SUCCESS.getMessage())
+            .build());
+    }
+
+    // IF-TC-0010: TC 추가
+    @Override
+    @PostMapping("/api/{scenarioId}/{apiId}")
+    public ResponseEntity<SuccessResponse<String>> addTestcase(
+        @PathVariable String scenarioId,
+        @PathVariable String apiId, 
+        @CookieValue("avalon") String key,
+        @RequestBody TcUpdateRequest request
+    ) {
+        projectIdResolverService.resolveProjectId(key);
+        
+        String tcId = testcaseCommandService.addTestcase(scenarioId, apiId, request);
+        
+        // 정상 처리 응답
+        return ResponseEntity
+        .status(SuccessCode.INSERT_SUCCESS.getStatus())
+        .body(SuccessResponse.<String>builder()
+            .data(tcId)
+            .status(SuccessCode.INSERT_SUCCESS)
+            .message(SuccessCode.INSERT_SUCCESS.getMessage())
             .build());
     }
 }

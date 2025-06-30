@@ -45,13 +45,13 @@ public class TcSupportControllerImpl implements TcSupportController {
 
         List<ApiListResponse> response = supportQueryService.getApiListByScenario(scenarioId);
 
-        return ResponseEntity.ok(
-            SuccessResponse.<List<ApiListResponse>>builder()
+        return ResponseEntity
+            .status(SuccessCode.SELECT_SUCCESS.getStatus())
+            .body(SuccessResponse.<List<ApiListResponse>>builder()
                 .data(response)
                 .status(SuccessCode.SELECT_SUCCESS)
                 .message(SuccessCode.SELECT_SUCCESS.getMessage())
-                .build()
-        );
+                .build());
     }
 
     // IF-TC-0008: API 선택
@@ -68,12 +68,12 @@ public class TcSupportControllerImpl implements TcSupportController {
         // 조회된 API 목록에서 API 선택하면 해당 API에 속한 파라미터 목록 반환
         List<ApiParamDto> response = supportQueryService.getParamsByApiId(apiId);
 
-        return ResponseEntity.ok(
-            SuccessResponse.<List<ApiParamDto>>builder()
+        return ResponseEntity
+            .status(SuccessCode.SELECT_SUCCESS.getStatus())
+            .body(SuccessResponse.<List<ApiParamDto>>builder()
                 .data(response)
                 .status(SuccessCode.SELECT_SUCCESS)
                 .message(SuccessCode.SELECT_SUCCESS.getMessage())
-                .build()
-        );
+                .build());
     }
 }
