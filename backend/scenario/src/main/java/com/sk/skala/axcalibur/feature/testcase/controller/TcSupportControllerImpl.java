@@ -1,7 +1,5 @@
 package com.sk.skala.axcalibur.feature.testcase.controller;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,8 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sk.skala.axcalibur.feature.testcase.dto.request.ApiParamDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.ApiListResponse;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.ApiParamListResponse;
 import com.sk.skala.axcalibur.feature.testcase.service.ProjectIdResolverService;
 import com.sk.skala.axcalibur.feature.testcase.service.SupportQueryService;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
@@ -36,18 +34,18 @@ public class TcSupportControllerImpl implements TcSupportController {
     // IF-TC-0007: API 조회
     @Override
     @GetMapping("/api/{scenarioId}")
-    public ResponseEntity<SuccessResponse<List<ApiListResponse>>> getApiListByScenario(
+    public ResponseEntity<SuccessResponse<ApiListResponse>> getApiListByScenario(
         @PathVariable String scenarioId,
         @CookieValue("avalon") String key
     ) {
         // Redis에서 cookie 키 인증 (예외 발생 시 Global handler에서 처리)
         projectIdResolverService.resolveProjectId(key);
 
-        List<ApiListResponse> response = supportQueryService.getApiListByScenario(scenarioId);
+        ApiListResponse response = supportQueryService.getApiListByScenario(scenarioId);
 
         return ResponseEntity
             .status(SuccessCode.SELECT_SUCCESS.getStatus())
-            .body(SuccessResponse.<List<ApiListResponse>>builder()
+            .body(SuccessResponse.<ApiListResponse>builder()
                 .data(response)
                 .status(SuccessCode.SELECT_SUCCESS)
                 .message(SuccessCode.SELECT_SUCCESS.getMessage())
@@ -57,7 +55,7 @@ public class TcSupportControllerImpl implements TcSupportController {
     // IF-TC-0008: API 선택
     @Override
     @GetMapping("/api/{scenarioId}/{apiId}")
-    public ResponseEntity<SuccessResponse<List<ApiParamDto>>> getParamListByApi(
+    public ResponseEntity<SuccessResponse<ApiParamListResponse>> getParamListByApi(
         @PathVariable String scenarioId,
         @PathVariable String apiId,
         @CookieValue("avalon") String key
@@ -66,11 +64,11 @@ public class TcSupportControllerImpl implements TcSupportController {
         projectIdResolverService.resolveProjectId(key);
 
         // 조회된 API 목록에서 API 선택하면 해당 API에 속한 파라미터 목록 반환
-        List<ApiParamDto> response = supportQueryService.getParamsByApiId(apiId);
+        ApiParamListResponse response = supportQueryService.getParamsByApiId(apiId);
 
         return ResponseEntity
             .status(SuccessCode.SELECT_SUCCESS.getStatus())
-            .body(SuccessResponse.<List<ApiParamDto>>builder()
+            .body(SuccessResponse.<ApiParamListResponse>builder()
                 .data(response)
                 .status(SuccessCode.SELECT_SUCCESS)
                 .message(SuccessCode.SELECT_SUCCESS.getMessage())

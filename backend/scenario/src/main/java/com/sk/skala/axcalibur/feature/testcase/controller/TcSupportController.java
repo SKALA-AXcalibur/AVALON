@@ -1,11 +1,9 @@
 package com.sk.skala.axcalibur.feature.testcase.controller;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 
-import com.sk.skala.axcalibur.feature.testcase.dto.request.ApiParamDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.ApiListResponse;
+import com.sk.skala.axcalibur.feature.testcase.dto.response.ApiParamListResponse;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 /**
@@ -15,7 +13,7 @@ import com.sk.skala.axcalibur.global.response.SuccessResponse;
  * - API 선택(IF-TC-0008)
  */
 public interface TcSupportController {
-    ResponseEntity<SuccessResponse<List<ApiListResponse>>> getApiListByScenario(String scenarioId, String key);
+    ResponseEntity<SuccessResponse<ApiListResponse>> getApiListByScenario(String scenarioId, String key);
 
-    ResponseEntity<SuccessResponse<List<ApiParamDto>>> getParamListByApi(String scenarioId, String apiId, String key);
+    ResponseEntity<SuccessResponse<ApiParamListResponse>> getParamListByApi(String scenarioId, String apiId, String key);
 }
