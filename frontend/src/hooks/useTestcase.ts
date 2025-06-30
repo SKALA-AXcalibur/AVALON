@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { useProjectStore } from "@/store/projectStore";
 import { clientTestcaseApi } from "@/services/client/clientTestcaseApi";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/constants/messages";
-import { TestcaseInfo, TestData } from "@/interfaces/testcase";
+import { TestcaseInfo, Param, api } from "@/interfaces/testcase";
 
 export const useTestcase = (
   projectId: string,
   scenarioId: string,
-  testcaseId: string,
+  testcaseId: string
 ) => {
   const { addTestcase, updateTestcase, deleteTestcase } = useProjectStore();
 
@@ -16,8 +16,12 @@ export const useTestcase = (
     precondition: "",
     description: "",
     expectedResult: "",
+    status: 0,
     testDataList: [],
   });
+
+  const [apiList, setApiList] = useState<api[]>([]);
+  const [selectedApiId, setSelectedApiId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -31,6 +35,24 @@ export const useTestcase = (
       return () => clearTimeout(timer);
     }
   }, [error, success]);
+
+  useEffect(() => {
+    if (testcaseId === "new") {
+      const fetchApiList = async () => {
+        try {
+          setIsLoading(true);
+          const response = await clientTestcaseApi.readApiList(scenarioId);
+          setApiList(response.apiList);
+        } catch (error) {
+          console.error(error);
+          setError("API 목록을 가져오는데 실패했습니다.");
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchApiList();
+    }
+  }, [testcaseId, scenarioId]);
 
   useEffect(() => {
     if (testcaseId !== "new") {
@@ -62,19 +84,50 @@ export const useTestcase = (
     setTestcaseInfo((prev) => ({ ...prev, expectedResult: value }));
   };
 
-  const handleTestDataListChange = (testDataList: TestData[]) => {
+  const handleTestDataListChange = (testDataList: Param[]) => {
     setTestcaseInfo((prev) => ({ ...prev, testDataList }));
+  };
+
+  const handleApiChange = async (apiId: string) => {
+    setSelectedApiId(apiId);
+
+    if (apiId) {
+      try {
+        setIsLoading(true);
+        const response = await clientTestcaseApi.readParams(scenarioId, apiId);
+        setTestcaseInfo((prev) => ({
+          ...prev,
+          testDataList: response.testDataList.map((param) => ({
+            ...param,
+            value: null, // 파라미터 값은 null로 초기화
+          })) as Param[],
+        }));
+      } catch (error) {
+        console.error(error);
+        setError("파라미터를 가져오는데 실패했습니다.");
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      // API가 선택되지 않았으면 testDataList 초기화
+      setTestcaseInfo((prev) => ({ ...prev, testDataList: [] }));
+    }
   };
 
   const handleCreate = async (onSuccess?: (testcaseId: string) => void) => {
     try {
       setIsLoading(true);
-      const response = await clientTestcaseApi.createTestcase(scenarioId, {
-        precondition: testcaseInfo.precondition,
-        description: testcaseInfo.description,
-        expectedResult: testcaseInfo.expectedResult,
-        testDataList: testcaseInfo.testDataList,
-      });
+      const response = await clientTestcaseApi.createTestcase(
+        scenarioId,
+        selectedApiId,
+        {
+          precondition: testcaseInfo.precondition,
+          description: testcaseInfo.description,
+          expectedResult: testcaseInfo.expectedResult,
+          status: testcaseInfo.status,
+          testDataList: testcaseInfo.testDataList,
+        }
+      );
       addTestcase(scenarioId, {
         tcId: response.tcId,
       });
@@ -95,6 +148,7 @@ export const useTestcase = (
         precondition: testcaseInfo.precondition,
         description: testcaseInfo.description,
         expectedResult: testcaseInfo.expectedResult,
+        status: testcaseInfo.status,
         testDataList: testcaseInfo.testDataList,
       });
       updateTestcase(scenarioId, {
@@ -126,6 +180,8 @@ export const useTestcase = (
 
   return {
     testcaseInfo,
+    apiList,
+    selectedApiId,
     isLoading,
     error,
     success,
@@ -133,6 +189,7 @@ export const useTestcase = (
     handleDescriptionChange,
     handleExpectedResultChange,
     handleTestDataListChange,
+    handleApiChange,
     handleCreate,
     handleUpdate,
     handleDelete,

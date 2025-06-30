@@ -32,15 +32,16 @@ export const useProject = () => {
 
     setIsLoading(true);
     try {
-      const response =
-        await clientTestcaseApi.readScenarioTestcases(scenarioId);
+      const response = await clientTestcaseApi.readScenarioTestcases(
+        scenarioId
+      );
       if (response.tcTotal === 0) return false;
       setProject({
         ...project,
         scenarios: project.scenarios.map((scenario) =>
           scenario.id === scenarioId
             ? { ...scenario, testcases: response.tcList }
-            : scenario,
+            : scenario
         ),
       });
       return true;

@@ -18,6 +18,8 @@ export const TestcaseBox = ({
   const router = useRouter();
   const {
     testcaseInfo,
+    apiList,
+    selectedApiId,
     isLoading,
     error,
     success,
@@ -25,6 +27,7 @@ export const TestcaseBox = ({
     handleDescriptionChange,
     handleExpectedResultChange,
     handleTestDataListChange,
+    handleApiChange,
     handleCreate,
     handleUpdate,
     handleDelete,
@@ -49,9 +52,27 @@ export const TestcaseBox = ({
       ) : (
         <>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-slate-800">
-              {testcaseInfo.tcId}
-            </h2>
+            <div className="flex items-center gap-4">
+              <h2 className="text-xl font-bold text-slate-800">
+                {testcaseInfo.tcId}
+              </h2>
+              {testcaseId === "new" && (
+                <div className="flex items-center gap-2">
+                  <select
+                    className="px-3 py-1 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                    value={selectedApiId}
+                    onChange={(e) => handleApiChange(e.target.value)}
+                  >
+                    <option value="">API 선택</option>
+                    {apiList.map((api) => (
+                      <option key={api.apiId} value={api.apiId}>
+                        {api.apiName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
             <div className="flex gap-2">
               <LinkButton
                 href={`/project/${projectId}/scenario/new`}
@@ -78,7 +99,7 @@ export const TestcaseBox = ({
                 <ActionButton
                   onClick={() => handleCreate(onCreateSuccess)}
                   color="bg-transparent text-slate-700 hover:text-orange-500"
-                  disabled={isLoading}
+                  disabled={isLoading || !selectedApiId}
                 >
                   생성
                 </ActionButton>
@@ -96,7 +117,7 @@ export const TestcaseBox = ({
           <div className="h-[200px] flex gap-8 mb-8">
             <TextInputBox
               title="사전 조건"
-              value={testcaseInfo.precondition}
+              value={testcaseInfo.precondition || ""}
               placeholder="테스트케이스의 사전 조건을 입력하세요"
               onChange={(e) => handlePreconditionChange(e.target.value)}
             />
@@ -108,7 +129,7 @@ export const TestcaseBox = ({
             />
           </div>
           <TestcaseDataTable
-            testDataList={testcaseInfo.testDataList}
+            testDataList={testcaseInfo.testDataList || []}
             onTestDataListChange={handleTestDataListChange}
           />
           <div className="h-[250px] flex gap-8">
