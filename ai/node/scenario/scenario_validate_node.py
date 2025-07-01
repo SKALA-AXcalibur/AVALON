@@ -41,25 +41,17 @@ def _extract_json(text: str) -> dict:
 
 def scenario_validate_node(state: ScenarioState) -> ScenarioState:
     """
-    생성된 시나리오를 검증하고 점수를 매기는 노드 (에이전트 로직 통합)
+    생성된 시나리오를 검증하고 점수를 매기는 노드
     """
-    try:
-        generated_scenarios = state.get("generated_scenarios")
-        if not generated_scenarios:
-            raise ValueError("검증할 시나리오가 없습니다.")
+    generated_scenarios = state.get("generated_scenarios")
+    if not generated_scenarios:
+        raise ValueError("검증할 시나리오가 없습니다.")
 
-        prompt = _build_prompt(generated_scenarios)
-        raw_response = _call_llm(prompt)
-        parsed_json = _extract_json(raw_response)
-        validation_result = ScoreBasedValidationResponse(**parsed_json)
+    prompt = _build_prompt(generated_scenarios)
+    raw_response = _call_llm(prompt)
+    parsed_json = _extract_json(raw_response)
+    validation_result = ScoreBasedValidationResponse(**parsed_json)
 
-        state["validation_result"] = validation_result
-        state["current_step"] = "validation_completed"
-        return state
-
-    except Exception as e:
-        logging.exception("시나리오 검증 노드에서 오류 발생")
-        error_message = f"시나리오 검증 실패: {str(e)}"
-        state["current_step"] = "validation_failed"
-        state["error_message"] = error_message
-        return state
+    state["validation_result"] = validation_result
+    state["current_step"] = "validation_completed"
+    return state

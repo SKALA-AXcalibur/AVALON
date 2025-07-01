@@ -70,9 +70,6 @@ def _extract_json(text: str) -> dict:
     except json.JSONDecodeError as e:
         # JSON이 불완전할 수 있으므로 더 자세한 로그 출력
         logging.error(f"[JSON 파싱 실패] JSON 문자열: {json_str}")
-        logging.error(
-            f"[JSON 파싱 실패] 원본 응답: {text[:ERROR_LOG_TEXT_LIMIT]}..."
-        )
         raise ValueError(
             f"LLM 응답에서 유효한 JSON을 추출하지 못했습니다. JSON 오류: {str(e)}"
         ) from e
@@ -80,40 +77,27 @@ def _extract_json(text: str) -> dict:
 
 def scenario_generate_node(state: ScenarioState) -> ScenarioState:
     """
-    시나리오 생성 노드 (에이전트 로직 통합)
+    시나리오 생성 노드
     """
-    try:
-        if not state.get("request_data"):
-            raise ValueError("request_data가 상태에 없습니다.")
+   
+    if not state.get("request_data"):
+        raise ValueError("request_data가 상태에 없습니다.")
 
-        feedback_data = state.get("feedback_data")
-        if feedback_data:
-            logging.info("이전 피드백을 반영하여 재생성합니다.")
-            prompt = _build_prompt_with_feedback(state["request_data"], feedback_data)
-        else:
-            prompt = _build_prompt(state["request_data"])
+    feedback_data = state.get("feedback_data")
+    if feedback_data:
+        logging.info("이전 피드백을 반영하여 재생성합니다.")
+        prompt = _build_prompt_with_feedback(state["request_data"], feedback_data)
+    else:
+        prompt = _build_prompt(state["request_data"])
 
-        raw_response = _call_llm(prompt)
+    raw_response = _call_llm(prompt)
 
-        parsed_json = _extract_json(raw_response)
-        scenario_response = ScenarioResponse(**parsed_json)
+    parsed_json = _extract_json(raw_response)
+    scenario_response = ScenarioResponse(**parsed_json)
 
-        logging.info(
-            f"시나리오 생성 완료: {len(scenario_response.scenario_list)}개 시나리오"
-        )
-
-        state["generated_scenarios"] = scenario_response
-        state["feedback_data"] = None
-        state["current_step"] = "generation_completed"
-        state["generation_status"] = "success"
-        state["attempt_count"] = state.get("attempt_count", 0) + 1
-        return state
-
-    except Exception as e:
-        logging.exception("시나리오 생성 노드에서 오류 발생")
-        error_message = f"시나리오 생성 실패: {str(e)}"
-        state["generated_scenarios"] = None
-        state["current_step"] = "generation_failed"
-        state["generation_status"] = "failed"
-        state["error_message"] = error_message
-        return state
+    state["generated_scenarios"] = scenario_response
+    state["feedback_data"] = None
+    state["current_step"] = "generation_completed"
+    state["generation_status"] = "success"
+    state["attempt_count"] = state.get("attempt_count", 0) + 1
+    return state

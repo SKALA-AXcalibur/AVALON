@@ -13,19 +13,19 @@ class ScenarioState(TypedDict, total=False):
     """
 
     # --- 입력 데이터 ---
-    request_data: ScenarioRequest
+    request_data: ScenarioRequest # 사용자 입력 데이터
 
     # --- 워크플로우 제어 ---
-    attempt_count: int
-    max_attempts: int
+    attempt_count: int # 재시도 횟수
+    max_attempts: int # 최대 재시도 횟수
 
     # --- 노드 간 전달 데이터 ---
-    generated_scenarios: Optional[ScenarioResponse]
-    validation_result: Optional[ScoreBasedValidationResponse]
-    feedback_data: Optional[Dict[str, Any]]
+    generated_scenarios: Optional[ScenarioResponse] # 생성된 시나리오 데이터
+    validation_result: Optional[ScoreBasedValidationResponse] # 검증 결과 데이터
+    feedback_data: Optional[Dict[str, Any]] # 피드백 데이터
 
     # --- 로깅 및 에러 핸들링 ---
-    error_message: Optional[str]
+    error_message: Optional[str] # 에러 메시지
     current_step: str
     generation_status: str
     next_step: Optional[str]  # decision_node에서 설정하는 다음 단계
@@ -34,14 +34,14 @@ class ScenarioState(TypedDict, total=False):
 def create_initial_state(request: ScenarioRequest) -> ScenarioState:
     """초기 상태 딕셔너리를 생성합니다."""
     return ScenarioState(
-        request_data=request,
-        attempt_count=0,
-        max_attempts=MAX_RETRIES,
-        generated_scenarios=None,
-        validation_result=None,
-        feedback_data=None,
-        error_message=None,
-        current_step="initial",
-        generation_status="not_started",
-        next_step=None,
+        request_data=request,           # 사용자 입력 데이터
+        attempt_count=0,                # 재시도 횟수
+        max_attempts=MAX_RETRIES,       # 최대 재시도 횟수
+        generated_scenarios=None,        # 생성된 시나리오 데이터
+        validation_result=None,         # 검증 결과 데이터
+        feedback_data=None,             # 피드백 데이터
+        error_message=None,             # 에러 메시지
+        current_step="initial",         # 현재 단계
+        generation_status="not_started", # 생성 상태
+        next_step=None,                  # 다음 단계
     )

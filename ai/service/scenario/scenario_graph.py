@@ -31,11 +31,11 @@ def create_scenario_graph() -> StateGraph:
     workflow.add_edge("validation", "decision")
 
     workflow.add_conditional_edges(
-        "decision",
+        "decision",  # 결과에 따라 피드백 루프 또는 종료
         get_decision_result,
         {
-            "regenerate": "generation",
-            "end": END,
+            "regenerate": "generation",  # 피드백 루프
+            "end": END,  # 종료
         },
     )
 

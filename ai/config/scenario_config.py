@@ -10,10 +10,6 @@ MAX_RETRIES = 3  # 최대 재시도 횟수
 MIN_VALIDATION_SCORE = 70  # 최소 합격 점수
 VALIDATION_TIMEOUT = 120  # 검증 타임아웃 (초)
 
-# 생성 관련 설정
-GENERATION_TIMEOUT = 300  # 생성 타임아웃 (초)
-BATCH_SIZE = 5  # 한 번에 생성할 시나리오 개수
-
 # LLM 모델 기본 설정
 MODEL_TIMEOUT = 120.0  # 모델 호출 타임아웃 (초)
 MODEL_TEMPERATURE = 0.1  # 모델 온도 설정
