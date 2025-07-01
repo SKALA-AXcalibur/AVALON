@@ -293,19 +293,6 @@ public class ApiTestParserServiceTest {
             assertThat(exception.getMessage()).contains("Invalid step: abc");
         }
 
-        // @Test
-        // @DisplayName("잘못된 형식 - 화살표 없음")
-        // void parsePrecondition_MissingArrow_ThrowsException() {
-        // // given
-        // String precondition = "step 1:header|test body|test";
-        // requestDto = requestDto.toBuilder().precondition(precondition).build();
-
-        // // when & then
-        // ParseException exception = assertThrows(ParseException.class,
-        // () -> apiTestParserService.parsePrecondition(requestDto));
-        // assertThat(exception.getMessage()).contains("Invalid action format");
-        // }
-
         @Test
         @DisplayName("잘못된 형식 - 여러 화살표")
         void parsePrecondition_MultipleArrows_ThrowsException() {
