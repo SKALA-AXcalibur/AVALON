@@ -14,6 +14,8 @@ import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Integer> {
     List<ScenarioEntity> findByProject_Id(Integer projectKey);
     
+    List<ScenarioEntity> findByProject_IdOrderByCreateAtDesc(Integer projectKey);
+    
     /**
      * 시나리오 ID로 시나리오 조회
      */
@@ -29,24 +31,4 @@ public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Intege
         nativeQuery = true
     )
     Integer findMaxScenarioNoByProjectKey(@Param("projectKey") Integer projectKey);
-
-    /**
-     * 프로젝트별 시나리오 목록을 OFFSET과 LIMIT을 사용하여 조회
-     */
-    @Query(
-        value = "SELECT * FROM scenario WHERE project_key = :projectKey " +
-                "ORDER BY create_at DESC LIMIT :query OFFSET :offset", 
-        nativeQuery = true)
-    List<ScenarioEntity> findWithOffsetAndQuery(@Param("projectKey") Integer projectKey, @Param("offset") Integer offset,
-        @Param("query") Integer query
-    );
-    
-    /**
-     * 특정 프로젝트의 전체 시나리오 개수 조회
-     */
-    @Query(
-        value = "SELECT COUNT(*) FROM scenario WHERE project_key = :projectKey", 
-        nativeQuery = true
-    )
-    Integer countByProjectKey(@Param("projectKey") Integer projectKey);
 }
