@@ -11,7 +11,7 @@ class ScenarioInput(BaseModel):
     validation: Optional[str] = None
     
     class Config:
-        validate_by_name = True
+        populate_by_name = True
 
 
 class ApiInput(BaseModel):
@@ -24,7 +24,7 @@ class ApiInput(BaseModel):
     responseStructure: Optional[str] = None
     
     class Config:
-        validate_by_name = True
+        populate_by_name = True
 
 
 class ApiListMapRequest(BaseModel):
@@ -33,31 +33,7 @@ class ApiListMapRequest(BaseModel):
     scenarioList: List[ScenarioInput] = Field(default_factory=list, alias="scenarioList")
     
     class Config:
-        validate_by_name = True
-    
-    def convert_to_internal_format(self) -> Dict[str, Any]:
-        """내부 사용 형식으로 변환"""
-        converted_scenarios = list(map(lambda scenario: {
-            "scenarioId": scenario.scenarioId,
-            "title": scenario.title,
-            "description": scenario.description,
-            "validation": scenario.validation,
-            "createdAt": datetime.now().isoformat()
-        }, self.scenarioList))
-        
-        converted_apis = list(map(lambda api: {
-            "apiName": api.apiName,
-            "description": api.description,
-            "url": api.url,
-            "method": api.method,
-            "parameters": api.parameters,
-            "responseStructure": api.responseStructure
-        }, self.apiList))
-        
-        return {
-            "scenarios": converted_scenarios,
-            "apiList": converted_apis
-        }
+        populate_by_name = True
 
 
 # 편의 함수들

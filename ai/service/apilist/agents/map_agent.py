@@ -15,6 +15,9 @@ from service.apilist.prompts.map_prompt import (
 # .env 파일 로드
 load_dotenv()
 
+# 배치 처리 크기 상수
+BATCH_SIZE = 5
+
 def clean_llm_json(text):
     """LLM 응답에서 JSON 추출 및 정리"""
     # ```json ... ``` 또는 ``` ... ``` 코드블록 제거
@@ -58,48 +61,26 @@ def safe_json_parse(text: str) -> Dict[str, Any]:
 def perform_semantic_mapping(scenarios: List[Dict], api_lists: List[Dict]) -> Dict[str, Any]:
     """LLM을 사용한 의미적 매핑 분석 - 배치 처리"""
     try:
-        # 디버깅: 입력 데이터 확인
-        print("=== 입력 데이터 확인 ===")
-        print(f"시나리오 개수: {len(scenarios)}")
-        print(f"API 개수: {len(api_lists)}")
-        if scenarios:
-            print(f"첫 번째 시나리오: {scenarios[0]}")
-        if api_lists:
-            print(f"첫 번째 API: {api_lists[0]}")
-        print("========================")
+        # LangChain Hosted LLM (Smith API) 사용 예시 - 루프 밖에서 한 번만 생성
+        llm = ChatAnthropic(
+            model=os.getenv("MODEL_NAME", "claude-sonnet-4-20250514"),
+            temperature=float(os.getenv("MODEL_TEMPERATURE", 0.7)),
+            max_tokens=4000,
+            api_key=os.getenv("ANTHROPIC_API_KEY"),
+        )
         
-        # 배치 크기 설정 (시나리오 5개씩 처리)
-        batch_size = 5
         all_mappings = []
         total_confidence = 0.0
         batch_count = 0
         
         # 시나리오를 배치로 나누어 처리
-        for i in range(0, len(scenarios), batch_size):
-            batch_scenarios = scenarios[i:i+batch_size]
-            batch_num = (i // batch_size) + 1
-            
-            print(f"=== 배치 {batch_num} 처리 중 ===")
-            print(f"배치 시나리오 개수: {len(batch_scenarios)}")
+        for i in range(0, len(scenarios), BATCH_SIZE):
+            batch_scenarios = scenarios[i:i+BATCH_SIZE]
+            batch_num = (i // BATCH_SIZE) + 1
             
             # 배치별 프롬프트 생성
             prompt = create_semantic_mapping_prompt(batch_scenarios, api_lists)
             system_prompt = get_semantic_mapping_system_prompt()
-            
-            # 디버깅: 프롬프트 확인
-            print(f"=== 배치 {batch_num} 프롬프트 확인 ===")
-            print(f"프롬프트 길이: {len(prompt)}")
-            print("프롬프트 내용:")
-            print(prompt[:500] + "..." if len(prompt) > 500 else prompt)
-            print("======================")
-            
-            # LangChain Hosted LLM (Smith API) 사용 예시
-            llm = ChatAnthropic(
-                model=os.getenv("MODEL_NAME", "claude-sonnet-4-20250514"),
-                temperature=float(os.getenv("MODEL_TEMPERATURE", 0.7)),
-                max_tokens=4000,
-                api_key=os.getenv("ANTHROPIC_API_KEY"),
-            )
 
             # LangChain 메시지 객체 사용
             messages = [
@@ -109,7 +90,6 @@ def perform_semantic_mapping(scenarios: List[Dict], api_lists: List[Dict]) -> Di
             
             result = llm.invoke(messages)
             result_text = result.content if hasattr(result, "content") else str(result)
-            print(f"배치 {batch_num} LLM 응답:", result_text)
             
             # 안전한 JSON 파싱
             batch_mapping = safe_json_parse(result_text)
@@ -119,17 +99,9 @@ def perform_semantic_mapping(scenarios: List[Dict], api_lists: List[Dict]) -> Di
                 all_mappings.extend(batch_mapping.get("mappings", []))
                 total_confidence += batch_mapping.get("overall_confidence", 0.0)
                 batch_count += 1
-                print(f"배치 {batch_num} 처리 성공")
-            else:
-                print(f"배치 {batch_num} 처리 실패: {batch_mapping.get('error', 'Unknown error')}")
         
         # 평균 confidence 계산
         average_confidence = total_confidence / batch_count if batch_count > 0 else 0.0
-        
-        print(f"=== 최종 결과 ===")
-        print(f"총 배치 수: {batch_count}")
-        print(f"총 매핑 수: {len(all_mappings)}")
-        print(f"평균 confidence: {average_confidence}")
         
         return {
             "mappings": all_mappings,
