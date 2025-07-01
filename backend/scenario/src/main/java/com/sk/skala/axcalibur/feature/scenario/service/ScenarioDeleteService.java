@@ -3,7 +3,7 @@ package com.sk.skala.axcalibur.feature.scenario.service;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDeleteResponseDto;
 
 /**
- * 시나리오 삭제 서비스 인터페이스
+ * 시나리오 삭제 서비스 인터페이스(IF-SN-0007)
  */
 public interface ScenarioDeleteService {
     

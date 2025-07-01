@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 시나리오 추가 서비스 구현체
+ * 시나리오 추가 서비스 구현체(IF-SN-0003)
  */
 @Slf4j
 @Service
@@ -35,37 +35,31 @@ public class ScenarioCreateServiceImpl implements ScenarioCreateService {
         ProjectEntity project = projectRepository.findById(projectKey)
             .orElseThrow(() -> new BusinessExceptionHandler("프로젝트를 찾을 수 없습니다.", ErrorCode.NOT_FOUND_ERROR));
 
-        int maxRetry = 3; // 최대 재시도 횟수
-        for(int attempt = 0; attempt < maxRetry; attempt++) {
-            try {
-                // 프로젝트 내 기존 시나리오 id 목록을 조회
-                int maxNo = scenarioRepository.findMaxScenarioNoByProjectKey(projectKey); // 기존 시나리오 id 중 최대 번호
-                int newNo = maxNo + 1;
-                String newScenarioId = String.format("scenario-%03d", newNo); // 새로운 시나리오 ID 생성
+        try {
+            // 프로젝트 내 기존 시나리오 id 목록을 조회
+            int maxNo = scenarioRepository.findMaxScenarioNoByProjectKey(projectKey); // 기존 시나리오 id 중 최대 번호
+            int newNo = maxNo + 1;
+            String newScenarioId = String.format("scenario-%03d", newNo); // 새로운 시나리오 ID 생성
 
-                // 시나리오 엔티티 생성 및 저장
-                ScenarioEntity scenarioEntity = ScenarioEntity.builder()
-                    .scenarioId(newScenarioId)
-                    .name(requestDto.getName())
-                    .description(requestDto.getDescription())
-                    .validation(requestDto.getValidation())
-                    .project(project)
-                    .build();
+            // 시나리오 엔티티 생성 및 저장
+            ScenarioEntity scenarioEntity = ScenarioEntity.builder()
+                .scenarioId(newScenarioId)
+                .name(requestDto.getName())
+                .description(requestDto.getDescription())
+                .validation(requestDto.getValidation())
+                .project(project)
+                .build();
 
-                ScenarioEntity savedScenario = scenarioRepository.save(scenarioEntity);
+            ScenarioEntity savedScenario = scenarioRepository.save(scenarioEntity);
 
-                return ScenarioCreateResponseDto.builder()
-                    .id(savedScenario.getScenarioId())
-                    .build();
+            return ScenarioCreateResponseDto.builder()
+                .id(savedScenario.getScenarioId())
+                .build();
 
-            } catch (DataIntegrityViolationException e) {
-                // 동시성 충돌(유니크 인덱스 위반) 시 재시도
-                log.warn("동시성 충돌로 인한 재시도({}/{}) - 프로젝트: {}", attempt+1, maxRetry, projectKey);
-                if (attempt == maxRetry - 1) {
-                    throw new BusinessExceptionHandler("시나리오 ID 중복, 재시도 실패", ErrorCode.INTERNAL_SERVER_ERROR);
-                }
-            }
+        } catch (DataIntegrityViolationException e) {
+            // 시나리오 ID 중복 등 데이터 무결성 위반
+            log.error("시나리오 생성 중 데이터 무결성 위반 - 프로젝트: {}, 에러: {}", projectKey, e.getMessage());
+            throw new BusinessExceptionHandler("시나리오 ID가 중복되었습니다. 다시 시도해주세요.", ErrorCode.INTERNAL_SERVER_ERROR);
         }
-        throw new BusinessExceptionHandler("시나리오 생성에 실패했습니다.", ErrorCode.INTERNAL_SERVER_ERROR);
     }
 }

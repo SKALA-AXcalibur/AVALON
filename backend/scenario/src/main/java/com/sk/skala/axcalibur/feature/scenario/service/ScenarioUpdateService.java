@@ -3,7 +3,7 @@ package com.sk.skala.axcalibur.feature.scenario.service;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioUpdateRequestDto;
 
 /**
- * 시나리오 수정 서비스 인터페이스
+ * 시나리오 수정 서비스 인터페이스(IF-SN-0004)
  */
 public interface ScenarioUpdateService {
     

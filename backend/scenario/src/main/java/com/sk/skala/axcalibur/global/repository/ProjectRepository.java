@@ -10,10 +10,10 @@ import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 @Repository
 public interface ProjectRepository extends JpaRepository<ProjectEntity, Integer> {
     
-    // 프로젝트 ID로 조회
+    // 프로젝트 ID로 조회 (비즈니스 키)
     Optional<ProjectEntity> findByProjectId(String projectId);
 
     // 프로젝트 ID 존재 여부
-    boolean existsByProjectId(String projectId);
+    Boolean existsByProjectId(String projectId);
 
 }

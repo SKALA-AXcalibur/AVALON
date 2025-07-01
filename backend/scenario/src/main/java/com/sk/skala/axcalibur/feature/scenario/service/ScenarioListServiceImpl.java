@@ -3,7 +3,6 @@ package com.sk.skala.axcalibur.feature.scenario.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListDto;
@@ -17,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 시나리오 목록 조회 서비스 구현체
+ * 시나리오 목록 조회 서비스 구현체(IF-SN-0009)
  */
 @Slf4j
 @Service
@@ -27,18 +26,17 @@ public class ScenarioListServiceImpl implements ScenarioListService {
     private final ScenarioRepository scenarioRepository;
 
     @Override
-    public ScenarioListDto getScenarioList(Integer projectKey, int offset, int query) {
+    public ScenarioListDto getScenarioList(Integer projectKey, Integer offset, Integer query) {
 
+        // 페이징 파라미터 검증
         validatePagingParameters(offset, query);
     
         // 총 개수 조회
-        int total = scenarioRepository.countByProject_Id(projectKey);
+        int total = scenarioRepository.countByProjectKey(projectKey);
         
-        // 페이징 객체 생성 (offset 기반)
-        PageRequest pageRequest = PageRequest.of(offset / query, query);
-        
-        // 시나리오 목록 조회
-        List<ScenarioEntity> scenarios = scenarioRepository.findByProject_IdOrderByCreateAtDesc(projectKey, pageRequest);
+        // offset, query 파라미터 기반 시나리오 목록 조회
+        // offset: 시작점, query: 조회 개수
+        List<ScenarioEntity> scenarios = scenarioRepository.findWithOffsetAndQuery(projectKey, offset, query);
         
         // DTO 변환
         List<ScenarioItem> scenarioItems = scenarios.stream()
@@ -48,6 +46,7 @@ public class ScenarioListServiceImpl implements ScenarioListService {
                 .build())
             .collect(Collectors.toList());
         
+        // DTO 반환
         return ScenarioListDto.builder()
             .scenarioList(scenarioItems)
             .total(total)
@@ -58,15 +57,14 @@ public class ScenarioListServiceImpl implements ScenarioListService {
      * offset, query 파라미터 검증
      */
     @Override
-    public void validatePagingParameters(int offset, int query) {
+    public void validatePagingParameters(Integer offset, Integer query) {
+        // offset은 0 이상이어야 함
         if (offset < 0) {
             throw new BusinessExceptionHandler("offset은 0 이상이어야 합니다.", ErrorCode.BAD_REQUEST_ERROR);
         }
-        if (query < 1 || query > 100) {
+        // query는 1 이상이어야 함
+        if (query < 1) {
             throw new BusinessExceptionHandler("query는 1 이상이어야 합니다.", ErrorCode.BAD_REQUEST_ERROR);
-        }
-        if (offset % query != 0) {
-            throw new BusinessExceptionHandler("offset은 query의 배수여야 합니다.", ErrorCode.BAD_REQUEST_ERROR);
         }
     }
 } 

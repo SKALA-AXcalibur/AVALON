@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 시나리오 상세 조회 서비스 구현체
+ * 시나리오 상세 조회 서비스 구현체(IF-SN-0008)
  */
 @Slf4j
 @Service
