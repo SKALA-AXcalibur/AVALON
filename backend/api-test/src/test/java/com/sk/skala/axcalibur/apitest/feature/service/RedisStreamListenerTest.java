@@ -3,14 +3,12 @@ package com.sk.skala.axcalibur.apitest.feature.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk.skala.axcalibur.apitest.feature.code.StreamConstants;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.ApiTaskDto;
 import com.sk.skala.axcalibur.apitest.feature.repository.ApiTestDetailRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.ApiTestRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepository;
-import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepositoryCustom;
 import com.sk.skala.axcalibur.apitest.feature.util.ApiTaskDtoConverter;
 
 import java.util.HashMap;
@@ -51,9 +49,6 @@ class RedisStreamListenerTest {
     private TestcaseRepository tc;
 
     @Mock
-    private TestcaseResultRepositoryCustom trc;
-
-    @Mock
     private ApiTestRepository at;
 
     @Mock
@@ -66,7 +61,7 @@ class RedisStreamListenerTest {
 
     @BeforeEach
     void setUp() {
-        redisStreamListener = new RedisStreamListener(rest, redisTemplate, tr, tc, trc, at, ad, parser);
+        redisStreamListener = new RedisStreamListener(rest, redisTemplate, tr, tc, at, ad, parser);
         when(redisTemplate.opsForStream()).thenReturn(streamOperations);
     }
 
