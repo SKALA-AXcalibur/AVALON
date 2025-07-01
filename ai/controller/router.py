@@ -7,10 +7,9 @@
 from dto.response.apilist.apilist_response import ApiListResponse, ApiItem, ScenarioItem
 from dto.request.apilist.apilist_map_request import convert_scenario_list, convert_api_list
 from service.apilist.state.mapping_state import create_initial_mapping_state
-from service.apilist.graphs.nodes.map_node import map_node
-from service.apilist.graphs.nodes.mapping_generation_node import mapping_generation_node
-from service.apilist.graphs.nodes.mapping_validation_node import mapping_validation_node
-from service.apilist.graphs.nodes.decision_node import decision_node
+from service.apilist.graphs.apilist_graph import create_apilist_graph
+from dto.response.apilist.apilist_validation_response import ApiListValidationResponse
+from dto.request.apilist.common import ApiMappingItem
 from datetime import datetime
 
 import logging
@@ -138,20 +137,17 @@ async def create_api_list(request: Request):
     converted_scenarios = convert_scenario_list(scenario_list)
     converted_apis = convert_api_list(api_list)
 
+    # 초기 상태 생성
     state = create_initial_mapping_state(avalon=avalon)
     state["scenarios"] = converted_scenarios
     state["api_lists"] = converted_apis
 
-    state = map_node(state)
-    state = mapping_generation_node(state)
-    state = mapping_validation_node(state)
-    state = decision_node(state)
-
-    # 설계서 구조에 맞게 응답 가공
-    from dto.response.apilist.apilist_validation_response import ApiListValidationResponse, ApiMappingItem
+    # LangGraph 워크플로우 실행
+    graph = create_apilist_graph()
+    result = await graph.ainvoke(state)
     
     # generated_mapping_table에서 매핑 데이터 가져오기
-    mapping_table = state.get("generated_mapping_table", [])
+    mapping_table = result.get("generated_mapping_table", [])
     api_mapping_list = [
         ApiMappingItem(
             scenarioId=item["scenarioId"],
@@ -167,12 +163,12 @@ async def create_api_list(request: Request):
     ]
 
     # validation_result에서 검증 점수 가져오기
-    validation_result = state.get("validation_result", {})
+    validation_result = result.get("validation_result", {})
     validation_score = validation_result.get("validation_score", 0.0)
     
     # validation_score가 없으면 validationRate에서 가져오기
     if validation_score == 0.0:
-        validation_score = state.get("validationRate", 0.0)
+        validation_score = result.get("validationRate", 0.0)
 
     response = ApiListValidationResponse(
         processedAt=datetime.now().isoformat(),
