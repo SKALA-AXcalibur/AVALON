@@ -21,15 +21,9 @@ def mapping_generation_node(state: MappingState) -> Dict[str, Any]:
         # 매핑표 생성 LLM 호출
         generated_mapping_table = perform_mapping_generation(semantic_mapping, scenarios, api_lists)
 
-        print("=== generated_mapping_table 타입/구조 ===")
-        print(type(generated_mapping_table), generated_mapping_table)
-
         # LLM 응답이 mappings 구조일 경우 apiMapping 구조로 변환
         def convert_llm_mappings_to_api_mapping(mappings, api_list):
-            print("=== convert_llm_mappings_to_api_mapping 진입 ===")
             api_dict = {api.get('id') or api.get('api_id'): api for api in api_list}
-            print("=== api_dict value 예시 ===")
-            print(list(api_dict.values())[0])
             api_mapping = []
             for mapping in mappings:
                 scenario_id = mapping.get('scenario_id')
