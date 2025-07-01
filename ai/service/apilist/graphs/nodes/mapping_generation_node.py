@@ -41,7 +41,7 @@ def mapping_generation_node(state: MappingState) -> Dict[str, Any]:
                         "stepName": "",  # 필요시 추가
                         "apiName": api_info.get("apiName", ""),
                         "description": api_info.get("description", ""),
-                        "uri": api_info.get("uri", ""),
+                        "url": api_info.get("url", ""),
                         "method": api_info.get("method", ""),
                         "parameters": api_info.get("parameters", ""),
                         "responseStructure": api_info.get("responseStructure", "")

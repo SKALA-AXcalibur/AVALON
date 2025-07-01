@@ -7,7 +7,7 @@ class ApiMappingItem(BaseModel):
     stepName: str
     apiName: str
     description: str
-    uri: str
+    url: str
     method: str
     parameters: Dict[str, Any]
     responseStructure: Dict[str, Any]

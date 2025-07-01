@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class ApiItem(BaseModel):
     apiName: str
-    uri: str
+    url: str
     method: str
     description: Optional[str] = None
     parameters: Optional[str] = None

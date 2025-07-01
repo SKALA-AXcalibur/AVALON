@@ -70,7 +70,7 @@ def format_mapping_table_simple(mapping_table: List[Dict]) -> str:
             
         formatted.append(f"""
 {mapping.get('scenarioId')}: {mapping.get('stepName')} -> {mapping.get('apiName')}
-- URI: {mapping.get('uri')} ({mapping.get('method')})
+- URL: {mapping.get('url')} ({mapping.get('method')})
 - 설명: {mapping.get('description', '')[:50]}...
 """)
     return "\n".join(formatted)

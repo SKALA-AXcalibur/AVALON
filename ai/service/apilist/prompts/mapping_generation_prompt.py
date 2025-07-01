@@ -31,7 +31,7 @@ def create_mapping_generation_prompt(semantic_mapping: Dict, scenarios: List[Dic
       "stepName": "프로젝트 생성",
       "apiName": "프로젝트 생성",
       "description": "새 프로젝트 생성 및 쿠키 발급",
-      "uri": "/api/project/create",
+      "url": "/api/project/create",
       "method": "POST",
       "parameters": {{ "projectName": "string" }},
       "responseStructure": {{ "projectId": "string" }}
@@ -97,7 +97,7 @@ API들:
       "stepName": "단계명",
       "apiName": "API명",
       "description": "설명",
-      "uri": "/api/path",
+      "url": "/api/path",
       "method": "POST",
       "parameters": {{}},
       "responseStructure": {{}}

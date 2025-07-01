@@ -78,7 +78,7 @@ def format_apis_for_llm(api_lists: List[Dict]) -> str:
     """API 정보를 LLM용 텍스트로 포맷"""
     formatted = list(map(lambda api: f"""
 - 이름: {api.get('apiName', 'N/A')}
-- uri: {api.get('uri', 'N/A')}
+- url: {api.get('url', 'N/A')}
 - 메서드: {api.get('method', 'N/A')}
 - 설명: {api.get('description', 'N/A')}
 - 파라미터: {api.get('parameters', 'N/A')}

@@ -17,7 +17,7 @@ class ScenarioInput(BaseModel):
 class ApiInput(BaseModel):
     """입력 API 데이터 (다양한 필드명 지원)"""
     apiName: Optional[str] = Field(None, alias="apiName")
-    uri: Optional[str] = Field(None, alias="uri")
+    url: Optional[str] = Field(None, alias="url")
     method: Optional[str] = None
     description: Optional[str] = None
     parameters: Optional[str] = None
@@ -48,7 +48,7 @@ class ApiListMapRequest(BaseModel):
         converted_apis = list(map(lambda api: {
             "apiName": api.apiName,
             "description": api.description,
-            "uri": api.uri,
+            "url": api.url,
             "method": api.method,
             "parameters": api.parameters,
             "responseStructure": api.responseStructure
@@ -76,7 +76,7 @@ def convert_api_list(api_list: List[Dict]) -> List[Dict]:
     """API 리스트를 내부 형식으로 변환"""
     return list(map(lambda a: {
         "apiName": a.get("apiName"),
-        "uri": a.get("uri"),
+        "url": a.get("url"),
         "method": a.get("method"),
         "description": a.get("description"),
         "parameters": a.get("parameters"),

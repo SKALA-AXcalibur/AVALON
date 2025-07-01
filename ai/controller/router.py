@@ -89,7 +89,7 @@ async def create_api_list(request: Request):
             stepName=item["stepName"],
             apiName=item["apiName"],
             description=item["description"],
-            uri=item["uri"],
+            url=item["url"],
             method=item["method"],
             parameters=item["parameters"],
             responseStructure=item["responseStructure"],
