@@ -6,7 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sk.skala.axcalibur.apitest.feature.dto.request.TestcaseResultUpdateDto;
+import com.sk.skala.axcalibur.apitest.feature.dto.request.TestcaseResultUpdateReasonDto;
+import com.sk.skala.axcalibur.apitest.feature.dto.request.TestcaseResultUpdateResultDto;
 import com.sk.skala.axcalibur.apitest.feature.entity.QTestcaseResultEntity;
 import com.sk.skala.axcalibur.apitest.feature.entity.TestcaseEntity;
 import com.sk.skala.axcalibur.apitest.feature.entity.TestcaseResultEntity;
@@ -17,9 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
 
-@Repository
 @Slf4j
 @RequiredArgsConstructor
 public class TestcaseResultRepositoryCustomImpl implements TestcaseResultRepositoryCustom {
@@ -47,7 +46,7 @@ public class TestcaseResultRepositoryCustomImpl implements TestcaseResultReposit
   }
 
   @Override
-  public TestcaseResultEntity update(TestcaseResultEntity entity, TestcaseResultUpdateDto dto) {
+  public TestcaseResultEntity updateResult(TestcaseResultEntity entity, TestcaseResultUpdateResultDto dto) {
     log.info("TestcaseResultRepositoryCustomImpl.update: called for entity with id: {}", entity.getId());
     var result = "";
     var map = new HashMap<String, Object>();
@@ -66,6 +65,21 @@ public class TestcaseResultRepositoryCustomImpl implements TestcaseResultReposit
         .set(testcaseResultEntity.result, result)
         .set(testcaseResultEntity.success, dto.success())
         .set(testcaseResultEntity.time, dto.time())
+        .execute();
+
+    return query.selectFrom(testcaseResultEntity)
+        .where(testcaseResultEntity.id.eq(entity.getId()))
+        .fetchOne();
+  }
+
+  @Override
+  public TestcaseResultEntity updateReason(TestcaseResultEntity entity, TestcaseResultUpdateReasonDto dto) {
+    log.info("TestcaseResultRepositoryCustomImpl.updateReason: called for entity with id: {}", entity.getId());
+
+    query.update(testcaseResultEntity)
+        .where(testcaseResultEntity.id.eq(entity.getId()))
+        .set(testcaseResultEntity.reason, dto.reason())
+        .set(testcaseResultEntity.success, dto.success())
         .execute();
 
     return query.selectFrom(testcaseResultEntity)

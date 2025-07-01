@@ -35,7 +35,7 @@ public class TestcaseResultEntity extends BaseTimeEntity {
   // 테스트케이스 키
   private TestcaseEntity testcase;
 
-  @Column(name = "result", length = 50)
+  @Column(name = "result", length = 50, nullable = true)
   // 수행 결과
   private String result;
 
@@ -44,8 +44,12 @@ public class TestcaseResultEntity extends BaseTimeEntity {
   // 성공 여부
   private Boolean success = null;
 
-  @Column(name = "time")
+  @Column(name = "time", nullable = true)
   // 수행시간
   private Double time;
+
+  @Column(name = "reason", length = 255, nullable = true)
+  // 성공, 실패 특이사항
+  private String reason;
 
 }
