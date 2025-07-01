@@ -1,3 +1,4 @@
+# dto/response/scenario/scenario_response.py
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
@@ -17,8 +18,7 @@ class Scenario(BaseModel):
     scenario_id: str  # 시나리오 고유 아이디
     title: str  # 시나리오 제목
     description: str  # 시나리오 설명
-    validation: str  # 시나리오 검증 포인트트
-    createdAt: Optional[str] = None
+    validation: str  # 시나리오 검증 포인트
     api_list: List[ApiItem]  # 시나리오에서 사용된 API 리스트
 
 

@@ -5,25 +5,28 @@
 @version 1.0
 """
 
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException, Response
 
 from dto.request.scenario.scenario_flow_request import ScenarioFlowRequest
-from service.scenario.agents.scenario_flow_agent import ScenarioFlowAgent
 from dto.request.scenario.scenario_request import ScenarioRequest
+from service.scenario.scenario_flow_agent import ScenarioFlowAgent
 from service.scenario.scenario_flow_storage_service import ScenarioFlowStorageService
-from service.scenario.graphs.scenario_graph import create_scenario_graph
+from service.scenario.scenario_graph import create_scenario_graph
+from state.scenario_state import create_initial_state
 import logging
 
 router = APIRouter()
 
 
 @router.get("/")
-async def read_root() -> JSONResponse:
+async def read_root() -> Response:
     """
     AVALON AI API의 기본 엔드포인트
+
     """
-    return JSONResponse(content={"message": "Welcome to AVALON AI API"})
+    return Response(
+        content={"message": "Welcome to AVALON AI API"}, media_type="application/json"
+    )
 
 
 @router.post("/api/scenario/v1/generate")
@@ -33,44 +36,23 @@ async def generate_scenario(request: ScenarioRequest):
     """
     try:
         graph = create_scenario_graph()
-        state = {
-            "request_data": request, 
-            "attempt_count": 0,
-            "max_attempts": 3,
-            "generated_scenarios": None,
-            "generation_status": "pending",
-            "validation_result": None,
-            "validation_status": "pending",
-            "overall_score": 0,
-            "error_message": None,
-            "has_error": False
-        }
+        # 딕셔너리 상태 생성
+        initial_state = create_initial_state(request)
+        final_state = graph.invoke(initial_state)
 
-        # 워크플로우 실행
-        final_state = graph.invoke(state)
-
-        # 결과 추출
         generated_scenarios = final_state.get("generated_scenarios")
-
         if generated_scenarios is None:
-            error_msg = final_state.get(
-                "error_message", "시나리오 생성에 실패했습니다."
-            )
-            logging.error(
-                f"시나리오 생성 실패 - 프로젝트: {request.project_id}, 오류: {error_msg}"
-            )
-            raise HTTPException(
-                status_code=500, detail=f"Failed to generate scenario. {error_msg}"
-            )
+            error_msg = final_state.get("error_message", "알 수 없는 오류")
+            logging.error(f"시나리오 생성 실패: {error_msg}")
+            raise HTTPException(status_code=500, detail=error_msg)
 
+        # 응답 변환 - ScenarioResponse 객체 자체를 반환
         return generated_scenarios
 
     except HTTPException:
         raise
     except Exception as e:
-        logging.exception(
-            f"시나리오 생성 중 예외 발생"
-        )
+        logging.exception("시나리오 생성 중 예외 발생")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 

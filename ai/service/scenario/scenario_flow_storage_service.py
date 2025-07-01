@@ -2,7 +2,7 @@
 import logging
 from typing import Optional
 from repository.scenario.scenario_repository import ScenarioRepository
-from service.database import get_db_session  # 본인의 DB 세션 가져오는 방법
+from service.database import get_db_session
 
 
 class ScenarioFlowStorageService:
@@ -18,7 +18,6 @@ class ScenarioFlowStorageService:
         - flow_chart: 생성된 흐름도 데이터
         - return: 수정된 시나리오 id
         """
-        from service.database import get_db_session
 
         try:
             with get_db_session() as db_session:
