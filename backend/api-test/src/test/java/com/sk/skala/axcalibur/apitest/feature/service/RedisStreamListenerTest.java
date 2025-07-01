@@ -59,11 +59,14 @@ class RedisStreamListenerTest {
     @Mock
     private ApiTestDetailRepository ad;
 
+    @Mock
+    private ApiTestParserService parser;
+
     private RedisStreamListener redisStreamListener;
 
     @BeforeEach
     void setUp() {
-        redisStreamListener = new RedisStreamListener(rest, redisTemplate, tr, tc, trc, at, ad);
+        redisStreamListener = new RedisStreamListener(rest, redisTemplate, tr, tc, trc, at, ad, parser);
         when(redisTemplate.opsForStream()).thenReturn(streamOperations);
     }
 
