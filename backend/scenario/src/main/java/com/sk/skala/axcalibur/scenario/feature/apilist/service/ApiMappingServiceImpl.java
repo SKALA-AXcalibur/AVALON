@@ -9,9 +9,10 @@ import com.sk.skala.axcalibur.scenario.feature.apilist.dto.ApiDto;
 import com.sk.skala.axcalibur.scenario.feature.apilist.dto.ScenarioDto;
 import com.sk.skala.axcalibur.scenario.feature.apilist.dto.ApiMappingDto;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -21,61 +22,60 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.extern.slf4j.Slf4j;
 
 import com.sk.skala.axcalibur.scenario.feature.apilist.repository.ScenarioRepository;
 import com.sk.skala.axcalibur.scenario.feature.apilist.repository.ApiListRepository;
+import com.sk.skala.axcalibur.scenario.feature.apilist.repository.MappingRepository;
 import com.sk.skala.axcalibur.scenario.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.scenario.global.repository.AvalonCookieRepository;
 import com.sk.skala.axcalibur.scenario.feature.apilist.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.scenario.feature.apilist.entity.ApiListEntity;
-import java.util.stream.Collectors;
-import io.github.cdimascio.dotenv.Dotenv;
+import com.sk.skala.axcalibur.scenario.feature.apilist.entity.MappingEntity;
+
+import jakarta.annotation.PostConstruct;
 
 @Slf4j
 @Service
 public class ApiMappingServiceImpl implements ApiMappingService {
-
-    private final String llmApiUrl;
-    private final String llmApiKey;
-    private final String modelName;
     
     @Value("${fastapi.base-url}")
     private String fastApiBaseUrl;
     
-    @Value("${fastapi.timeout}")
-    private int fastApiTimeout;
+    @Value("${rest.template.connect-timeout}")
+    private int connectTimeout;
     
-    private final RestTemplate restTemplate;
+    @Value("${rest.template.read-timeout}")
+    private int readTimeout;
+    
+    private RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ScenarioRepository scenarioRepository;
     private final ApiListRepository apiListRepository;
+    private final MappingRepository mappingRepository;
     private final AvalonCookieRepository avalonCookieRepository;
 
    public ApiMappingServiceImpl(
                                ScenarioRepository scenarioRepository,
                                ApiListRepository apiListRepository,
+                               MappingRepository mappingRepository,
                                AvalonCookieRepository avalonCookieRepository) {
        this.scenarioRepository = scenarioRepository;
        this.apiListRepository = apiListRepository;
+       this.mappingRepository = mappingRepository;
        this.avalonCookieRepository = avalonCookieRepository;
+   }
 
-       // 여기서 .env 파일의 값을 읽어옴
-       Dotenv dotenv = Dotenv.configure()
-           .load();
-       this.llmApiUrl = dotenv.get("LANGCHAIN_ENDPOINT");
-       this.llmApiKey = dotenv.get("LANGCHAIN_API_KEY");
-       this.modelName = dotenv.get("MODEL_NAME");
-
-       // RestTemplate에 타임아웃 설정 적용
-       HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
-       factory.setConnectTimeout(fastApiTimeout);
-       factory.setReadTimeout(fastApiTimeout);
+   @PostConstruct
+   public void init() {
+       // RestTemplate에 타임아웃 설정 적용 (설정 파일에서 읽어옴)
+       SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+       factory.setConnectTimeout(connectTimeout); // 설정 파일에서 읽어온 값 사용
+       factory.setReadTimeout(readTimeout);       // 설정 파일에서 읽어온 값 사용
        this.restTemplate = new RestTemplate(factory);
    }
 
@@ -87,45 +87,29 @@ public class ApiMappingServiceImpl implements ApiMappingService {
    @Override
    public ApiMappingRequestDto getApiMappingList(String avalon) {
        log.info("API 매핑 요청: {}", avalon);
-    
-       // avalon 토큰으로 프로젝트 조회
-       AvalonCookieEntity avalonCookie = avalonCookieRepository.findByToken(avalon)
-            .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PROJECT_NOT_FOUND));
-
-        Integer projectKey = avalonCookie.getProjectKey();
-
-        
-
-       // 프로젝트 기준으로 시나리오 목록 조회
-       List<ScenarioEntity> scenarios = scenarioRepository.findByProjectKey(projectKey);
-
-       // 프로젝트 기준으로 API 목록 조회
-       List<ApiListEntity> apis = apiListRepository.findByProjectKey(projectKey);
-
-       // 시나리오 목록 → ScenarioDto 변환
-       List<ScenarioDto> scenarioDtos = convertToScenarioDtos(scenarios);
-
-       // API 목록 → ApiDto 변환
-       List<ApiDto> apiDtos = convertToApiDtos(apis);
-
-       // 매핑 요청 데이터 생성
+       
+       // 매핑 요청 데이터 생성 (처리 시간만 반환)
        return new ApiMappingRequestDto();
    }
 
    /**
     * 2. API 매핑 (매핑 요청 ID로 매핑 및 결과 반환)
     * @param request 매핑 요청 데이터 (시나리오 및 API 목록)
+    * @param avalon 프로젝트 ID
     * @return MappingResponseDto 매핑 결과 데이터
     */
    @Override
-   public MappingResponseDto doApiMapping(MappingRequestDto request) throws com.fasterxml.jackson.core.JsonProcessingException, com.fasterxml.jackson.databind.JsonMappingException {
+   public MappingResponseDto doApiMapping(MappingRequestDto request, String avalon) throws com.fasterxml.jackson.core.JsonProcessingException {
        log.info("API 매핑 시작");
 
        // 요청 데이터 검증
        validationRequest(request);
 
        // LLM 매핑 수행
-       MappingResponseDto response = llmMapping(request);
+       MappingResponseDto response = llmMapping(request, avalon);
+
+       // 매핑 결과를 DB에 저장
+       saveMappingResult(response);
 
        return createResponse(response);
    }
@@ -146,11 +130,11 @@ public class ApiMappingServiceImpl implements ApiMappingService {
        log.info("요청 데이터 검증 완료");
    }
 
-   private MappingResponseDto llmMapping(MappingRequestDto request) throws com.fasterxml.jackson.core.JsonProcessingException, com.fasterxml.jackson.databind.JsonMappingException {
+   private MappingResponseDto llmMapping(MappingRequestDto request, String avalon) throws com.fasterxml.jackson.core.JsonProcessingException {
        log.info("FastAPI 매핑 시작");
        
        // FastAPI 서버로 매핑 요청 전송
-       MappingResponseDto response = callFastApiMapping(request);
+       MappingResponseDto response = callFastApiMapping(request, avalon);
        log.info("FastAPI 매핑 완료");
        return response;
    }
@@ -158,13 +142,16 @@ public class ApiMappingServiceImpl implements ApiMappingService {
    /**
     * FastAPI 서버로 매핑 요청을 전송하고 결과를 받아옴
     */
-   private MappingResponseDto callFastApiMapping(MappingRequestDto request) throws com.fasterxml.jackson.core.JsonProcessingException, com.fasterxml.jackson.databind.JsonMappingException {
+   private MappingResponseDto callFastApiMapping(MappingRequestDto request, String avalon) throws com.fasterxml.jackson.core.JsonProcessingException {
        // FastAPI 엔드포인트 URL
        String fastApiUrl = fastApiBaseUrl + "/api/list/v1/create";
        
        // HTTP 헤더 설정
        HttpHeaders headers = new HttpHeaders();
        headers.setContentType(MediaType.APPLICATION_JSON);
+       
+       // avalon 쿠키를 헤더에 추가
+       headers.add("Cookie", "avalon=" + avalon);
        
        // 요청 데이터를 JSON으로 변환
        String requestJson = objectMapper.writeValueAsString(request);
@@ -215,7 +202,7 @@ public class ApiMappingServiceImpl implements ApiMappingService {
        return apis.stream()
            .map(api -> ApiDto.builder()
                .apiName(api.getName())
-               .uri(api.getUri())
+               .url(api.getUrl())
                .method(api.getMethod())
                .description(api.getDescription())
                .build())
@@ -245,4 +232,62 @@ public class ApiMappingServiceImpl implements ApiMappingService {
        return new MappingRequestDto(scenarioDtos, apiDtos);
    }
    
+   private void saveMappingResult(MappingResponseDto response) {
+       log.info("매핑 결과를 DB에 저장합니다.");
+
+       if (response.getApiMapping() == null || response.getApiMapping().isEmpty()) {
+           return;
+       }
+
+       // 1. 필요한 시나리오 ID, API 이름 목록 추출
+       Set<String> scenarioIds = response.getApiMapping().stream()
+           .map(ApiMappingDto::getScenarioId)
+           .collect(Collectors.toSet());
+       Set<String> apiNames = response.getApiMapping().stream()
+           .map(ApiMappingDto::getApiName)
+           .collect(Collectors.toSet());
+
+       // 2. 한 번에 모두 조회 (쿼리 2번)
+       Map<String, ScenarioEntity> scenarioMap = scenarioRepository.findByIdIn(scenarioIds)
+           .stream().collect(Collectors.toMap(ScenarioEntity::getId, java.util.function.Function.identity()));
+       Map<String, ApiListEntity> apiMap = apiListRepository.findByNameIn(apiNames)
+           .stream().collect(Collectors.toMap(ApiListEntity::getName, java.util.function.Function.identity()));
+
+       // 3. 매핑 엔티티 생성 (메모리에서만 처리)
+       List<MappingEntity> mappingEntities = response.getApiMapping().stream()
+           .map(apiMapping -> {
+               ScenarioEntity scenario = scenarioMap.get(apiMapping.getScenarioId());
+               ApiListEntity api = apiMap.get(apiMapping.getApiName());
+               if (scenario == null) {
+                   throw new BusinessExceptionHandler("시나리오를 찾을 수 없습니다: " + apiMapping.getScenarioId(), ErrorCode.NOT_FOUND_ERROR);
+               }
+               if (api == null) {
+                   throw new BusinessExceptionHandler("API를 찾을 수 없습니다: " + apiMapping.getApiName(), ErrorCode.NOT_FOUND_ERROR);
+               }
+               return MappingEntity.builder()
+                   .id(generateMappingId(scenario.getId(), api.getName()))
+                   .step(extractStepNumber(apiMapping.getStepName()))
+                   .scenarioKey(scenario)
+                   .apiListKey(api)
+                   .build();
+           })
+           .collect(Collectors.toList());
+
+       // 4. 한 번에 저장 (쿼리 1번)
+       mappingRepository.saveAll(mappingEntities);
+
+       log.info("매핑 결과 저장 완료");
+   }
+
+   // 매핑 ID 생성
+   private String generateMappingId(String scenarioId, String apiName) {
+       return scenarioId + "_" + apiName;
+   }
+
+   // 단계명에서 숫자 추출
+   private Integer extractStepNumber(String stepName) {
+       if (stepName == null || stepName.isEmpty()) return 1;
+       String numberStr = stepName.replaceAll("[^0-9]", "");
+       return numberStr.isEmpty() ? 1 : Integer.parseInt(numberStr);
+   }
 }
