@@ -1,5 +1,6 @@
 package com.sk.skala.axcalibur.scenario.feature.apilist.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,4 +24,11 @@ public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Intege
      * @return 시나리오
      */
     Optional<ScenarioEntity> findById(String id);
+
+    /** 
+     * 시나리오 ID 목록으로 시나리오 조회
+     * @param ids 시나리오 ID 목록
+     * @return 시나리오 리스트
+     */
+    List<ScenarioEntity> findByIdIn(Collection<String> ids);
 }

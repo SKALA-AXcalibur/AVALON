@@ -1,5 +1,6 @@
 package com.sk.skala.axcalibur.scenario.feature.apilist.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,5 +17,8 @@ public interface ApiListRepository extends JpaRepository<ApiListEntity, Integer>
 
     // 프로젝트별 API 목록 조회
     List<ApiListEntity> findByProjectKey(Integer projectKey);
+
+    // API 이름 목록으로 API 조회
+    List<ApiListEntity> findByNameIn(Collection<String> names);
 
 }
