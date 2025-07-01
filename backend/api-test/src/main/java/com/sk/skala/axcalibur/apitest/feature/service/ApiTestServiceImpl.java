@@ -1,55 +1,192 @@
 package com.sk.skala.axcalibur.apitest.feature.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sk.skala.axcalibur.apitest.feature.code.StreamConstants;
+import com.sk.skala.axcalibur.apitest.feature.dto.request.ApiRequestDataDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.ApiTaskDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.ExcuteTestServiceRequestDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.GetTestCaseResultServiceRequestDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.GetTestResultServiceRequestDto;
+import com.sk.skala.axcalibur.apitest.feature.dto.response.ApiTestExecutionDataDto;
+import com.sk.skala.axcalibur.apitest.feature.dto.response.ParameterWithDataDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.ScenarioResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.TestcaseInfoResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.TestcaseSuccessResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.apitest.feature.entity.TestcaseEntity;
+import com.sk.skala.axcalibur.apitest.feature.entity.TestcaseResultEntity;
+import com.sk.skala.axcalibur.apitest.feature.repository.MappingRepository;
+import com.sk.skala.axcalibur.apitest.feature.repository.ParameterRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.ScenarioRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepository;
-import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepositoryCustom;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepository;
+import com.sk.skala.axcalibur.apitest.feature.util.ApiTaskDtoConverter;
+import com.sk.skala.axcalibur.apitest.global.code.ErrorCode;
+import com.sk.skala.axcalibur.apitest.global.exception.BusinessExceptionHandler;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class ApiTestServiceImpl implements ApiTestService {
   private final TestcaseRepository tc;
   private final TestcaseResultRepository tr;
   private final ScenarioRepository scene;
+  private final MappingRepository mr;
+  private final ParameterRepository pr;
+  private final RedisTemplate<String, Object> redis;
+  private final ObjectMapper mapper;
 
   @Override
   public List<String> excuteTestService(ExcuteTestServiceRequestDto dto) {
-    log.info("ApiTestServiceImpl.excuteTestService() called with dto size: {}", dto.scenarioList()
-        .size());
+    log.info("ApiTestServiceImpl.excuteTestService: called with dto size: {}", dto.scenarioList().size());
     var list = dto.scenarioList();
     if (list.isEmpty()) {
-      log.warn("No scenarios provided for execution.");
-      return List.of();
+      log.warn("ApiTestServiceImpl.excuteTestService: list is empty. No scenarios provided for execution.");
+      throw new BusinessExceptionHandler("No scenarios provided for api-test execution",
+          ErrorCode.SCENARIO_NOT_FOUND_ERROR);
     }
 
-    // TODO: Redis Streams 이용해 비동기 처리 구현하기
+    List<String> processedTestcaseIdList = new ArrayList<>();
 
-    // 시나리오 아이디 리스트와 프로젝트 pk로 시나리오 아이디별 api 목록(매칭표의 단계, pk 추가) 추출
-    // API 목록을 기반으로 파라미터 추출
-    // 테스트케이스 데이터를 가져와 파라미터와 결합해 API 요청 생성
-    // 테스트케이스 ID 기반으로 테스트케이스 결과 칼럼 생성(생성일자은 지금으로 동일하게 고정)
-    // redis stream에 작업 목록 추가
-    // 작업 목록 추가된 테스트케이스 ID 리스트 반환
+    try {
+      // 1. 최적화된 단일 쿼리로 모든 실행 데이터 조회
+      List<ApiTestExecutionDataDto> executionDataList = mr
+          .findExecutionDataByProjectAndScenarios(dto.projectKey(), list);
 
-    return List.of();
+      if (executionDataList.isEmpty()) {
+        log.warn(
+            "ApiTestServiceImpl.excuteTestService: execution data is empty. No data found for project: {} and scenarios: {}",
+            dto.projectKey(), list);
+        throw new BusinessExceptionHandler("No execution data found for project",
+            ErrorCode.INTERNAL_SERVER_ERROR);
+      }
+
+      // 2. 테스트케이스 결과 생성을 위한 데이터 준비
+      List<TestcaseResultEntity> testcaseResultList = new ArrayList<>();
+      Map<Integer, ApiTestExecutionDataDto> executionDataMap = new HashMap<>();
+
+      for (ApiTestExecutionDataDto executionData : executionDataList) {
+        TestcaseResultEntity result = TestcaseResultEntity.builder()
+            .testcase(TestcaseEntity.builder().id(executionData.testcaseId()).build()) // proxy 객체 생성
+            .result("") // 초기값 빈 문자열
+            .success(false) // 초기값 false (대기중/실행중)
+            .time(null) // 초기값 null
+            .reason(null) // 초기값 null
+            .build();
+        testcaseResultList.add(result);
+        executionDataMap.put(executionData.testcaseId(), executionData);
+      }
+
+      // 3. 테스트케이스 결과 저장
+      testcaseResultList = tr.saveAll(testcaseResultList);
+
+      // 4. API 목록과 테스트케이스 ID 추출
+      List<Integer> apiListIds = executionDataList.stream()
+          .map(ApiTestExecutionDataDto::apiListId)
+          .distinct()
+          .toList();
+      List<Integer> testcaseIds = executionDataList.stream()
+          .map(ApiTestExecutionDataDto::testcaseId)
+          .toList();
+
+      // 5. 단일 쿼리로 파라미터와 테스트케이스 데이터 조회
+      List<ParameterWithDataDto> parametersWithData = pr
+          .findParametersWithDataByApiListAndTestcase(apiListIds, testcaseIds);
+
+      // 6. 데이터 그룹핑
+      Map<Integer, List<ParameterWithDataDto>> parametersByTestcase = parametersWithData.stream()
+          .filter(p -> p.testcaseId() != null)
+          .collect(Collectors.groupingBy(ParameterWithDataDto::testcaseId));
+
+      // 7. Redis Stream에 작업 목록 추가
+      for (int i = 0; i < testcaseResultList.size(); i++) {
+        TestcaseResultEntity testcaseResult = testcaseResultList.get(i);
+        Integer testcaseId = testcaseResult.getTestcase().getId();
+        ApiTestExecutionDataDto executionData = executionDataMap.get(testcaseId);
+
+        if (executionData == null) {
+          log.warn("ApiTestServiceImpl.excuteTestService: No execution data found for testcaseId: {}", testcaseId);
+          continue;
+        }
+
+        // 테스트케이스 데이터를 가져와 파라미터와 결합해 API 요청 생성
+        List<ParameterWithDataDto> testcaseParameters = parametersByTestcase.getOrDefault(testcaseId,
+            new ArrayList<>());
+        ApiRequestDataDto requestData = buildTaskData(testcaseParameters);
+
+        MultiValueMap<String, String> reqHeader = requestData.reqHeader();
+        MultiValueMap<String, String> reqQuery = requestData.reqQuery();
+        Map<String, Object> reqBody = requestData.reqBody();
+        Map<String, String> reqPath = requestData.reqPath();
+
+        // 예상 응답 정보 (파라미터에서 추출)
+        MultiValueMap<String, String> resHeader = requestData.resHeader();
+        Map<String, Object> resBody = requestData.resBody();
+
+        // ApiTaskDto 생성
+        ApiTaskDto apiTask = ApiTaskDto.builder()
+            .id(executionData.mappingId())
+            .testcaseId(testcaseId)
+            .resultId(testcaseResult.getId())
+            .precondition(executionData.precondition())
+            .step(executionData.step())
+            .attempt(1) // 초기 시도 횟수
+            .method(executionData.method())
+            .uri(executionData.url())
+            .reqHeader(reqHeader)
+            .reqBody(reqBody)
+            .reqQuery(reqQuery)
+            .reqPath(reqPath)
+            .statusCode(executionData.status())
+            .resHeader(resHeader)
+            .resBody(resBody)
+            .build();
+
+        // Redis Stream에 메시지 추가
+        var dataMap = ApiTaskDtoConverter.toMap(apiTask);
+        var record = MapRecord.create(StreamConstants.STREAM_KEY, dataMap);
+        var recordId = redis.opsForStream().add(record);
+
+        if (recordId != null) {
+          processedTestcaseIdList.add(executionData.testcaseStringId());
+          log.debug("ApiTestServiceImpl.excuteTestService: Added task to Redis Stream: testcaseId={}, recordId={}",
+              executionData.testcaseStringId(), recordId);
+        } else {
+          log.error("ApiTestServiceImpl.excuteTestService: Failed to add task to Redis Stream for testcaseId: {}",
+              executionData.testcaseStringId());
+        }
+      }
+
+      log.info("ApiTestServiceImpl.excuteTestService: Successfully processed {} testcases for scenarios: {}",
+          processedTestcaseIdList.size(), list);
+
+    } catch (Exception e) {
+      log.error("ApiTestServiceImpl.excuteTestService: Error processing test execution for scenarios: {}", list, e);
+      throw new BusinessExceptionHandler("Error processing test execution", ErrorCode.INTERNAL_SERVER_ERROR, e);
+    }
+
+    return processedTestcaseIdList;
   }
 
   /**
@@ -92,9 +229,10 @@ public class ApiTestServiceImpl implements ApiTestService {
           String success;
 
           if (list.stream().anyMatch(t -> Boolean.FALSE.equals(t.success()))) {
+            // false인 경우에는 time 값으로 실행중/실패 구분 필요
+            // 하지만 TestcaseSuccessResponseDto에는 time이 없으므로 다른 방식 필요
+            // 일단 false가 있으면 실패로 처리 (실제로는 더 정교한 로직 필요)
             success = "실패";
-          } else if (list.stream().anyMatch(t -> t.success() == null)) {
-            success = "실행중";
           } else {
             success = "성공";
           }
@@ -151,7 +289,8 @@ public class ApiTestServiceImpl implements ApiTestService {
 
           if (!trMap.containsKey(id)) {
             isSuccess = "준비중";
-          } else if (trMap.get(id).getSuccess() == null) {
+          } else if (trMap.get(id).getTime() == null) {
+            // time이 null이면 아직 실행중 (초기 상태)
             isSuccess = "실행중";
           } else if (trMap.get(id).getSuccess()) {
             isSuccess = "성공";
@@ -171,5 +310,302 @@ public class ApiTestServiceImpl implements ApiTestService {
               .excutedTime(time)
               .build();
         }).toList();
+  }
+
+  /**
+   * API 요청/응답 데이터를 생성합니다.
+   * 조인된 데이터를 사용하여 N+1 문제를 피합니다.
+   * 
+   * @param parametersWithData 파라미터와 테스트케이스 데이터가 조인된 목록
+   * @return API 요청/응답에 필요한 데이터를 담은 DTO
+   */
+  @Override
+  public ApiRequestDataDto buildTaskData(List<ParameterWithDataDto> parametersWithData) {
+    log.info("ApiTestServiceImpl.buildOptimizedTaskData: Building request data with {} parameters",
+        parametersWithData.size());
+
+    // 요청 데이터 초기화
+    MultiValueMap<String, String> reqHeader = new LinkedMultiValueMap<>();
+    MultiValueMap<String, String> reqQuery = new LinkedMultiValueMap<>();
+    Map<String, Object> reqBody = new HashMap<>();
+    Map<String, String> reqPath = new HashMap<>();
+
+    // 응답 데이터 초기화
+    MultiValueMap<String, String> resHeader = new LinkedMultiValueMap<>();
+    Map<String, Object> resBody = new HashMap<>();
+
+    // 파라미터 계층 구조를 위한 Map들
+    Map<Integer, ParameterWithDataDto> parameterMap = new HashMap<>();
+    Map<Integer, List<ParameterWithDataDto>> childrenMap = new HashMap<>();
+
+    // 1. 파라미터 맵 구성 및 부모-자식 관계 정리
+    for (ParameterWithDataDto param : parametersWithData) {
+      parameterMap.put(param.parameterId(), param);
+
+      if (param.parentId() != null) {
+        childrenMap.computeIfAbsent(param.parentId(), k -> new ArrayList<>()).add(param);
+      }
+    }
+
+    // 2. 루트 파라미터들(parent가 null인 것들)부터 처리
+    List<ParameterWithDataDto> rootParameters = parametersWithData.stream()
+        .filter(param -> param.parentId() == null)
+        .toList();
+
+    for (ParameterWithDataDto parameter : rootParameters) {
+      processParameter(parameter, parameterMap, childrenMap, reqHeader, reqQuery, reqBody, reqPath, resHeader,
+          resBody, null);
+    }
+
+    log.debug(
+        "ApiTestServiceImpl.buildOptimizedTaskData: Built request data - ReqHeader: {}, ReqQuery: {}, ReqBody: {}, ReqPath: {}",
+        reqHeader, reqQuery, reqBody, reqPath);
+    log.debug("ApiTestServiceImpl.buildOptimizedTaskData: Built response data - ResHeader: {}, ResBody: {}", resHeader,
+        resBody);
+
+    return new ApiRequestDataDto(reqHeader, reqQuery, reqBody, reqPath, resHeader, resBody);
+  }
+
+  /**
+   * 최적화된 방식으로 파라미터를 재귀적으로 처리합니다.
+   */
+  private void processParameter(ParameterWithDataDto parameter,
+      Map<Integer, ParameterWithDataDto> parameterMap,
+      Map<Integer, List<ParameterWithDataDto>> childrenMap,
+      MultiValueMap<String, String> reqHeader, MultiValueMap<String, String> reqQuery,
+      Map<String, Object> reqBody, Map<String, String> reqPath,
+      MultiValueMap<String, String> resHeader, Map<String, Object> resBody,
+      String parentPath) {
+
+    String paramName = parameter.parameterName();
+    String fullParamName = parentPath != null ? parentPath + "." + paramName : paramName;
+    String categoryName = parameter.categoryName().toLowerCase();
+    String contextName = parameter.contextName().toLowerCase();
+    String dataType = parameter.dataType() != null ? parameter.dataType().toLowerCase() : "string";
+
+    log.debug(
+        "ApiTestServiceImpl.processOptimizedParameter: Processing Parameter: {}, FullPath: {}, Category: {}, Context: {}, DataType: {}",
+        paramName, fullParamName, categoryName, contextName, dataType);
+
+    Object processedValue = null;
+
+    if ("array".equals(dataType)) {
+      processedValue = processArrayParameter(parameter, parameterMap, childrenMap, parentPath);
+    } else if ("object".equals(dataType)) {
+      processedValue = processObjectParameter(parameter, parameterMap, childrenMap, parentPath);
+    } else if (parameter.value() != null) {
+      processedValue = convertValueByDataType(parameter.value(), dataType);
+    }
+
+    // 값이 있는 경우에만 적절한 위치에 배치
+    if (processedValue != null) {
+      String targetParamName = parentPath != null ? fullParamName : paramName;
+
+      if ("request".equals(categoryName)) {
+        placeRequestValue(contextName, targetParamName, processedValue, reqHeader, reqQuery, reqBody, reqPath);
+      } else if ("response".equals(categoryName)) {
+        placeResponseValue(contextName, targetParamName, processedValue, resHeader, resBody);
+      } else {
+        // category가 명시되지 않은 경우 request로 처리
+        placeRequestValue(contextName, targetParamName, processedValue, reqHeader, reqQuery, reqBody, reqPath);
+      }
+    } else {
+      log.debug("ApiTestServiceImpl.processOptimizedParameter: No test data found for parameter: {}", fullParamName);
+    }
+  }
+
+  /**
+   * 최적화된 방식으로 Array 타입 파라미터를 처리합니다.
+   */
+  private Object processArrayParameter(ParameterWithDataDto parameter,
+      Map<Integer, ParameterWithDataDto> parameterMap,
+      Map<Integer, List<ParameterWithDataDto>> childrenMap,
+      String parentPath) {
+    log.info("ApiTestServiceImpl.processOptimizedArrayParameter: Processing array parameter: {}",
+        parameter.parameterName());
+
+    List<Object> arrayList = new ArrayList<>();
+    List<ParameterWithDataDto> children = childrenMap.get(parameter.parameterId());
+
+    if (children != null && !children.isEmpty()) {
+      for (ParameterWithDataDto child : children) {
+        if ("object".equals(child.dataType())) {
+          Object childObject = processObjectParameter(child, parameterMap, childrenMap, parentPath);
+          if (childObject instanceof Map && !((Map<?, ?>) childObject).isEmpty()) {
+            arrayList.add(childObject);
+          }
+        } else {
+          if (child.value() != null) {
+            Object childValue = convertValueByDataType(child.value(), child.dataType());
+            arrayList.add(childValue);
+          }
+        }
+      }
+    } else {
+      // 자식이 없는 경우 직접 값을 배열로 처리
+      if (parameter.value() != null) {
+        String[] values = parameter.value().split(",");
+        for (String value : values) {
+          arrayList.add(value.trim());
+        }
+      }
+    }
+
+    return arrayList.isEmpty() ? null : arrayList;
+  }
+
+  /**
+   * 최적화된 방식으로 Object 타입 파라미터를 처리합니다.
+   */
+  private Object processObjectParameter(ParameterWithDataDto parameter,
+      Map<Integer, ParameterWithDataDto> parameterMap,
+      Map<Integer, List<ParameterWithDataDto>> childrenMap,
+      String parentPath) {
+    log.info("ApiTestServiceImpl.processOptimizedObjectParameter: Processing object parameter: {}",
+        parameter.parameterName());
+
+    Map<String, Object> objectMap = new HashMap<>();
+    String currentPath = parentPath != null ? parentPath + "." + parameter.parameterName() : parameter.parameterName();
+    List<ParameterWithDataDto> children = childrenMap.get(parameter.parameterId());
+
+    if (children != null && !children.isEmpty()) {
+      for (ParameterWithDataDto child : children) {
+        String childDataType = child.dataType() != null ? child.dataType().toLowerCase() : "string";
+
+        if ("array".equals(childDataType)) {
+          Object arrayValue = processArrayParameter(child, parameterMap, childrenMap, currentPath);
+          if (arrayValue != null) {
+            objectMap.put(child.parameterName(), arrayValue);
+          }
+        } else if ("object".equals(childDataType)) {
+          Object childObject = processObjectParameter(child, parameterMap, childrenMap, currentPath);
+          if (childObject != null) {
+            objectMap.put(child.parameterName(), childObject);
+          }
+        } else {
+          if (child.value() != null) {
+            Object childValue = convertValueByDataType(child.value(), childDataType);
+            objectMap.put(child.parameterName(), childValue);
+          }
+        }
+      }
+    } else {
+      // 자식이 없는 경우 JSON 문자열로 파싱 시도
+      if (parameter.value() != null) {
+        try {
+          objectMap = mapper.readValue(parameter.value(), new TypeReference<Map<String, Object>>() {
+          });
+        } catch (IOException e) {
+          log.warn(
+              "ApiTestServiceImpl.processOptimizedObjectParameter: Failed to parse JSON for parameter: {}, value: {}",
+              parameter.parameterName(), parameter.value());
+          objectMap.put(parameter.parameterName(), parameter.value());
+        }
+      }
+    }
+
+    return objectMap.isEmpty() ? null : objectMap;
+  }
+
+  /**
+   * 요청 데이터에 값을 배치합니다.
+   */
+  private void placeRequestValue(String contextName, String paramName, Object value,
+      MultiValueMap<String, String> reqHeader, MultiValueMap<String, String> reqQuery,
+      Map<String, Object> reqBody, Map<String, String> reqPath) {
+    log.info("ApiTestServiceImpl.placeRequestValue: Placing value for context: {}, paramName: {}, value: {}",
+        contextName, paramName, value);
+    switch (contextName) {
+      case "header":
+        reqHeader.add(paramName, value.toString());
+        break;
+      case "query":
+        reqQuery.add(paramName, value.toString());
+        break;
+      case "body":
+        reqBody.put(paramName, value);
+        break;
+      case "path":
+        reqPath.put(paramName, value.toString());
+        break;
+      case "session":
+      case "cookie":
+        reqHeader.add("Cookie", paramName + "=" + value.toString());
+        break;
+      default:
+        log.warn("ApiTestServiceImpl.placeRequestValue: Unknown request context: {} for parameter: {}",
+            contextName, paramName);
+        break;
+    }
+  }
+
+  /**
+   * 응답 데이터에 값을 배치합니다.
+   */
+  private void placeResponseValue(String contextName, String paramName, Object value,
+      MultiValueMap<String, String> resHeader, Map<String, Object> resBody) {
+    log.info("ApiTestServiceImpl.placeResponseValue: Placing value for context: {}, paramName: {}, value: {}",
+        contextName, paramName, value);
+    // 응답 데이터는 header와 body만 처리
+    switch (contextName) {
+      case "header":
+        resHeader.add(paramName, value.toString());
+        break;
+      case "body":
+        resBody.put(paramName, value);
+        break;
+      case "query":
+      case "path":
+        log.debug("ApiTestServiceImpl.placeResponseValue: Ignoring response {} parameter: {}", contextName, paramName);
+        break;
+      default:
+        log.warn("ApiTestServiceImpl.placeResponseValue: Unknown response context: {} for parameter: {}",
+            contextName, paramName);
+        break;
+    }
+  }
+
+  /**
+   * 데이터 타입에 따라 문자열 값을 적절한 타입으로 변환합니다.
+   * 
+   * @param value    변환할 문자열 값
+   * @param dataType 목표 데이터 타입
+   * @return 변환된 값
+   */
+  @Override
+  public Object convertValueByDataType(String value, String dataType) {
+    log.info("ApiTestServiceImpl.convertValueByDataType: Converting value '{}' to type '{}'", value, dataType);
+    if (value == null || value.trim().isEmpty()) {
+      return value;
+    }
+
+    try {
+      switch (dataType.toLowerCase()) {
+        case "bigdecimal":
+          return new BigDecimal(value);
+        case "integer":
+        case "int":
+          return Integer.parseInt(value);
+        case "long":
+          return Long.parseLong(value);
+        case "double":
+          return Double.parseDouble(value);
+        case "float":
+          return Float.parseFloat(value);
+        case "boolean":
+          return Boolean.parseBoolean(value);
+        case "array":
+          // 배열은 쉼표로 구분된 문자열로 가정
+          return value.split(",");
+        case "object":
+        case "string":
+        default:
+          return value;
+      }
+    } catch (NumberFormatException e) {
+      log.warn("ApiTestServiceImpl.convertValueByDataType: Failed to convert value '{}' to type '{}', using as string",
+          value, dataType);
+      return value;
+    }
   }
 }
