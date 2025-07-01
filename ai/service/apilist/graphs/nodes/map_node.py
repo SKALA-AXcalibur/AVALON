@@ -1,17 +1,8 @@
 import logging
-import requests
 from typing import Dict, Any
-import os
-from dotenv import load_dotenv
 
 from service.apilist.state.mapping_state import MappingState, update_map_success, update_map_failed
 from service.apilist.agents.map_agent import perform_semantic_mapping
-
-# .env 파일 로드
-load_dotenv()
-
-# Java 백엔드 API 설정
-JAVA_API_BASE_URL = os.getenv('JAVA_API_BASE_URL', 'http://localhost:8080')
 
 
 def map_node(state: MappingState) -> Dict[str, Any]:
@@ -45,16 +36,3 @@ def map_node(state: MappingState) -> Dict[str, Any]:
         logging.error(f"의미적 매핑 노드 에러: {str(e)}")
         return update_map_failed(state, f"의미적 매핑 실행 중 오류: {str(e)}")
 
-
-def get_mapping_data_from_backend(avalon: str) -> Dict[str, Any]:
-    """백엔드의 기존 매핑 API 호출"""
-    try:
-        # 백엔드의 getApiMappingList API 호출
-        response = requests.get(f"{JAVA_API_BASE_URL}/api/list/v1/mapping", 
-                              params={'avalon': avalon})
-        if response.status_code == 200:
-            return response.json()
-        return None
-    except Exception as e:
-        logging.error(f"백엔드 매핑 데이터 조회 에러: {str(e)}")
-        return None
