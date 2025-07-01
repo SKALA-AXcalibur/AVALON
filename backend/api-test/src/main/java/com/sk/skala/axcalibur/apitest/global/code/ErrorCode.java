@@ -83,7 +83,8 @@ public enum ErrorCode {
 
 	SCENARIO_NOT_FOUND_ERROR(404, "TR001", "시나리오를 찾을 수 없음"),
 	DESERIALIZE_ERROR(400, "TR002", "ApiTaskDto 역직렬화 실패"),
-	UNVALID_TESTCASE_ERROR(404, "TR003", "유효하지 않은 테스트 케이스")
+	UNVALID_TESTCASE_ERROR(404, "TR003", "유효하지 않은 테스트 케이스"),
+	PRECONDITION_PARSE_ERROR(500, "TR004", "사전 조건 파싱 실패")
 
 	; // End
 
