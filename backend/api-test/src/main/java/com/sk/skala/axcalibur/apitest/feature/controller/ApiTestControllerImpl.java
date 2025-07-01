@@ -7,6 +7,7 @@ import com.sk.skala.axcalibur.apitest.feature.dto.request.GetTestResultServiceRe
 import com.sk.skala.axcalibur.apitest.feature.dto.response.ApiTestCaseResultResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.ApiTestResultResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.EmptyResponseDto;
+import com.sk.skala.axcalibur.apitest.feature.dto.response.ExcuteApiTestResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.service.ApiTestService;
 import com.sk.skala.axcalibur.apitest.feature.service.AvalonCookieService;
 import com.sk.skala.axcalibur.apitest.feature.service.ScenarioService;
@@ -30,24 +31,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/test/v1")
-public class ApiTestControllerImpl implements ApiTestController{
+public class ApiTestControllerImpl implements ApiTestController {
 
   private final ApiTestService svc;
   private final ScenarioService scene;
   private final AvalonCookieService cookie;
 
-
   /**
    * IF-AT-0001
    * API 테스트 실행
    * 시나리오 목록을 받아 API 테스트를 실행한다.
-   * @param dto API 테스트 요청 DTO
+   * 
+   * @param dto    API 테스트 요청 DTO
    * @param avalon 쿠키 값
    * @return 200 OK
    */
   @PostMapping("/run")
   @Override
-  public ResponseEntity<SuccessResponse<EmptyResponseDto>> executeApiTest(
+  public ResponseEntity<SuccessResponse<ExcuteApiTestResponseDto>> executeApiTest(
       @Valid @RequestBody ExcuteApiTestRequestDto dto,
       @CookieValue(name = "avalon") String avalon) {
     log.info("ApiTestControllerImpl.executeApiTest() called with avalon: {}", avalon);
@@ -57,15 +58,15 @@ public class ApiTestControllerImpl implements ApiTestController{
 
     // excute svc
     var req = ExcuteTestServiceRequestDto.builder()
-            .projectKey(key)
-            .scenarioList(dto.scenarioList())
-            .build();
+        .projectKey(key)
+        .scenarioList(dto.scenarioList())
+        .build();
     var list = svc.excuteTestService(req);
-    
-    // TODO: Redis Streams 이용해서 테스트 비동기 처리
 
     // return
-    var res = EmptyResponseDto.builder().build();
+    var res = ExcuteApiTestResponseDto.builder()
+        .testcaseIdList(list)
+        .build();
     return ResponseEntity.ok(new SuccessResponse<>(res, SuccessCode.SELECT_SUCCESS, ""));
   }
 
@@ -73,9 +74,10 @@ public class ApiTestControllerImpl implements ApiTestController{
    * IF-AT-0002
    * 시나리오별 테스트 결과 조회
    * 프로젝트의 전체 시나리오의 테스트 성공 여부를 조회한다.
+   * 
    * @param avalon 쿠키 값
    * @param cursor 커서
-   * @param size 페이지 크기
+   * @param size   페이지 크기
    * @return 200 OK
    */
   @GetMapping("/result")
@@ -110,20 +112,22 @@ public class ApiTestControllerImpl implements ApiTestController{
    * IF-AT-0003
    * 테스트케이스 별 테스트 결과 조회
    * 특정 시나리오의 테스트케이스 실행 결과를 조회한다.
-   * @param avalon 쿠키 값
+   * 
+   * @param avalon     쿠키 값
    * @param scenarioId 시나리오 ID
-   * @param cursor 커서
-   * @param size 페이지 크기
+   * @param cursor     커서
+   * @param size       페이지 크기
    * @return 200 OK
    */
   @GetMapping("/result/{scenarioId}")
   @Override
   public ResponseEntity<SuccessResponse<?>> getApiTestCaseResult(
-      @Parameter(hidden = true)  @CookieValue(name = "avalon") String avalon,
+      @Parameter(hidden = true) @CookieValue(name = "avalon") String avalon,
       @Parameter(required = true) @PathVariable("scenarioId") String scenarioId,
       @Parameter(required = false) @RequestParam(name = "cursor") String cursor,
       @Parameter(required = false) @RequestParam(name = "size") Integer size) {
-    log.info("ApiTestControllerImpl.getApiTestCaseResult() called with scenarioId: {}, cursor: {}, size: {}", scenarioId, cursor, size);
+    log.info("ApiTestControllerImpl.getApiTestCaseResult() called with scenarioId: {}, cursor: {}, size: {}",
+        scenarioId, cursor, size);
 
     // validate cookie
     var entity = cookie.findByToken(avalon);
