@@ -22,10 +22,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
-@TestPropertySource(properties = {"spring.data.redis.host=localhost", "spring.data.redis.port=6379",
-        "logging.level.com.sk.skala.axcalibur.apitest.feature.service.RedisStreamListener=WARN"})
+@TestPropertySource(properties = { "spring.data.redis.host=localhost", "spring.data.redis.port=6379",
+        "logging.level.com.sk.skala.axcalibur.apitest.feature.service.RedisStreamListener=WARN" })
 @DisplayName("Redis Streams 성능 테스트")
-@EnabledIfSystemProperty(named = "performance.test", matches = "true")
+@EnabledIfSystemProperty(named = "performance", matches = "true")
 class RedisStreamPerformanceTest {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
@@ -202,8 +202,7 @@ class RedisStreamPerformanceTest {
 
         // When
         for (int i = 0; i < messageCount; i++) {
-            ApiTaskDto apiTaskDto =
-                    createApiTaskDto("GET", "https://httpbin.org/get", null, null, i);
+            ApiTaskDto apiTaskDto = createApiTaskDto("GET", "https://httpbin.org/get", null, null, i);
             var dataMap = ApiTaskDtoConverter.toMap(apiTaskDto);
             var record = MapRecord.create(StreamConstants.STREAM_KEY, dataMap);
             redisTemplate.opsForStream().add(record);
@@ -231,9 +230,22 @@ class RedisStreamPerformanceTest {
      */
     private ApiTaskDto createApiTaskDto(String method, String uri, Object headers, Object body,
             int messageId) {
-        return ApiTaskDto.builder().id(messageId).resultId(messageId + 10000)
-                .precondition("Performance test - " + messageId).step(1).attempt(1).method(method)
-                .uri(uri).reqHeader(null).reqBody(null).statusCode(2) // 2XX 응답 기대
-                .resHeader(null).resBody(null).build();
+        return ApiTaskDto.builder()
+                .id(messageId)
+                .testcaseId(messageId + 1000)
+                .resultId(messageId + 10000)
+                .precondition("Performance test - " + messageId)
+                .step(1)
+                .attempt(1)
+                .method(method)
+                .uri(uri)
+                .reqHeader(new org.springframework.util.LinkedMultiValueMap<>())
+                .reqBody(new java.util.HashMap<>())
+                .reqQuery(new org.springframework.util.LinkedMultiValueMap<>())
+                .reqPath(new java.util.HashMap<>())
+                .statusCode(2) // 2XX 응답 기대
+                .resHeader(new org.springframework.util.LinkedMultiValueMap<>())
+                .resBody(new java.util.HashMap<>())
+                .build();
     }
 }
