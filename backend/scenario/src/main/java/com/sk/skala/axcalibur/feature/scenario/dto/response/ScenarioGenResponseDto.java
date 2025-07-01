@@ -18,5 +18,5 @@ import java.util.List;
 public class ScenarioGenResponseDto {
     
     private List<ScenarioListResponse> scenarioList; // 시나리오 리스트
-    private int total;                 // 총 시나리오 개수
+    private Integer total;                 // 총 시나리오 개수
 } 
