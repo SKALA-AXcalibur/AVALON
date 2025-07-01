@@ -1,16 +1,8 @@
-from typing import List, Dict, Any
+from typing import List
 from pydantic import BaseModel
 from datetime import datetime
+from dto.request.apilist.common import ApiMappingItem
 
-class ApiMappingItem(BaseModel):
-    scenarioId: str
-    stepName: str
-    apiName: str
-    description: str
-    url: str
-    method: str
-    parameters: Dict[str, Any]
-    responseStructure: Dict[str, Any]
 
 class ApiListMapResponse(BaseModel):
     processedAt: datetime
