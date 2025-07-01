@@ -33,8 +33,8 @@ public class ApiListEntity extends BaseTimeEntity {
     @Column(name = "name", nullable = false, length = 20)
     private String name;                 // API 목록 명 (NOT NULL, 최대 20자)
 
-    @Column(name = "uri", nullable = false, length = 50)
-    private String uri;                  // API 목록 URL (NOT NULL, 최대 50자)
+    @Column(name = "url", nullable = false, length = 50)
+    private String url;                  // API 목록 URL (NOT NULL, 최대 50자)
 
     @Column(name = "path", nullable = false, length = 100)
     private String path;                 // API 목록 경로 (NOT NULL, 최대 100자)
