@@ -1,5 +1,7 @@
 package com.sk.skala.axcalibur.feature.scenario.dto.response.item;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

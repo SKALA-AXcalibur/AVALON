@@ -12,8 +12,7 @@ import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioGenRequestDto
 import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ApiItem;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.item.ReqItem;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.item.ScenarioItem;            
-import com.sk.skala.axcalibur.feature.scenario.entity.RequestEntity;
-import com.sk.skala.axcalibur.feature.scenario.repository.RequestRepository;
+import com.sk.skala.axcalibur.global.entity.RequestEntity;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.entity.ApiListEntity;
 import com.sk.skala.axcalibur.global.entity.ProjectEntity;
@@ -21,6 +20,7 @@ import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.global.repository.ApiListRepository;
 import com.sk.skala.axcalibur.global.repository.ProjectRepository;
+import com.sk.skala.axcalibur.global.repository.RequestRepository;
 import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
 
 import lombok.RequiredArgsConstructor;

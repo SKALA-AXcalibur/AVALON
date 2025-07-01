@@ -11,7 +11,7 @@ import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioResponseDto;
  * ScenarioGenClient - OpenFeign 인터페이스
  * FastAPI로 시나리오 생성 요청을 전송하고 응답을 받는 클라이언트
  */
-@FeignClient(name = "scenGenerator", contextId = "scenGenerator", url = "${project.api.fastapi.base-url}")
+@FeignClient(name = "scenGenerator", contextId = "scenGenerator", url = "${external.fastapi.url}")
 public interface ScenarioGenClient {
     
     /**

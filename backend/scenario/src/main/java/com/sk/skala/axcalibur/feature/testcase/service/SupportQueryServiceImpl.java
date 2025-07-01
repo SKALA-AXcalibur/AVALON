@@ -9,13 +9,13 @@ import com.sk.skala.axcalibur.feature.testcase.dto.request.ApiParamDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.ApiListDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.ApiListResponse;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.ApiParamListResponse;
-import com.sk.skala.axcalibur.feature.testcase.repository.ApiListRepository;
-import com.sk.skala.axcalibur.feature.testcase.repository.MappingRepository;
-import com.sk.skala.axcalibur.feature.testcase.repository.ParameterRepository;
+import com.sk.skala.axcalibur.global.repository.ApiListRepository;
+import com.sk.skala.axcalibur.global.repository.MappingRepository;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.entity.ApiListEntity;
 import com.sk.skala.axcalibur.global.entity.ParameterEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
+import com.sk.skala.axcalibur.global.repository.ParameterRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
