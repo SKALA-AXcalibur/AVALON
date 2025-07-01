@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
@@ -16,6 +17,7 @@ public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Intege
     Optional<ScenarioEntity> findByScenarioId(String scenarioId);
     
     // 시나리오 ID 중 최대 번호 조회 (scenario-001 형식에서 001 부분의 최대값)
+    @Query("SELECT MAX(s.scenarioId) FROM ScenarioEntity s")
     String findMaxScenarioId();
 }
 

@@ -11,7 +11,7 @@ import com.sk.skala.axcalibur.global.entity.ApiListEntity;
 public interface ApiListRepository extends JpaRepository<ApiListEntity, Integer> {
 
     // 프로젝트 키로 API 목록 조회
-    List<ApiListEntity> findByProjectKey(Integer projectKey);
+    List<ApiListEntity> findByProjectKey_Id(Integer projectKey);
 }
 
 

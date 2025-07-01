@@ -1,19 +1,22 @@
 package com.sk.skala.axcalibur.feature.scenario.dto.response;
 
+import java.util.List;
+
+import com.sk.skala.axcalibur.feature.scenario.dto.response.item.ScenarioItem;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * 시나리오 목록 응답 DTO
+ * FastAPI 시나리오 생성 응답 DTO
  */
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScenarioListResponse {
+public class ScenarioResponseDto {
     
-    private String scenarioId;    // 시나리오 ID
-    private String name;          // 시나리오 이름
-}
+    private List<ScenarioItem> scenarioList;
+} 

@@ -9,7 +9,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioGenResponseDto;
+import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioResponseDto;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 
@@ -49,9 +49,9 @@ public class ScenarioGenClient {
     /**
      * FastAPI로 시나리오 생성 요청 전송하고 응답 받기
      * @param requestBody 전송할 요청 데이터 (camelCase)
-     * @return FastAPI 응답을 ScenarioGenResponseDto로 반환
+     * @return FastAPI 응답을 ScenarioResponseDto로 반환
      */
-    public ScenarioGenResponseDto sendInfoAndGetResponse(Object requestBody) {
+    public ScenarioResponseDto sendInfoAndGetResponse(Object requestBody) {
         try {
             //  camelCase 객체 → snake_case JSON 문자열
             String jsonBody = requestMapper.writeValueAsString(requestBody);
@@ -71,7 +71,7 @@ public class ScenarioGenClient {
             }
             
             //: snake_case JSON → 객체 → camelCase JSON 변환
-            return responseMapper.readValue(fastApiResponse, ScenarioGenResponseDto.class);
+            return responseMapper.readValue(fastApiResponse, ScenarioResponseDto.class);
             
         } catch (WebClientResponseException e) {
             // 4xx/5xx HTTP 오류

@@ -11,6 +11,6 @@ import java.util.List;
 public interface RequestRepository extends JpaRepository<RequestEntity, Integer> {
     
     // 프로젝트 키로 요구사항 목록 조회
-    List<RequestEntity> findByProjectKey(Integer projectKey);
+    List<RequestEntity> findByProjectKey_Id(Integer projectKey);
 }
 
