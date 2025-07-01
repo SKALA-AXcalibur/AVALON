@@ -68,8 +68,8 @@ def perform_semantic_mapping(scenarios: List[Dict], api_lists: List[Dict]) -> Di
             print(f"첫 번째 API: {api_lists[0]}")
         print("========================")
         
-        # 배치 크기 설정 (시나리오 2개씩 처리)
-        batch_size = 2
+        # 배치 크기 설정 (시나리오 5개씩 처리)
+        batch_size = 5
         all_mappings = []
         total_confidence = 0.0
         batch_count = 0
