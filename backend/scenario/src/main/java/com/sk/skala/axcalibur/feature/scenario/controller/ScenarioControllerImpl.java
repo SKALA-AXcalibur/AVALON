@@ -61,15 +61,13 @@ public class ScenarioControllerImpl implements ScenarioController {
     @Override
     @GetMapping("/scenario/v1/project")
     public ResponseEntity<ScenarioListDto> getScenarioList(
-        @CookieValue("avalon") String key,
-        @RequestParam (value = "offset", defaultValue = "0") Integer offset,
-        @RequestParam (value = "query", defaultValue = "10") Integer query) {
+        @CookieValue("avalon") String key) {
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
         ProjectContext projectContext = projectIdResolverService.resolveProjectId(key);
         Integer projectKey = projectContext.getKey();
 
         // 시나리오 목록 조회
-        ScenarioListDto scenarioList = scenarioListService.getScenarioList(projectKey, offset, query);
+        ScenarioListDto scenarioList = scenarioListService.getScenarioList(projectKey);
         
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();

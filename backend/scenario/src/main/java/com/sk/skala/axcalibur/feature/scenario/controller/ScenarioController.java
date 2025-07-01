@@ -32,14 +32,11 @@ public interface ScenarioController {
     /**
      * 프로젝트별 시나리오 목록 조회
      * @param key 프로젝트 인증 쿠키
-     * @param requestDto 시나리오 목록 요청 DTO
      * @return 시나리오 목록 응답
      */
     @GetMapping("/scenario/v1/project")
     ResponseEntity<ScenarioListDto> getScenarioList(
-        @CookieValue("avalon") String key,
-        @RequestParam (value = "offset", defaultValue = "0") Integer offset,
-        @RequestParam (value = "query", defaultValue = "10") Integer query);
+        @CookieValue("avalon") String key);
     
     /**
      * 시나리오 추가
