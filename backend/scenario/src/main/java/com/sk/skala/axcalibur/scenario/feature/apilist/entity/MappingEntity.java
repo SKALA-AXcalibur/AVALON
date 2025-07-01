@@ -27,20 +27,20 @@ public class MappingEntity extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`key`")
-    private Integer key;
+    private Integer key; // 매핑 키
 
     @Column(name = "id", nullable = false, length = 30, unique = true)
-    private String id;
+    private String id; // 매핑 ID
 
     @Column(name = "step")
-    private Integer step;
+    private Integer step; // 단계
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scenario_key", nullable = false)
-    private ScenarioEntity scenarioKey;
+    private ScenarioEntity scenarioKey; // 시나리오 키
     
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "api_list_key", nullable = false)
-    private ApiListEntity apiListKey;
+    private ApiListEntity apiListKey; // API 목록 키
 }

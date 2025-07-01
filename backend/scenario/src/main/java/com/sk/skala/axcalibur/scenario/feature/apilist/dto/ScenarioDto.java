@@ -10,8 +10,8 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScenarioDto {
-    private String scenarioId;
-    private String title;
-    private String description;  // 시나리오 설명
-    private String validation;
+    private String scenarioId;  // 시나리오 ID
+    private String title;       // 시나리오 제목
+    private String description; // 시나리오 설명
+    private String validation;  // 시나리오 검증 여부
 }
