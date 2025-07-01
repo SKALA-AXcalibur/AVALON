@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TestcaseParamDto {
+public class TcParamDto {
     private Integer paramId;     // 파라미터 ID
     private String value;        // 테스트케이스 데이터에 들어갈 값
 }

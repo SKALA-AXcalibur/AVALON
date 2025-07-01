@@ -7,19 +7,18 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.sk.skala.axcalibur.feature.testcase.converter.ParameterConverter;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.ApiMappingDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.ApiParamDto;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.ScenarioDto;
-import com.sk.skala.axcalibur.feature.testcase.dto.request.TcRequestPayload;
+import com.sk.skala.axcalibur.feature.testcase.dto.request.TcGenerationRequest;
 import com.sk.skala.axcalibur.feature.testcase.repository.MappingRepository;
 import com.sk.skala.axcalibur.feature.testcase.repository.ParameterRepository;
 import com.sk.skala.axcalibur.feature.testcase.repository.ScenarioRepository;
-import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.entity.ApiListEntity;
 import com.sk.skala.axcalibur.global.entity.MappingEntity;
 import com.sk.skala.axcalibur.global.entity.ParameterEntity;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
-import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +36,8 @@ public class TcPayloadServiceImpl implements TcPayloadService{
     private final MappingRepository mappingRepository;
     private final ParameterRepository parameterRepository;
 
+    private final ParameterConverter parameterConverter;
+
     // project ID로부터 시나리오 객체 리스트 받아오는 함수
     @Override
     public List<ScenarioEntity> getScenarios(Integer projectId) {
@@ -45,7 +46,7 @@ public class TcPayloadServiceImpl implements TcPayloadService{
 
     // fastAPI로 보낼 TcRequestPayload 형식의 객체 조합하는 함수
     @Override
-    public TcRequestPayload buildPayload(ScenarioEntity scenario) {
+    public TcGenerationRequest buildPayload(ScenarioEntity scenario) {
         // API매핑표 관련 정보 조회
         List<MappingEntity> mappings = mappingRepository.findByScenarioKey_Id(scenario.getId());
 
@@ -68,31 +69,7 @@ public class TcPayloadServiceImpl implements TcPayloadService{
                     .getOrDefault(api.getId(), Collections.emptyList());
 
             // 파라미터 DTO 변환
-            List<ApiParamDto> paramDtoList = params.stream()
-                .map(param -> {
-                    if (param.getCategoryKey() == null || param.getContextKey() == null) {
-                        throw new BusinessExceptionHandler(
-                                "파라미터의 category/context 정보가 유효하지 않습니다.",
-                                ErrorCode.NOT_VALID_ERROR);
-                    }
-                    return ApiParamDto.builder()
-                            .paramId(param.getId())
-                            .category(param.getCategoryKey().getName())
-                            .koName(param.getNameKo())
-                            .name(param.getName())
-                            .context(param.getContextKey().getName())
-                            .type(param.getDataType())
-                            .length(param.getLength())
-                            .format(param.getFormat())
-                            .defaultValue(param.getDefaultValue())
-                            .required(param.getRequired())
-                            .parent(param.getParentKey() != null
-                                    ? param.getParentKey().getName()
-                                    : null)
-                            .desc(param.getDescription())
-                            .build();
-                })
-                .toList();
+            List<ApiParamDto> paramDtoList = parameterConverter.toDto(params);
 
             // ApiMappingDto 변환
             return ApiMappingDto.builder()
@@ -110,7 +87,7 @@ public class TcPayloadServiceImpl implements TcPayloadService{
 
         
         // 3. 최종 요청 DTO 조립
-        return TcRequestPayload.builder()
+        return TcGenerationRequest.builder()
             .scenario(ScenarioDto.builder()
                 .scenarioName(scenario.getName())
                 .scenarioDesc(scenario.getDescription())

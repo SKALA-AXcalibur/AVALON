@@ -1,8 +1,11 @@
 package com.sk.skala.axcalibur.feature.testcase.entity;
 
+import java.util.List;
+
 import com.sk.skala.axcalibur.global.entity.BaseTimeEntity;
 import com.sk.skala.axcalibur.global.entity.MappingEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -52,4 +56,15 @@ public class TestCaseEntity extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mapping_key", nullable = false)
     private MappingEntity mappingKey;
+
+    @OneToMany(mappedBy = "testcaseKey", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TestCaseDataEntity> dataList; // CASCADE delete를 위한 설정
+
+    // TC 내용 update
+    public void update(String precondition, String description, String expectedResult, Integer status) {
+        this.precondition = precondition;
+        this.description = description;
+        this.expected = expectedResult;
+        this.status = status;
+    }
 }

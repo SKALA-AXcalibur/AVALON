@@ -1,16 +1,16 @@
 package com.sk.skala.axcalibur.feature.testcase.dto.request;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * API parameter 정보 DTO
  * API의 파라미터 유형, 정보 저장
  */
 @Getter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiParamDto {
