@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @DisplayName("ApiTestService buildTaskData 메서드 테스트")
-class ApiTestServiceTest {
+class ApiTestServiceBuildTaskDataTest {
 
     @Autowired
     private ApiTestService apiTestService;
@@ -751,7 +751,8 @@ class ApiTestServiceTest {
         void shouldReturnStringWhenInvalidNumberFormat() {
             // Given & When & Then
             assertThat(apiTestService.convertValueByDataType("invalid", "integer")).isEqualTo("invalid");
-            assertThat(apiTestService.convertValueByDataType("not-a-number", "double")).isEqualTo("not-a-number");
+            assertThat(apiTestService.convertValueByDataType("not-a-number", "double"))
+                    .isEqualTo("not-a-number");
             assertThat(apiTestService.convertValueByDataType("xyz", "bigdecimal")).isEqualTo("xyz");
         }
 
