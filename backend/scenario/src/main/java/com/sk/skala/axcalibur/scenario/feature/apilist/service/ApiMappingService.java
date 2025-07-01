@@ -22,7 +22,7 @@ public interface ApiMappingService {
      * - 'avalon' 쿠키는 HTTP 요청 헤더로 전달되며, 명세서 파라미터 표에는 포함되지 않습니다.
      * - 내부적으로 프로젝트 식별 및 데이터 조회에 사용됩니다.
      */
-    MappingResponseDto doApiMapping(MappingRequestDto request, String avalon) throws com.fasterxml.jackson.core.JsonProcessingException, com.fasterxml.jackson.databind.JsonMappingException, com.sk.skala.axcalibur.scenario.global.exception.BusinessExceptionHandler;
+    MappingResponseDto doApiMapping(MappingRequestDto request, String avalon) throws com.fasterxml.jackson.core.JsonProcessingException;
 
     MappingRequestDto getMappingRequestDtoByAvalon(String avalon);
 }
