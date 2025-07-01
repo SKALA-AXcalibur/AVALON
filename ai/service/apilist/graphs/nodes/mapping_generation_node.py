@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, Any
-from ai.service.apilist.state.mapping_state import MappingState, update_mapping_generation_success, update_mapping_generation_failed
-from ai.service.apilist.agents.mapping_generator import perform_mapping_generation
+from service.apilist.state.mapping_state import MappingState, update_mapping_generation_success, update_mapping_generation_failed
+from service.apilist.agents.mapping_generator import perform_mapping_generation
 
 
 def mapping_generation_node(state: MappingState) -> Dict[str, Any]:

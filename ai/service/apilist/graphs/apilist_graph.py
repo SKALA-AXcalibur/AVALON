@@ -1,11 +1,11 @@
 import logging
 from langgraph.graph import StateGraph, END
 
-from ai.service.apilist.state.mapping_state import MappingState
-from ai.service.apilist.graphs.nodes.map_node import map_node
-from ai.service.apilist.graphs.nodes.mapping_generation_node import mapping_generation_node
-from ai.service.apilist.graphs.nodes.mapping_validation_node import mapping_validation_node
-from ai.service.apilist.graphs.nodes.decision_node import should_regenerate
+from service.apilist.state.mapping_state import MappingState
+from service.apilist.graphs.nodes.map_node import map_node
+from service.apilist.graphs.nodes.mapping_generation_node import mapping_generation_node
+from service.apilist.graphs.nodes.mapping_validation_node import mapping_validation_node
+from service.apilist.graphs.nodes.decision_node import should_regenerate
 
 def create_apilist_graph() -> StateGraph:
     """

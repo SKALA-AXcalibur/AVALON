@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, Any
-from ai.service.apilist.state.mapping_state import MappingState
+from service.apilist.state.mapping_state import MappingState
 
 def should_regenerate(state: MappingState) -> str:
     """

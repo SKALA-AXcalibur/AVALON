@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, Any
-from ai.service.apilist.state.mapping_state import MappingState, update_mapping_validation_success, update_mapping_validation_failed
-from ai.service.apilist.agents.mapping_validator import perform_mapping_validation
+from service.apilist.state.mapping_state import MappingState, update_mapping_validation_success, update_mapping_validation_failed
+from service.apilist.agents.mapping_validator import perform_mapping_validation
 
 
 def mapping_validation_node(state: MappingState) -> Dict[str, Any]:

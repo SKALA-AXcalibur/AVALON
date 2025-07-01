@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from ai.service.apilist.prompts.map_prompt import (
+from service.apilist.prompts.map_prompt import (
     create_semantic_mapping_prompt,
     get_semantic_mapping_system_prompt
 )

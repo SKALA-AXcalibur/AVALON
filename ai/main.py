@@ -8,7 +8,7 @@
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from ai.controller.router import router
+from controller.router import router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

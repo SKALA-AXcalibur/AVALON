@@ -4,8 +4,8 @@ from typing import Dict, Any
 import os
 from dotenv import load_dotenv
 
-from ai.service.apilist.state.mapping_state import MappingState, update_map_success, update_map_failed
-from ai.service.apilist.agents.map_agent import perform_semantic_mapping
+from service.apilist.state.mapping_state import MappingState, update_map_success, update_map_failed
+from service.apilist.agents.map_agent import perform_semantic_mapping
 
 # .env 파일 로드
 load_dotenv()

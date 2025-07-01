@@ -6,7 +6,7 @@ from typing import Dict, Any, List
 from anthropic import Anthropic
 from dotenv import load_dotenv
 
-from ai.service.apilist.prompts.mapping_generation_prompt import create_mapping_generation_prompt
+from service.apilist.prompts.mapping_generation_prompt import create_mapping_generation_prompt
 
 # .env 파일 로드
 load_dotenv()
