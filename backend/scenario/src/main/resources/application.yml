@@ -20,6 +20,9 @@ spring:
         config:
           default:
             read-timeout: 180000
+  mvc:
+    async:
+      request-timeout: 180000  # 180초 (3분) - WebClient 타임아웃보다 길게
 
 server:
   port: 8080
@@ -32,3 +35,8 @@ logging:
       sk:
         skala:
           axcalibur: DEBUG
+          
+project:
+  webclient:
+    connect-timeout: 10000
+    response-timeout: 120

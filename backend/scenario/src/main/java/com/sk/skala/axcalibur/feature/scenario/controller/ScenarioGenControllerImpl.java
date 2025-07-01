@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sk.skala.axcalibur.feature.scenario.client.ScenarioGenClient;
@@ -16,7 +15,6 @@ import com.sk.skala.axcalibur.feature.scenario.dto.ProjectContext;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioGenRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioGenResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListResponse;
-import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.service.ProjectIdResolverService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioGenService;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
@@ -24,6 +22,7 @@ import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 /**
  * 시나리오 생성 요청 인터페이스
@@ -40,8 +39,7 @@ public class ScenarioGenControllerImpl implements ScenarioGenController {
     private final ProjectIdResolverService projectIdResolverService;
 
     @Override
-    @PostMapping("scenario/v1/create")
-    public ResponseEntity<ScenarioGenResponseDto> generateScenario(
+    public Mono<ResponseEntity<ScenarioGenResponseDto>> generateScenario(
         @CookieValue("avalon") String key) {
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
         ProjectContext projectContext = projectIdResolverService.resolveProjectId(key);
@@ -51,34 +49,35 @@ public class ScenarioGenControllerImpl implements ScenarioGenController {
         ScenarioGenRequestDto requestDto = scenarioGenService.prepareRequestData(projectKey);
         
         // FastAPI로 시나리오 생성 요청 전송하고 응답 받기
-        ScenarioResponseDto fastApiResponse = (ScenarioResponseDto) scenarioGenClient.sendInfoAndGetResponse(requestDto);
+        return scenarioGenClient.sendInfoAndGetResponse(requestDto)
+            .map(response -> {
+                // FastAPI 응답의 시나리오 리스트를 DB에 저장
+                List<ScenarioEntity> savedEntities = scenarioGenService.parseAndSaveScenarios(response.getScenarioList(), projectKey);
 
-        // FastAPI 응답의 시나리오 리스트를 DB에 저장
-        List<ScenarioEntity> savedEntities = scenarioGenService.parseAndSaveScenarios(fastApiResponse.getScenarioList(), projectKey);
+                // ScenarioEntity를 ScenarioListResponse로 변환
+                List<ScenarioListResponse> scenarioListResponse = savedEntities.stream()
+                    .map(entity -> ScenarioListResponse.builder()
+                        .scenarioId(entity.getScenarioId())
+                        .name(entity.getName())
+                        .build())
+                    .collect(Collectors.toList());
 
-        // ScenarioEntity를 ScenarioListResponse로 변환
-        List<ScenarioListResponse> scenarioListResponse = savedEntities.stream()
-            .map(entity -> ScenarioListResponse.builder()
-                .scenarioId(entity.getScenarioId())
-                .name(entity.getName())
-                .build())
-            .collect(Collectors.toList());
-
-        // 최종 응답 DTO 구성
-        ScenarioGenResponseDto responseDto = ScenarioGenResponseDto.builder()
-            .scenarioList(scenarioListResponse)
-            .total(scenarioListResponse.size())
-            .build();
-        
-        // 응답 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("responseTime", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-        
-        // 성공 응답 반환
-        return ResponseEntity
-        .status(SuccessCode.INSERT_SUCCESS.getStatus())
-        .headers(headers)
-        .body(responseDto);
+                // 최종 응답 DTO 구성
+                ScenarioGenResponseDto responseDto = ScenarioGenResponseDto.builder()
+                    .scenarioList(scenarioListResponse)
+                    .total(scenarioListResponse.size())
+                    .build();
+                
+                // 응답 헤더 설정
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("responseTime", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+                
+                // 성공 응답 반환
+                return ResponseEntity
+                .status(SuccessCode.INSERT_SUCCESS.getStatus())
+                .headers(headers)
+                .body(responseDto);
+            });
     }
 }
 

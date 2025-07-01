@@ -2,6 +2,8 @@ package com.sk.skala.axcalibur.global.entity;
 
 import java.time.LocalDateTime;
 
+import com.sk.skala.axcalibur.feature.scenario.entity.RequestEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -55,6 +57,10 @@ public class ApiListEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
     private ProjectEntity projectKey;             // 프로젝트 (N:1)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "request_key", nullable = false)
+    private RequestEntity requestKey;  // 요구사항 (N:1)
 
     @PrePersist
     protected void onCreate() {

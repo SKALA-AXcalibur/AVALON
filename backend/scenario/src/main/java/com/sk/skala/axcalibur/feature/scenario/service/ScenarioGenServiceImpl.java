@@ -72,9 +72,9 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
             // 프로젝트 내 기존 시나리오 id 목록을 조회
             int maxNo = scenarioRepository.findMaxScenarioNoByProjectKey(projectKey); // 기존 시나리오 id 중 최대 번호
             
-            List<ScenarioEntity> savedEntities = new ArrayList<>();
+            List<ScenarioEntity> entitiesToSave = new ArrayList<>();
 
-            // 각 시나리오를 DB에 저장
+            // 각 시나리오 엔티티 생성
             for (int i = 0; i < scenarioList.size(); i++) {
                 ScenarioItem scenarioItem = scenarioList.get(i);
                 String newScenarioId = String.format("scenario-%03d", maxNo + 1 + i); // 각각 다른 ID
@@ -89,11 +89,11 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
                     .project(project)
                     .build();
 
-                savedEntities.add(scenarioRepository.save(entity));
+                entitiesToSave.add(entity);
             }
             
-            // 모든 시나리오 저장 완료 후 반환
-            return savedEntities;
+            // 배치 저장을 위해 saveAll 사용
+            return scenarioRepository.saveAll(entitiesToSave);
             
         } catch (DataIntegrityViolationException e) {
             // 시나리오 ID 중복 등 데이터 무결성 위반
@@ -130,7 +130,7 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
                 .desc(entity.getDescription())
                 .method(entity.getMethod())
                 .path(entity.getPath())
-                .reqId(entity.getId().toString())
+                .reqId(entity.getRequestKey().getRequestId())
                 .build())
             .collect(Collectors.toList());
     }

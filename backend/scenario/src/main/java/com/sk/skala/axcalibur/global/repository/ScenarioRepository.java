@@ -19,7 +19,7 @@ public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Intege
     
     // 해당 프로젝트에서 scenarioid(시나리오 번호) 중 최대값 가져오기
     @Query(
-    value = "SELECT IFNULL(MAX(CAST(SUBSTRING(id, 10) AS UNSIGNED)), 0) " +
+    value = "SELECT COALESCE(MAX(CAST(SUBSTRING(id, LENGTH('scenario-') + 1) AS UNSIGNED)), 0) " +
             "FROM scenario " +
             "WHERE project_key = :projectKey AND id LIKE 'scenario-%'", nativeQuery = true)
     Integer findMaxScenarioNoByProjectKey(Integer projectKey);
