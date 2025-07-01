@@ -12,7 +12,7 @@ import com.sk.skala.axcalibur.apitest.feature.entity.TestcaseEntity;
 import com.sk.skala.axcalibur.apitest.feature.repository.ScenarioRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepositoryCustom;
-import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepositoryCustom;
+import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,8 +27,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ApiTestServiceImpl implements ApiTestService {
   private final TestcaseRepository tc;
-  private final TestcaseRepositoryCustom tcCustom;
-  private final TestcaseResultRepositoryCustom trCustom;
+  private final TestcaseResultRepository tr;
   private final ScenarioRepository scene;
 
   @Override
@@ -77,7 +76,7 @@ public class ApiTestServiceImpl implements ApiTestService {
       scenarios = scene.findAllByProjectKeyAndScenarioIdGreaterThanOrderByIdAsc(key, cursor, page);
     }
 
-    var dtoList = tcCustom.findByScenarioInWithResultSuccess(scenarios);
+    var dtoList = tc.findByScenarioInWithResultSuccess(scenarios);
 
     // dtoList를 scenarioId 기준으로 그룹핑 (중복 방지, 성능 개선)
     var scenarioMap = scenarios.stream().collect(Collectors.toMap(
@@ -136,7 +135,7 @@ public class ApiTestServiceImpl implements ApiTestService {
           .findByMapping_Scenario_ProjectKeyAndMapping_Scenario_ScenarioIdAndTestcaseIdGreaterThanOrderByIdAsc(
               key, scenarioId, cursor, page);
     }
-    var testcaseResults = trCustom.findLastResultByTestcaseIn(testcases);
+    var testcaseResults = tr.findLastResultByTestcaseIn(testcases);
 
     var tcMap = testcases.stream()
         .collect(Collectors.toMap(TestcaseEntity::getId, tc -> tc));
