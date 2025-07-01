@@ -1,12 +1,11 @@
 import logging
-import json
 import os
-import re
 from typing import Dict, Any, List
 from anthropic import Anthropic
 from dotenv import load_dotenv
 
 from service.apilist.prompts.mapping_generation_prompt import create_mapping_generation_prompt
+from service.apilist.agents.map_agent import safe_json_parse
 
 # .env 파일 로드
 load_dotenv()
@@ -43,26 +42,10 @@ def perform_mapping_generation(semantic_mapping: Dict, scenarios: List[Dict], ap
         if not result_text or result_text.strip() == "":
             logging.error("LLM이 빈 응답을 반환했습니다.")
             return []
-        try:
-            cleaned = re.sub(r"^```json\s*|^```\s*|```$", "", result_text.strip(), flags=re.MULTILINE)
-            mapping_table = json.loads(cleaned)
-        except json.JSONDecodeError as e:
-            logging.warning(f"JSON 파싱 실패, 복구 시도: {str(e)}")
-            try:
-                start_idx = cleaned.find('{')
-                end_idx = cleaned.rfind('}')
-                if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
-                    partial_json = cleaned[start_idx:end_idx + 1]
-                    open_braces = partial_json.count('{')
-                    close_braces = partial_json.count('}')
-                    if open_braces > close_braces:
-                        partial_json += '}' * (open_braces - close_braces)
-                    mapping_table = json.loads(partial_json)
-                else:
-                    raise e
-            except json.JSONDecodeError as e2:
-                logging.error(f"JSON 복구 실패: {str(e2)}")
-                return []
+        
+        # map_agent의 safe_json_parse 함수 사용
+        mapping_table = safe_json_parse(result_text)
+        
         return mapping_table.get("mapping_table", mapping_table)  # 구조에 따라 조정
     except Exception as e:
         logging.error(f"매핑표 생성 LLM 호출 에러: {str(e)}")
