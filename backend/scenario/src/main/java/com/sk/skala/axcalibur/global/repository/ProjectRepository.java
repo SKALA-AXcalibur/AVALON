@@ -14,6 +14,6 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, Integer>
     Optional<ProjectEntity> findByProjectId(String projectId);
 
     // 프로젝트 ID 존재 여부
-    boolean existsByProjectId(String projectId);
+    Boolean existsByProjectId(String projectId);
 
 }

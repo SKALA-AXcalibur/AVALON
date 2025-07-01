@@ -20,8 +20,5 @@ public interface ScenarioGenService {
     List<ReqItem> collectRequirements(Integer projectKey); 
 
     // API 정보 수집
-    List<ApiItem> collectApiList(Integer projectKey); 
-
-    // 새로운 시나리오 ID 생성
-    String generateNewScenarioId(); 
+    List<ApiItem> collectApiList(Integer projectKey);
 }

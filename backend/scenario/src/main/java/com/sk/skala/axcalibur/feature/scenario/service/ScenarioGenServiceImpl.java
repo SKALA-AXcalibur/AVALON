@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,9 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
     private final RequestRepository requestRepository;
     private final ApiListRepository apiListRepository;
     private final ScenarioRepository scenarioRepository;
+    
+    @Value("${scenario.generation.max-retry}")
+    private int maxRetry;
 
     @Override
     public ScenarioGenRequestDto prepareRequestData(Integer projectKey) {
@@ -63,36 +67,48 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
     @Transactional
     public List<ScenarioEntity> parseAndSaveScenarios(List<ScenarioItem> scenarioList, Integer projectKey) {
         // 시나리오 저장
-        try {
-            ProjectEntity project = projectRepository.findById(projectKey)
-                .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 프로젝트입니다.", ErrorCode.PROJECT_NOT_FOUND));
-            List<ScenarioEntity> savedEntities = new ArrayList<>();
+       
+        ProjectEntity project = projectRepository.findById(projectKey)
+            .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 프로젝트입니다.", ErrorCode.PROJECT_NOT_FOUND));
 
-            // 각 시나리오를 DB에 저장
-            for (ScenarioItem scenarioItem : scenarioList) {
-                // 새로운 시나리오 ID 생성
-                String newScenarioId = generateNewScenarioId();
+        for(int attempt = 0; attempt < maxRetry; attempt++) {
+            try {
+                // 프로젝트 내 기존 시나리오 id 목록을 조회
+                int maxNo = scenarioRepository.findMaxScenarioNoByProjectKey(projectKey); // 기존 시나리오 id 중 최대 번호
+                
+                List<ScenarioEntity> savedEntities = new ArrayList<>();
 
-                // DB 엔티티로 매핑
-                ScenarioEntity entity = ScenarioEntity.builder()
-                    .scenarioId(newScenarioId)
-                    .name(scenarioItem.getTitle())
-                    .description(scenarioItem.getDescription())
-                    .validation(scenarioItem.getValidation())
-                    .flowChart(null)
-                    .project(project)
-                    .build();
+                // 각 시나리오를 DB에 저장
+                for (int i = 0; i < scenarioList.size(); i++) {
+                    ScenarioItem scenarioItem = scenarioList.get(i);
+                    String newScenarioId = String.format("scenario-%03d", maxNo + 1 + i); // 각각 다른 ID
+                    
+                    // DB 엔티티로 매핑
+                    ScenarioEntity entity = ScenarioEntity.builder()
+                        .scenarioId(newScenarioId)
+                        .name(scenarioItem.getTitle())
+                        .description(scenarioItem.getDescription())
+                        .validation(scenarioItem.getValidation())
+                        .flowChart(null)
+                        .project(project)
+                        .build();
 
-                savedEntities.add(scenarioRepository.save(entity));
+                    savedEntities.add(scenarioRepository.save(entity));
+                }
+                
+                // 모든 시나리오 저장 완료 후 반환
+                return savedEntities;
+                
+            } catch (DataIntegrityViolationException e) {
+                // 동시성 충돌(유니크 인덱스 위반) 시 재시도
+                log.warn("동시성 충돌로 인한 재시도({}/{}) - 프로젝트: {}", attempt+1, maxRetry, projectKey);
+                if (attempt == maxRetry - 1) {
+                    throw new BusinessExceptionHandler("시나리오 ID 중복, 재시도 실패", ErrorCode.INTERNAL_SERVER_ERROR);
+                }
             }
-            return savedEntities;
-        } catch (DataIntegrityViolationException e) {
-            log.error("DB 무결성 위반", e);
-            throw new BusinessExceptionHandler("DB 무결성 위반: " + e.getMessage(), ErrorCode.DATABASE_OPERATION_FAILED);
-        } catch (Exception e) {
-            log.error("시나리오 파싱 및 저장 실패", e);
-            throw new BusinessExceptionHandler("시나리오 저장 실패: " + e.getMessage(), ErrorCode.INTERNAL_SERVER_ERROR);
         }
+        // 이론적으로 도달할 수 없는 코드이지만 컴파일러를 위해 추가
+        throw new BusinessExceptionHandler("시나리오 저장 실패", ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -127,22 +143,4 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
                 .build())
             .collect(Collectors.toList());
     }
-   
-    @Override
-    public String generateNewScenarioId() {
-        // 새로운 시나리오 ID 생성
-        // DB에서 현재 최대 시나리오 ID를 조회해서 +1
-        String maxId = scenarioRepository.findMaxScenarioId(); 
-        int nextNum = 1;
-        if (maxId != null && maxId.startsWith("scenario-")) {
-            try {
-                nextNum = Integer.parseInt(maxId.substring(9)) + 1;
-            } catch (NumberFormatException e) {
-                log.warn("시나리오 ID 숫자 변환 실패: {}", maxId);
-                // 무시하고 1로 둠
-            }
-        }
-        return String.format("scenario-%03d", nextNum);
-    }
-
 }

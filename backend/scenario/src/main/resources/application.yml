@@ -32,3 +32,8 @@ logging:
       sk:
         skala:
           axcalibur: DEBUG
+
+# 시나리오 생성 관련 설정
+scenario:
+  generation:
+    max-retry: 3  # 시나리오 ID 생성 시 최대 재시도 횟수
