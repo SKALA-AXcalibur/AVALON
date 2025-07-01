@@ -131,7 +131,7 @@ def update_mapping_validation_success(state: MappingState, validation_result: Di
    result.update({
        "validation_result": validation_result,
        "validation_status": "completed",
-       "validation_score": validation_result.get("score", 0.0),
+       "validation_score": validation_result.get("validation_score", 0.0),
        "current_step": "mapping_validation_completed",
    })
    return result
@@ -180,29 +180,4 @@ def is_mapping_validation_completed(state: MappingState) -> bool:
    return (
        state.get("validation_status") == "completed"
        and state.get("validation_result") is not None
-   )
-
-
-def should_continue_mapping_workflow(state: MappingState) -> bool:
-   """워크플로우를 계속 진행해야 하는지 확인"""
-   return (
-       not state.get("has_error", False)
-       and state.get("attempt_count", 0) < state.get("max_attempts", 3)
-       and state.get("validation_score", 0.0) < state.get("target_score", 80.0)
-   )
-
-
-def get_mapping_workflow_summary(state: MappingState) -> WorkflowStatus:
-   """현재 워크플로우 상태 요약"""
-   return WorkflowStatus(
-       current_step=state.get("current_step", "unknown"),
-       attempt_count=state.get("attempt_count", 0),
-       mapping_status=state.get("mapping_status", "pending"),
-       generation_status=state.get("generation_status", "pending"),
-       validation_status=state.get("validation_status", "pending"),
-       validation_score=state.get("validation_score", 0.0),
-       has_error=state.get("has_error", False),
-       is_completed=state.get("current_step", "") in [
-           "mapping_validation_completed", "map_failed", "mapping_generation_failed", "mapping_validation_failed"
-       ]
    )
