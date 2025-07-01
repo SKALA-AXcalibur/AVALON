@@ -1,13 +1,13 @@
-package com.sk.skala.axcalibur.feature.testcase.repository;
+package com.sk.skala.axcalibur.global.repository;
 
 import java.util.List;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sk.skala.axcalibur.feature.testcase.entity.QTestCaseDataEntity;
-import com.sk.skala.axcalibur.feature.testcase.entity.TestCaseDataEntity;
+import com.sk.skala.axcalibur.global.entity.QTestCaseDataEntity;
 import com.sk.skala.axcalibur.global.entity.QCategoryEntity;
 import com.sk.skala.axcalibur.global.entity.QContextEntity;
 import com.sk.skala.axcalibur.global.entity.QParameterEntity;
+import com.sk.skala.axcalibur.global.entity.TestCaseDataEntity;
 
 import lombok.RequiredArgsConstructor;
 

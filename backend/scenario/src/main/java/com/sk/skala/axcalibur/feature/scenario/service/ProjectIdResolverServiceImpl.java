@@ -37,5 +37,4 @@ public class ProjectIdResolverServiceImpl implements ProjectIdResolverService {
 
         return new ProjectContext(project);
     }
-} 
-        
+}

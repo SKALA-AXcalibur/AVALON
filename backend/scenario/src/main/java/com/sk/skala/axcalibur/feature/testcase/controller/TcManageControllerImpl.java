@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.TcUpdateRequest;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TcDetailResponse;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TcListResponse;
-import com.sk.skala.axcalibur.feature.testcase.repository.TestCaseRepository;
 import com.sk.skala.axcalibur.feature.testcase.service.ProjectIdResolverService;
 import com.sk.skala.axcalibur.feature.testcase.service.TcCommandService;
 import com.sk.skala.axcalibur.feature.testcase.service.TcQueryService;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
+import com.sk.skala.axcalibur.global.repository.TestCaseRepository;
 import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;

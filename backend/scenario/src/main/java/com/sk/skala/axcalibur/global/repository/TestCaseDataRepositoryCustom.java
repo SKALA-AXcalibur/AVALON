@@ -1,8 +1,8 @@
-package com.sk.skala.axcalibur.feature.testcase.repository;
+package com.sk.skala.axcalibur.global.repository;
 
 import java.util.List;
 
-import com.sk.skala.axcalibur.feature.testcase.entity.TestCaseDataEntity;
+import com.sk.skala.axcalibur.global.entity.TestCaseDataEntity;
 
 public interface TestCaseDataRepositoryCustom {
     List<TestCaseDataEntity> findAllWithCategoryAndContextByTestcaseId(Integer testcaseId);

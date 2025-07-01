@@ -8,12 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TcDetailResponse;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TcParamDataDto;
-import com.sk.skala.axcalibur.feature.testcase.entity.TestCaseDataEntity;
-import com.sk.skala.axcalibur.feature.testcase.entity.TestCaseEntity;
-import com.sk.skala.axcalibur.feature.testcase.repository.TestCaseDataRepository;
-import com.sk.skala.axcalibur.feature.testcase.repository.TestCaseRepository;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
+import com.sk.skala.axcalibur.global.entity.TestCaseDataEntity;
+import com.sk.skala.axcalibur.global.entity.TestCaseEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
+import com.sk.skala.axcalibur.global.repository.TestCaseDataRepository;
+import com.sk.skala.axcalibur.global.repository.TestCaseRepository;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,9 +1,6 @@
-package com.sk.skala.axcalibur.feature.testcase.entity;
+package com.sk.skala.axcalibur.global.entity;
 
 import java.util.List;
-
-import com.sk.skala.axcalibur.global.entity.BaseTimeEntity;
-import com.sk.skala.axcalibur.global.entity.MappingEntity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

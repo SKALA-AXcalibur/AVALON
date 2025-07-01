@@ -1,10 +1,10 @@
-package com.sk.skala.axcalibur.feature.testcase.repository;
+package com.sk.skala.axcalibur.global.repository;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.sk.skala.axcalibur.feature.testcase.entity.TestCaseEntity;
+import com.sk.skala.axcalibur.global.entity.TestCaseEntity;
 
 public interface TestCaseRepository extends JpaRepository<TestCaseEntity, Integer>, TestCaseRepositoryCustom {
     Optional<TestCaseEntity> findByTestcaseId(String testcaseId);

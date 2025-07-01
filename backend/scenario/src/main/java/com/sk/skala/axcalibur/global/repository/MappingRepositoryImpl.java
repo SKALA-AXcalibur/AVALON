@@ -1,4 +1,4 @@
-package com.sk.skala.axcalibur.feature.testcase.repository;
+package com.sk.skala.axcalibur.global.repository;
 
 import static com.sk.skala.axcalibur.global.entity.QApiListEntity.*;
 import static com.sk.skala.axcalibur.global.entity.QMappingEntity.*;
