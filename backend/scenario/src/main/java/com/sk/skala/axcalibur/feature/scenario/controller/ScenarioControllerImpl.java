@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.ProjectContext;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioCreateRequestDto;
-import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioListRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioUpdateRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCreateResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDeleteResponseDto;
@@ -56,19 +56,20 @@ public class ScenarioControllerImpl implements ScenarioController {
     private final ProjectIdResolverService projectIdResolverService;
 
     /**
-     * 시나리오 목록 조회
+     * 시나리오 목록 조회(IF-SN-0009)
      */
     @Override
     @GetMapping("/scenario/v1/project")
     public ResponseEntity<ScenarioListDto> getScenarioList(
         @CookieValue("avalon") String key,
-        ScenarioListRequestDto requestDto) {
+        @RequestParam (value = "offset", defaultValue = "0") Integer offset,
+        @RequestParam (value = "query", defaultValue = "10") Integer query) {
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
         ProjectContext projectContext = projectIdResolverService.resolveProjectId(key);
         Integer projectKey = projectContext.getKey();
 
         // 시나리오 목록 조회
-        ScenarioListDto scenarioList = scenarioListService.getScenarioList(projectKey, requestDto.getOffset(), requestDto.getQuery());
+        ScenarioListDto scenarioList = scenarioListService.getScenarioList(projectKey, offset, query);
         
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();
@@ -82,7 +83,7 @@ public class ScenarioControllerImpl implements ScenarioController {
     }
     
     /**
-     * 시나리오 추가
+     * 시나리오 추가(IF-SN-0003)
      */
     @Override
     @PostMapping("/scenario/v1")
@@ -137,7 +138,7 @@ public class ScenarioControllerImpl implements ScenarioController {
     }
 
     /**
-     * 시나리오 삭제
+     * 시나리오 삭제(IF-SN-0007)
      */
     @Override
     @DeleteMapping("/scenario/v1/scenario/{id}")
@@ -164,7 +165,7 @@ public class ScenarioControllerImpl implements ScenarioController {
     }
 
     /**
-     * 시나리오 상세 조회
+     * 시나리오 상세 조회(IF-SN-0008)   
      */
     @Override
     @GetMapping("/scenario/v1/scenario/{id}")

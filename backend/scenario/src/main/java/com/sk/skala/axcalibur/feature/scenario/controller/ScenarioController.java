@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioCreateRequestDto;
-import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioListRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioUpdateRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCreateResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDeleteResponseDto;
@@ -38,8 +38,8 @@ public interface ScenarioController {
     @GetMapping("/scenario/v1/project")
     ResponseEntity<ScenarioListDto> getScenarioList(
         @CookieValue("avalon") String key,
-        ScenarioListRequestDto requestDto
-    );
+        @RequestParam (value = "offset", defaultValue = "0") Integer offset,
+        @RequestParam (value = "query", defaultValue = "10") Integer query);
     
     /**
      * 시나리오 추가
