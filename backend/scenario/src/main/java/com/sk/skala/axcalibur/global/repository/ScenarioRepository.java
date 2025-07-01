@@ -25,7 +25,7 @@ public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Intege
     Integer findMaxScenarioNoByProjectKey(Integer projectKey);
 
     // 프로젝트별 시나리오 목록 조회 (페이징)
-    List<ScenarioEntity> findByProject_IdOrderByCreatedAtDesc(Integer projectId, Pageable pageable);
+    List<ScenarioEntity> findByProject_IdOrderByCreateAtDesc(Integer projectId, Pageable pageable);
     
     // 프로젝트별 시나리오 총 개수 조회
     Integer countByProject_Id(Integer projectId);
