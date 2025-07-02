@@ -1,8 +1,11 @@
 package com.sk.skala.axcalibur.feature.scenario.service;
 
+import java.util.List;
+
 import com.sk.skala.axcalibur.feature.scenario.dto.request.MappingRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.MappingResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCUResponseDto;
+import com.sk.skala.axcalibur.global.entity.MappingEntity;
 
 public interface MappingService {
     
@@ -21,11 +24,11 @@ public interface MappingService {
     MappingRequestDto prepareSingleMappingData(ScenarioCUResponseDto result);
     
     /**
-     * 프로젝트의 모든 시나리오에 대한 매핑 생성 (시나리오 생성단용)
+     * 프로젝트의 모든 시나리오에 대한 매핑 생성 및 저장 (시나리오 생성단용)
      * @param projectKey 프로젝트 키
-     * @return 생성된 매핑 데이터
+     * @return 저장된 매핑 엔티티 목록
      */
-    MappingResponseDto generateMappingForAllScenarios(Integer projectKey);
+    List<MappingEntity> generateMappingForAllScenarios(Integer projectKey);
     
     /**
      * 개별 시나리오에 대한 매핑 생성 (시나리오 추가/수정용)

@@ -1,10 +1,13 @@
 package com.sk.skala.axcalibur.feature.scenario.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sk.skala.axcalibur.feature.scenario.client.ScenarioGenClient;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.MappingRequestDto;
@@ -14,9 +17,12 @@ import com.sk.skala.axcalibur.feature.scenario.dto.response.MappingResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCUResponseDto;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.entity.ApiListEntity;
+import com.sk.skala.axcalibur.global.entity.MappingEntity;
+import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.global.repository.ApiListRepository;
+import com.sk.skala.axcalibur.global.repository.MappingRepository;
 import com.sk.skala.axcalibur.global.repository.ProjectRepository;
 import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
 
@@ -37,6 +43,7 @@ public class MappingServiceImpl implements MappingService {
     private final ScenarioRepository scenarioRepository;
     private final ProjectRepository projectRepository;
     private final ApiListRepository apiListRepository;
+    private final MappingRepository mappingRepository;
 
     @Override
     public MappingRequestDto prepareAllMappingData(Integer projectKey) {
@@ -107,16 +114,56 @@ public class MappingServiceImpl implements MappingService {
     }
 
     @Override
-    public MappingResponseDto generateMappingForAllScenarios(Integer projectKey) {
+    @Transactional
+    public List<MappingEntity> generateMappingForAllScenarios(Integer projectKey) {
         try {
-            // 1. 모든 시나리오 매핑 데이터 준비
+            // 1. 프로젝트 조회 및 검증
+            ProjectEntity project = projectRepository.findById(projectKey)
+                .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 프로젝트입니다.", ErrorCode.PROJECT_NOT_FOUND));
+
+            // 2. 모든 시나리오 매핑 데이터 준비
             MappingRequestDto requestDto = prepareAllMappingData(projectKey);
             
-            // 2. AI 서비스 호출
+            // 3. AI 서비스 호출
             MappingResponseDto response = scenarioGenClient.MappingResponse(requestDto);
             
-            log.info("모든 시나리오 매핑 생성 완료. 프로젝트: {}", projectKey);
-            return response;
+            // 4. 기존 매핑 ID 중 최대 번호 조회 (시나리오와 동일한 패턴)
+            int maxNo = mappingRepository.findMaxMappingNoByProjectKey(projectKey);
+            
+            // 5. 엔티티 리스트 생성
+            List<MappingEntity> entitiesToSave = new ArrayList<>();
+            
+            // response.getMappingList()에서 각 매핑 아이템을 처리
+            for (int i = 0; i < response.getMappingList().size(); i++) {
+                var mappingItem = response.getMappingList().get(i);
+                String newMappingId = String.format("mapping-%03d", maxNo + 1 + i);
+                
+                // 시나리오 조회
+                ScenarioEntity scenario = scenarioRepository.findByScenarioId(mappingItem.getScenarioId())
+                    .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 시나리오입니다.", ErrorCode.INTERNAL_SERVER_ERROR));
+                
+                // API 조회
+                ApiListEntity apiList = apiListRepository.findByNameAndProject_Id(mappingItem.getApiName(), projectKey)
+                    .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 API입니다.", ErrorCode.INTERNAL_SERVER_ERROR));
+                
+                // MappingEntity 생성
+                MappingEntity entity = MappingEntity.builder()
+                    .mappingId(newMappingId)
+                    .step(mappingItem.getStep())
+                    .scenarioKey(scenario)
+                    .apiListKey(apiList)
+                    .build();
+                
+                entitiesToSave.add(entity);
+            }
+            
+            // 6. 일괄 저장
+            List<MappingEntity> savedEntities = mappingRepository.saveAll(entitiesToSave);
+            
+            log.info("모든 시나리오 매핑 생성 및 저장 완료. 프로젝트: {}, 저장된 매핑 수: {}", 
+                projectKey, savedEntities.size());
+            
+            return savedEntities;
             
         } catch (Exception e) {
             log.error("모든 시나리오 매핑 생성 실패. 프로젝트: {}, 에러: {}", projectKey, e.getMessage());
