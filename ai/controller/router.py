@@ -66,28 +66,33 @@ async def generate_flow_chart(request: ScenarioFlowRequest) -> ScenarioFlowRespo
     """
     try:
         flow_agent = ScenarioFlowAgent()
-        scenario_flow_chart = await flow_agent.generate_scenario_flow(request)
+
+        # 한 번에 응답용과 저장용 데이터 생성
+        scenario_flow_response, individual_flow_charts = (
+            await flow_agent.generate_scenario_flow(request)
+        )
 
         # 생성된 플로우 차트를 데이터베이스에 저장
         storage_service = ScenarioFlowStorageService()
 
         failed_count = 0
 
-        for scenario_item in request.scenario_list:
+        # 각 시나리오별로 생성된 플로우차트를 해당 시나리오 ID로 저장
+        for scenario_id, flow_chart in individual_flow_charts.items():
             try:
                 storage_service.save_scenario_flow(
-                    scenario_id=scenario_item.id, flow_chart=scenario_flow_chart.data
+                    scenario_id=scenario_id, flow_chart=flow_chart
                 )
             except Exception as e:
-                logging.error(f"저장 실패: {str(e)}")
+                logging.error(f"시나리오 ID {scenario_id} 저장 실패: {str(e)}")
                 failed_count += 1
 
-        total_count = len(request.scenario_list)
+        total_count = len(individual_flow_charts)
         if failed_count == 0:
-            return scenario_flow_chart
+            return scenario_flow_response
         elif failed_count < total_count:
             return JSONResponse(
-                status_code=207, content=scenario_flow_chart.model_dump()
+                status_code=207, content=scenario_flow_response.model_dump()
             )
         else:
             raise HTTPException(status_code=500, detail="모든 시나리오 저장 실패")
