@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 import os
 from dotenv import load_dotenv
-from .mapping_state import MappingState
+from state.apilist.mapping_state import MappingState
 
 # .env 파일 로드
 load_dotenv()

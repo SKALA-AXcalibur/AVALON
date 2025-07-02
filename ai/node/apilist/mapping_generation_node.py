@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, Any
-from state.apilist.mapping_state import MappingState, update_mapping_generation_success, update_mapping_generation_failed
+from state.apilist.mapping_state_processor import MappingState, update_mapping_generation_success, update_mapping_generation_failed
 from service.apilist.mapping_generator import perform_mapping_generation
 
 
@@ -11,9 +11,9 @@ def mapping_generation_node(state: MappingState) -> Dict[str, Any]:
     """
     logging.info("매핑표 생성 노드 시작")
     try:
-        semantic_mapping = state.get("semantic_mapping")
-        scenarios = state.get("scenarios")
-        api_lists = state.get("api_lists")
+        semantic_mapping = state.semantic_mapping
+        scenarios = state.scenarios
+        api_lists = state.api_lists
 
         if not semantic_mapping or not scenarios or not api_lists:
             return update_mapping_generation_failed(state, "매핑표 생성에 필요한 데이터가 부족합니다.")

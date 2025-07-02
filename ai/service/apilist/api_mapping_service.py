@@ -8,7 +8,7 @@ from typing import List, Dict, Any
 from dto.request.apilist.apilist_map_request import convert_scenario_list, convert_api_list
 from dto.response.apilist.apilist_validation_response import ApiListValidationResponse
 from dto.request.apilist.common import ApiMappingItem
-from state.apilist.mapping_state import create_initial_mapping_state
+from state.apilist.mapping_state_processor import create_initial_mapping_state
 from service.apilist.apilist_graph import create_apilist_graph
 from datetime import datetime
 import asyncio
@@ -37,8 +37,10 @@ class ApiMappingService:
         
         # 2. 초기 상태 생성
         state = create_initial_mapping_state(avalon=avalon)
-        state["scenarios"] = converted_scenarios
-        state["api_lists"] = converted_apis
+        state = state.model_copy(update={
+            "scenarios": converted_scenarios,
+            "api_lists": converted_apis
+        })
         
         # 3. LangGraph 워크플로우 실행
         timeout = int(os.getenv("MODEL_TIMEOUT", 120))  # .env에서 읽어옴
@@ -63,6 +65,11 @@ class ApiMappingService:
         """
         # generated_mapping_table에서 매핑 데이터 가져오기
         mapping_table = result.get("generated_mapping_table", [])
+        
+        # None 체크 추가
+        if mapping_table is None:
+            mapping_table = []
+            
         api_mapping_list = [
             ApiMappingItem(
                 scenarioId=item["scenarioId"],
