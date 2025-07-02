@@ -6,7 +6,10 @@
 """
 
 from fastapi import APIRouter, HTTPException, Response
+from fastapi.responses import JSONResponse
 
+from dto.response.scenario.scenario_flow_response import ScenarioFlowResponse
+from dto.response.scenario.scenario_response import ScenarioResponse
 from dto.request.scenario.scenario_flow_request import ScenarioFlowRequest
 from dto.request.scenario.scenario_request import ScenarioRequest
 from service.scenario.scenario_flow_agent import ScenarioFlowAgent
@@ -30,7 +33,7 @@ async def read_root() -> Response:
 
 
 @router.post("/api/scenario/v1/generate")
-async def generate_scenario(request: ScenarioRequest):
+async def generate_scenario(request: ScenarioRequest) -> ScenarioResponse:
     """
     LangGraph를 통해 명세서 분석 결과를 바탕으로 테스트 시나리오를 생성하고 검증을 거친 후 반환
     """
@@ -38,7 +41,7 @@ async def generate_scenario(request: ScenarioRequest):
         graph = create_scenario_graph()
         # 딕셔너리 상태 생성
         initial_state = create_initial_state(request)
-        final_state = graph.invoke(initial_state)
+        final_state = await graph.ainvoke(initial_state)
 
         generated_scenarios = final_state.get("generated_scenarios")
         if generated_scenarios is None:
@@ -57,7 +60,7 @@ async def generate_scenario(request: ScenarioRequest):
 
 
 @router.post("/api/scenario/v1/scenario")
-async def generate_flow_chart(request: ScenarioFlowRequest):
+async def generate_flow_chart(request: ScenarioFlowRequest) -> ScenarioFlowResponse:
     """
     LLM을 통해 시나리오와 API 목록을 바탕으로 흐름도를 생성하고 시나리오 ID를 기준으로 흐름도 반환
     """
@@ -68,23 +71,27 @@ async def generate_flow_chart(request: ScenarioFlowRequest):
         # 생성된 플로우 차트를 데이터베이스에 저장
         storage_service = ScenarioFlowStorageService()
 
-        # 각 시나리오별로 플로우 차트 저장
-        saved_scenario_ids = []
+        failed_count = 0
+
         for scenario_item in request.scenario_list:
             try:
-                # 해당 시나리오의 플로우 차트를 DB에 저장
-                saved_id = storage_service.save_scenario_flow(
+                storage_service.save_scenario_flow(
                     scenario_id=scenario_item.id, flow_chart=scenario_flow_chart.data
                 )
-                saved_scenario_ids.append(saved_id)
-                logging.info(f"시나리오 {scenario_item.id}의 플로우 차트 저장 완료")
             except Exception as e:
-                logging.error(
-                    f"시나리오 {scenario_item.id}의 플로우 차트 저장 실패: {str(e)}"
-                )
+                logging.error(f"저장 실패: {str(e)}")
+                failed_count += 1
 
-        return scenario_flow_chart
+        total_count = len(request.scenario_list)
+        if failed_count == 0:
+            return scenario_flow_chart
+        elif failed_count < total_count:
+            return JSONResponse(
+                status_code=207, content=scenario_flow_chart.model_dump()
+            )
+        else:
+            raise HTTPException(status_code=500, detail="모든 시나리오 저장 실패")
 
     except Exception as e:
         logging.exception("플로우 차트 생성 중 예외 발생")
-        raise HTTPException(status_code=500, detail=f"플로우 차트 생성 실패: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"플로우 차트 생성 실패")

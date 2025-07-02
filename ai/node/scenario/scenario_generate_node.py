@@ -10,7 +10,6 @@ from dto.request.scenario.scenario_request import ScenarioRequest
 from dto.response.scenario.scenario_response import ScenarioResponse
 from state.scenario_state import ScenarioState
 from prompt.scenario.scenario_prompt import SCENARIO_GENERATION_PROMPT
-from config.scenario_config import ERROR_LOG_TEXT_LIMIT
 
 
 def _build_prompt_with_feedback(
@@ -42,15 +41,6 @@ def _build_prompt(request: ScenarioRequest) -> str:
     return SCENARIO_GENERATION_PROMPT.format(data=yaml_data)
 
 
-def _call_llm(prompt: str) -> str:
-    response = call_model(prompt)
-    if isinstance(response, list):
-        return "".join(
-            part.text if hasattr(part, "text") else str(part) for part in response
-        )
-    return response
-
-
 def _extract_json(text: str) -> dict:
     # 1. 먼저 ```json 블록을 찾아보기
     match = re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", text)
@@ -69,17 +59,17 @@ def _extract_json(text: str) -> dict:
         return json.loads(json_str)
     except json.JSONDecodeError as e:
         # JSON이 불완전할 수 있으므로 더 자세한 로그 출력
-        logging.error(f"[JSON 파싱 실패] JSON 문자열: {json_str}")
+        logging.error(f"[JSON 파싱 실패]")
         raise ValueError(
-            f"LLM 응답에서 유효한 JSON을 추출하지 못했습니다. JSON 오류: {str(e)}"
+            f"LLM 응답에서 유효한 JSON을 추출하지 못했습니다. JSON 오류"
         ) from e
 
 
-def scenario_generate_node(state: ScenarioState) -> ScenarioState:
+async def scenario_generate_node(state: ScenarioState) -> ScenarioState:
     """
     시나리오 생성 노드
     """
-   
+
     if not state.get("request_data"):
         raise ValueError("request_data가 상태에 없습니다.")
 
@@ -90,7 +80,7 @@ def scenario_generate_node(state: ScenarioState) -> ScenarioState:
     else:
         prompt = _build_prompt(state["request_data"])
 
-    raw_response = _call_llm(prompt)
+    raw_response = await call_model(prompt)
 
     parsed_json = _extract_json(raw_response)
     scenario_response = ScenarioResponse(**parsed_json)

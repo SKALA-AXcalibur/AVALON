@@ -25,13 +25,13 @@ class ScenarioFlowAgent:
         try:
             prompt = self._build_prompt(request)
 
-            raw_response = self._call_llm(prompt)
+            raw_response = await call_model(prompt)
 
             mermaid_code = self._extract_mermaid(raw_response)
             return ScenarioFlowResponse(data=mermaid_code)
         except Exception as e:
             logging.exception("[ScenarioFlowAgent Error] 흐름도 생성 중 예외 발생")
-            raise RuntimeError(f"시나리오 흐름도 생성 실패: {e}")
+            raise RuntimeError(f"시나리오 흐름도 생성 실패")
 
     def _build_prompt(self, request: ScenarioFlowRequest) -> str:
         """
@@ -47,11 +47,6 @@ class ScenarioFlowAgent:
 
         return SCENARIO_FLOW_PROMPT.format(data=scenario_input)
 
-    def _call_llm(self, prompt: str) -> str:
-        """
-        LLM 모델 호출
-        """
-        return call_model(prompt)
 
     def _extract_mermaid(self, text: str) -> str:
         """

@@ -22,7 +22,7 @@ model = ChatAnthropic(
 )
 
 
-def call_model(prompt: str) -> str:
+async def call_model(prompt: str) -> str:
     """LLM 호출 함수"""
-    response = model.invoke([HumanMessage(content=prompt)])
+    response = await model.ainvoke([HumanMessage(content=prompt)])
     return response.content
