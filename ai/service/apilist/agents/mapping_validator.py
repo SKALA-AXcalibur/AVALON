@@ -39,7 +39,7 @@ def perform_mapping_validation(mapping_table: List[Dict]) -> Dict[str, Any]:
             validation_result = json.loads(cleaned)
         except json.JSONDecodeError as e:
             logging.error(f"JSON 파싱 실패: {str(e)}")
-            return {"score": 0.0, "details": f"JSON 파싱 실패: {str(e)}"}
+            return {"validation_score": 0.0, "details": f"JSON 파싱 실패: {str(e)}"}
         return validation_result
     except Exception as e:
         logging.error(f"매핑표 검증 LLM 호출 에러: {str(e)}")

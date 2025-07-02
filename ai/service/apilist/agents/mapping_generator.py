@@ -46,7 +46,7 @@ def perform_mapping_generation(semantic_mapping: Dict, scenarios: List[Dict], ap
         # map_agent의 safe_json_parse 함수 사용
         mapping_table = safe_json_parse(result_text)
         
-        return mapping_table.get("mapping_table", mapping_table)  # 구조에 따라 조정
+        return mapping_table.get("apiMapping", [])
     except Exception as e:
         logging.error(f"매핑표 생성 LLM 호출 에러: {str(e)}")
         return []

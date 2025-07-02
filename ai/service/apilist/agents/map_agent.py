@@ -18,6 +18,14 @@ load_dotenv()
 # 배치 처리 크기 상수
 BATCH_SIZE = 5
 
+# LangChain Hosted LLM (Smith API) 사용 예시 - 루프 밖에서 한 번만 생성
+llm = ChatAnthropic(
+    model=os.getenv("MODEL_NAME", "claude-sonnet-4-20250514"),
+    temperature=float(os.getenv("MODEL_TEMPERATURE", 0.7)),
+    max_tokens=4000,
+    api_key=os.getenv("ANTHROPIC_API_KEY"),
+)
+
 def clean_llm_json(text):
     """LLM 응답에서 JSON 추출 및 정리"""
     # ```json ... ``` 또는 ``` ... ``` 코드블록 제거
@@ -40,34 +48,16 @@ def safe_json_parse(text: str) -> Dict[str, Any]:
         cleaned = clean_llm_json(text)
         return json.loads(cleaned)
     except json.JSONDecodeError as e:
-        logging.warning(f"JSON 파싱 실패, 복구 시도: {str(e)}")
-        try:
-            # 중괄호 균형 맞추기 등 복구 로직
-            open_braces = cleaned.count('{')
-            close_braces = cleaned.count('}')
-            if open_braces > close_braces:
-                cleaned += '}' * (open_braces - close_braces)
-            elif close_braces > open_braces:
-                cleaned = '{' * (close_braces - open_braces) + cleaned
-            return json.loads(cleaned)
-        except Exception as e2:
-            logging.error(f"JSON 복구 실패: {str(e2)}")
-            return {
-                "mappings": [],
-                "overall_confidence": 0.0,
-                "error": f"JSON 파싱 실패: {str(e)}"
-            }
+        logging.error(f"JSON 파싱에 실패했습니다: {e}. 원본 텍스트: \"{cleaned}\"")
+        return {
+            "mappings": [],
+            "overall_confidence": 0.0,
+            "error": f"JSON 파싱 실패: {e}"
+        }
 
 def perform_semantic_mapping(scenarios: List[Dict], api_lists: List[Dict]) -> Dict[str, Any]:
     """LLM을 사용한 의미적 매핑 분석 - 배치 처리"""
     try:
-        # LangChain Hosted LLM (Smith API) 사용 예시 - 루프 밖에서 한 번만 생성
-        llm = ChatAnthropic(
-            model=os.getenv("MODEL_NAME", "claude-sonnet-4-20250514"),
-            temperature=float(os.getenv("MODEL_TEMPERATURE", 0.7)),
-            max_tokens=4000,
-            api_key=os.getenv("ANTHROPIC_API_KEY"),
-        )
         
         all_mappings = []
         total_confidence = 0.0
