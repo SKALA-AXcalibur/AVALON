@@ -25,7 +25,7 @@ public class DataInitializerConfig {
         jdbcTemplate.execute("INSERT IGNORE INTO file_type (`key`, name) VALUES (4, 'ERD')");
 
         // 카테고리 데이터
-        jdbcTemplate.execute("INSERT IGNORE INTO category (`key`, name) VALUES (1, 'PATH_QUERY')");
+        jdbcTemplate.execute("INSERT IGNORE INTO category (`key`, name) VALUES (1, 'PATH/QUERY')");
         jdbcTemplate.execute("INSERT IGNORE INTO category (`key`, name) VALUES (2, 'REQUEST')");
         jdbcTemplate.execute("INSERT IGNORE INTO category (`key`, name) VALUES (3, 'RESPONSE')");
 
