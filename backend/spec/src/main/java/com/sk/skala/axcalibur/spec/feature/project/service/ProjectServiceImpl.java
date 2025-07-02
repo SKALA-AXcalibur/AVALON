@@ -179,9 +179,9 @@ public class ProjectServiceImpl implements ProjectService {
                 ApiItem apiItem = request.getApiList().get(i);
                 ApiListEntity savedApiEntity = savedApiEntities.get(i);
                 
-                // PATH_QUERY 파라미터들 수집
+                // PATH/QUERY 파라미터들 수집
                 if (apiItem.getPathQuery() != null && !apiItem.getPathQuery().isEmpty()) {
-                    allParameters.addAll(createParameterEntitiesFromItems(savedApiEntity, apiItem.getPathQuery(), "PATH_QUERY"));
+                    allParameters.addAll(createParameterEntitiesFromItems(savedApiEntity, apiItem.getPathQuery(), "PATH/QUERY"));
                 }
                 
                 // REQUEST 파라미터들 수집
@@ -411,7 +411,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         // 파라미터 타입별로 분류하여 변환
         List<ParameterDetailDto> pathQueryParams = parameters.stream()
-                .filter(p -> p.getCategoryKey() != null && "PATH_QUERY".equals(p.getCategoryKey().getName()))
+                .filter(p -> p.getCategoryKey() != null && "PATH/QUERY".equals(p.getCategoryKey().getName()))
                 .map(this::convertParameterEntityToDto).collect(Collectors.toList());
 
         List<ParameterDetailDto> requestParams = parameters.stream()
