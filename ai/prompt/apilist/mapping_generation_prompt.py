@@ -60,6 +60,6 @@ def format_apis_simple(api_lists: List[Dict]) -> str:
     formatted = []
     for i, api in enumerate(api_lists):
         formatted.append(f"""
-API-{i+1}: {api.get('apiName')} - {api.get('description', '')[:80]}...
+API-{i+1}: {api.get('apiName')} - {api.get('description', '')[:70]}...
 """)
     return "\n".join(formatted)

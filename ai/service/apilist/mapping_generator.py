@@ -12,12 +12,12 @@ load_dotenv()
 
 anthropic_client = Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
 
-def perform_mapping_generation(semantic_mapping: Dict, scenarios: List[Dict], api_lists: List[Dict]) -> List[Dict]:
+def perform_mapping_generation(scenarios: List[Dict], api_lists: List[Dict]) -> List[Dict]:
     """
     LLM을 사용한 매핑표 생성
     """
     try:
-        prompt = create_mapping_generation_prompt(semantic_mapping, scenarios, api_lists)
+        prompt = create_mapping_generation_prompt(scenarios, api_lists)
         
         # 프롬프트 길이 로깅
         logging.info(f"프롬프트 길이: {len(prompt)} 문자")

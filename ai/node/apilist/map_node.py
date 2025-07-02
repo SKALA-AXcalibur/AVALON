@@ -12,6 +12,10 @@ def map_node(state: MappingState) -> Dict[str, Any]:
     """
     logging.info("의미적 매핑 노드 시작")
     
+    # retry_count 증가
+    retry_count = state.get("retry_count", 0) + 1
+    state["retry_count"] = retry_count
+    
     try:
         # 재생성 시에는 원본 데이터 사용, 처음에는 입력 데이터 사용
         scenarios = state.get('scenarios', []) or state.get('original_scenarios', [])
