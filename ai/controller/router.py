@@ -43,9 +43,7 @@ async def read_root() -> Response:
     AVALON AI API의 기본 엔드포인트
 
     """
-    return Response(
-        content={"message": "Welcome to AVALON AI API"}, media_type="application/json"
-    )
+    return JSONResponse(content={"message": "Welcome to AVALON AI API"})
 
 
 @router.post("/api/spec/v1/analyze")
