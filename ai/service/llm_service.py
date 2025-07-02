@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from os import environ
 from langchain_anthropic.chat_models import ChatAnthropic
 from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage
 
 load_dotenv()
 
