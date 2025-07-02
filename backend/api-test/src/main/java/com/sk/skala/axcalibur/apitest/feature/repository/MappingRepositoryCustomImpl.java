@@ -38,10 +38,10 @@ public class MappingRepositoryCustomImpl implements MappingRepositoryCustom {
                         apiListEntity.method,
                         apiListEntity.url,
                         apiListEntity.path))
-                .from(mappingEntity)
+                .from(testcaseEntity)
+                .join(testcaseEntity.mapping, mappingEntity)
                 .join(mappingEntity.scenario, scenarioEntity)
                 .join(mappingEntity.apiList, apiListEntity)
-                .join(mappingEntity.testcases, testcaseEntity)
                 .where(scenarioEntity.projectKey.eq(projectKey)
                         .and(scenarioEntity.scenarioId.in(scenarioIds)))
                 .orderBy(mappingEntity.step.asc(), testcaseEntity.id.asc())
