@@ -3,15 +3,14 @@ import json
 import os
 from typing import Dict, Any, List
 from dotenv import load_dotenv
-from service.llm_service import get_anthropic_client
+from service.llm_service import model
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from prompt.apilist.mapping_generation_prompt import create_mapping_generation_prompt
 from service.apilist.map_agent import safe_json_parse
 
 # .env 파일 로드
 load_dotenv()
-
-anthropic_client = get_anthropic_client()
 
 def perform_mapping_generation(scenarios: List[Dict], api_lists: List[Dict]) -> List[Dict]:
     """
@@ -24,16 +23,13 @@ def perform_mapping_generation(scenarios: List[Dict], api_lists: List[Dict]) -> 
         logging.info(f"프롬프트 길이: {len(prompt)} 문자")
         logging.info(f"프롬프트 미리보기: {prompt[:200]}...")
         
-        response = anthropic_client.messages.create(
-            model=os.getenv('MODEL_NAME', 'claude-sonnet-4'),
-            max_tokens=4000,
-            temperature=float(os.getenv('MODEL_TEMPERATURE', 0.7)),
-            system="당신은 시나리오-API 매핑표를 생성하는 전문가입니다. 반드시 JSON만 반환하세요.",
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
-        )
-        result_text = response.content[0].text
+        messages = [
+            SystemMessage(content="당신은 시나리오-API 매핑표를 생성하는 전문가입니다. 반드시 JSON만 반환하세요."),
+            HumanMessage(content=prompt)
+        ]
+        
+        response = model.invoke(messages)
+        result_text = response.content
         
         # LLM 응답 상세 로깅
         logging.info(f"LLM 응답 길이: {len(result_text) if result_text else 0}")

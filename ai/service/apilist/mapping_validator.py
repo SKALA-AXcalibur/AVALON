@@ -4,14 +4,13 @@ import os
 import re
 from typing import Dict, Any, List
 from dotenv import load_dotenv
-from service.llm_service import get_anthropic_client
+from service.llm_service import model
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from prompt.apilist.mapping_validation_prompt import create_mapping_validation_prompt
 
 # .env 파일 로드
 load_dotenv()
-
-anthropic_client = get_anthropic_client()
 
 def clean_llm_json(text):
     # ```json ... ``` 또는 ``` ... ``` 코드블록 제거
@@ -24,16 +23,15 @@ def perform_mapping_validation(mapping_table: List[Dict]) -> Dict[str, Any]:
     """
     try:
         prompt = create_mapping_validation_prompt(mapping_table)
-        response = anthropic_client.messages.create(
-            model=os.getenv('MODEL_NAME', 'claude-sonnet-4'),
-            max_tokens=4000,
-            temperature=float(os.getenv('MODEL_TEMPERATURE', 0.7)),
-            system="당신은 시나리오-API 매핑표를 검증하는 전문가입니다. 반드시 JSON만 반환하세요.",
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
-        )
-        result_text = response.content[0].text
+        
+        messages = [
+            SystemMessage(content="당신은 시나리오-API 매핑표를 검증하는 전문가입니다. 반드시 JSON만 반환하세요."),
+            HumanMessage(content=prompt)
+        ]
+        
+        response = model.invoke(messages)
+        result_text = response.content
+        
         try:
             cleaned = clean_llm_json(result_text)
             validation_result = json.loads(cleaned)

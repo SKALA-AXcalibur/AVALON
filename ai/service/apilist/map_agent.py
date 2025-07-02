@@ -10,16 +10,13 @@ from prompt.apilist.map_prompt import (
     create_semantic_mapping_prompt,
     get_semantic_mapping_system_prompt
 )
-from service.llm_service import get_chat_anthropic_model
+from service.llm_service import model
 
 # .env 파일 로드
 load_dotenv()
 
 # 배치 처리 크기 상수
 BATCH_SIZE = int(os.getenv("BATCH_SIZE"))
-
-# LLM 서비스에서 모델 가져오기
-llm = get_chat_anthropic_model()
 
 def clean_llm_json(text):
     """LLM 응답에서 JSON 추출 및 정리"""
@@ -73,7 +70,7 @@ def perform_semantic_mapping(scenarios: List[Dict], api_lists: List[Dict]) -> Di
                 HumanMessage(content=prompt)
             ]
             
-            result = llm.invoke(messages)
+            result = model.invoke(messages)
             result_text = result.content if hasattr(result, "content") else str(result)
             
             # 안전한 JSON 파싱

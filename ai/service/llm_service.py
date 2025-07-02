@@ -10,7 +10,6 @@ from os import environ
 from langchain_anthropic.chat_models import ChatAnthropic
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
-from anthropic import Anthropic
 
 load_dotenv()
 
@@ -31,21 +30,8 @@ gpt_model = ChatOpenAI(
     max_tokens=16384,
 )
 
-# Anthropic 클라이언트 (직접 API 호출용)
-anthropic_client = Anthropic(api_key=environ.get("ANTHROPIC_API_KEY"))
-
 
 async def call_model(prompt: str) -> str:
     """LLM 호출 함수"""
     response = await model.ainvoke([HumanMessage(content=prompt)])
     return response.content
-
-
-def get_chat_anthropic_model():
-    """ChatAnthropic 모델 인스턴스 반환"""
-    return model
-
-
-def get_anthropic_client():
-    """Anthropic 클라이언트 인스턴스 반환"""
-    return anthropic_client
