@@ -14,20 +14,20 @@ from langchain_core.messages import HumanMessage
 load_dotenv()
 
 model = ChatAnthropic(
-    model_name=environ.get("MODEL_NAME", 'claude-sonnet-4-20250514'),
+    model_name=environ.get("MODEL_NAME", "claude-sonnet-4-20250514"),
     temperature=float(environ.get("MODEL_TEMPERATURE", 0.7)),
     timeout=float(environ.get("MODEL_TIMEOUT", 30.0)),
     api_key=environ.get("ANTHROPIC_API_KEY"),
-    max_tokens=2048,
+    max_tokens=16384,
     stop=None,
 )
 
 gpt_model = ChatOpenAI(
-    model_name=environ.get("GPT_MODEL_NAME", 'gpt-4.1'),
+    model_name=environ.get("GPT_MODEL_NAME", "gpt-4.1"),
     temperature=float(environ.get("GPT_MODEL_TEMPERATURE", 0.1)),
     request_timeout=float(environ.get("MODEL_TIMEOUT", 120.0)),
     api_key=environ.get("OPENAI_API_KEY"),
-    max_tokens=8192,
+    max_tokens=16384,
 )
 
 

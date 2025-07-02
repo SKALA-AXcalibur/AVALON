@@ -58,7 +58,6 @@ def _extract_json(text: str) -> dict:
     try:
         return json.loads(json_str)
     except json.JSONDecodeError as e:
-        # JSON이 불완전할 수 있으므로 더 자세한 로그 출력
         logging.error(f"[JSON 파싱 실패]")
         raise ValueError(
             f"LLM 응답에서 유효한 JSON을 추출하지 못했습니다. JSON 오류"

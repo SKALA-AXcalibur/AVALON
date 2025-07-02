@@ -95,7 +95,7 @@ async def analyze_spec(
 
 
 @router.post("/api/scenario/v1/generate")
-async def generate_scenario() -> Response:
+async def generate_scenario(request: ScenarioRequest) -> Response:
     """
     LangGraph를 통해 명세서 분석 결과를 바탕으로 테스트 시나리오를 생성하고 검증을 거친 후 반환
     """
