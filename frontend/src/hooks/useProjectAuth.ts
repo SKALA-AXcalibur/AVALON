@@ -9,7 +9,6 @@ export const useProjectAuth = () => {
   const [projectId, setProjectId] = useState("");
   const projectIdRef = useRef("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isConfirming, setIsConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const { setProject } = useProjectStore();
@@ -29,8 +28,6 @@ export const useProjectAuth = () => {
 
     const validation = validateId(value);
     setError(validation.isValid ? null : validation.errorMessage || null);
-
-    setIsConfirming(false);
   };
 
   const handleLogin = async (
@@ -38,11 +35,8 @@ export const useProjectAuth = () => {
   ) => {
     try {
       setIsLoading(true);
-
       await clientAuthApi.login(projectId);
-
       const response = await clientScenarioApi.readProjectScenarios();
-
       setProject({
         id: projectId,
         scenarios: response.scenarioList.map((scenario) => ({
@@ -51,7 +45,6 @@ export const useProjectAuth = () => {
           testcases: [],
         })),
       });
-
       onSuccess?.(
         response.total > 0 ? response.scenarioList[0].id : null,
         response.total
@@ -66,23 +59,15 @@ export const useProjectAuth = () => {
   };
 
   const handleDelete = async () => {
-    if (!isConfirming) {
-      setIsConfirming(true);
-      return;
-    }
-
     try {
       setIsLoading(true);
-
       await clientAuthApi.delete(projectId);
-
       setSuccess(SUCCESS_MESSAGES.PROJECT_AUTH.DELETE_SUCCESS);
     } catch (error) {
       console.error("Delete failed:", error);
       setError(ERROR_MESSAGES.PROJECT_AUTH.DELETE_FAILED);
     } finally {
       setIsLoading(false);
-      setIsConfirming(false);
       setErrorMessageTimeout();
     }
   };
@@ -90,7 +75,6 @@ export const useProjectAuth = () => {
   return {
     projectId,
     isLoading,
-    isConfirming,
     error,
     success,
     handleProjectIdChange,

@@ -5,6 +5,7 @@ import { LinkButton } from "../common/LinkButton";
 import { ActionButton } from "../common/ActionButton";
 import { useTestcase } from "@/hooks/useTestcase";
 import { useRouter } from "next/navigation";
+import { DELETE_MESSAGES } from "@/constants/messages";
 
 export const TestcaseBox = ({
   projectId,
@@ -99,7 +100,11 @@ export const TestcaseBox = ({
                     TC 추가
                   </LinkButton>
                   <ActionButton
-                    onClick={() => handleDelete(onDeleteSuccess)}
+                    onClick={() => {
+                      if (window.confirm(DELETE_MESSAGES.TESTCASE)) {
+                        handleDelete(onDeleteSuccess);
+                      }
+                    }}
                     color="bg-transparent text-slate-700 hover:text-orange-500"
                     disabled={isLoading}
                   >

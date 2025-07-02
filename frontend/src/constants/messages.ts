@@ -70,3 +70,9 @@ export const SUCCESS_MESSAGES = {
     VALIDATION_SUCCESS: "파일 검증이 완료되었습니다.",
   },
 };
+
+export const DELETE_MESSAGES = {
+  PROJECT: "프로젝트를 삭제하시겠습니까?",
+  SCENARIO: "시나리오를 삭제하시겠습니까?",
+  TESTCASE: "테스트케이스를 삭제하시겠습니까?",
+};
