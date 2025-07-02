@@ -19,7 +19,7 @@ def mapping_generation_node(state: MappingState) -> Dict[str, Any]:
             return update_mapping_generation_failed(state, "매핑표 생성에 필요한 데이터가 부족합니다.")
 
         # 매핑표 생성 LLM 호출
-        generated_mapping_table = perform_mapping_generation(semantic_mapping, scenarios, api_lists)
+        generated_mapping_table = perform_mapping_generation(scenarios, api_lists)
 
         # LLM 응답이 mappings 구조일 경우 apiMapping 구조로 변환
         def convert_llm_mappings_to_api_mapping(mappings, api_list):
@@ -32,7 +32,7 @@ def mapping_generation_node(state: MappingState) -> Dict[str, Any]:
                     api_info = api_dict.get(api_id, {})
                     api_mapping.append({
                         "scenarioId": scenario_id,
-                        "stepName": "",  # 필요시 추가
+                        "stepName": api_info.get("stepName", api_info.get("apiName", "")),
                         "apiName": api_info.get("apiName", ""),
                         "description": api_info.get("description", ""),
                         "url": api_info.get("url", ""),
