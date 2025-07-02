@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ScenarioFlowScenarioItem {
     
-    private String id;                                    // 시나리오 아이디
-    private String description;                           // 시나리오 설명
-    private List<ScenarioFlowApiItem> apiList;           // API 목록
-} 
+    private String id;                        // 시나리오 ID
+    private String description;               // 시나리오 설명
+    private List<ScenarioFlowApiItem> apiList;  // API 목록
+}

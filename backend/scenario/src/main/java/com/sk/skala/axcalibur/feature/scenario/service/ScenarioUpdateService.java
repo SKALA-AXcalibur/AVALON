@@ -4,7 +4,8 @@ import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioUpdateRequest
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioUpdateDto;
 
 /**
- * 시나리오 수정 서비스 인터페이스(IF-SN-0004)
+ * 시나리오 수정 서비스 인터페이스
+ * IF-SN-0004 시나리오 수정
  */
 public interface ScenarioUpdateService {
     

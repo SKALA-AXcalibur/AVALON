@@ -16,6 +16,9 @@ public interface ApiListRepository extends JpaRepository<ApiListEntity, Integer>
     List<ApiListEntity> findByProjectKey_Id(Integer projectId);
     List<ApiListEntity> findByIdIn(List<Integer> ids);
     Optional<ApiListEntity> findByApiListId(String apiId);
+    
+    // API 이름과 프로젝트 키로 API 조회 (매핑 생성용)
+    Optional<ApiListEntity> findByNameAndProjectKey_Id(String name, Integer projectId);
 }
 
 

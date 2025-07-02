@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ScenarioFlowApiItem {
     
-    private String id;                       // API 아이디
-    private String name;                     // API 이름
-    private String description;              // API 설명
+    private String id;          // API ID
+    private String name;        // API 이름
+    private String description; // API 설명
 } 
