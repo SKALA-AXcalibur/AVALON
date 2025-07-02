@@ -39,12 +39,13 @@ class ApiListMapRequest(BaseModel):
 # 편의 함수들
 def convert_scenario_list(scenario_list: List[Dict]) -> List[Dict]:
     """시나리오 리스트를 내부 형식으로 변환"""
+    created_at = datetime.now().isoformat()
     return list(map(lambda s: {
         "scenarioId": s.get("scenarioId"),
         "title": s.get("title"),
         "description": s.get("description"),
         "validation": s.get("validation"),
-        "createdAt": datetime.now().isoformat()
+        "createdAt": created_at
     }, scenario_list))
 
 
