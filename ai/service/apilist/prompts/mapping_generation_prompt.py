@@ -1,7 +1,7 @@
 from typing import List, Dict
 
 
-def create_mapping_generation_prompt(semantic_mapping: Dict, scenarios: List[Dict], api_lists: List[Dict]) -> str:
+def create_mapping_generation_prompt(scenarios: List[Dict], api_lists: List[Dict]) -> str:
     """
     매핑표 생성을 위한 LLM 프롬프트 생성 - 개선된 버전
     """
