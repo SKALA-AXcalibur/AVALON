@@ -66,8 +66,8 @@ def get_semantic_mapping_system_prompt() -> str:
 def format_scenarios_for_llm(scenarios: List[Dict]) -> str:
     """시나리오 정보를 LLM용 텍스트로 포맷"""
     formatted = list(map(lambda scenario: f"""
-- ID: {scenario.get('scenarioId', scenario.get('scenario_id', scenario.get('id', 'N/A')))}
-- 이름: {scenario.get('title', scenario.get('name', 'N/A'))}
+- ID: {scenario.get('scenarioId', 'N/A')}
+- 이름: {scenario.get('title', 'N/A')}
 - 설명: {scenario.get('description', 'N/A')}
 - 검증 포인트: {scenario.get('validation', 'N/A')}
 """, scenarios))
