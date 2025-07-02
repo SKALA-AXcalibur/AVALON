@@ -8,8 +8,8 @@ from typing import List, Dict, Any
 from dto.request.apilist.apilist_map_request import convert_scenario_list, convert_api_list
 from dto.response.apilist.apilist_validation_response import ApiListValidationResponse
 from dto.request.apilist.common import ApiMappingItem
-from service.apilist.state.mapping_state import create_initial_mapping_state
-from service.apilist.graphs.apilist_graph import create_apilist_graph
+from state.apilist.mapping_state import create_initial_mapping_state
+from service.apilist.apilist_graph import create_apilist_graph
 from datetime import datetime
 
 
