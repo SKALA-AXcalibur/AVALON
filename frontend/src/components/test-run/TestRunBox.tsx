@@ -4,8 +4,14 @@ import { ActionButton } from "@/components/common/ActionButton";
 import { useTestRun } from "@/hooks/useTestRun";
 
 export const TestRunBox = ({ scenarioId }: { scenarioId: string }) => {
-  const { scenario, loadingStates, readScenarioReport, readTestcaseReport } =
-    useTestRun(scenarioId);
+  const {
+    scenario,
+    loadingStates,
+    readApiTestScenarioResult,
+    readApiTestResult,
+    readScenarioReport,
+    readTestcaseReport,
+  } = useTestRun(scenarioId);
 
   return (
     <>
@@ -23,6 +29,18 @@ export const TestRunBox = ({ scenarioId }: { scenarioId: string }) => {
               </span>
             </h2>
             <div className="flex gap-2">
+              <ActionButton
+                onClick={() => {
+                  readApiTestScenarioResult(scenarioId);
+                  readApiTestResult();
+                }}
+                color="bg-transparent text-slate-700 hover:text-orange-500"
+                disabled={
+                  loadingStates.apiTestResult || loadingStates.scenarioResult
+                }
+              >
+                새로고침
+              </ActionButton>
               <ActionButton
                 onClick={readScenarioReport}
                 color="bg-transparent text-slate-700 hover:text-orange-500"

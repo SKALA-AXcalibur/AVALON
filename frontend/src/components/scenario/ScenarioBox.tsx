@@ -5,6 +5,7 @@ import { LinkButton } from "../common/LinkButton";
 import { ActionButton } from "../common/ActionButton";
 import { useScenario } from "@/hooks/useScenario";
 import { useRouter } from "next/navigation";
+import { DELETE_MESSAGES } from "@/constants/messages";
 
 export const ScenarioBox = ({
   projectId,
@@ -61,27 +62,6 @@ export const ScenarioBox = ({
               </span>
             </h2>
             <div className="flex gap-2">
-              <LinkButton
-                href={`/project/${projectId}/scenario/new`}
-                color="bg-transparent text-slate-700 hover:text-orange-500"
-                ariaLabel="시나리오 추가"
-              >
-                시나리오 추가
-              </LinkButton>
-              <LinkButton
-                href={`/project/${projectId}/scenario/${scenarioId}/testcase/new`}
-                color="bg-transparent text-slate-700 hover:text-orange-500"
-                ariaLabel="TC 추가"
-              >
-                TC 추가
-              </LinkButton>
-              <ActionButton
-                onClick={() => handleDelete(onDeleteSuccess)}
-                color="bg-transparent text-slate-700 hover:text-orange-500"
-                disabled={isLoading}
-              >
-                삭제
-              </ActionButton>
               {scenarioId === "new" ? (
                 <ActionButton
                   onClick={() => handleCreate(onCreateSuccess)}
@@ -91,13 +71,40 @@ export const ScenarioBox = ({
                   생성
                 </ActionButton>
               ) : (
-                <ActionButton
-                  onClick={handleUpdate}
-                  color="bg-transparent text-slate-700 hover:text-orange-500"
-                  disabled={isLoading}
-                >
-                  저장
-                </ActionButton>
+                <>
+                  <LinkButton
+                    href={`/project/${projectId}/scenario/new`}
+                    color="bg-transparent text-slate-700 hover:text-orange-500"
+                    ariaLabel="시나리오 추가"
+                  >
+                    시나리오 추가
+                  </LinkButton>
+                  <LinkButton
+                    href={`/project/${projectId}/scenario/${scenarioId}/testcase/new`}
+                    color="bg-transparent text-slate-700 hover:text-orange-500"
+                    ariaLabel="TC 추가"
+                  >
+                    TC 추가
+                  </LinkButton>
+                  <ActionButton
+                    onClick={() => {
+                      if (window.confirm(DELETE_MESSAGES.SCENARIO)) {
+                        handleDelete(onDeleteSuccess);
+                      }
+                    }}
+                    color="bg-transparent text-slate-700 hover:text-orange-500"
+                    disabled={isLoading}
+                  >
+                    삭제
+                  </ActionButton>
+                  <ActionButton
+                    onClick={handleUpdate}
+                    color="bg-transparent text-slate-700 hover:text-orange-500"
+                    disabled={isLoading}
+                  >
+                    저장
+                  </ActionButton>
+                </>
               )}
             </div>
           </div>

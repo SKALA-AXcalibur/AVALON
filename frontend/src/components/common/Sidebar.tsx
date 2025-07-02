@@ -20,11 +20,9 @@ export const Sidebar = ({
   const { readScenarioTestcases } = useProject();
 
   useEffect(() => {
-    if (!isOpen(scenarioId)) {
-      addOpenScenario(scenarioId);
-      readScenarioTestcases(scenarioId);
-    }
-  }, [scenarioId, addOpenScenario, readScenarioTestcases, isOpen]);
+    readScenarioTestcases(scenarioId);
+    addOpenScenario(scenarioId);
+  }, [scenarioId]);
 
   const handleToggleClick = async (scenarioId: string) => {
     toggleOpenScenario(scenarioId);

@@ -1,5 +1,6 @@
 "use client";
 import { TestcaseResult } from "@/interfaces/apiTest";
+import { TEST_STATUS } from "@/constants/testStatus";
 
 export const TestRunTable = ({
   testcaseList,
@@ -8,13 +9,13 @@ export const TestRunTable = ({
 }) => {
   const getStatusStyle = (status: string) => {
     switch (status) {
-      case "성공":
+      case TEST_STATUS.SUCCESS:
         return "bg-green-100 text-green-700";
-      case "실패":
+      case TEST_STATUS.FAIL:
         return "bg-red-100 text-red-700";
-      case "실행중":
+      case TEST_STATUS.RUNNING:
         return "bg-yellow-100 text-yellow-700";
-      case "준비중":
+      case TEST_STATUS.READY:
         return "bg-gray-100 text-gray-700";
       default:
         return "bg-gray-100 text-gray-700";

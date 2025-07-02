@@ -19,7 +19,7 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
   toggleOpenScenario: (scenarioId: string) =>
     set((state) => {
       const newSet = new Set(state.openScenarios);
-      if (state.openScenarios.has(scenarioId)) {
+      if (newSet.has(scenarioId)) {
         newSet.delete(scenarioId);
       } else {
         newSet.add(scenarioId);

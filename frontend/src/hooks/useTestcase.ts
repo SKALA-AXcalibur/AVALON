@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useProjectStore } from "@/store/projectStore";
 import { clientTestcaseApi } from "@/services/client/clientTestcaseApi";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/constants/messages";
@@ -26,6 +26,40 @@ export const useTestcase = (
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const fetchApiList = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await clientTestcaseApi.readApiList(scenarioId);
+      setApiList(response.apiList);
+    } catch (error) {
+      console.error(error);
+      setError("API 목록을 가져오는데 실패했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [scenarioId]);
+
+  const fetchTestcaseInfo = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const testcase = await clientTestcaseApi.readTestcase(testcaseId);
+      setTestcaseInfo(testcase);
+    } catch (error) {
+      console.error(error);
+      setError(ERROR_MESSAGES.TESTCASE.READ_FAILED);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [testcaseId]);
+
+  useEffect(() => {
+    if (testcaseId === "new") {
+      fetchApiList();
+    } else {
+      fetchTestcaseInfo();
+    }
+  }, [testcaseId, fetchApiList, fetchTestcaseInfo]);
+
   useEffect(() => {
     if (error || success) {
       const timer = setTimeout(() => {
@@ -35,42 +69,6 @@ export const useTestcase = (
       return () => clearTimeout(timer);
     }
   }, [error, success]);
-
-  useEffect(() => {
-    if (testcaseId === "new") {
-      const fetchApiList = async () => {
-        try {
-          setIsLoading(true);
-          const response = await clientTestcaseApi.readApiList(scenarioId);
-          setApiList(response.apiList);
-        } catch (error) {
-          console.error(error);
-          setError("API 목록을 가져오는데 실패했습니다.");
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchApiList();
-    }
-  }, [testcaseId, scenarioId]);
-
-  useEffect(() => {
-    if (testcaseId !== "new") {
-      const fetchTestcaseInfo = async () => {
-        try {
-          setIsLoading(true);
-          const testcase = await clientTestcaseApi.readTestcase(testcaseId);
-          setTestcaseInfo(testcase);
-        } catch (error) {
-          console.error(error);
-          setError(ERROR_MESSAGES.TESTCASE.READ_FAILED);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchTestcaseInfo();
-    }
-  }, [testcaseId]);
 
   const handlePreconditionChange = (value: string) => {
     setTestcaseInfo((prev) => ({ ...prev, precondition: value }));
@@ -99,8 +97,8 @@ export const useTestcase = (
           ...prev,
           testDataList: response.testDataList.map((param) => ({
             ...param,
-            value: null, // 파라미터 값은 null로 초기화
-          })) as Param[],
+            value: null,
+          })),
         }));
       } catch (error) {
         console.error(error);
@@ -109,7 +107,6 @@ export const useTestcase = (
         setIsLoading(false);
       }
     } else {
-      // API가 선택되지 않았으면 testDataList 초기화
       setTestcaseInfo((prev) => ({ ...prev, testDataList: [] }));
     }
   };
