@@ -18,12 +18,27 @@ import java.util.regex.PatternSyntaxException;
 /**
  * ApiTaskDto와 Map<String, String> 간의 변환을 담당하는 유틸리티 클래스
  * Redis Stream에서 MapRecord 사용을 위한 직렬화/역직렬화 처리
+ * 
+ * 제네릭 메서드 활용:
+ * 
+ * 1. TypeReference:
+ * TypeReference<Map<String, Object>> typeRef = new TypeReference<Map<String,
+ * Object>>() {};
+ * Map<String, Object> result = deserializeToType(json, typeRef);
+ * 
+ * 2. Class 타입:
+ * MyClass result = deserializeToClass(json, MyClass.class);
+ * 
  */
 public class ApiTaskDtoConverter {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Logger log = LoggerFactory.getLogger(ApiTaskDtoConverter.class);
-    private static final TypeReference<Map<String, Object>> typeRef = new TypeReference<Map<String, Object>>() {
+
+    // 다양한 타입을 위한 TypeReference들
+    private static final TypeReference<Map<String, Object>> objectMapTypeRef = new TypeReference<Map<String, Object>>() {
+    };
+    private static final TypeReference<Map<String, String>> stringMapTypeRef = new TypeReference<Map<String, String>>() {
     };
 
     /**
@@ -88,6 +103,26 @@ public class ApiTaskDtoConverter {
             }
         }
 
+        if (dto.reqPath() != null) {
+            try {
+                map.put("reqPath", objectMapper.writeValueAsString(dto.reqPath()));
+            } catch (JsonProcessingException e) {
+                log.error("ApiTaskDtoConverter.toMap: Failed to serialize reqPath: {}", e.getMessage());
+                throw new BusinessExceptionHandler("ApiTaskDtoConverter.toMap: Failed to serialize reqPath",
+                        ErrorCode.JACKSON_PROCESS_ERROR, e);
+            }
+        }
+
+        if (dto.reqQuery() != null) {
+            try {
+                map.put("reqQuery", objectMapper.writeValueAsString(dto.reqQuery()));
+            } catch (JsonProcessingException e) {
+                log.error("ApiTaskDtoConverter.toMap: Failed to serialize reqQuery: {}", e.getMessage());
+                throw new BusinessExceptionHandler("ApiTaskDtoConverter.toMap: Failed to serialize reqQuery",
+                        ErrorCode.JACKSON_PROCESS_ERROR, e);
+            }
+        }
+
         return map;
     }
 
@@ -112,6 +147,8 @@ public class ApiTaskDtoConverter {
                     .reqBody(deserializeMap(map.get("reqBody")))
                     .resHeader(deserializeMultiValueMap(map.get("resHeader")))
                     .resBody(deserializeMap(map.get("resBody")))
+                    .reqPath(deserializeStringMap(map.get("reqPath")))
+                    .reqQuery(deserializeMultiValueMap(map.get("reqQuery")))
                     .build();
         } catch (PatternSyntaxException e) {
             log.error("ApiTaskDtoConverter.fromMap: Failed to convert map to ApiTaskDto: {}", e.getMessage());
@@ -155,9 +192,13 @@ public class ApiTaskDtoConverter {
         }
 
         try {
-            Map<String, Object> tempMap = objectMapper.readValue(json, typeRef);
-            MultiValueMap<String, String> result = new LinkedMultiValueMap<>();
+            // 제네릭 범용 메서드를 활용
+            Map<String, Object> tempMap = deserializeToType(json, objectMapTypeRef);
+            if (tempMap == null) {
+                return null;
+            }
 
+            MultiValueMap<String, String> result = new LinkedMultiValueMap<>();
             tempMap.forEach((key, value) -> {
                 if (value instanceof Iterable) {
                     for (Object item : (Iterable<?>) value) {
@@ -169,7 +210,7 @@ public class ApiTaskDtoConverter {
             });
 
             return result;
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             log.error("ApiTaskDtoConverter.deserializeMultiValueMap: Failed to deserialize MultiValueMap: {}",
                     e.getMessage());
             return null;
@@ -180,16 +221,54 @@ public class ApiTaskDtoConverter {
      * JSON 문자열을 Map<String, Object>으로 역직렬화
      */
     private static Map<String, Object> deserializeMap(String json) {
-        log.debug("ApiTaskDtoConverter.deserializeMap: Deserializing JSON to Map: {}", json);
+        return deserializeToType(json, objectMapTypeRef);
+    }
+
+    /**
+     * 제네릭을 활용한 범용 역직렬화 메서드
+     * TypeReference를 받아서 원하는 타입으로 역직렬화
+     */
+    private static <T> T deserializeToType(String json, TypeReference<T> typeReference) {
+        log.debug("ApiTaskDtoConverter.deserializeToType: Deserializing JSON to type {}: {}",
+                typeReference.getType(), json);
         if (json == null || json.trim().isEmpty()) {
             return null;
         }
 
         try {
-            return objectMapper.readValue(json, typeRef);
+            return objectMapper.readValue(json, typeReference);
         } catch (JsonProcessingException e) {
-            log.error("ApiTaskDtoConverter.deserializeMap: Failed to deserialize Map: {}", e.getMessage());
+            log.error("ApiTaskDtoConverter.deserializeToType: Failed to deserialize to type {}: {}",
+                    typeReference.getType(), e.getMessage());
             return null;
         }
     }
+
+    /**
+     * 제네릭을 활용한 범용 역직렬화 메서드
+     * Class 타입을 받아서 원하는 타입으로 역직렬화
+     */
+    private static <T> T deserializeToClass(String json, Class<T> clazz) {
+        log.debug("ApiTaskDtoConverter.deserializeToClass: Deserializing JSON to class {}: {}",
+                clazz.getName(), json);
+        if (json == null || json.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            return objectMapper.readValue(json, clazz);
+        } catch (JsonProcessingException e) {
+            log.error("ApiTaskDtoConverter.deserializeToClass: Failed to deserialize to class {}: {}",
+                    clazz.getName(), e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Map<String, String> 전용 역직렬화 메서드
+     */
+    private static Map<String, String> deserializeStringMap(String json) {
+        return deserializeToType(json, stringMapTypeRef);
+    }
+
 }
