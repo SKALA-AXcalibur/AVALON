@@ -1,7 +1,7 @@
 package com.sk.skala.axcalibur.feature.scenario.service;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioCreateRequestDto;
-import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCreateResponseDto;
+import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCUResponseDto;
 
 /**
  * 시나리오 추가 서비스 인터페이스
@@ -14,6 +14,6 @@ public interface ScenarioCreateService {
      * @param requestDto 시나리오 생성 요청 DTO
      * @return 시나리오 생성 응답 DTO
      */
-    ScenarioCreateResponseDto createScenario(Integer projectKey, ScenarioCreateRequestDto requestDto);
+    ScenarioCUResponseDto createScenario(Integer projectKey, ScenarioCreateRequestDto requestDto);
 
 } 

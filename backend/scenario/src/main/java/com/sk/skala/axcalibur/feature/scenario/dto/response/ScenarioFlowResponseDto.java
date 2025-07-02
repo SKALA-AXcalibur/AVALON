@@ -5,14 +5,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * 시나리오 생성 응답 DTO
- * IF-SN-0003 시나리오 생성
- */
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ScenarioCreateResponseDto {
-    private String id; // 생성된 시나리오 식별자
+public class ScenarioFlowResponseDto {
+    private String data;    // Mermaid 플로우차트 데이터
 } 
