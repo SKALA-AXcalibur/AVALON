@@ -10,6 +10,7 @@ from service.apilist.state.mapping_state import create_initial_mapping_state
 from service.apilist.graphs.apilist_graph import create_apilist_graph
 from dto.response.apilist.apilist_validation_response import ApiListValidationResponse
 from dto.request.apilist.common import ApiMappingItem
+from service.apilist.api_mapping_service import apiMappingService
 from datetime import datetime
 
 import logging
@@ -114,16 +115,6 @@ async def generate_flow_chart() -> Response:
 
     return Response()
 
-
-@router.post('/api/list/v1/generate')
-async def generate_api_list(request: Request):
-    avalon = request.cookies.get("avalon")
-    if not avalon:
-        return JSONResponse(content={"error": "avalon 쿠키가 필요합니다."}, status_code=400)
-    # 실제 매핑 요청 처리 로직(생략)
-    return JSONResponse(content={"processedAt": datetime.now().isoformat()})
-
-
 @router.post('/api/list/v1/create')
 async def create_api_list(request: Request):
     avalon = request.cookies.get("avalon")
@@ -134,48 +125,9 @@ async def create_api_list(request: Request):
     scenario_list = body.get("scenarioList", [])
     api_list = body.get("apiList", [])
 
-    converted_scenarios = convert_scenario_list(scenario_list)
-    converted_apis = convert_api_list(api_list)
-
-    # 초기 상태 생성
-    state = create_initial_mapping_state(avalon=avalon)
-    state["scenarios"] = converted_scenarios
-    state["api_lists"] = converted_apis
-
-    # LangGraph 워크플로우 실행
-    graph = create_apilist_graph()
-    result = await graph.ainvoke(state)
-    
-    # generated_mapping_table에서 매핑 데이터 가져오기
-    mapping_table = result.get("generated_mapping_table", [])
-    api_mapping_list = [
-        ApiMappingItem(
-            scenarioId=item["scenarioId"],
-            stepName=item["stepName"],
-            apiName=item["apiName"],
-            description=item["description"],
-            url=item["url"],
-            method=item["method"],
-            parameters=item["parameters"],
-            responseStructure=item["responseStructure"],
-        )
-        for item in mapping_table
-    ]
-
-    # validation_result에서 검증 점수 가져오기
-    validation_result = result.get("validation_result", {})
-    validation_score = validation_result.get("validation_score", 0.0)
-    
-    # validation_score가 없으면 validationRate에서 가져오기
-    if validation_score == 0.0:
-        validation_score = result.get("validationRate", 0.0)
-
-    response = ApiListValidationResponse(
-        processedAt=datetime.now().isoformat(),
-        validationRate=validation_score,
-        apiMapping=api_mapping_list
-    )
-    return JSONResponse(content=response.dict())
+    # 서비스 계층에 위임
+    response = await apiMappingService.doApiMapping(avalon, scenario_list, api_list)
+    return JSONResponse(content=response)
 
 
 @router.post("/api/tc/v1/{scenario_id}")
