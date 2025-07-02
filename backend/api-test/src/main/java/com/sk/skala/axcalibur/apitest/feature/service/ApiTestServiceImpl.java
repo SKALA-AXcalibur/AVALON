@@ -251,9 +251,6 @@ public class ApiTestServiceImpl implements ApiTestService {
                     String success;
 
                     if (list.stream().anyMatch(t -> Boolean.FALSE.equals(t.success()))) {
-                        // false인 경우에는 time 값으로 실행중/실패 구분 필요
-                        // 하지만 TestcaseSuccessResponseDto에는 time이 없으므로 다른 방식 필요
-                        // 일단 false가 있으면 실패로 처리 (실제로는 더 정교한 로직 필요)
                         success = "실패";
                     } else {
                         success = "성공";
@@ -390,7 +387,7 @@ public class ApiTestServiceImpl implements ApiTestService {
     }
 
     /**
-     * 최적화된 방식으로 파라미터를 재귀적으로 처리합니다.
+     * 파라미터를 재귀적으로 처리합니다.
      */
     private void processParameter(ParameterWithDataDto parameter,
             Map<Integer, ParameterWithDataDto> parameterMap,
@@ -439,7 +436,7 @@ public class ApiTestServiceImpl implements ApiTestService {
     }
 
     /**
-     * 최적화된 방식으로 Array 타입 파라미터를 처리합니다.
+     * Array 타입 파라미터를 처리합니다.
      */
     private Object processArrayParameter(ParameterWithDataDto parameter,
             Map<Integer, ParameterWithDataDto> parameterMap,
@@ -479,7 +476,7 @@ public class ApiTestServiceImpl implements ApiTestService {
     }
 
     /**
-     * 최적화된 방식으로 Object 타입 파라미터를 처리합니다.
+     * Object 타입 파라미터를 처리합니다.
      */
     private Object processObjectParameter(ParameterWithDataDto parameter,
             Map<Integer, ParameterWithDataDto> parameterMap,
