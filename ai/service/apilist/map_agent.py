@@ -4,27 +4,22 @@ import os
 import re
 from typing import Dict, Any, List
 from dotenv import load_dotenv
-from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from prompt.apilist.map_prompt import (
     create_semantic_mapping_prompt,
     get_semantic_mapping_system_prompt
 )
+from service.llm_service import get_chat_anthropic_model
 
 # .env 파일 로드
 load_dotenv()
 
 # 배치 처리 크기 상수
-BATCH_SIZE = 5
+BATCH_SIZE = int(os.getenv("BATCH_SIZE"))
 
-# LangChain Hosted LLM (Smith API) 사용 예시 - 루프 밖에서 한 번만 생성
-llm = ChatAnthropic(
-    model=os.getenv("MODEL_NAME", "claude-sonnet-4-20250514"),
-    temperature=float(os.getenv("MODEL_TEMPERATURE", 0.7)),
-    max_tokens=4000,
-    api_key=os.getenv("ANTHROPIC_API_KEY"),
-)
+# LLM 서비스에서 모델 가져오기
+llm = get_chat_anthropic_model()
 
 def clean_llm_json(text):
     """LLM 응답에서 JSON 추출 및 정리"""

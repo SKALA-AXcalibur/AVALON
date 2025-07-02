@@ -1,8 +1,9 @@
 import logging
+import json
 import os
 from typing import Dict, Any, List
-from anthropic import Anthropic
 from dotenv import load_dotenv
+from service.llm_service import get_anthropic_client
 
 from prompt.apilist.mapping_generation_prompt import create_mapping_generation_prompt
 from service.apilist.map_agent import safe_json_parse
@@ -10,7 +11,7 @@ from service.apilist.map_agent import safe_json_parse
 # .env 파일 로드
 load_dotenv()
 
-anthropic_client = Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
+anthropic_client = get_anthropic_client()
 
 def perform_mapping_generation(scenarios: List[Dict], api_lists: List[Dict]) -> List[Dict]:
     """

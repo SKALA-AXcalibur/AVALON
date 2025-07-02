@@ -3,15 +3,15 @@ import json
 import os
 import re
 from typing import Dict, Any, List
-from anthropic import Anthropic
 from dotenv import load_dotenv
+from service.llm_service import get_anthropic_client
 
 from prompt.apilist.mapping_validation_prompt import create_mapping_validation_prompt
 
 # .env 파일 로드
 load_dotenv()
 
-anthropic_client = Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
+anthropic_client = get_anthropic_client()
 
 def clean_llm_json(text):
     # ```json ... ``` 또는 ``` ... ``` 코드블록 제거
