@@ -10,7 +10,7 @@ class MappingState(TypedDict):
    # 입력 데이터
    avalon: str  # Redis 토큰
    max_attempts: NotRequired[int]  # 최대 재시도 횟수 (기본값: 3)
-   target_score: NotRequired[float]  # 목표 검증 점수 (기본값: 80.0)
+   target_score: NotRequired[float]  # 목표 검증 점수 (기본값: 70.0)
    
    # 조회된 기본 데이터
    project_key: NotRequired[Optional[int]]  # 프로젝트 키
@@ -58,7 +58,7 @@ class WorkflowStatus(TypedDict):
 
 
 # 상태 초기화 헬퍼 함수
-def create_initial_mapping_state(avalon: str, max_attempts: int = 3, target_score: float = 80.0) -> MappingState:
+def create_initial_mapping_state(avalon: str, max_attempts: int = 3, target_score: float = 70.0) -> MappingState:
    """
    초기 상태 생성 헬퍼 함수
    """

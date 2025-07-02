@@ -36,7 +36,7 @@ def create_apilist_graph() -> StateGraph:
         should_regenerate,
         {
             "complete": END,           # 완료시
-            "failed": END              # 실패시
+            "retry": "map"              # 실패시 map 노드로 다시 이동
         }
     )
     
