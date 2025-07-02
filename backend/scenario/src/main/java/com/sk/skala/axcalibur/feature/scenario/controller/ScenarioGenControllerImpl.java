@@ -16,6 +16,7 @@ import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioGenRequestDto
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioGenResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListResponse;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioResponseDto;
+import com.sk.skala.axcalibur.feature.scenario.dto.response.MappingResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.service.ProjectIdResolverService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioGenService;
 import com.sk.skala.axcalibur.feature.scenario.service.MappingService;
@@ -63,7 +64,7 @@ public class ScenarioGenControllerImpl implements ScenarioGenController {
             List<ScenarioEntity> savedEntities = scenarioGenService.parseAndSaveScenarios(response.getScenarioList(), projectKey);
 
             // 4. 매핑표 생성
-            List<MappingEntity> mappingEntities = mappingService.generateMappingForAllScenarios(projectKey);
+            mappingService.generateMappingForAllScenarios(projectKey);
 
             // 5. 플로우차트 생성
             scenarioFlowService.generateFlowchartForAllScenarios(projectKey);
