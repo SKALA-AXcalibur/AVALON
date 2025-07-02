@@ -24,6 +24,7 @@ import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCUResponseDt
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDeleteResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDetailResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListDto;
+import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioUpdateDto;
 
 import com.sk.skala.axcalibur.feature.scenario.service.ProjectIdResolverService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioCreateService;
@@ -33,16 +34,7 @@ import com.sk.skala.axcalibur.feature.scenario.service.ScenarioListService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioUpdateService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioFlowService;
 import com.sk.skala.axcalibur.feature.scenario.service.MappingService;
-import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
-import com.sk.skala.axcalibur.global.repository.ApiListRepository;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
-import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
-import com.sk.skala.axcalibur.global.entity.ApiListEntity;
-import com.sk.skala.axcalibur.global.entity.MappingApiItem;
-import com.sk.skala.axcalibur.global.entity.MappingScenarioItem;
-import com.sk.skala.axcalibur.global.entity.MappingRequestDto;
-import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
-import com.sk.skala.axcalibur.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -143,14 +135,18 @@ public class ScenarioControllerImpl implements ScenarioController {
         Integer projectKey = projectContext.getKey();
 
         // 시나리오 수정
-        ScenarioUpdateDto result = scenarioUpdateService.updateScenario(projectKey, scenarioId, requestDto);
+        ScenarioUpdateDto updateResult = scenarioUpdateService.updateScenario(projectKey, scenarioId, requestDto);
+        
+        // ScenarioUpdateDto를 ScenarioCUResponseDto로 변환
+        ScenarioCUResponseDto result = ScenarioCUResponseDto.builder()
+            .id(updateResult.getScenarioId())
+            .build();
 
         // 매핑표 생성
-        ScenarioCUResponseDto mappingResult = ScenarioCUResponseDto.builder().id(result.getScenarioId()).build();
-        mappingService.generateMappingForSingleScenario(mappingResult);
+        mappingService.generateMappingForSingleScenario(result);
 
         // 플로우차트 생성
-        scenarioFlowService.generateFlowchartForSingleScenario(mappingResult);
+        scenarioFlowService.generateFlowchartForSingleScenario(result);
         
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();

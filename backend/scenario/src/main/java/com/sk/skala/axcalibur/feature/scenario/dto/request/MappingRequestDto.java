@@ -18,9 +18,4 @@ import lombok.NoArgsConstructor;
 public class MappingRequestDto {
     private List<MappingScenarioItem> scenarioList; // 시나리오 목록
     private List<MappingApiItem> apiList;           // API 목록
-
-    public MappingRequestDto(List<MappingScenarioItem> scenarioList, List<MappingApiItem> apiList) {
-        this.scenarioList = scenarioList;
-        this.apiList = apiList;
-    }
 }

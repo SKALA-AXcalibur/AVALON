@@ -3,7 +3,6 @@ package com.sk.skala.axcalibur.feature.scenario.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -15,6 +14,7 @@ import com.sk.skala.axcalibur.feature.scenario.dto.request.item.MappingApiItem;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.item.MappingScenarioItem;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.MappingResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCUResponseDto;
+import com.sk.skala.axcalibur.feature.scenario.dto.response.item.MappingItem;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.entity.ApiListEntity;
 import com.sk.skala.axcalibur.global.entity.MappingEntity;
@@ -63,7 +63,7 @@ public class MappingServiceImpl implements MappingService {
             .collect(Collectors.toList());
 
         // 프로젝트의 모든 API 조회
-        List<ApiListEntity> apiList = apiListRepository.findByProject_Id(projectKey);
+        List<ApiListEntity> apiList = apiListRepository.findByProjectKey_Id(projectKey);
         List<MappingApiItem> apiItems = apiList.stream()
             .map(api -> MappingApiItem.builder()
                 .apiName(api.getName())
@@ -73,6 +73,7 @@ public class MappingServiceImpl implements MappingService {
                 .build())
             .collect(Collectors.toList());
 
+        // 확정된 MappingRequestDto 구조 사용
         return MappingRequestDto.builder()
             .scenarioList(scenarioItems)
             .apiList(apiItems)
@@ -97,7 +98,7 @@ public class MappingServiceImpl implements MappingService {
             .collect(Collectors.toList());
 
         // 프로젝트의 모든 API 조회 (매핑을 위해 전체 API 목록 필요)
-        List<ApiListEntity> apiList = apiListRepository.findByProject_Id(scenario.getProject().getId());
+        List<ApiListEntity> apiList = apiListRepository.findByProjectKey_Id(scenario.getProject().getId());
         List<MappingApiItem> apiItems = apiList.stream()
             .map(api -> MappingApiItem.builder()
                 .apiName(api.getName())
@@ -107,6 +108,7 @@ public class MappingServiceImpl implements MappingService {
                 .build())
             .collect(Collectors.toList());
 
+        // 확정된 MappingRequestDto 구조 사용
         return MappingRequestDto.builder()
             .scenarioList(scenarioItems)
             .apiList(apiItems)
@@ -127,23 +129,71 @@ public class MappingServiceImpl implements MappingService {
             // 3. AI 서비스 호출
             MappingResponseDto response = scenarioGenClient.MappingResponse(requestDto);
             
-            // 4. 기존 매핑 ID 중 최대 번호 조회 (시나리오와 동일한 패턴)
+            // 4. parseAndSaveMappings 호출 
+            return parseAndSaveMappings(response.getMappingList(), projectKey);
+            
+        } catch (Exception e) {
+            log.error("모든 시나리오 매핑 생성 실패. 프로젝트: {}, 에러: {}", projectKey, e.getMessage());
+            throw new BusinessExceptionHandler("매핑 생성 중 오류가 발생했습니다.", ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    @Transactional
+    public MappingResponseDto generateMappingForSingleScenario(ScenarioCUResponseDto result) {
+        try {
+            // 1. 시나리오 조회
+            ScenarioEntity scenario = scenarioRepository.findByScenarioId(result.getId())
+                .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 시나리오입니다.", ErrorCode.INTERNAL_SERVER_ERROR));
+            
+            // 2. 기존 매핑 삭제 (개별 시나리오용)
+            mappingRepository.deleteByScenarioKey_Id(scenario.getId());
+            log.info("기존 매핑 삭제 완료. 시나리오 ID: {}", result.getId());
+            
+            // 3. 개별 시나리오 매핑 데이터 준비
+            MappingRequestDto requestDto = prepareSingleMappingData(result);
+            
+            // 4. AI 서비스 호출
+            MappingResponseDto response = scenarioGenClient.MappingResponse(requestDto);
+            
+            // 5. 새로운 매핑 저장
+            parseAndSaveMappings(response.getMappingList(), scenario.getProject().getId());
+                                    
+            return response;
+            
+        } catch (Exception e) {
+            log.error("개별 시나리오 매핑 생성 실패. 시나리오 ID: {}, 에러: {}", result.getId(), e.getMessage());
+            throw new BusinessExceptionHandler("매핑 생성 중 오류가 발생했습니다.", ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 매핑 파싱 및 저장
+     */
+    @Transactional
+    public List<MappingEntity> parseAndSaveMappings(List<MappingItem> mappingList, Integer projectKey) {
+        // 프로젝트 조회
+        ProjectEntity project = projectRepository.findById(projectKey)
+            .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 프로젝트입니다.", ErrorCode.PROJECT_NOT_FOUND));
+
+        try {
+            // 기존 매핑 ID 중 최대 번호 조회 
             int maxNo = mappingRepository.findMaxMappingNoByProjectKey(projectKey);
             
-            // 5. 엔티티 리스트 생성
+            // 엔티티 리스트 생성
             List<MappingEntity> entitiesToSave = new ArrayList<>();
             
-            // response.getMappingList()에서 각 매핑 아이템을 처리
-            for (int i = 0; i < response.getMappingList().size(); i++) {
-                var mappingItem = response.getMappingList().get(i);
+            // 각 매핑 아이템을 엔티티로 변환
+            for (int i = 0; i < mappingList.size(); i++) {
+                MappingItem mappingItem = mappingList.get(i);
                 String newMappingId = String.format("mapping-%03d", maxNo + 1 + i);
                 
                 // 시나리오 조회
                 ScenarioEntity scenario = scenarioRepository.findByScenarioId(mappingItem.getScenarioId())
                     .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 시나리오입니다.", ErrorCode.INTERNAL_SERVER_ERROR));
                 
-                // API 조회
-                ApiListEntity apiList = apiListRepository.findByNameAndProject_Id(mappingItem.getApiName(), projectKey)
+                // API 조회 (API 이름으로 검색)
+                ApiListEntity apiList = apiListRepository.findByNameAndProjectKey_Id(mappingItem.getApiName(), projectKey)
                     .orElseThrow(() -> new BusinessExceptionHandler("존재하지 않는 API입니다.", ErrorCode.INTERNAL_SERVER_ERROR));
                 
                 // MappingEntity 생성
@@ -157,35 +207,17 @@ public class MappingServiceImpl implements MappingService {
                 entitiesToSave.add(entity);
             }
             
-            // 6. 일괄 저장
+            // 일괄 저장
             List<MappingEntity> savedEntities = mappingRepository.saveAll(entitiesToSave);
             
-            log.info("모든 시나리오 매핑 생성 및 저장 완료. 프로젝트: {}, 저장된 매핑 수: {}", 
+            log.info("매핑 저장 완료. 프로젝트: {}, 저장된 매핑 수: {}", 
                 projectKey, savedEntities.size());
             
             return savedEntities;
             
         } catch (Exception e) {
-            log.error("모든 시나리오 매핑 생성 실패. 프로젝트: {}, 에러: {}", projectKey, e.getMessage());
-            throw new BusinessExceptionHandler("매핑 생성 중 오류가 발생했습니다.", ErrorCode.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @Override
-    public MappingResponseDto generateMappingForSingleScenario(ScenarioCUResponseDto result) {
-        try {
-            // 1. 개별 시나리오 매핑 데이터 준비
-            MappingRequestDto requestDto = prepareSingleMappingData(result);
-            
-            // 2. AI 서비스 호출
-            MappingResponseDto response = scenarioGenClient.MappingResponse(requestDto);
-            
-            log.info("개별 시나리오 매핑 생성 완료");                             
-            return response;
-            
-        } catch (Exception e) {
-            log.error("개별 시나리오 매핑 생성 실패. 시나리오 ID: {}, 에러: {}", result.getId(), e.getMessage());
-            throw new BusinessExceptionHandler("매핑 생성 중 오류가 발생했습니다.", ErrorCode.INTERNAL_SERVER_ERROR);
+            log.error("매핑 저장 실패. 프로젝트: {}, 에러: {}", projectKey, e.getMessage());
+            throw new BusinessExceptionHandler("매핑 저장 중 오류가 발생했습니다.", ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 }
