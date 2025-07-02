@@ -7,6 +7,7 @@ authors = [
 ]
 requires-python = ">=3.11, <3.12"
 dependencies = [
+    "dotenv>=0.9.9",
     "fastapi>=0.115.12",
     "langchain-community>=0.3.25",
     "langchain-openai>=0.3.27",
@@ -16,6 +17,10 @@ dependencies = [
     "pandas>=2.3.0",
     "python-multipart>=0.0.20",
     "uvicorn[standard]>=0.34.3",
+    "PyYAML>=6.0",
+    "pydantic-settings>=2.9.1",
+    "pymysql>=1.1.1",
+    "sqlalchemy>=2.0.0",
 ]
 
 [dependency-groups]
