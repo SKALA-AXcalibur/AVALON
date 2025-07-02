@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, Any
 
-from state.apilist.mapping_state_processor import MappingState, update_map_success, update_map_failed
+from service.apilist.mapping_state_processor import MappingState, update_map_success, update_map_failed
 from service.apilist.map_agent import perform_semantic_mapping
 
 

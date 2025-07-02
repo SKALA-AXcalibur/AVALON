@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, Any
-from state.apilist.mapping_state_processor import MappingState, update_mapping_generation_success, update_mapping_generation_failed
+from service.apilist.mapping_state_processor import MappingState, update_mapping_generation_success, update_mapping_generation_failed
 from service.apilist.mapping_generator import perform_mapping_generation
 
 

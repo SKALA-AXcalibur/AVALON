@@ -6,7 +6,7 @@
 """
 from dto.response.apilist.apilist_response import ApiListResponse, ApiItem, ScenarioItem
 from dto.request.apilist.apilist_map_request import convert_scenario_list, convert_api_list
-from state.apilist.mapping_state_processor import create_initial_mapping_state
+from service.apilist.mapping_state_processor import create_initial_mapping_state
 from service.apilist.apilist_graph import create_apilist_graph
 from dto.response.apilist.apilist_validation_response import ApiListValidationResponse
 from dto.request.apilist.common import ApiMappingItem

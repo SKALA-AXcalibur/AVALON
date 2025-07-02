@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Dict, Any
 from dotenv import load_dotenv
-from state.apilist.mapping_state_processor import MappingState
+from service.apilist.mapping_state_processor import MappingState
 
 # .env 파일 로드
 load_dotenv()

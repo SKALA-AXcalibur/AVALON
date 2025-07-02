@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, Any
-from state.apilist.mapping_state_processor import MappingState, update_mapping_validation_success, update_mapping_validation_failed
+from service.apilist.mapping_state_processor import MappingState, update_mapping_validation_success, update_mapping_validation_failed
 from service.apilist.mapping_validator import perform_mapping_validation
 
 

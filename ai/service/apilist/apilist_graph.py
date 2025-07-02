@@ -1,7 +1,7 @@
 import logging
 from langgraph.graph import StateGraph, END
 
-from state.apilist.mapping_state_processor import MappingState
+from service.apilist.mapping_state_processor import MappingState
 from node.apilist.map_node import map_node
 from node.apilist.mapping_generation_node import mapping_generation_node
 from node.apilist.mapping_validation_node import mapping_validation_node
