@@ -48,6 +48,12 @@ public record ApiTaskDto(
         if (resBody == null) {
             resBody = new HashMap<>();
         }
+        if (reqQuery == null) {
+            reqQuery = new LinkedMultiValueMap<>();
+        }
+        if (reqPath == null) {
+            reqPath = new HashMap<>();
+        }
     }
 
 }
