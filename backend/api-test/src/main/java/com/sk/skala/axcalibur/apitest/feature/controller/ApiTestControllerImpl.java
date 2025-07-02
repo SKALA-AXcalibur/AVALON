@@ -83,8 +83,8 @@ public class ApiTestControllerImpl implements ApiTestController {
     @Override
     public ResponseEntity<SuccessResponse<ApiTestResultResponseDto>> getApiTestResult(
             @Parameter(hidden = true) @CookieValue(name = "avalon") String avalon,
-            @Parameter(required = false) @RequestParam(name = "cursor") String cursor,
-            @Parameter(required = false) @RequestParam(name = "size") Integer size) {
+            @Parameter(required = false) @RequestParam(name = "cursor", required = false) String cursor,
+            @Parameter(required = false) @RequestParam(name = "size", required = false) Integer size) {
         log.info("ApiTestControllerImpl.getApiTestResult() called with cursor: {}, size: {}", cursor, size);
         // validate cookie
         var entity = cookie.findByToken(avalon);
@@ -123,8 +123,8 @@ public class ApiTestControllerImpl implements ApiTestController {
     public ResponseEntity<SuccessResponse<?>> getApiTestCaseResult(
             @Parameter(hidden = true) @CookieValue(name = "avalon") String avalon,
             @Parameter(required = true) @PathVariable("scenarioId") String scenarioId,
-            @Parameter(required = false) @RequestParam(name = "cursor") String cursor,
-            @Parameter(required = false) @RequestParam(name = "size") Integer size) {
+            @Parameter(required = false) @RequestParam(name = "cursor", required = false) String cursor,
+            @Parameter(required = false) @RequestParam(name = "size", required = false) Integer size) {
         log.info("ApiTestControllerImpl.getApiTestCaseResult() called with scenarioId: {}, cursor: {}, size: {}",
                 scenarioId, cursor, size);
 
