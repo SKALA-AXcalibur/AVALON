@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useTestResultStore } from "@/store/testResult";
+import { TEST_STATUS } from "@/constants/testStatus";
 import {
   FaCheckCircle,
   FaTimesCircle,
@@ -13,22 +14,22 @@ export const TestRunSidebar = ({ projectId }: { projectId: string }) => {
 
   const getStatusDisplay = (status: string) => {
     switch (status) {
-      case "성공":
+      case TEST_STATUS.SUCCESS:
         return {
           icon: <FaCheckCircle />,
           className: "text-green-500",
         };
-      case "실패":
+      case TEST_STATUS.FAIL:
         return {
           icon: <FaTimesCircle />,
           className: "text-red-500",
         };
-      case "실행중":
+      case TEST_STATUS.RUNNING:
         return {
           icon: <FaHourglassHalf />,
           className: "text-yellow-500",
         };
-      case "준비중":
+      case TEST_STATUS.READY:
         return {
           icon: <FaRocket />,
           className: "text-gray-500",
