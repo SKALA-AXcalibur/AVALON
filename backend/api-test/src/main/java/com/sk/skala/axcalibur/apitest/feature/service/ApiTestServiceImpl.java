@@ -86,9 +86,27 @@ public class ApiTestServiceImpl implements ApiTestService {
             List<TestcaseResultEntity> testcaseResultList = new ArrayList<>();
             Map<Integer, ApiTestExecutionDataDto> executionDataMap = new HashMap<>();
 
+            // 실제 TestcaseEntity 조회를 위한 캐시
+            Map<Integer, TestcaseEntity> testcaseCache = new HashMap<>();
+
+            // 모든 testcaseId를 한 번에 조회
+            List<Integer> allTestcaseIds = executionDataList.stream()
+                    .map(ApiTestExecutionDataDto::testcaseId)
+                    .distinct()
+                    .toList();
+
+            List<TestcaseEntity> testcases = tc.findAllById(allTestcaseIds);
+            testcases.forEach(testcase -> testcaseCache.put(testcase.getId(), testcase));
+
             for (ApiTestExecutionDataDto executionData : executionDataList) {
+                TestcaseEntity testcase = testcaseCache.get(executionData.testcaseId());
+                if (testcase == null) {
+                    log.warn("TestcaseEntity not found for id: {}", executionData.testcaseId());
+                    continue;
+                }
+
                 TestcaseResultEntity result = TestcaseResultEntity.builder()
-                        .testcase(TestcaseEntity.builder().id(executionData.testcaseId()).build()) // proxy 객체 생성
+                        .testcase(testcase) // 실제 엔티티 사용
                         .result("") // 초기값 빈 문자열
                         .success(false) // 초기값 false (대기중/실행중)
                         .time(null) // 초기값 null
