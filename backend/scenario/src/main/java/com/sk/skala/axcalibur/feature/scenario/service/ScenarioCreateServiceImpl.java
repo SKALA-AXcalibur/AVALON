@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioCreateRequestDto;
-import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCreateResponseDto;
+import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCUResponseDto;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
@@ -29,7 +29,7 @@ public class ScenarioCreateServiceImpl implements ScenarioCreateService {
 
     @Override
     @Transactional
-    public ScenarioCreateResponseDto createScenario(Integer projectKey, ScenarioCreateRequestDto requestDto) {
+    public ScenarioCUResponseDto createScenario(Integer projectKey, ScenarioCreateRequestDto requestDto) {
         
         // 프로젝트 존재 여부 확인
         ProjectEntity project = projectRepository.findById(projectKey)
@@ -52,7 +52,7 @@ public class ScenarioCreateServiceImpl implements ScenarioCreateService {
 
             ScenarioEntity savedScenario = scenarioRepository.save(scenarioEntity);
 
-            return ScenarioCreateResponseDto.builder()
+            return ScenarioCUResponseDto.builder()
                 .id(savedScenario.getScenarioId())
                 .build();
 

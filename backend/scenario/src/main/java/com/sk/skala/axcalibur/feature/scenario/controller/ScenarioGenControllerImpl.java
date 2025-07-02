@@ -18,8 +18,12 @@ import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListResponse
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.service.ProjectIdResolverService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioGenService;
+import com.sk.skala.axcalibur.feature.scenario.service.MappingService;
+import com.sk.skala.axcalibur.feature.scenario.service.ScenarioFlowService;
+
 import com.sk.skala.axcalibur.global.code.SuccessCode;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
+import com.sk.skala.axcalibur.global.entity.MappingEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
 
@@ -41,6 +45,8 @@ public class ScenarioGenControllerImpl implements ScenarioGenController {
     private final ScenarioGenService scenarioGenService;
     private final ScenarioGenClient scenarioGenClient;
     private final ProjectIdResolverService projectIdResolverService;
+    private final ScenarioFlowService scenarioFlowService;
+    private final MappingService mappingService;
 
     @Override
     public ResponseEntity<ScenarioGenResponseDto> generateScenario(@CookieValue("avalon") String key) {
@@ -50,12 +56,18 @@ public class ScenarioGenControllerImpl implements ScenarioGenController {
             Integer projectKey = projectContext.getKey();
             ScenarioGenRequestDto requestDto = scenarioGenService.prepareRequestData(projectKey);
             
-            // 2. FastAPI 호출 (타임아웃: 2분)
+            // 2. FastAPI 호출 
             ScenarioResponseDto response = scenarioGenClient.sendInfoAndGetResponse(requestDto);
             
             // 3. DB 저장
             List<ScenarioEntity> savedEntities = scenarioGenService.parseAndSaveScenarios(response.getScenarioList(), projectKey);
-            
+
+            // 4. 매핑표 생성
+            List<MappingEntity> mappingEntities = mappingService.generateMappingForAllScenarios(projectKey);
+
+            // 5. 플로우차트 생성
+            scenarioFlowService.generateFlowchartForAllScenarios(projectKey);
+ 
             // ScenarioEntity를 ScenarioListResponse로 변환
             List<ScenarioListResponse> scenarioListResponse = savedEntities.stream()
                 .map(entity -> ScenarioListResponse.builder()

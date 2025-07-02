@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioUpdateRequestDto;
+import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioUpdateDto;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
@@ -26,7 +27,7 @@ public class ScenarioUpdateServiceImpl implements ScenarioUpdateService {
 
     @Override
     @Transactional
-    public void updateScenario(Integer projectKey, String scenarioId, ScenarioUpdateRequestDto requestDto) {
+    public ScenarioUpdateDto updateScenario(Integer projectKey, String scenarioId, ScenarioUpdateRequestDto requestDto) {
   
         // 시나리오 ID로 시나리오 조회
         ScenarioEntity scenario = scenarioRepository.findByScenarioId(scenarioId)
@@ -48,6 +49,10 @@ public class ScenarioUpdateServiceImpl implements ScenarioUpdateService {
             .project(scenario.getProject())
             .build();
         
-        scenarioRepository.save(updatedScenario);
+        ScenarioEntity savedScenario = scenarioRepository.save(updatedScenario);
+        
+        return ScenarioUpdateDto.builder()
+            .scenarioId(savedScenario.getScenarioId())
+            .build();
     }
 }

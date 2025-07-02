@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioCreateRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioUpdateRequestDto;
-import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCreateResponseDto;
+import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCUResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDeleteResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDetailResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListDto;
@@ -45,7 +45,7 @@ public interface ScenarioController {
      * @return 시나리오 추가 응답
      */
     @PostMapping("/scenario/v1")
-    ResponseEntity<ScenarioCreateResponseDto> createScenario(
+    ResponseEntity<ScenarioCUResponseDto> createScenario(
         @CookieValue("avalon") String key,
         @RequestBody ScenarioCreateRequestDto requestDto
     );
