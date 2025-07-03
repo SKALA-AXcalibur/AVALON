@@ -366,6 +366,8 @@ public class ProjectServiceImpl implements ProjectService {
             return projectRepository.save(newProject);
         });
 
+        projectRepository.flush();
+
         String avalon = generateUUID7Cookie();
         log.info("Avalon 토큰 생성/업데이트. projectId: {}, newAvalon: {}", projectId, avalon);
 
