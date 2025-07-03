@@ -6,10 +6,12 @@ import com.sk.skala.axcalibur.spec.feature.report.entity.MappingEntity;
 import com.sk.skala.axcalibur.spec.feature.report.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.spec.feature.report.entity.TestCaseDataEntity;
 import com.sk.skala.axcalibur.spec.feature.report.entity.TestCaseEntity;
+import com.sk.skala.axcalibur.spec.feature.report.entity.TestcaseResultEntity;
 import com.sk.skala.axcalibur.spec.feature.report.repository.MappingRepository;
 import com.sk.skala.axcalibur.spec.feature.report.repository.ScenarioRepository;
 import com.sk.skala.axcalibur.spec.feature.report.repository.TestCaseDataRepository;
 import com.sk.skala.axcalibur.spec.feature.report.repository.TestCaseRepository;
+import com.sk.skala.axcalibur.spec.feature.report.repository.TestcaseResultRepository;
 import com.sk.skala.axcalibur.spec.global.code.ErrorCode;  // 추가
 import com.sk.skala.axcalibur.spec.global.entity.AvalonCookieEntity;
 import com.sk.skala.axcalibur.spec.global.exception.BusinessExceptionHandler;
@@ -19,7 +21,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -33,6 +38,7 @@ public class ReportService {
     private final TestCaseRepository testCaseRepository;
     private final TestCaseDataRepository testCaseDataRepository;
     private final AvalonCookieRepository avalonCookieRepository;
+    private final TestcaseResultRepository testcaseResultRepository;
     private final FileTemplateService fileTemplateService;
 
     /**
@@ -76,8 +82,15 @@ public class ReportService {
         log.info("시나리오 ID: {} 에 대한 테스트케이스 데이터 조회 완료 - 매핑: {}개, 테스트케이스: {}개, 데이터: {}개", 
                 scenarioId, mappings.size(), testCases.size(), testCaseData.size());
 
+        // 4. 테스트케이스 결과 조회 (새로 추가)
+        List<TestcaseResultEntity> testCaseResults = new ArrayList<>();
+        testCases.forEach(testCase -> {
+            List<TestcaseResultEntity> results = testcaseResultRepository.findAllByTestcaseId(testCase.getId());
+            testCaseResults.addAll(results);
+        });
+
         // 4. 엑셀 리포트 생성
-        byte[] fileData = fileTemplateService.generateTestCaseReport(testCases, testCaseData);
+        byte[] fileData = fileTemplateService.generateTestCaseReport(testCases, testCaseData, testCaseResults);
         
         // 5. 응답 반환
         return TestCaseReportResponseDto.builder()
@@ -136,4 +149,5 @@ public class ReportService {
         }
         return testCaseDataRepository.findByTestcaseKeyIn(testCases);
     }
+
 }
