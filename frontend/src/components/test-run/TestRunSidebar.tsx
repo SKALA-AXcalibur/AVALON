@@ -8,6 +8,7 @@ import {
   FaHourglassHalf,
   FaRocket,
 } from "react-icons/fa";
+import { BsDashCircleFill } from "react-icons/bs";
 
 export const TestRunSidebar = ({ projectId }: { projectId: string }) => {
   const { testResult } = useTestResultStore();
@@ -31,7 +32,7 @@ export const TestRunSidebar = ({ projectId }: { projectId: string }) => {
         };
       case TEST_STATUS.READY:
         return {
-          icon: <FaRocket />,
+          icon: <BsDashCircleFill />,
           className: "text-gray-500",
         };
       default:
