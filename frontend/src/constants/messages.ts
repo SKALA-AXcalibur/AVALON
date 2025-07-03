@@ -6,6 +6,7 @@ export const ERROR_MESSAGES = {
     INVALID_ID: "유효하지 않은 프로젝트 ID입니다.",
     NETWORK_ERROR: "네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
     SERVER_ERROR: "서버 오류가 발생했습니다. 관리자에게 문의해주세요.",
+    LOGOUT_FAILED: "로그아웃에 실패했습니다.",
   },
 
   ID_VALIDATION: {
@@ -19,6 +20,7 @@ export const ERROR_MESSAGES = {
     CREATE_FAILED: "시나리오 생성에 실패했습니다.",
     UPDATE_FAILED: "시나리오 수정에 실패했습니다.",
     DELETE_FAILED: "시나리오 삭제에 실패했습니다.",
+    PROJECT_READ_FAILED: "프로젝트 시나리오 조회에 실패했습니다.",
   },
 
   TESTCASE: {
@@ -26,6 +28,27 @@ export const ERROR_MESSAGES = {
     CREATE_FAILED: "테스트케이스 생성에 실패했습니다.",
     UPDATE_FAILED: "테스트케이스 수정에 실패했습니다.",
     DELETE_FAILED: "테스트케이스 삭제에 실패했습니다.",
+    GENERATE_FAILED: "테스트케이스 생성에 실패했습니다.",
+    API_LIST_READ_FAILED: "API 목록 조회에 실패했습니다.",
+    PARAMS_READ_FAILED: "파라미터 조회에 실패했습니다.",
+    SCENARIO_READ_FAILED: "시나리오 테스트케이스 조회에 실패했습니다.",
+  },
+
+  SPEC: {
+    UPLOAD_FAILED: "파일 업로드에 실패했습니다.",
+    ANALYZE_FAILED: "분석에 실패했습니다.",
+  },
+
+  REPORT: {
+    SCENARIO_DOWNLOAD_FAILED: "시나리오 리포트 다운로드에 실패했습니다.",
+    TESTCASE_DOWNLOAD_FAILED: "테스트케이스 리포트 다운로드에 실패했습니다.",
+  },
+
+  API_TEST: {
+    RUN_FAILED: "API 테스트 실행에 실패했습니다.",
+    RESULT_READ_FAILED: "API 테스트 결과 조회에 실패했습니다.",
+    SCENARIO_RESULT_READ_FAILED:
+      "시나리오 API 테스트 결과 조회에 실패했습니다.",
   },
 
   FILE_UPLOAD: {
