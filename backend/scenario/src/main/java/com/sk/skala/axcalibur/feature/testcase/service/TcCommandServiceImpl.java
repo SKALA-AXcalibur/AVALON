@@ -3,12 +3,12 @@ package com.sk.skala.axcalibur.feature.testcase.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import com.sk.skala.axcalibur.feature.testcase.dto.request.TcUpdateRequest;
 import com.sk.skala.axcalibur.feature.testcase.dto.response.TcParamDto;
 import com.sk.skala.axcalibur.global.repository.ApiListRepository;
@@ -51,7 +51,7 @@ public class TcCommandServiceImpl implements TcCommandService {
     // TC 이름 생성을 위한 템플릿
     private static final String TESTCASE_PREFIX = "TC";
     private static final String TESTCASE_ID_TEMPLATE = "%s-%s-%s-%s"; // prefix-apiName-index-uuid
-    private static final int MAX_ID_GENERATION_RETRY = 3;
+    private final TimeBasedGenerator uuid;
     
     // TC 삭제 구현
     @Override
@@ -180,14 +180,14 @@ public class TcCommandServiceImpl implements TcCommandService {
         }
     }
 
-    // TC ID 생성 함수(ex. TC-UserCreate-001-1q2w3e4r)
+    // TC ID 생성 함수(ex. TC-UserCreate-001-a1b2c3d4e5)
     private String generateTestcaseId(String apiName) {
         String prefixWithName = String.join("-", TESTCASE_PREFIX, apiName); // ex. TC-UserCreate
         int count = testCaseRepository.countByTestcaseIdStartingWith(prefixWithName); // TC-UserCreate 로 시작하는 TC ID 수 조회(일련번호 생성용)
 
         String index = String.format("%03d", count + 1);
-        String uuid = UUID.randomUUID().toString().substring(0, 8);
+        String id = uuid.generate().toString().substring(0, 10);
 
-        return String.format(TESTCASE_ID_TEMPLATE, TESTCASE_PREFIX, apiName, index, uuid);
+        return String.format(TESTCASE_ID_TEMPLATE, TESTCASE_PREFIX, apiName, index, id);
     }
 }
