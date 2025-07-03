@@ -26,4 +26,4 @@ logging:
     com:
       sk:
         skala:
-          axcalibur: DEBUG
+          axcalibur: info
