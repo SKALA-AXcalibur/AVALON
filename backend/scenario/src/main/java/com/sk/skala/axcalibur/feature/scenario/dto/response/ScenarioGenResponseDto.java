@@ -9,7 +9,7 @@ import java.util.List;
 
 
 /**
- * 시나리오 생성 요청 응답 DTO (IF-TC-0001)
+ * 시나리오 생성 요청 응답 DTO (IF-SN-0001)
  */
 @Getter
 @Builder

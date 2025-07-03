@@ -2,9 +2,6 @@ package com.sk.skala.axcalibur.feature.scenario.controller;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -20,21 +17,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sk.skala.axcalibur.feature.scenario.dto.ProjectContext;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioCreateRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioUpdateRequestDto;
-import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCUResponseDto;
+import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCreateResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDeleteResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDetailResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListDto;
-import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioUpdateDto;
-
 import com.sk.skala.axcalibur.feature.scenario.service.ProjectIdResolverService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioCreateService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioDeleteService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioDetailService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioListService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioUpdateService;
-import com.sk.skala.axcalibur.feature.scenario.service.ScenarioFlowService;
-import com.sk.skala.axcalibur.feature.scenario.service.MappingService;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
+
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,8 +53,6 @@ public class ScenarioControllerImpl implements ScenarioController {
     private final ScenarioDeleteService scenarioDeleteService;
     private final ScenarioDetailService scenarioDetailService;
     private final ProjectIdResolverService projectIdResolverService;
-    private final ScenarioFlowService scenarioFlowService;
-    private final MappingService mappingService;
 
     /**
      * 시나리오 목록 조회(IF-SN-0009)
@@ -92,7 +84,7 @@ public class ScenarioControllerImpl implements ScenarioController {
      */
     @Override
     @PostMapping("/scenario/v1")
-    public ResponseEntity<ScenarioCUResponseDto> createScenario(
+    public ResponseEntity<ScenarioCreateResponseDto> createScenario(
         @CookieValue("avalon") String key,
         @RequestBody ScenarioCreateRequestDto requestDto) {
         
@@ -101,13 +93,7 @@ public class ScenarioControllerImpl implements ScenarioController {
         Integer projectKey = projectContext.getKey();
 
         // 시나리오 생성
-        ScenarioCUResponseDto result = scenarioCreateService.createScenario(projectKey, requestDto);
-
-        // 매핑표 생성
-        mappingService.generateMappingForSingleScenario(result);
-
-        // 플로우차트 생성
-        scenarioFlowService.generateFlowchartForSingleScenario(result);
+        ScenarioCreateResponseDto result = scenarioCreateService.createScenario(projectKey, requestDto);
         
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();
@@ -135,18 +121,7 @@ public class ScenarioControllerImpl implements ScenarioController {
         Integer projectKey = projectContext.getKey();
 
         // 시나리오 수정
-        ScenarioUpdateDto updateResult = scenarioUpdateService.updateScenario(projectKey, scenarioId, requestDto);
-        
-        // ScenarioUpdateDto를 ScenarioCUResponseDto로 변환
-        ScenarioCUResponseDto result = ScenarioCUResponseDto.builder()
-            .id(updateResult.getScenarioId())
-            .build();
-
-        // 매핑표 생성
-        mappingService.generateMappingForSingleScenario(result);
-
-        // 플로우차트 생성
-        scenarioFlowService.generateFlowchartForSingleScenario(result);
+        scenarioUpdateService.updateScenario(projectKey, scenarioId, requestDto);
         
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();
