@@ -13,6 +13,8 @@ import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.global.repository.ProjectRepository;
 import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
 
+import feign.FeignException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -82,8 +84,12 @@ public class ScenarioCreateServiceImpl implements ScenarioCreateService {
             // 2. 흐름도 생성 (FastAPI에서 자동 저장)
             scenarioMappingService.generateFlowchart(scenarioId);
             
-        } catch (Exception e) {
-            log.error("시나리오 {} 추가 후 매핑/흐름도 생성 실패: {}", scenarioId, e.getMessage());
-        }
+        } catch (BusinessExceptionHandler e) {
+            // 비즈니스 로직 예외 (데이터 검증, 시나리오 조회 실패 등)
+            log.error("매핑/흐름도 생성 실패 - 비즈니스 로직 오류");
+        } catch (FeignException e) {
+            // Feign 클라이언트 예외 (AI 서버 통신 오류)
+            log.error("매핑/흐름도 생성 실패 - AI 서버 통신 오류");
+        } 
     }
 }
