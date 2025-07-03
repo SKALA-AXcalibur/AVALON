@@ -325,10 +325,21 @@ public class ScenarioMappingServiceImpl implements ScenarioMappingService {
             
             if (!mappings.isEmpty()) {
                 
-                // 매핑된 API들을 ApiFlowItem으로 변환
+                // 1. API ID들 수집
+                List<Integer> apiIds = mappings.stream()
+                    .map(mapping -> mapping.getApiListKey().getId())
+                    .distinct()
+                    .collect(Collectors.toList());
+
+                // 2. API들 한번에 조회  
+                List<ApiListEntity> apis = apiListRepository.findAllById(apiIds);
+                Map<Integer, ApiListEntity> apiMap = apis.stream()
+                    .collect(Collectors.toMap(ApiListEntity::getId, api -> api));
+
+                // 3. 매핑에서 API 정보 사용
                 return mappings.stream()
                     .map(mapping -> {
-                        ApiListEntity api = mapping.getApiListKey();
+                        ApiListEntity api = apiMap.get(mapping.getApiListKey().getId());
                         return ApiFlowItem.builder()
                             .id(api.getApiListId())
                             .name(api.getName())
