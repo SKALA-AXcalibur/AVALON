@@ -1,5 +1,7 @@
 package com.sk.skala.axcalibur.spec.feature.report.entity;
 
+import com.sk.skala.axcalibur.spec.feature.project.entity.ParameterEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -34,6 +36,10 @@ public class TestCaseDataEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "testcase_key", nullable = false)
     private TestCaseEntity testcaseKey;     // 종속된 testcase Key값
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parameter_key", nullable = false)
+    private ParameterEntity parameterKey;   // parameter 정보
 
     @Column(name = "value", columnDefinition = "TEXT")
     private String value;                   // 데이터 값
