@@ -7,12 +7,11 @@ from state.apilist.mapping_state import MappingState
 load_dotenv()
 
 # 상태 초기화 헬퍼 함수
-def create_initial_mapping_state(avalon: str, max_attempts: int = int(os.getenv("MAX_RETRY")), target_score: float = float(os.getenv("TARGET_SCORE"))) -> MappingState:
+def create_initial_mapping_state(max_attempts: int = int(os.getenv("MAX_RETRY")), target_score: float = float(os.getenv("TARGET_SCORE"))) -> MappingState:
    """
    초기 상태 생성 헬퍼 함수
    """
    return MappingState(
-       avalon=avalon,
        max_attempts=max_attempts,
        target_score=target_score,
        attempt_count=0,

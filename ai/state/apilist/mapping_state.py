@@ -13,7 +13,6 @@ class MappingState(BaseModel):
    """
    
    # 입력 데이터
-   avalon: str  # Redis 토큰
    max_attempts: Optional[int] = Field(default=int(os.getenv("MAX_RETRY")))  # 최대 재시도 횟수
    target_score: Optional[float] = Field(default=float(os.getenv("TARGET_SCORE")))  # 목표 검증 점수
    

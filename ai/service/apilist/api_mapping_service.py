@@ -35,7 +35,7 @@ class ApiMappingService:
         converted_apis = convert_api_list(api_list)
         
         # 2. 초기 상태 생성
-        state = create_initial_mapping_state(avalon="")
+        state = create_initial_mapping_state()
         state = state.model_copy(update={
             "scenarios": converted_scenarios,
             "api_lists": converted_apis
