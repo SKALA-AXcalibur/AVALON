@@ -1,5 +1,6 @@
 package com.sk.skala.axcalibur.spec.feature.report.controller;
 
+import com.sk.skala.axcalibur.spec.feature.report.dto.response.TestCaseReportResponseDto;
 import com.sk.skala.axcalibur.spec.feature.report.dto.response.TestScenarioReportResponseDto;
 import com.sk.skala.axcalibur.spec.feature.report.service.ReportService;
 import com.sk.skala.axcalibur.spec.global.code.SuccessCode;
@@ -37,7 +38,7 @@ public class ReportController {
      * IF-RG-0001: 테스트시나리오 리포트 다운로드
      */
     @GetMapping("/scenario")
-    public ResponseEntity<Resource> downloadTestScenarioReport(String avalon) throws IOException {
+    public ResponseEntity<Resource> downloadTestScenarioReport(@CookieValue(name = "avalon") String avalon) throws IOException {
         log.info("[테스트시나리오 리포트 다운로드] 요청. avalon: {}", avalon);
         TestScenarioReportResponseDto response = reportService.downloadTestScenarioReport(avalon);
 
@@ -55,10 +56,10 @@ public class ReportController {
     @GetMapping("/testcase/{scenarioId}")
     public ResponseEntity<Resource> downloadTestCaseReport(
             @PathVariable("scenarioId") String scenarioId,
-            @CookieValue(name = "avalon") String avalon) {
+            @CookieValue(name = "avalon") String avalon) throws IOException {
 
         log.info("[테스트케이스 리포트 다운로드] 요청. scenarioId: {}", scenarioId);
-        TestScenarioReportResponseDto response = reportService.downloadTestScenarioReport(scenarioId, avalon);
+        TestCaseReportResponseDto response = reportService.downloadTestCaseReport(scenarioId, avalon);
 
         ByteArrayResource resource = new ByteArrayResource(response.getFileData());
 

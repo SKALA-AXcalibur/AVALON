@@ -4,9 +4,15 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.List;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.sk.skala.axcalibur.spec.feature.report.entity.MappingEntity;
+import com.sk.skala.axcalibur.spec.feature.report.entity.ScenarioEntity;
+import com.sk.skala.axcalibur.spec.feature.report.entity.TestCaseDataEntity;
+import com.sk.skala.axcalibur.spec.feature.report.entity.TestCaseEntity;
 import com.sk.skala.axcalibur.spec.global.code.ErrorCode;
 import com.sk.skala.axcalibur.spec.global.exception.BusinessExceptionHandler;
 
@@ -24,7 +30,7 @@ public class FileTemplateService {
     /**
      * 시나리오 템플릿 처리
      */
-    public byte[] generateScenarioReport() {
+    public byte[] generateScenarioReport(List<ScenarioEntity> scenarios) throws IOException {
         ClassPathResource resource = new ClassPathResource(SCENARIO_TEMPLATE);
 
         if (!resource.exists()) {
@@ -49,7 +55,8 @@ public class FileTemplateService {
     /**
      * 테스트케이스 템플릿 처리
      */
-    public byte[] generateTestCaseReport() {
+    public byte[] generateTestCaseReport(ScenarioEntity scenario, List<MappingEntity> mappings, List<TestCaseEntity> testCases, 
+    List<TestCaseDataEntity> testCaseData) throws IOException {
         ClassPathResource resource = new ClassPathResource(TESTCASE_TEMPLATE);
 
         if (!resource.exists()) {
