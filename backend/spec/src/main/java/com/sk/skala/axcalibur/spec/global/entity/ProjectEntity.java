@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @NoArgsConstructor
@@ -28,6 +29,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(name = "project")
+@ToString
 public class ProjectEntity extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
