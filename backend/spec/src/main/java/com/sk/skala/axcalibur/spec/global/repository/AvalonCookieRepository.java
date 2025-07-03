@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import com.sk.skala.axcalibur.spec.global.entity.AvalonCookieEntity;
 
+import java.util.List;
 import java.util.Optional;
 
 // 아발론 쿠키 Redis 레포지토리
@@ -16,4 +17,6 @@ public interface AvalonCookieRepository extends CrudRepository<AvalonCookieEntit
 
     // 토큰으로 쿠키 삭제
     void deleteByToken(String token);
+
+    List<AvalonCookieEntity> findAllByProjectKey(Integer projectKey);
 }
