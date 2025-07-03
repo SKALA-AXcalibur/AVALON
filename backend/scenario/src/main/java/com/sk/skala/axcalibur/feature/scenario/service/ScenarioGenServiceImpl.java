@@ -92,7 +92,6 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
                 entitiesToSave.add(entity);
             }
             
-            // 배치 저장을 위해 saveAll 사용
             return scenarioRepository.saveAll(entitiesToSave);
             
         } catch (DataIntegrityViolationException e) {

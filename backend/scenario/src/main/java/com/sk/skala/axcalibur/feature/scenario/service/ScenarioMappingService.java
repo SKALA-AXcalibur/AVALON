@@ -28,14 +28,16 @@ public interface ScenarioMappingService {
     /**
      * 여러 시나리오에 대한 매핑 생성 및 저장 (시나리오 생성 시 사용)
      * @param scenarios 대상 시나리오 목록
+     * @param projectKey 프로젝트 키
      * @return 매핑 생성 결과
      */
-    ApiMappingResponseDto generateAndSaveMappingForScenarios(List<ScenarioEntity> scenarios);
+    ApiMappingResponseDto generateAndSaveMappingForScenarios(Integer projectKey, List<ScenarioEntity> scenarios);
     
     /**
      * 여러 시나리오에 대한 흐름도 생성 (시나리오 생성 시 사용)
      * @param scenarios 대상 시나리오 목록
+     * @param projectKey 프로젝트 키
      * @return 흐름도 생성 결과
      */
-    ScenarioFlowResponseDto generateFlowchartForScenarios(List<ScenarioEntity> scenarios);
+    ScenarioFlowResponseDto generateFlowchartForScenarios(Integer projectKey, List<ScenarioEntity> scenarios);
 } 
