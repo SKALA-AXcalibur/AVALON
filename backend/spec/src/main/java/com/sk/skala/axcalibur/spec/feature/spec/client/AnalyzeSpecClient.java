@@ -35,6 +35,9 @@ public class AnalyzeSpecClient {
     @Value("${project.api.analyze-url}")
     private String analyzeUrl;
 
+    @Value("${file.basepath}")
+    private String basepath;
+
     /**
      * FastAPI로 명세서 분석 요청 전송
      *
@@ -79,9 +82,9 @@ public class AnalyzeSpecClient {
      * 파일 존재 여부 확인 후 FileSystemResource 반환
      */
     private FileSystemResource validateFileExists(String path){
-        File file = new File(path);
+        File file = new File(basepath + path);
         if(!file.exists()) {
-            throw new BusinessExceptionHandler(String.format("파일을 찾을 수 없습니다. %s", path), ErrorCode.NOT_FOUND_ERROR);       
+            throw new BusinessExceptionHandler(String.format("파일을 찾을 수 없습니다. %s", file.getAbsolutePath()), ErrorCode.NOT_FOUND_ERROR);       
         }
         return new FileSystemResource(file);
     }
