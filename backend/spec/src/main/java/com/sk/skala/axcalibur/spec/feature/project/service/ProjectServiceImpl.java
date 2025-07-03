@@ -338,12 +338,9 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         // 2. Redis에서 해당 프로젝트 쿠키들 삭제
-        List<AvalonCookieEntity> cookies = new ArrayList<>();
-        avalonCookieRepository.findAll().forEach(cookies::add);
-        avalonCookieRepository.deleteAll(
-                cookies.stream()
-                        .filter(cookie -> projectKey.equals(cookie.getProjectKey()))
-                        .collect(Collectors.toList()));
+        List<AvalonCookieEntity> cookies = avalonCookieRepository.findAllByProjectKey(projectKey);
+        log.info("cookies: {}", cookies);
+        avalonCookieRepository.deleteAll(cookies);
 
         // 3. 프로젝트 삭제 (Cascade로 관련 데이터 자동 삭제)
         projectRepository.delete(project);
@@ -365,6 +362,7 @@ public class ProjectServiceImpl implements ProjectService {
                     .build();
             return projectRepository.save(newProject);
         });
+
 
         String avalon = generateUUID7Cookie();
         log.info("Avalon 토큰 생성/업데이트. projectId: {}, newAvalon: {}", projectId, avalon);
