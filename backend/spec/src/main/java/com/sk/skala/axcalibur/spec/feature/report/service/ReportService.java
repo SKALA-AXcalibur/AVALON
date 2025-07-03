@@ -12,7 +12,7 @@ import com.sk.skala.axcalibur.spec.feature.report.repository.ScenarioRepository;
 import com.sk.skala.axcalibur.spec.feature.report.repository.TestCaseDataRepository;
 import com.sk.skala.axcalibur.spec.feature.report.repository.TestCaseRepository;
 import com.sk.skala.axcalibur.spec.feature.report.repository.TestcaseResultRepository;
-import com.sk.skala.axcalibur.spec.global.code.ErrorCode;  // 추가
+import com.sk.skala.axcalibur.spec.global.code.ErrorCode;
 import com.sk.skala.axcalibur.spec.global.entity.AvalonCookieEntity;
 import com.sk.skala.axcalibur.spec.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.spec.global.repository.AvalonCookieRepository;
@@ -23,8 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
