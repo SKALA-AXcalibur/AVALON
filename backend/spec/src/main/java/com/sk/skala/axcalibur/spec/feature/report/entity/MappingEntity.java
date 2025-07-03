@@ -2,6 +2,8 @@ package com.sk.skala.axcalibur.spec.feature.report.entity;
 
 import java.time.LocalDateTime;
 
+import com.sk.skala.axcalibur.spec.feature.project.entity.ApiListEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -39,6 +41,10 @@ public class MappingEntity {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;     // 생성 일자
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "apilist_key", nullable = false)
+    private ApiListEntity apiListKey;           // API 목록 (N:1)
     
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
