@@ -174,66 +174,63 @@ public class ScenarioMappingServiceImpl implements ScenarioMappingService {
      * 매핑 데이터를 DB에 저장
      */
     private void saveMappingDataToDB(ApiMappingResponseDto response, List<ApiListEntity> apiEntities) {
-        try {
+     
             
-            if (response.getApiMapping() == null || response.getApiMapping().isEmpty()) {
-                return;
-            }
-            
-            log.info("수신된 매핑 데이터 개수: {}", response.getApiMapping().size());
-            
-            int savedCount = 0;
-            Map<String, Integer> scenarioStepMap = new HashMap<>();
-            
-            for (ApiMappingResponseItem mappingItem : response.getApiMapping()) {
-                String scenarioId = mappingItem.getScenarioId();
-                String apiName = mappingItem.getApiName();
-                
-                
-                // 시나리오 엔티티 조회
-                ScenarioEntity scenario = scenarioRepository.findByScenarioId(scenarioId)
-                    .orElse(null);
-                    
-                if (scenario == null) {
-                    continue;
-                }
-                
-                // 시나리오별 step 관리
-                int step = scenarioStepMap.getOrDefault(scenarioId, 0) + 1;
-                scenarioStepMap.put(scenarioId, step);
-                
-                // 첫 번째 API일 때만 기존 매핑 삭제 (중복 방지)
-                if (step == 1) {
-                    mappingRepository.deleteByScenarioKey_Id(scenario.getId());
-                }
-                
-                
-                // API 엔티티 조회 (이름으로 매칭)
-                Optional<ApiListEntity> apiEntity = apiEntities.stream()
-                    .filter(api -> api.getName().equals(apiName))
-                    .findFirst();
-                
-                if (apiEntity.isPresent()) {
-                    // 매핑 엔티티 생성 및 저장
-                    MappingEntity mappingEntity = MappingEntity.builder()
-                        .mappingId("map-" + scenario.getId() + "-" + step)
-                        .step(step)
-                        .scenarioKey(scenario)
-                        .apiListKey(apiEntity.get())
-                        .build();
-                    
-                    mappingRepository.save(mappingEntity);
-                    savedCount++;
-
-                } else {
-                    apiEntities.forEach(api -> log.warn("  - {}", api.getName()));
-                }
-            }
-            
-        } catch (Exception e) {
-            log.error("매핑 데이터 DB 저장 실패");
-            // 매핑 저장 실패 시에도 전체 프로세스는 계속 진행
+        if (response.getApiMapping() == null || response.getApiMapping().isEmpty()) {
+            return;
         }
+        
+        log.info("수신된 매핑 데이터 개수: {}", response.getApiMapping().size());
+        
+        int savedCount = 0;
+        Map<String, Integer> scenarioStepMap = new HashMap<>();
+        
+        for (ApiMappingResponseItem mappingItem : response.getApiMapping()) {
+            String scenarioId = mappingItem.getScenarioId();
+            String apiName = mappingItem.getApiName();
+            
+            
+            // 시나리오 엔티티 조회
+            ScenarioEntity scenario = scenarioRepository.findByScenarioId(scenarioId)
+                .orElse(null);
+                
+            if (scenario == null) {
+                continue;
+            }
+            
+            // 시나리오별 step 관리
+            int step = scenarioStepMap.getOrDefault(scenarioId, 0) + 1;
+            scenarioStepMap.put(scenarioId, step);
+            
+            // 첫 번째 API일 때만 기존 매핑 삭제 (중복 방지)
+            if (step == 1) {
+                mappingRepository.deleteByScenarioKey_Id(scenario.getId());
+            }
+            
+            
+            // API 엔티티 조회 (이름으로 매칭)
+            Optional<ApiListEntity> apiEntity = apiEntities.stream()
+                .filter(api -> api.getName().equals(apiName))
+                .findFirst();
+            
+            if (apiEntity.isPresent()) {
+                // 매핑 엔티티 생성 및 저장
+                MappingEntity mappingEntity = MappingEntity.builder()
+                    .mappingId("map-" + scenario.getId() + "-" + step)
+                    .step(step)
+                    .scenarioKey(scenario)
+                    .apiListKey(apiEntity.get())
+                    .build();
+                
+                mappingRepository.save(mappingEntity);
+                savedCount++;
+
+            } else {
+                apiEntities.forEach(api -> log.warn("  - {}", api.getName()));
+            }
+        }
+            
+        
     }
 
     /**
