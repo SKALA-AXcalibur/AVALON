@@ -1,6 +1,7 @@
 package com.sk.skala.axcalibur.feature.scenario.service;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDetailResponseDto;
+import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 /**
  * 시나리오 상세 조회 서비스 인터페이스(IF-SN-0008)
@@ -14,5 +15,5 @@ public interface ScenarioDetailService {
      * @return 시나리오 상세 정보
      */
     
-    ScenarioDetailResponseDto getScenarioDetail(Integer projectKey, String scenarioId);
+    SuccessResponse<ScenarioDetailResponseDto> getScenarioDetail(Integer projectKey, String scenarioId);
 } 
