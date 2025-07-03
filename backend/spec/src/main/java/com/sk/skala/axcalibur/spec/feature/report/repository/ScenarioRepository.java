@@ -11,5 +11,6 @@ import com.sk.skala.axcalibur.spec.feature.report.entity.ScenarioEntity;
 public interface ScenarioRepository extends JpaRepository<ScenarioEntity, Integer> {
     Optional<ScenarioEntity> findByScenarioId(String scenarioId);
 
-    List<ScenarioEntity> findByProject_Id(Integer projectKey);
+    List<ScenarioEntity> findByProject_Key(Integer projectKey);
+    
 }

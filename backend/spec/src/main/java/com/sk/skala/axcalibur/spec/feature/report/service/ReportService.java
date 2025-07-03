@@ -43,7 +43,7 @@ public class ReportService {
         AvalonCookieEntity userInfo = validateAvalonToken(avalon);
 
         // 2. 시나리오 데이터 조회
-        List<ScenarioEntity> scenarios = scenarioRepository.findByProject_Id(userInfo.getProjectKey());
+        List<ScenarioEntity> scenarios = scenarioRepository.findByProject_Key(userInfo.getProjectKey());
         log.info("사용자 시나리오 조회 완료: {}개", scenarios.size());
 
         // 3. 엑셀 리포트 생성
@@ -77,7 +77,7 @@ public class ReportService {
                 scenarioId, mappings.size(), testCases.size(), testCaseData.size());
 
         // 4. 엑셀 리포트 생성
-        byte[] fileData = fileTemplateService.generateTestCaseReport(scenario, mappings, testCases, testCaseData);
+        byte[] fileData = fileTemplateService.generateTestCaseReport(testCases, testCaseData);
         
         // 5. 응답 반환
         return TestCaseReportResponseDto.builder()
