@@ -49,6 +49,8 @@ dependencies {
 
 	implementation 'io.github.openfeign.querydsl:querydsl-jpa-spring:7.0'
     annotationProcessor 'io.github.openfeign.querydsl:querydsl-apt:7.0:jpa'
+
+	implementation 'com.fasterxml.uuid:java-uuid-generator:5.1.0'
 }
 
 dependencyManagement {
