@@ -108,8 +108,8 @@ public class ApiTestServiceImpl implements ApiTestService {
           .distinct()
           .toList();
 
-      List<TestcaseEntity> testcaseList = tc.findAllById(allTestcaseIdList);
-      testcaseList.forEach(testcase -> testcaseCache.put(testcase.getId(), testcase));
+      List<TestcaseEntity> testcases = tc.findAllById(allTestcaseIdList);
+      testcases.forEach(testcase -> testcaseCache.put(testcase.getId(), testcase));
 
       for (ApiTestExecutionDataDto executionData : executionDataList) {
         TestcaseEntity testcase = testcaseCache.get(executionData.testcaseId());
@@ -252,6 +252,15 @@ public class ApiTestServiceImpl implements ApiTestService {
     List<ScenarioEntity> scenarios;
 
     // dto.size is null
+    if (dto.size() == null) {
+      scenarios = scene.findAllByProjectKey(key);
+    } else {
+      var cursor = dto.cursor() == null ? "" : dto.cursor();
+      var size = dto.size();
+      var page = PageRequest.of(0, size, Sort.by("id").ascending());
+      scenarios = scene.findAllByProjectKeyAndScenarioIdGreaterThanOrderByIdAsc(key, cursor, page);
+    }
+    // dto.size is null
     if (dto.size() == null || dto.size() <= 0) {
       scenarios = scene.findAllByProjectKey(key);
     } else {
@@ -314,7 +323,7 @@ public class ApiTestServiceImpl implements ApiTestService {
     List<TestcaseEntity> testcases;
 
     // dto.size is null
-    if (dto.size() == null || dto.size() <= 0) {
+    if (dto.size() == null) {
       testcases = tc.findByMapping_Scenario_ProjectKeyAndMapping_Scenario_ScenarioId(key, scenarioId);
     } else {
       var cursor = dto.cursor() == null ? "" : dto.cursor();
@@ -325,12 +334,22 @@ public class ApiTestServiceImpl implements ApiTestService {
               key, scenarioId, cursor, page);
     }
     var testcaseResults = tr.findLastResultByTestcaseIn(testcases);
-    log.debug("ApiTestServiceImpl.getTestCaseResultService: found {} testcase results: {}",
-        testcaseResults.size(), testcaseResults);
+
     var tcMap = testcases.stream()
         .collect(Collectors.toMap(TestcaseEntity::getId, tc -> tc));
     var trMap = testcaseResults.stream()
         .collect(Collectors.toMap(tr -> tr.getTestcase().getId(), tr -> tr));
+    // dto.size is null
+    if (dto.size() == null || dto.size() <= 0) {
+      testcases = tc.findByMapping_Scenario_ProjectKeyAndMapping_Scenario_ScenarioId(key, scenarioId);
+    } else {
+      var cursor = dto.cursor() == null ? "" : dto.cursor();
+      var size = dto.size();
+      var page = PageRequest.of(0, size, Sort.by("id").ascending());
+      testcases = tc
+          .findByMapping_Scenario_ProjectKeyAndMapping_Scenario_ScenarioIdAndTestcaseIdGreaterThanOrderByIdAsc(
+              key, scenarioId, cursor, page);
+    }
 
     return tcMap.entrySet().stream().map(
         entry -> {
