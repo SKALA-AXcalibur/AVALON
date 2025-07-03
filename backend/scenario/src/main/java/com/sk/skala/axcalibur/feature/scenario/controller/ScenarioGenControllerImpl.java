@@ -63,11 +63,11 @@ public class ScenarioGenControllerImpl implements ScenarioGenController {
                 log.info("시나리오 생성 완료 후 생성된 시나리오들에 대한 매핑/흐름도 생성 시작 - 프로젝트 키: {}, 시나리오 수: {}", projectKey, savedEntities.size());
                 
                 // 4-1. 생성된 시나리오들에 대한 매핑 생성
-                scenarioMappingService.generateAndSaveMappingForScenarios(savedEntities);
+                scenarioMappingService.generateAndSaveMappingForScenarios(projectKey, savedEntities);
                 log.info("시나리오 생성 후 매핑 생성 완료");
                 
                 // 4-2. 생성된 시나리오들에 대한 흐름도 생성
-                scenarioMappingService.generateFlowchartForScenarios(savedEntities);
+                scenarioMappingService.generateFlowchartForScenarios(projectKey, savedEntities);
                 log.info("시나리오 생성 후 흐름도 생성 완료");
                 
             } catch (Exception e) {

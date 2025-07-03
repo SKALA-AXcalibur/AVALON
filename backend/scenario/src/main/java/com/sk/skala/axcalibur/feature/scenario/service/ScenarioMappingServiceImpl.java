@@ -5,6 +5,9 @@ import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +60,7 @@ public class ScenarioMappingServiceImpl implements ScenarioMappingService {
         List<ApiListEntity> apiEntities = apiListRepository.findByProjectKey_Id(scenario.getProject().getId());
         
         if (apiEntities.isEmpty()) {
+            log.info("매핑 생성을 위한 API 정보가 없습니다.");
             throw new BusinessExceptionHandler("매핑 생성을 위한 API 정보가 없습니다.", ErrorCode.NOT_VALID_ERROR);
         }
         
@@ -73,6 +77,7 @@ public class ScenarioMappingServiceImpl implements ScenarioMappingService {
             
             return response;
         } catch (Exception e) {
+            log.info("매핑 생성 실패");
             throw new BusinessExceptionHandler("매핑 생성에 실패했습니다: " + e.getMessage(), ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
@@ -94,6 +99,7 @@ public class ScenarioMappingServiceImpl implements ScenarioMappingService {
             apiEntities = apiListRepository.findByProjectKey_Id(scenario.getProject().getId());
             
             if (apiEntities.isEmpty()) {
+                log.info("흐름도 생성을 위한 API 정보가 없습니다.");
                 throw new BusinessExceptionHandler("흐름도 생성을 위한 API 정보가 없습니다.", ErrorCode.NOT_VALID_ERROR);
             }
         }
@@ -107,22 +113,20 @@ public class ScenarioMappingServiceImpl implements ScenarioMappingService {
             ScenarioFlowResponseDto response = scenarioGenClient.sendFlowchartRequest(requestDto);
             return response;
         } catch (Exception e) {
+            log.info("흐름도 생성 실패");
             throw new BusinessExceptionHandler("흐름도 생성에 실패했습니다: " + e.getMessage(), ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
     @Override
     @Transactional
-    public ApiMappingResponseDto generateAndSaveMappingForScenarios(List<ScenarioEntity> scenarios) {
+    public ApiMappingResponseDto generateAndSaveMappingForScenarios(Integer projectKey, List<ScenarioEntity> scenarios) {
         if (scenarios.isEmpty()) {
             throw new BusinessExceptionHandler("시나리오 목록이 비어있습니다.", ErrorCode.NOT_VALID_ERROR);
         }
-        
-        // 1. 프로젝트 ID 추출 (모든 시나리오가 같은 프로젝트라고 가정)
-        Integer projectId = scenarios.get(0).getProject().getId();
-        
+            
         // 2. 해당 프로젝트의 API 정보 수집
-        List<ApiListEntity> apiEntities = apiListRepository.findByProjectKey_Id(projectId);
+        List<ApiListEntity> apiEntities = apiListRepository.findByProjectKey_Id(projectKey);
         
         // 3. 매핑 요청 DTO 생성
         ApiMappingRequestDto requestDto = createMappingRequest(scenarios, apiEntities);
@@ -135,7 +139,6 @@ public class ScenarioMappingServiceImpl implements ScenarioMappingService {
             
             // 5. 매핑 데이터 DB 저장
             saveMappingDataToDB(response, apiEntities);
-            log.info("=== 매핑 DB 저장 로직 완료 ===");
             
             return response;
         } catch (Exception e) {
@@ -145,16 +148,13 @@ public class ScenarioMappingServiceImpl implements ScenarioMappingService {
     }
 
     @Override
-    public ScenarioFlowResponseDto generateFlowchartForScenarios(List<ScenarioEntity> scenarios) {
+    public ScenarioFlowResponseDto generateFlowchartForScenarios(Integer projectKey, List<ScenarioEntity> scenarios) {
         if (scenarios.isEmpty()) {
             throw new BusinessExceptionHandler("시나리오 목록이 비어있습니다.", ErrorCode.NOT_VALID_ERROR);
         }
         
-        // 1. 프로젝트 ID 추출 (모든 시나리오가 같은 프로젝트라고 가정)
-        Integer projectId = scenarios.get(0).getProject().getId();
-        
         // 2. 해당 프로젝트의 API 정보 수집
-        List<ApiListEntity> apiEntities = apiListRepository.findByProjectKey_Id(projectId);
+        List<ApiListEntity> apiEntities = apiListRepository.findByProjectKey_Id(projectKey);
         
         // 3. 흐름도 요청 DTO 생성
         ScenarioFlowRequestDto requestDto = createFlowchartRequest(scenarios, apiEntities);
@@ -162,7 +162,7 @@ public class ScenarioMappingServiceImpl implements ScenarioMappingService {
         // 4. FastAPI 흐름도 호출
         try {
             ScenarioFlowResponseDto response = scenarioGenClient.sendFlowchartRequest(requestDto);
-            log.info("시나리오 {} 개에 대한 흐름도 생성 완료", scenarios.size());
+            log.info("시나리오 흐름도 생성 완료");
             return response;
         } catch (Exception e) {
             log.error("시나리오 흐름도 생성 실패: {}", e.getMessage());
@@ -173,64 +173,77 @@ public class ScenarioMappingServiceImpl implements ScenarioMappingService {
     /**
      * 매핑 데이터를 DB에 저장
      */
+    @Transactional
     private void saveMappingDataToDB(ApiMappingResponseDto response, List<ApiListEntity> apiEntities) {
-     
+        try {
+            if (response.getApiMapping() == null || response.getApiMapping().isEmpty()) {
+                return;
+            }
             
-        if (response.getApiMapping() == null || response.getApiMapping().isEmpty()) {
-            return;
-        }
-        
-        log.info("수신된 매핑 데이터 개수: {}", response.getApiMapping().size());
-        
-        int savedCount = 0;
-        Map<String, Integer> scenarioStepMap = new HashMap<>();
-        
-        for (ApiMappingResponseItem mappingItem : response.getApiMapping()) {
-            String scenarioId = mappingItem.getScenarioId();
-            String apiName = mappingItem.getApiName();
+            log.info("수신된 매핑 데이터 개수: {}", response.getApiMapping().size());
             
-            
-            // 시나리오 엔티티 조회
-            ScenarioEntity scenario = scenarioRepository.findByScenarioId(scenarioId)
-                .orElse(null);
+            Map<String, Integer> scenarioStepMap = new HashMap<>();
+            Set<Integer> scenariosToDeleteMapping = new HashSet<>();
+            List<MappingEntity> mappingEntitiesToSave = new ArrayList<>();
+        
+            // 1. 반복문에서 데이터 수집
+            for (ApiMappingResponseItem mappingItem : response.getApiMapping()) {
+                String scenarioId = mappingItem.getScenarioId();
+                String apiName = mappingItem.getApiName();
                 
-            if (scenario == null) {
-                continue;
-            }
-            
-            // 시나리오별 step 관리
-            int step = scenarioStepMap.getOrDefault(scenarioId, 0) + 1;
-            scenarioStepMap.put(scenarioId, step);
-            
-            // 첫 번째 API일 때만 기존 매핑 삭제 (중복 방지)
-            if (step == 1) {
-                mappingRepository.deleteByScenarioKey_Id(scenario.getId());
-            }
-            
-            
-            // API 엔티티 조회 (이름으로 매칭)
-            Optional<ApiListEntity> apiEntity = apiEntities.stream()
-                .filter(api -> api.getName().equals(apiName))
-                .findFirst();
-            
-            if (apiEntity.isPresent()) {
-                // 매핑 엔티티 생성 및 저장
-                MappingEntity mappingEntity = MappingEntity.builder()
-                    .mappingId("map-" + scenario.getId() + "-" + step)
-                    .step(step)
-                    .scenarioKey(scenario)
-                    .apiListKey(apiEntity.get())
-                    .build();
+                // 시나리오 엔티티 조회
+                ScenarioEntity scenario = scenarioRepository.findByScenarioId(scenarioId)
+                    .orElse(null);
+                    
+                if (scenario == null) {
+                    continue;
+                }
                 
-                mappingRepository.save(mappingEntity);
-                savedCount++;
-
-            } else {
-                apiEntities.forEach(api -> log.warn("  - {}", api.getName()));
+                // 시나리오별 step 관리
+                int step = scenarioStepMap.getOrDefault(scenarioId, 0) + 1;
+                scenarioStepMap.put(scenarioId, step);
+                
+                // 첫 번째 API일 때만 기존 매핑 삭제 대상에 추가
+                if (step == 1) {
+                    scenariosToDeleteMapping.add(scenario.getId());
+                }
+                
+                // API 엔티티 조회 (이름으로 매칭)
+                Optional<ApiListEntity> apiEntity = apiEntities.stream()
+                    .filter(api -> api.getName().equals(apiName))
+                    .findFirst();
+                
+                if (apiEntity.isPresent()) {
+                    // 매핑 엔티티 생성 
+                    MappingEntity mappingEntity = MappingEntity.builder()
+                        .mappingId("map-" + scenario.getId() + "-" + step)
+                        .step(step)
+                        .scenarioKey(scenario)
+                        .apiListKey(apiEntity.get())
+                        .build();
+                    
+                    mappingEntitiesToSave.add(mappingEntity);
+                } else {
+                    log.warn("API를 찾을 수 없음: {}", apiName);
+                }
             }
-        }
             
-        
+            // 2. 배치 삭제
+            if (!scenariosToDeleteMapping.isEmpty()) {
+                mappingRepository.deleteAllByScenarioKey(new ArrayList<>(scenariosToDeleteMapping));
+                log.info("기존 매핑 데이터 삭제 완료");
+            }
+            
+            // 3. 배치 저장 
+            if (!mappingEntitiesToSave.isEmpty()) {
+                mappingRepository.saveAll(mappingEntitiesToSave);
+                log.info("매핑 데이터 저장 완료");
+            }
+            
+        } catch (Exception e) {
+            log.error("매핑 데이터 DB 저장 실패: {}", e.getMessage());
+            throw e; 
+        }
     }
 
     /**
