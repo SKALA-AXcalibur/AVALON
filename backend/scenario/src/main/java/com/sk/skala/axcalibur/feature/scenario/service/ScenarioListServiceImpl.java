@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListDto;
-import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListResponse;
+import com.sk.skala.axcalibur.feature.scenario.dto.response.item.ScenarioItem;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
 
@@ -29,9 +29,9 @@ public class ScenarioListServiceImpl implements ScenarioListService {
         List<ScenarioEntity> scenarios = scenarioRepository.findByProject_IdOrderByCreateAtDesc(projectKey);
         
         // DTO 변환
-        List<ScenarioListResponse> scenarioItems = scenarios.stream()
-            .map(scenario -> ScenarioListResponse.builder()
-                .scenarioId(scenario.getScenarioId())
+        List<ScenarioItem> scenarioItems = scenarios.stream()
+            .map(scenario -> ScenarioItem.builder()
+                .id(scenario.getScenarioId())
                 .name(scenario.getName())
                 .build())
             .collect(Collectors.toList());

@@ -33,7 +33,7 @@ public class ScenarioCreateServiceImpl implements ScenarioCreateService {
         // 1. 시나리오 기본 정보 생성 
         String newScenarioId = createScenarioBasicInfo(projectKey, requestDto);
         
-        // 2. 트랜잭션 완료 후 AI 서버 호출 
+        // 2. 트랜잭션 완료 후 AI 서버 호출
         generateMappingAndFlowchart(newScenarioId);
         
         return ScenarioCreateResponseDto.builder()
