@@ -4,11 +4,19 @@
 @details 이 모듈은 AVALON AI의 FastAPI 라우터를 설정합니다.
 @version 1.0
 """
+from dto.response.apilist.apilist_response import ApiListResponse, ApiItem, ScenarioItem
+from dto.request.apilist.apilist_map_request import convert_scenario_list, convert_api_list
+from service.apilist.mapping_state_processor import create_initial_mapping_state
+from service.apilist.apilist_graph import create_apilist_graph
+from dto.response.apilist.apilist_validation_response import ApiListValidationResponse
+from dto.request.apilist.common import ApiMappingItem
+from service.apilist.api_mapping_service import apiMappingService
+from datetime import datetime
 
 import logging
 import traceback
 from typing import Dict
-from fastapi import APIRouter, Response, File, Form, HTTPException, UploadFile, Body
+from fastapi import APIRouter, Response, File, Form, HTTPException, Request, UploadFile, Body
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
@@ -162,6 +170,17 @@ async def generate_flow_chart(request: ScenarioFlowRequest) -> ScenarioFlowRespo
     except Exception as e:
         logging.exception("플로우 차트 생성 중 예외 발생")
         raise HTTPException(status_code=500, detail=f"플로우 차트 생성 실패")
+
+@router.post('/api/list/v1/create')
+async def create_api_list(request: Request):
+
+    body = await request.json()
+    scenario_list = body.get("scenarioList", [])
+    api_list = body.get("apiList", [])
+
+    # 서비스 계층에 위임
+    response = await apiMappingService.doApiMapping(scenario_list, api_list)
+    return JSONResponse(content=response)
 
 
 @router.post("/api/tc/v1/{scenario_id}")
