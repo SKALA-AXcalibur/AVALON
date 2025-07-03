@@ -62,7 +62,6 @@ public class ScenarioMappingServiceImpl implements ScenarioMappingService {
         
         // 3. 매핑 요청 DTO 생성
         ApiMappingRequestDto requestDto = createMappingRequest(List.of(scenario), apiEntities);
-                requestDto.getScenarioList().size(), requestDto.getApiList().size());
         
         // 4. FastAPI 매핑 호출
         try {

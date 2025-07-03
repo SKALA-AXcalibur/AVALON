@@ -28,7 +28,6 @@ public class ScenarioUpdateServiceImpl implements ScenarioUpdateService {
         // 시나리오 기본 정보 수정
         updateScenarioBasicInfo(projectKey, scenarioId, requestDto);
     
-        // 트랜잭션 완료 후 AI 서버 호출 (동시성 문제 해결)
         generateMappingAndFlowchart(scenarioId);
     }
     
