@@ -82,9 +82,9 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
                 // DB 엔티티로 매핑
                 ScenarioEntity entity = ScenarioEntity.builder()
                     .scenarioId(newScenarioId)
-                    .name(scenarioItem.getName()) // getTitle() 대신 getName() 사용
-                    .description("AI 생성 시나리오") // 기본값 설정
-                    .validation("기본 검증") // 기본값 설정
+                    .name(scenarioItem.getTitle())
+                    .description(scenarioItem.getDescription())
+                    .validation(scenarioItem.getValidation())
                     .flowChart(null)
                     .project(project)
                     .build();

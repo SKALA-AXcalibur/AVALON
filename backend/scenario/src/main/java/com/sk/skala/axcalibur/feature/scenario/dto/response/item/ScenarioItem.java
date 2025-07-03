@@ -12,4 +12,7 @@ import lombok.NoArgsConstructor;
 public class ScenarioItem {
     private String id;
     private String name;
+    private String title;
+    private String description;
+    private String validation;
 }
