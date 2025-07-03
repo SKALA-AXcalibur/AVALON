@@ -3,11 +3,9 @@ package com.sk.skala.axcalibur.spec.global.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
 import com.sk.skala.axcalibur.spec.feature.project.entity.ApiListEntity;
 import com.sk.skala.axcalibur.spec.feature.project.entity.DbDesignEntity;
 import com.sk.skala.axcalibur.spec.feature.project.entity.RequestEntity;
-import com.sk.skala.axcalibur.spec.global.entity.FilePathEntity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -21,7 +19,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Getter
 @NoArgsConstructor
@@ -29,34 +26,32 @@ import lombok.ToString;
 @Builder
 @Entity
 @Table(name = "project")
-@ToString
 public class ProjectEntity extends BaseTimeEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "`key`")
-    private Integer key;               // 프로젝트 키 (PK, AUTO_INCREMENT)
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "`key`")
+  private Integer key; // 프로젝트 키 (PK, AUTO_INCREMENT)
 
-    @Column(name = "id", unique = true, nullable = false, length = 20)
-    private String id;                // 프로젝트 ID (UNIQUE)
+  @Column(name = "id", unique = true, nullable = false, length = 20)
+  private String id; // 프로젝트 ID (UNIQUE)
 
-    @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @Builder.Default
-    private List<ApiListEntity> apiLists = new ArrayList<>();
-   
-    @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @Builder.Default
-    private List<RequestEntity> requests = new ArrayList<>();
-   
-    @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @Builder.Default
-    private List<FilePathEntity> filePaths = new ArrayList<>();
+  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @Builder.Default
+  private List<ApiListEntity> apiLists = new ArrayList<>();
 
-    @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @Builder.Default
-    private List<DbDesignEntity> dbDesigns = new ArrayList<>();
-    
+  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @Builder.Default
+  private List<RequestEntity> requests = new ArrayList<>();
 
-    public ProjectEntity(String id) {
-         this.id = id;
-    }
+  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @Builder.Default
+  private List<FilePathEntity> filePaths = new ArrayList<>();
+
+  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @Builder.Default
+  private List<DbDesignEntity> dbDesigns = new ArrayList<>();
+
+  public ProjectEntity(String id) {
+    this.id = id;
+  }
 }
