@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.item.ScenarioListItem;
+import com.sk.skala.axcalibur.global.code.SuccessCode;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
+import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +26,7 @@ public class ScenarioListServiceImpl implements ScenarioListService {
     private final ScenarioRepository scenarioRepository;
 
     @Override
-    public ScenarioListDto getScenarioList(Integer projectKey) {
+    public SuccessResponse<ScenarioListDto> getScenarioList(Integer projectKey) {
         // 프로젝트별 시나리오 목록 조회 (생성일시 기준 내림차순)
         List<ScenarioEntity> scenarios = scenarioRepository.findByProject_IdOrderByCreateAtDesc(projectKey);
         
@@ -36,10 +38,17 @@ public class ScenarioListServiceImpl implements ScenarioListService {
                 .build())
             .collect(Collectors.toList());
         
-        // DTO 반환
-        return ScenarioListDto.builder()
+        // DTO 생성
+        ScenarioListDto scenarioListDto = ScenarioListDto.builder()
             .scenarioList(scenarioItems)
             .total(scenarioItems.size())
+            .build();
+        
+        // SuccessResponse로 감싸서 반환
+        return SuccessResponse.<ScenarioListDto>builder()
+            .data(scenarioListDto)
+            .status(SuccessCode.SELECT_SUCCESS)
+            .message("시나리오 목록 조회가 완료되었습니다.")
             .build();
     }
 } 

@@ -7,11 +7,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioCreateRequestDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCreateResponseDto;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
+import com.sk.skala.axcalibur.global.code.SuccessCode;
 import com.sk.skala.axcalibur.global.entity.ProjectEntity;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.global.repository.ProjectRepository;
 import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
+import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 import feign.FeignException;
 
@@ -31,15 +33,21 @@ public class ScenarioCreateServiceImpl implements ScenarioCreateService {
     private final ScenarioMappingService scenarioMappingService;
 
     @Override
-    public ScenarioCreateResponseDto createScenario(Integer projectKey, ScenarioCreateRequestDto requestDto) {
+    public SuccessResponse<ScenarioCreateResponseDto> createScenario(Integer projectKey, ScenarioCreateRequestDto requestDto) {
         // 1. 시나리오 기본 정보 생성 
         String newScenarioId = createScenarioBasicInfo(projectKey, requestDto);
         
         // 2. 트랜잭션 완료 후 AI 서버 호출
         generateMappingAndFlowchart(newScenarioId);
         
-        return ScenarioCreateResponseDto.builder()
+        ScenarioCreateResponseDto responseDto = ScenarioCreateResponseDto.builder()
             .id(newScenarioId)
+            .build();
+        
+        return SuccessResponse.<ScenarioCreateResponseDto>builder()
+            .data(responseDto)
+            .status(SuccessCode.INSERT_SUCCESS)
+            .message("시나리오 생성이 완료되었습니다.")
             .build();
     }
     
@@ -77,19 +85,10 @@ public class ScenarioCreateServiceImpl implements ScenarioCreateService {
     
     private void generateMappingAndFlowchart(String scenarioId) {
         // 시나리오 생성 트랜잭션 완료 후 AI 서버 호출
-        try {
-            // 1. 매핑 생성 및 저장
-            scenarioMappingService.generateAndSaveMapping(scenarioId);
-            
-            // 2. 흐름도 생성 (FastAPI에서 자동 저장)
-            scenarioMappingService.generateFlowchart(scenarioId);
-            
-        } catch (BusinessExceptionHandler e) {
-            // 비즈니스 로직 예외 (데이터 검증, 시나리오 조회 실패 등)
-            log.error("매핑/흐름도 생성 실패 - 비즈니스 로직 오류");
-        } catch (FeignException e) {
-            // Feign 클라이언트 예외 (AI 서버 통신 오류)
-            log.error("매핑/흐름도 생성 실패 - AI 서버 통신 오류");
-        } 
+        // 1. 매핑 생성 및 저장
+        scenarioMappingService.generateAndSaveMapping(scenarioId);
+        
+        // 2. 흐름도 생성 (FastAPI에서 자동 저장)
+        scenarioMappingService.generateFlowchart(scenarioId);
     }
 }

@@ -7,9 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDetailResponseDto;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
+import com.sk.skala.axcalibur.global.code.SuccessCode;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
+import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +28,7 @@ public class ScenarioDetailServiceImpl implements ScenarioDetailService {
 
     @Override
     @Transactional(readOnly = true)
-    public ScenarioDetailResponseDto getScenarioDetail(Integer projectKey, String scenarioId) {
+    public SuccessResponse<ScenarioDetailResponseDto> getScenarioDetail(Integer projectKey, String scenarioId) {
        
         // 시나리오 ID로 시나리오 조회
         Optional<ScenarioEntity> scenarioOpt = scenarioRepository.findByScenarioId(scenarioId);
@@ -43,13 +45,19 @@ public class ScenarioDetailServiceImpl implements ScenarioDetailService {
         }
         
         
-        // DTO 변환 및 반환
-        return ScenarioDetailResponseDto.builder()
+        // DTO 변환
+        ScenarioDetailResponseDto responseDto = ScenarioDetailResponseDto.builder()
             .id(scenario.getScenarioId())
             .name(scenario.getName())
             .graph(scenario.getFlowChart()) // flowChart -> graph로 매핑
             .description(scenario.getDescription())
             .validation(scenario.getValidation())
+            .build();
+            
+        return SuccessResponse.<ScenarioDetailResponseDto>builder()
+            .data(responseDto)
+            .status(SuccessCode.SELECT_SUCCESS)
+            .message("시나리오 상세 조회가 완료되었습니다.")
             .build();
     }
 } 

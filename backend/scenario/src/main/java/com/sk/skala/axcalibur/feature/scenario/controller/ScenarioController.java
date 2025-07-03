@@ -15,6 +15,7 @@ import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioCreateRespon
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDeleteResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDetailResponseDto;
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioListDto;
+import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 
 
@@ -34,7 +35,7 @@ public interface ScenarioController {
      * @return 시나리오 목록 응답
      */
     @GetMapping("/scenario/v1/project")
-    ResponseEntity<ScenarioListDto> getScenarioList(
+    ResponseEntity<SuccessResponse<ScenarioListDto>> getScenarioList(
         @CookieValue("avalon") String key);
     
     /**
@@ -44,7 +45,7 @@ public interface ScenarioController {
      * @return 시나리오 추가 응답
      */
     @PostMapping("/scenario/v1")
-    ResponseEntity<ScenarioCreateResponseDto> createScenario(
+    ResponseEntity<SuccessResponse<ScenarioCreateResponseDto>> createScenario(
         @CookieValue("avalon") String key,
         @RequestBody ScenarioCreateRequestDto requestDto
     );
@@ -57,7 +58,7 @@ public interface ScenarioController {
      * @return 성공 응답
      */
     @PutMapping("/scenario/v1/{scenarioId}")
-    ResponseEntity<Void> updateScenario(
+    ResponseEntity<SuccessResponse<Void>> updateScenario(
         @CookieValue("avalon") String key,
         @PathVariable("scenarioId") String scenarioId,
         @RequestBody ScenarioUpdateRequestDto requestDto
@@ -70,7 +71,7 @@ public interface ScenarioController {
      * @return 삭제 응답
      */
     @DeleteMapping("/scenario/v1/scenario/{id}")
-    ResponseEntity<ScenarioDeleteResponseDto> deleteScenario(
+    ResponseEntity<SuccessResponse<ScenarioDeleteResponseDto>> deleteScenario(
         @CookieValue("avalon") String key,
         @PathVariable("id") String id
     );
@@ -82,7 +83,7 @@ public interface ScenarioController {
      * @return 시나리오 상세 정보
      */
     @GetMapping("/scenario/v1/scenario/{id}")
-    ResponseEntity<ScenarioDetailResponseDto> getScenarioDetail(
+    ResponseEntity<SuccessResponse<ScenarioDetailResponseDto>> getScenarioDetail(
         @CookieValue("avalon") String key,
         @PathVariable("id") String id
     );

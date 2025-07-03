@@ -5,9 +5,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.request.ScenarioUpdateRequestDto;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
+import com.sk.skala.axcalibur.global.code.SuccessCode;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
+import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,11 +26,17 @@ public class ScenarioUpdateServiceImpl implements ScenarioUpdateService {
     private final ScenarioMappingService scenarioMappingService;
 
     @Override
-    public void updateScenario(Integer projectKey, String scenarioId, ScenarioUpdateRequestDto requestDto) {
+    public SuccessResponse<Void> updateScenario(Integer projectKey, String scenarioId, ScenarioUpdateRequestDto requestDto) {
         // 시나리오 기본 정보 수정
         updateScenarioBasicInfo(projectKey, scenarioId, requestDto);
     
         generateMappingAndFlowchart(scenarioId);
+        
+        return SuccessResponse.<Void>builder()
+            .data(null)
+            .status(SuccessCode.UPDATE_SUCCESS)
+            .message("시나리오 수정이 완료되었습니다.")
+            .build();
     }
     
     @Transactional

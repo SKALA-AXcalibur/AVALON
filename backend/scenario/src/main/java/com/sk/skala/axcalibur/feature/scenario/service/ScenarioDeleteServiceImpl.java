@@ -5,10 +5,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sk.skala.axcalibur.feature.scenario.dto.response.ScenarioDeleteResponseDto;
 import com.sk.skala.axcalibur.global.code.ErrorCode;
+import com.sk.skala.axcalibur.global.code.SuccessCode;
 import com.sk.skala.axcalibur.global.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.global.exception.BusinessExceptionHandler;
 import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
 import com.sk.skala.axcalibur.global.repository.MappingRepository;
+import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +28,7 @@ public class ScenarioDeleteServiceImpl implements ScenarioDeleteService {
 
     @Override
     @Transactional
-    public ScenarioDeleteResponseDto deleteScenario(Integer projectKey, String scenarioId) {
+    public SuccessResponse<ScenarioDeleteResponseDto> deleteScenario(Integer projectKey, String scenarioId) {
 
         // 시나리오 ID로 시나리오 조회
         ScenarioEntity scenario = scenarioRepository.findByScenarioId(scenarioId)
@@ -45,8 +47,14 @@ public class ScenarioDeleteServiceImpl implements ScenarioDeleteService {
         
         log.info("시나리오 삭제 완료 - ID: {}, 프로젝트: {}", scenarioId, projectKey);
         
-        return ScenarioDeleteResponseDto.builder()
+        ScenarioDeleteResponseDto responseDto = ScenarioDeleteResponseDto.builder()
             .id(scenarioId)
+            .build();
+            
+        return SuccessResponse.<ScenarioDeleteResponseDto>builder()
+            .data(responseDto)
+            .status(SuccessCode.DELETE_SUCCESS)
+            .message("시나리오 삭제가 완료되었습니다.")
             .build();
     }
 }

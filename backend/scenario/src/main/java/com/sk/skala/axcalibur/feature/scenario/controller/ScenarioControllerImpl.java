@@ -28,6 +28,7 @@ import com.sk.skala.axcalibur.feature.scenario.service.ScenarioDetailService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioListService;
 import com.sk.skala.axcalibur.feature.scenario.service.ScenarioUpdateService;
 import com.sk.skala.axcalibur.global.code.SuccessCode;
+import com.sk.skala.axcalibur.global.response.SuccessResponse;
 
 
 import lombok.RequiredArgsConstructor;
@@ -59,14 +60,14 @@ public class ScenarioControllerImpl implements ScenarioController {
      */
     @Override
     @GetMapping("/scenario/v1/project")
-    public ResponseEntity<ScenarioListDto> getScenarioList(
+    public ResponseEntity<SuccessResponse<ScenarioListDto>> getScenarioList(
         @CookieValue("avalon") String key) {
         // Redis에서 projectId 가져오기 (예외 발생 시 Global handler에서 처리)
         ProjectContext projectContext = projectIdResolverService.resolveProjectId(key);
         Integer projectKey = projectContext.getKey();
 
         // 시나리오 목록 조회
-        ScenarioListDto scenarioList = scenarioListService.getScenarioList(projectKey);
+        SuccessResponse<ScenarioListDto> scenarioList = scenarioListService.getScenarioList(projectKey);
         
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();
@@ -74,7 +75,7 @@ public class ScenarioControllerImpl implements ScenarioController {
         
         // 성공 응답 반환
         return ResponseEntity
-            .status(SuccessCode.SELECT_SUCCESS.getStatus())
+            .status(scenarioList.getStatus().getStatus())
             .headers(headers)
             .body(scenarioList);
     }
@@ -84,7 +85,7 @@ public class ScenarioControllerImpl implements ScenarioController {
      */
     @Override
     @PostMapping("/scenario/v1")
-    public ResponseEntity<ScenarioCreateResponseDto> createScenario(
+    public ResponseEntity<SuccessResponse<ScenarioCreateResponseDto>> createScenario(
         @CookieValue("avalon") String key,
         @RequestBody ScenarioCreateRequestDto requestDto) {
         
@@ -93,7 +94,7 @@ public class ScenarioControllerImpl implements ScenarioController {
         Integer projectKey = projectContext.getKey();
 
         // 시나리오 생성
-        ScenarioCreateResponseDto result = scenarioCreateService.createScenario(projectKey, requestDto);
+        SuccessResponse<ScenarioCreateResponseDto> result = scenarioCreateService.createScenario(projectKey, requestDto);
         
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();
@@ -101,7 +102,7 @@ public class ScenarioControllerImpl implements ScenarioController {
         
         // 성공 응답 반환
         return ResponseEntity
-            .status(SuccessCode.INSERT_SUCCESS.getStatus())
+            .status(result.getStatus().getStatus())
             .headers(headers)
             .body(result);
     }
@@ -111,7 +112,7 @@ public class ScenarioControllerImpl implements ScenarioController {
      */
     @Override
     @PutMapping("/scenario/v1/{scenarioId}")
-    public ResponseEntity<Void> updateScenario(
+    public ResponseEntity<SuccessResponse<Void>> updateScenario(
         @CookieValue("avalon") String key,
         @PathVariable("scenarioId") String scenarioId,
         @RequestBody ScenarioUpdateRequestDto requestDto) {
@@ -121,17 +122,17 @@ public class ScenarioControllerImpl implements ScenarioController {
         Integer projectKey = projectContext.getKey();
 
         // 시나리오 수정
-        scenarioUpdateService.updateScenario(projectKey, scenarioId, requestDto);
+        SuccessResponse<Void> result = scenarioUpdateService.updateScenario(projectKey, scenarioId, requestDto);
         
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();
         headers.add("responseTime", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
         
-        // 성공 응답 반환 (데이터 없음)
+        // 성공 응답 반환
         return ResponseEntity
-            .status(SuccessCode.UPDATE_SUCCESS.getStatus())
+            .status(result.getStatus().getStatus())
             .headers(headers)
-            .body(null);
+            .body(result);
     }
 
     /**
@@ -139,7 +140,7 @@ public class ScenarioControllerImpl implements ScenarioController {
      */
     @Override
     @DeleteMapping("/scenario/v1/scenario/{id}")
-    public ResponseEntity<ScenarioDeleteResponseDto> deleteScenario(
+    public ResponseEntity<SuccessResponse<ScenarioDeleteResponseDto>> deleteScenario(
         @CookieValue("avalon") String key,
         @PathVariable("id") String id) {
         
@@ -148,7 +149,7 @@ public class ScenarioControllerImpl implements ScenarioController {
         Integer projectKey = projectContext.getKey();
 
         // 시나리오 삭제
-        ScenarioDeleteResponseDto result = scenarioDeleteService.deleteScenario(projectKey, id);
+        SuccessResponse<ScenarioDeleteResponseDto> result = scenarioDeleteService.deleteScenario(projectKey, id);
         
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();
@@ -156,7 +157,7 @@ public class ScenarioControllerImpl implements ScenarioController {
         
         // 성공 응답 반환
         return ResponseEntity
-            .status(SuccessCode.DELETE_SUCCESS.getStatus())
+            .status(result.getStatus().getStatus())
             .headers(headers)
             .body(result);
     }
@@ -166,7 +167,7 @@ public class ScenarioControllerImpl implements ScenarioController {
      */
     @Override
     @GetMapping("/scenario/v1/scenario/{id}")
-    public ResponseEntity<ScenarioDetailResponseDto> getScenarioDetail(
+    public ResponseEntity<SuccessResponse<ScenarioDetailResponseDto>> getScenarioDetail(
         @CookieValue("avalon") String key,
         @PathVariable("id") String id) {
         
@@ -175,7 +176,7 @@ public class ScenarioControllerImpl implements ScenarioController {
         Integer projectKey = projectContext.getKey();
 
         // 시나리오 상세 조회
-        ScenarioDetailResponseDto result = scenarioDetailService.getScenarioDetail(projectKey, id);
+        SuccessResponse<ScenarioDetailResponseDto> result = scenarioDetailService.getScenarioDetail(projectKey, id);
         
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();
@@ -183,7 +184,7 @@ public class ScenarioControllerImpl implements ScenarioController {
         
         // 성공 응답 반환
         return ResponseEntity
-            .status(SuccessCode.SELECT_SUCCESS.getStatus())
+            .status(result.getStatus().getStatus())
             .headers(headers)
             .body(result);
     }
