@@ -19,12 +19,11 @@ import os
 class ApiMappingService:
     """API 매핑 서비스 클래스"""
     
-    async def doApiMapping(self, avalon: str, scenario_list: List, api_list: List) -> Dict[str, Any]:
+    async def doApiMapping(self, scenario_list: List, api_list: List) -> Dict[str, Any]:
         """
         API 매핑을 수행하는 메인 메소드
         
         Args:
-            avalon (str): Avalon 쿠키 값
             scenario_list (List): 시나리오 리스트
             api_list (List): API 리스트
             
@@ -36,7 +35,7 @@ class ApiMappingService:
         converted_apis = convert_api_list(api_list)
         
         # 2. 초기 상태 생성
-        state = create_initial_mapping_state(avalon=avalon)
+        state = create_initial_mapping_state(avalon="")
         state = state.model_copy(update={
             "scenarios": converted_scenarios,
             "api_lists": converted_apis

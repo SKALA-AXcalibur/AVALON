@@ -173,30 +173,13 @@ async def generate_flow_chart(request: ScenarioFlowRequest) -> ScenarioFlowRespo
 
 @router.post('/api/list/v1/create')
 async def create_api_list(request: Request):
-    avalon = request.cookies.get("avalon")
-    if not avalon:
-        return JSONResponse(content={"error": "avalon 쿠키가 필요합니다."}, status_code=400)
 
     body = await request.json()
     scenario_list = body.get("scenarioList", [])
     api_list = body.get("apiList", [])
 
     # 서비스 계층에 위임
-    response = await apiMappingService.doApiMapping(avalon, scenario_list, api_list)
-    return JSONResponse(content=response)
-
-@router.post('/api/list/v1/create')
-async def create_api_list(request: Request):
-    avalon = request.cookies.get("avalon")
-    if not avalon:
-        return JSONResponse(content={"error": "avalon 쿠키가 필요합니다."}, status_code=400)
-
-    body = await request.json()
-    scenario_list = body.get("scenarioList", [])
-    api_list = body.get("apiList", [])
-
-    # 서비스 계층에 위임
-    response = await apiMappingService.doApiMapping(avalon, scenario_list, api_list)
+    response = await apiMappingService.doApiMapping(scenario_list, api_list)
     return JSONResponse(content=response)
 
 
