@@ -492,7 +492,7 @@ public class ProjectServiceImpl implements ProjectService {
                 if (paramItem.getLength() != null && paramItem.getLength() > 0) {
                     builder.length(paramItem.getLength());
                 }
-                
+
                 return builder.build();
             })
             .collect(Collectors.toList());
@@ -500,23 +500,38 @@ public class ProjectServiceImpl implements ProjectService {
 
     // 상위항목 키 조회
     private void updateParentKeys(List<ParameterEntity> savedParameters) {
-        // Map<String name, ParameterEntity> 으로 매핑 (상위항목명으로 탐색)
-        Map<String, ParameterEntity> nameToEntityMap = savedParameters.stream()
-                .collect(Collectors.toMap(ParameterEntity::getName, Function.identity(), (a, b) -> a));  // name 중복방지
+        // API 별로 파라미터들을 그룹화
+        Map<ApiListEntity, List<ParameterEntity>> apiToParamsMap = savedParameters.stream()
+                .collect(Collectors.groupingBy(ParameterEntity::getApiListKey));
 
-        List<ParameterEntity> toUpdate = new ArrayList<>();
+        for (Map.Entry<ApiListEntity, List<ParameterEntity>> entry : apiToParamsMap.entrySet()) {
+            List<ParameterEntity> paramList = entry.getValue();
 
-        for (ParameterEntity param : savedParameters) {
-            String upperName = param.getUpperName();
-            if (upperName != null && nameToEntityMap.containsKey(upperName)) {
-                ParameterEntity parent = nameToEntityMap.get(upperName);
-                param.setParentKey(parent);
-                toUpdate.add(param);
+            // 같은 API 내 name → ParameterEntity Map 생성
+            Map<String, ParameterEntity> nameToEntity = paramList.stream()
+                    .collect(Collectors.toMap(ParameterEntity::getName, Function.identity(), (a, b) -> a));  // 중복 시 첫 번째
+
+            List<ParameterEntity> toUpdate = new ArrayList<>();
+
+            for (ParameterEntity param : paramList) {
+                String upperName = param.getUpperName();
+
+                if (upperName != null && nameToEntity.containsKey(upperName)) {
+                    ParameterEntity parent = nameToEntity.get(upperName);
+
+                    // 순환 참조 방지: 자기 자신을 부모로 참조 금지
+                    if (!param.equals(parent)) {
+                        param.setParentKey(parent);
+                        toUpdate.add(param);
+                    } else {
+                        log.warn("자기 자신을 부모로 설정하려는 순환 참조 감지: paramName={}", param.getName());
+                    }
+                }
             }
-        }
 
-        if (!toUpdate.isEmpty()) {
-            parameterRepository.saveAll(toUpdate);
+            if (!toUpdate.isEmpty()) {
+                parameterRepository.saveAll(toUpdate);
+            }
         }
     }
 
