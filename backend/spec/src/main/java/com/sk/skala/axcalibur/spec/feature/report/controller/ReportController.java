@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,10 @@ public class ReportController {
         ByteArrayResource resource = new ByteArrayResource(response.getFileData());
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + response.getFileName() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(response.getFileName())
+                        .build()
+                        .toString())
                 .header(HttpHeaders.CONTENT_TYPE, response.getContentType())
                 .body(resource);
     }
@@ -58,7 +62,10 @@ public class ReportController {
         ByteArrayResource resource = new ByteArrayResource(response.getFileData());
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + response.getFileName() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(response.getFileName())
+                        .build()
+                        .toString())
                 .header(HttpHeaders.CONTENT_TYPE, response.getContentType())
                 .body(resource);
     }
