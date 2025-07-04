@@ -19,10 +19,10 @@ public class DataInitializerConfig {
         jdbcTemplate.execute("INSERT IGNORE INTO priority (`key`, name) VALUES (3, 'LOW')");
 
         // 파일 타입 데이터
-        jdbcTemplate.execute("INSERT IGNORE INTO file_type (`key`, name) VALUES (1, 'REQUIREMENT')");
+        jdbcTemplate.execute("INSERT IGNORE INTO file_type (`key`, name) VALUES (1, 'REQUIREMENT_FILE')");
         jdbcTemplate.execute("INSERT IGNORE INTO file_type (`key`, name) VALUES (2, 'INTERFACE_DEFINITION')");
         jdbcTemplate.execute("INSERT IGNORE INTO file_type (`key`, name) VALUES (3, 'INTERFACE_DESIGN')");
-        jdbcTemplate.execute("INSERT IGNORE INTO file_type (`key`, name) VALUES (4, 'ERD')");
+        jdbcTemplate.execute("INSERT IGNORE INTO file_type (`key`, name) VALUES (4, 'DATABASE_DESIGN')");
 
         // 카테고리 데이터
         jdbcTemplate.execute("INSERT IGNORE INTO category (`key`, name) VALUES (1, 'PATH/QUERY')");
