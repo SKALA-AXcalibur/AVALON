@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TestcaseResultRepository extends JpaRepository<TestcaseResultEntity, Integer>{
-  List<TestcaseResultEntity> findAllByTestcaseId(Integer testcaseKey);
+  List<TestcaseResultEntity> findAllByTestcase_Id(Integer testcaseId);
+  List<TestcaseResultEntity> findAllByTestcase_IdIn(List<Integer> testcaseIds); 
 }
