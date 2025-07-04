@@ -115,11 +115,7 @@ class InterfaceImplParserService:
                     format=str(row[7]).strip() if not pd.isna(row[7]) else None,
                     defaultValue=(str(row[8]).strip() if not pd.isna(row[8]) else None),
                     required=str(row[9]).strip().upper() == "Y",
-                    upper=(
-                        self._safe_int_conversion(row[10], None)
-                        if not pd.isna(row[10])
-                        else None
-                    ),
+                    upper=str(row[10]).strip() if not pd.isna(row[10]) else None,
                     desc=str(row[11]).strip() if not pd.isna(row[11]) else None,
                 )
                 params.append(param)
