@@ -6,6 +6,7 @@ from io import BytesIO
 from dto.request.spec.requirement import Requirement
 from config import config as cfg
 
+
 class RequirementParserService:
     """
     요구사항정의서(엑셀) 파일을 파싱하여 Requirement 객체 리스트로 반환하는 서비스
@@ -68,7 +69,7 @@ class RequirementParserService:
                 requirement_data = {
                     field: row_dict.get(field)  # default None은 생략 가능
                     for field in cfg.REQUIRED_FIELDS
-            }
+                }
                 requirements.append(Requirement(**requirement_data))
             except Exception as e:
                 logging.warning(f"[요구사항 행 파싱 실패] idx={idx}, error: {e}")
