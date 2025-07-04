@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,8 +56,8 @@ public class FileTemplateServiceImpl implements FileTemplateService {
                 .build();
         }
         
-        try {
-            XSSFWorkbook workbook = new XSSFWorkbook(resource.getInputStream());
+        try (XSSFWorkbook workbook = new XSSFWorkbook(resource.getInputStream());
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             XSSFSheet sheet = workbook.getSheetAt(2);
             
             setCellValue(sheet, 1, 1, businessFunction);
@@ -65,11 +66,9 @@ public class FileTemplateServiceImpl implements FileTemplateService {
             mapScenarioDataToExcel(sheet, scenarios);
 
             // 바이트 배열로 변환
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             workbook.write(outputStream);
-            workbook.close();
 
-                return outputStream.toByteArray();
+            return outputStream.toByteArray();
         } catch (IOException e) {
             throw BusinessExceptionHandler.builder()
                 .errorCode(ErrorCode.INTERNAL_SERVER_ERROR)
@@ -91,8 +90,8 @@ public class FileTemplateServiceImpl implements FileTemplateService {
                 .build();
         }
 
-        try {
-            XSSFWorkbook workbook = new XSSFWorkbook(resource.getInputStream());
+        try (XSSFWorkbook workbook = new XSSFWorkbook(resource.getInputStream());
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             XSSFSheet sheet = workbook.getSheetAt(2);
             
             setCellValue(sheet, 1, 1, businessFunction);
@@ -110,9 +109,7 @@ public class FileTemplateServiceImpl implements FileTemplateService {
             mapTestCaseDataToExcel(sheet, testCases, testCaseData, testCaseResults);
 
             // 바이트 배열로 변환
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             workbook.write(outputStream);
-            workbook.close();
 
             return outputStream.toByteArray();
         } catch (IOException e) {
@@ -223,10 +220,14 @@ public class FileTemplateServiceImpl implements FileTemplateService {
             cell.setCellValue(value.toString());
         }
         
-        if (cell.getCellStyle() == null || cell.getCellStyle().getFont() == null) {
-            cell.getCellStyle().getFont().setItalic(false);
+        // Font 스타일 설정 (Apache POI 5.x 호환)
+        if (cell.getCellStyle() == null) {
+            cell.setCellStyle(sheet.getWorkbook().createCellStyle());
         }
         
-        cell.getCellStyle().getFont().setItalic(false);
+        // 새로운 Font 생성하여 이탤릭 해제
+        XSSFFont font = sheet.getWorkbook().createFont();
+        font.setItalic(false);
+        cell.getCellStyle().setFont(font);
     }
 }
