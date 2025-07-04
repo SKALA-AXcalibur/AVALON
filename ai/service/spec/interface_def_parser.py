@@ -32,11 +32,17 @@ class InterfaceDefParserService:
         xls = pd.ExcelFile(excel_bytes)
         sheet_name = self.find_interface_def_sheet(xls)
 
+        # header row 파악 위한 로직 추가
+        df_head = xls.parse(sheet_name=sheet_name, header=None, nrows=2)
+        if df_head.iloc[0].isnull().all():
+            header_row = 1
+        else:
+            header_row = 0
+
         # BytesIO 포인터 다시 앞으로 (read_excel은 새로 읽어야 함)
         excel_bytes.seek(0)
-
         # 실제 시트 읽기
-        df = pd.read_excel(excel_bytes, sheet_name=sheet_name, header=0)
+        df = pd.read_excel(excel_bytes, sheet_name=sheet_name, header=header_row)
 
         id_map = {}
 
