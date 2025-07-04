@@ -180,12 +180,7 @@ public class ReportServiceImpl implements ReportService {
                 .build();
         }
         
-        List<MappingEntity> mappings = testCases.stream()
-            .map(TestCaseEntity::getMappingKey)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
-        
-        List<Object[]> result = testCaseRepository.findMostUsedBusinessFunction(mappings);
+        List<Object[]> result = testCaseRepository.findMostUsedBusinessFunction(testCases);
         
         if (result.isEmpty()) {
             throw BusinessExceptionHandler.builder()
