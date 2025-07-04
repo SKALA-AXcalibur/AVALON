@@ -126,12 +126,18 @@ public class FileTemplateServiceImpl implements FileTemplateService {
      */
     private void mapTestCaseDataToExcel(XSSFSheet sheet, List<TestCaseEntity> testCases, List<TestCaseDataEntity> testCaseData, List<TestcaseResultEntity> testCaseResults) {
 
+        // N+1 문제 해결: ID를 미리 추출하여 맵 생성
         Map<Integer, List<TestCaseDataEntity>> testCaseDataMap = testCaseData.stream()
-                .collect(Collectors.groupingBy(data -> data.getTestcaseKey().getId()));
+                .collect(Collectors.groupingBy(data -> {
+                    TestCaseEntity testCase = data.getTestcaseKey();
+                    return testCase != null ? testCase.getId() : null;
+                }));
         
-        // TestcaseResultEntity 매핑 추가
         Map<Integer, List<TestcaseResultEntity>> testCaseResultMap = testCaseResults.stream()
-                .collect(Collectors.groupingBy(result -> (Integer) result.getTestcase().getId()));
+                .collect(Collectors.groupingBy(result -> {
+                    TestCaseEntity testCase = result.getTestcase();
+                    return testCase != null ? testCase.getId() : null;
+                }));
     
         IntStream.range(0, testCases.size())
             .forEach(i -> {
