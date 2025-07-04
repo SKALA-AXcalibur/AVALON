@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -179,25 +180,20 @@ public class ReportServiceImpl implements ReportService {
                 .build();
         }
         
-        Map<String, Long> majorCount = testCases.stream()
-        .map(TestCaseEntity::getMappingKey)
-        .filter(mapping -> mapping != null)
-        .map(MappingEntity::getApiListKey)
-        .filter(apiList -> apiList != null && apiList.getRequestKey() != null)
-        .map(apiList -> apiList.getRequestKey())
-        .filter(request -> request.getMajorKey() != null)
-        .map(request -> request.getMajorKey().getName())
-        .collect(Collectors.groupingBy(
-            majorName -> majorName,
-            Collectors.counting()
-        ));
+        List<MappingEntity> mappings = testCases.stream()
+            .map(TestCaseEntity::getMappingKey)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
         
-        return majorCount.entrySet().stream()
-            .max(Map.Entry.comparingByValue())
-            .map(Map.Entry::getKey)
-            .orElseThrow(() -> BusinessExceptionHandler.builder()
+        List<Object[]> result = testCaseRepository.findMostUsedBusinessFunction(mappings);
+        
+        if (result.isEmpty()) {
+            throw BusinessExceptionHandler.builder()
                 .errorCode(ErrorCode.NOT_FOUND_ERROR)
                 .message("업무기능 정보를 찾을 수 없습니다.")
-                .build());
+                .build();
+        }
+        
+        return (String) result.get(0)[0]; // 첫 번째 결과의 업무기능명 반환
     }
 }
