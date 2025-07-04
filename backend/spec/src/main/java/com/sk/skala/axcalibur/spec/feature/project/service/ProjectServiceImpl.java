@@ -492,16 +492,7 @@ public class ProjectServiceImpl implements ProjectService {
                 if (paramItem.getLength() != null && paramItem.getLength() > 0) {
                     builder.length(paramItem.getLength());
                 }
-
-                // if (paramItem.getUpper() != null) {
-                //     ParameterEntity parent = findParentParameter(paramItem.getUpper());
-                //     if (parent == null) {
-                //         log.error("부모 파라미터를 찾을 수 없습니다. upper: {}", paramItem.getUpper());
-                //         throw new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
-                //     }
-                //     builder.parentKey(parent);
-                // }
-
+                
                 return builder.build();
             })
             .collect(Collectors.toList());
