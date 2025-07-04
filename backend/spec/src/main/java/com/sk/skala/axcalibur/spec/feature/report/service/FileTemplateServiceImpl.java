@@ -42,7 +42,7 @@ public class FileTemplateServiceImpl implements FileTemplateService {
     /**
      * 시나리오 템플릿 처리
      */
-    public byte[] generateScenarioReport(List<ScenarioEntity> scenarios, String businessFunction) throws IOException {
+    public byte[] generateScenarioReport(List<ScenarioEntity> scenarios, String businessFunction) {
         ClassPathResource resource = new ClassPathResource(scenarioTemplate);
 
         if (!resource.exists()) {
@@ -51,27 +51,34 @@ public class FileTemplateServiceImpl implements FileTemplateService {
                 .message("시나리오 템플릿 파일을 찾을 수 없습니다.")
                 .build();
         }
-
-        XSSFWorkbook workbook = new XSSFWorkbook(resource.getInputStream());
-        XSSFSheet sheet = workbook.getSheetAt(2);
-            
-        setCellValue(sheet, 1, 1, businessFunction);  // B2 셀
         
-        // 개선된 동적 매핑 로직
-        mapScenarioDataToExcel(sheet, scenarios);
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook(resource.getInputStream());
+            XSSFSheet sheet = workbook.getSheetAt(2);
+            
+            setCellValue(sheet, 1, 1, businessFunction);
+            
+            // 개선된 동적 매핑 로직
+            mapScenarioDataToExcel(sheet, scenarios);
 
-        // 바이트 배열로 변환
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        workbook.write(outputStream);
-        workbook.close();
+            // 바이트 배열로 변환
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
 
-        return outputStream.toByteArray();
+                return outputStream.toByteArray();
+        } catch (IOException e) {
+            throw BusinessExceptionHandler.builder()
+                .errorCode(ErrorCode.INTERNAL_SERVER_ERROR)
+                .message("엑셀 파일 생성 실패")
+                .build();
+        }
     }
 
     /**
      * 테스트케이스 템플릿 처리
      */
-    public byte[] generateTestCaseReport(List<TestCaseEntity> testCases, List<TestCaseDataEntity> testCaseData, List<TestcaseResultEntity> testCaseResults, String businessFunction) throws IOException {
+    public byte[] generateTestCaseReport(List<TestCaseEntity> testCases, List<TestCaseDataEntity> testCaseData, List<TestcaseResultEntity> testCaseResults, String businessFunction) {
         ClassPathResource resource = new ClassPathResource(testcaseTemplate);
 
         if (!resource.exists()) {
@@ -81,29 +88,36 @@ public class FileTemplateServiceImpl implements FileTemplateService {
                 .build();
         }
 
-        XSSFWorkbook workbook = new XSSFWorkbook(resource.getInputStream());
-        XSSFSheet sheet = workbook.getSheetAt(2);
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook(resource.getInputStream());
+            XSSFSheet sheet = workbook.getSheetAt(2);
+            
+            setCellValue(sheet, 1, 1, businessFunction);
 
-        setCellValue(sheet, 1, 1, businessFunction);
+            int testCount = testCaseResults.size();
+            setCellValue(sheet, 1, 3, testCount);
+            setCellValue(sheet, 2, 1, "AVALON");
+            setCellValue(sheet, 2, 3, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            
+            if (!testCases.isEmpty()) {
+                String scenarioId = testCases.get(0).getMappingKey().getScenarioKey().getScenarioId();
+                setCellValue(sheet, 5, 1, scenarioId);
+            }
 
-        int testCount = testCaseResults.size();
-        setCellValue(sheet, 1, 3, testCount);
-        setCellValue(sheet, 2, 1, "AVALON");
-        setCellValue(sheet, 2, 3, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        
-        if (!testCases.isEmpty()) {
-            String scenarioId = testCases.get(0).getMappingKey().getScenarioKey().getScenarioId();
-            setCellValue(sheet, 5, 1, scenarioId);
+            mapTestCaseDataToExcel(sheet, testCases, testCaseData, testCaseResults);
+
+            // 바이트 배열로 변환
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            throw BusinessExceptionHandler.builder()
+                .errorCode(ErrorCode.FILE_STORAGE_ERROR)
+                .message("엑셀 파일 생성 중 오류 발생")
+                .build();
         }
-
-        mapTestCaseDataToExcel(sheet, testCases, testCaseData, testCaseResults);
-
-        // 바이트 배열로 변환
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        workbook.write(outputStream);
-        workbook.close();
-
-        return outputStream.toByteArray();
     }
 
     /**
@@ -207,10 +221,7 @@ public class FileTemplateServiceImpl implements FileTemplateService {
         }
         
         if (cell.getCellStyle() == null || cell.getCellStyle().getFont() == null) {
-            throw BusinessExceptionHandler.builder()
-                .errorCode(ErrorCode.INTERNAL_SERVER_ERROR)
-                .message("엑셀 셀 스타일 설정 실패")
-                .build();
+            cell.getCellStyle().getFont().setItalic(false);
         }
         
         cell.getCellStyle().getFont().setItalic(false);
