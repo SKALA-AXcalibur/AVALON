@@ -197,7 +197,8 @@ public class ProjectServiceImpl implements ProjectService {
             
             // 모든 파라미터를 한 번에 배치 저장
             if (!allParameters.isEmpty()) {
-                parameterRepository.saveAll(allParameters);
+                    List<ParameterEntity> savedParameters = parameterRepository.saveAll(allParameters);
+                    updateParentKeys(savedParameters);   // ➕ 추가
             }
         }
  
@@ -485,24 +486,53 @@ public class ProjectServiceImpl implements ProjectService {
                         .description(paramItem.getDesc())
                         .apiListKey(apiList)
                         .categoryKey(category)
-                        .contextKey(findContext(paramItem.getItemType()));
+                        .contextKey(findContext(paramItem.getItemType()))
+                        .upperName(paramItem.getUpper()); // 상위항목명 조회
 
                 if (paramItem.getLength() != null && paramItem.getLength() > 0) {
                     builder.length(paramItem.getLength());
                 }
 
-                if (paramItem.getUpper() != null) {
-                    ParameterEntity parent = findParentParameter(paramItem.getUpper());
-                    if (parent == null) {
-                        log.error("부모 파라미터를 찾을 수 없습니다. upper: {}", paramItem.getUpper());
-                        throw new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
-                    }
-                    builder.parentKey(parent);
-                }
-
                 return builder.build();
             })
             .collect(Collectors.toList());
+    }
+
+    // 상위항목 키 조회
+    private void updateParentKeys(List<ParameterEntity> savedParameters) {
+        // API 별로 파라미터들을 그룹화
+        Map<ApiListEntity, List<ParameterEntity>> apiToParamsMap = savedParameters.stream()
+                .collect(Collectors.groupingBy(ParameterEntity::getApiListKey));
+
+        for (Map.Entry<ApiListEntity, List<ParameterEntity>> entry : apiToParamsMap.entrySet()) {
+            List<ParameterEntity> paramList = entry.getValue();
+
+            // 같은 API 내 name → ParameterEntity Map 생성
+            Map<String, ParameterEntity> nameToEntity = paramList.stream()
+                    .collect(Collectors.toMap(ParameterEntity::getName, Function.identity(), (a, b) -> a));  // 중복 시 첫 번째
+
+            List<ParameterEntity> toUpdate = new ArrayList<>();
+
+            for (ParameterEntity param : paramList) {
+                String upperName = param.getUpperName();
+
+                if (upperName != null && nameToEntity.containsKey(upperName)) {
+                    ParameterEntity parent = nameToEntity.get(upperName);
+
+                    // 순환 참조 방지: 자기 자신을 부모로 참조 금지
+                    if (!param.equals(parent)) {
+                        param.setParentKey(parent);
+                        toUpdate.add(param);
+                    } else {
+                        log.warn("자기 자신을 부모로 설정하려는 순환 참조 감지: paramName={}", param.getName());
+                    }
+                }
+            }
+
+            if (!toUpdate.isEmpty()) {
+                parameterRepository.saveAll(toUpdate);
+            }
+        }
     }
 
     // 카테고리 조회

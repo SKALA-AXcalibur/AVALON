@@ -35,7 +35,7 @@ public class DbColumnEntity extends BaseTimeEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "type", nullable = false, length = 20)
+    @Column(name = "data_type", nullable = false, length = 20)
     private String type;
 
     @Column(name = "length")
