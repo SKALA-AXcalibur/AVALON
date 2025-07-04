@@ -197,7 +197,8 @@ public class ProjectServiceImpl implements ProjectService {
             
             // 모든 파라미터를 한 번에 배치 저장
             if (!allParameters.isEmpty()) {
-                parameterRepository.saveAll(allParameters);
+                    List<ParameterEntity> savedParameters = parameterRepository.saveAll(allParameters);
+                    updateParentKeys(savedParameters);   // ➕ 추가
             }
         }
  
@@ -485,24 +486,47 @@ public class ProjectServiceImpl implements ProjectService {
                         .description(paramItem.getDesc())
                         .apiListKey(apiList)
                         .categoryKey(category)
-                        .contextKey(findContext(paramItem.getItemType()));
+                        .contextKey(findContext(paramItem.getItemType()))
+                        .upperName(paramItem.getUpper()); // 상위항목명 조회
 
                 if (paramItem.getLength() != null && paramItem.getLength() > 0) {
                     builder.length(paramItem.getLength());
                 }
 
-                if (paramItem.getUpper() != null) {
-                    ParameterEntity parent = findParentParameter(paramItem.getUpper());
-                    if (parent == null) {
-                        log.error("부모 파라미터를 찾을 수 없습니다. upper: {}", paramItem.getUpper());
-                        throw new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
-                    }
-                    builder.parentKey(parent);
-                }
+                // if (paramItem.getUpper() != null) {
+                //     ParameterEntity parent = findParentParameter(paramItem.getUpper());
+                //     if (parent == null) {
+                //         log.error("부모 파라미터를 찾을 수 없습니다. upper: {}", paramItem.getUpper());
+                //         throw new BusinessExceptionHandler(ErrorCode.NOT_FOUND_ERROR);
+                //     }
+                //     builder.parentKey(parent);
+                // }
 
                 return builder.build();
             })
             .collect(Collectors.toList());
+    }
+
+    // 상위항목 키 조회
+    private void updateParentKeys(List<ParameterEntity> savedParameters) {
+        // Map<String name, ParameterEntity> 으로 매핑 (상위항목명으로 탐색)
+        Map<String, ParameterEntity> nameToEntityMap = savedParameters.stream()
+                .collect(Collectors.toMap(ParameterEntity::getName, Function.identity(), (a, b) -> a));  // name 중복방지
+
+        List<ParameterEntity> toUpdate = new ArrayList<>();
+
+        for (ParameterEntity param : savedParameters) {
+            String upperName = param.getUpperName();
+            if (upperName != null && nameToEntityMap.containsKey(upperName)) {
+                ParameterEntity parent = nameToEntityMap.get(upperName);
+                param.setParentKey(parent);
+                toUpdate.add(param);
+            }
+        }
+
+        if (!toUpdate.isEmpty()) {
+            parameterRepository.saveAll(toUpdate);
+        }
     }
 
     // 카테고리 조회
