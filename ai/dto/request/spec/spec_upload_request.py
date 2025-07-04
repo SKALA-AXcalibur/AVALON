@@ -6,12 +6,13 @@ from dto.request.spec.requirement import Requirement
 from dto.request.spec.api import Api
 from dto.request.spec.db import DbDesignDto
 
-'''
+"""
 명세서 분석 결과 request 객체 정의
 (요구사항 명세 객체, API 목록 객체, 테이블설계서)
-'''
+"""
+
+
 class SpecUploadRequest(BaseModel):
     requirement: List[Requirement]
-    api_list: List[Api]
-    table_list: List[DbDesignDto] # 요청파라미터에 맞추어 수정
-    
+    apiList: List[Api]
+    tableList: List[DbDesignDto]  # 요청파라미터에 맞추어 수정

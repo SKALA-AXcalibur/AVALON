@@ -47,8 +47,7 @@ async def formatter(
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"정보저장API 호출 실패: {str(e)}")
     spec_upload_request = SpecUploadRequest(
-        requirement=req_result, api_list=def_result, table_list=db_result
+        requirement=req_result, apiList=def_result, tableList=db_result
     )  # 요청파라미터와 맞춤
 
     return spec_upload_request
-

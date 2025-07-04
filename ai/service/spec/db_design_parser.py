@@ -6,6 +6,7 @@ from dto.request.spec.db import DbDesignDto, ColumnDto
 from typing import Dict, List
 from config import config as cfg
 
+
 class DbDesignParserService:
     """
     테이블 설계서(엑셀) 파일을 파싱하여 DB 설계 정보를 구조화하는 서비스 클래스
@@ -75,7 +76,7 @@ class DbDesignParserService:
         except Exception as e:
             logging.warning(f"[헤더 행 탐색 실패] error: {e}")
             return []
-        if any(x is None for x in (header_idx,header_row)):
+        if any(x is None for x in (header_idx, header_row)):
             logging.warning("[헤더 미발견] 필수 헤더 행을 찾지 못했습니다.")
             return []
 
@@ -106,7 +107,7 @@ class DbDesignParserService:
                     if value is not None:
                         empty_row = False
                 if empty_row:
-                    continue 
+                    continue
 
                 # 테이블명 누락된 행은 skip
                 raw_table_name = row_dict.get("name")
@@ -116,29 +117,39 @@ class DbDesignParserService:
 
                 # 컬럼 데이터
                 column_data = {
-                    "col_name": str(row_dict.get("col_name") or ""),
+                    "colName": str(row_dict.get("col_name") or ""),
                     "type": str(row_dict.get("type") or ""),
                     "length": (
                         int(row_dict.get("length")) if row_dict.get("length") else None
                     ),
-                    "is_pk": str(row_dict.get("is_pk") or "").strip().upper() in ["Y", "PK"],
-                    "fk": str(row_dict.get("fk")) if row_dict.get("fk") else None,
-                    "is_null": {
-                                "Y": True,
-                                "N": False
-                            }.get(str(row_dict.get("is_null") or "").strip().upper(), True),
-                    "const": (
-                        str(row_dict.get("const"))
-                        if row_dict.get("const")
+                    "isPk": str(row_dict.get("is_pk") or "").strip().upper()
+                    in ["Y", "PK"],
+                    "fk": (
+                        str(row_dict.get("fk")).strip()
+                        if row_dict.get("fk") and str(row_dict.get("fk")).strip()
                         else None
                     ),
-                    "desc": str(row_dict.get("desc")) if row_dict.get("desc") else None,
+                    "isNull": {"Y": True, "N": False}.get(
+                        str(row_dict.get("is_null") or "").strip().upper(), True
+                    ),
+                    "constraint": (
+                        str(row_dict.get("const")).strip()
+                        if row_dict.get("const") and str(row_dict.get("const")).strip()
+                        else None
+                    ),
+                    "desc": (
+                        str(row_dict.get("desc")).strip()
+                        if row_dict.get("desc") and str(row_dict.get("desc")).strip()
+                        else None
+                    ),
                 }
                 column_dto = ColumnDto(**column_data)
                 # 테이블별로 컬럼 추가
                 table_map.setdefault(table_name, []).append(column_dto)
             except (ValueError, IndexError) as e:
-                logging.warning(f"[데이터 행 파싱 실패] row={row_idx}, error_type={type(e).__name__}, message={e}")
+                logging.warning(
+                    f"[데이터 행 파싱 실패] row={row_idx}, error_type={type(e).__name__}, message={e}"
+                )
                 continue  # 해당 행만 스킵하고 계속 진행
         db_designs = [
             DbDesignDto(name=tbl_name, column=columns)

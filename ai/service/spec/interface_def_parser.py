@@ -5,14 +5,23 @@ from typing import List
 from io import BytesIO
 import logging
 
-from config.config import INTERFACE_DEF, INTERFACE_ID, INTERFACE_REQ_ID, INTERFACE_DEF_PARSER
+from config.config import (
+    INTERFACE_DEF,
+    INTERFACE_ID,
+    INTERFACE_REQ_ID,
+    INTERFACE_DEF_PARSER,
+)
 from dto.request.spec.api import Api
+
 
 class InterfaceDefParserService:
     """
     인터페이스 정의서 파일을 파싱하여 요구사항 ID를 Api 객체에 주입하는 클래스
     """
-    async def map_req_ids_to_apis(self, upload_file: UploadFile, api_list: List[Api]) -> List[Api]:
+
+    async def map_req_ids_to_apis(
+        self, upload_file: UploadFile, api_list: List[Api]
+    ) -> List[Api]:
         """
         인터페이스 정의서 파일에서 인터페이스 ID와 요구사항 ID를 매핑하여 API 객체에 주입
         """
@@ -23,11 +32,17 @@ class InterfaceDefParserService:
         xls = pd.ExcelFile(excel_bytes)
         sheet_name = self.find_interface_def_sheet(xls)
 
+        # header row 파악 위한 로직 추가
+        df_head = xls.parse(sheet_name=sheet_name, header=None, nrows=2)
+        if df_head.iloc[0].isnull().all():
+            header_row = 1
+        else:
+            header_row = 0
+
         # BytesIO 포인터 다시 앞으로 (read_excel은 새로 읽어야 함)
         excel_bytes.seek(0)
-
         # 실제 시트 읽기
-        df = pd.read_excel(excel_bytes, sheet_name=sheet_name, header=0)
+        df = pd.read_excel(excel_bytes, sheet_name=sheet_name, header=header_row)
 
         id_map = {}
 
@@ -38,11 +53,15 @@ class InterfaceDefParserService:
                 req_id = str(row.get(INTERFACE_REQ_ID, "")).strip()
 
                 if not interface_id or interface_id.lower() == "nan":
-                    logging.warning(f"[정의서 파싱 경고] {i+2}행 - 인터페이스ID 누락 또는 무효값: '{interface_id}'")
+                    logging.warning(
+                        f"[정의서 파싱 경고] {i+2}행 - 인터페이스ID 누락 또는 무효값: '{interface_id}'"
+                    )
                     continue
 
                 if not req_id or req_id.lower() == "nan":
-                    logging.warning(f"[정의서 파싱 경고] {i+2}행 - 요구사항ID 누락 또는 무효값: '{req_id}'")
+                    logging.warning(
+                        f"[정의서 파싱 경고] {i+2}행 - 요구사항ID 누락 또는 무효값: '{req_id}'"
+                    )
                     continue
 
                 id_map[interface_id] = req_id
@@ -58,12 +77,14 @@ class InterfaceDefParserService:
 
         # 최종 API 파싱 결과 반환
         for api in api_list:
-            api.req_id = id_map.get(api.id, "")
-            if not api.req_id:
-                logging.warning(f"[req_id 누락] 인터페이스 ID: {api.id}에 해당하는 요구사항 ID를 찾을 수 없음")
+            api.reqId = id_map.get(api.id, None)
+            if not api.reqId:
+                logging.warning(
+                    f"[req_id 누락] 인터페이스 ID: {api.id}에 해당하는 요구사항 ID를 찾을 수 없음"
+                )
 
         return api_list
-    
+
     def find_interface_def_sheet(self, xls: pd.ExcelFile) -> str:
         """
         인터페이스 정의서 시트명을 추론:
@@ -79,11 +100,17 @@ class InterfaceDefParserService:
         for sheet in sheet_names:
             try:
                 df = xls.parse(sheet_name=sheet, header=None, nrows=5)
-                if df.astype(str).apply(lambda col: col.str.contains(INTERFACE_DEF_PARSER, na=False)).any().any():
+                if (
+                    df.astype(str)
+                    .apply(lambda col: col.str.contains(INTERFACE_DEF_PARSER, na=False))
+                    .any()
+                    .any()
+                ):
                     return sheet
             except Exception as e:
-                logging.warning(f"[인터페이스 정의서 시트명 추론] sheet 파싱 중 오류 발생: str{e}")
+                logging.warning(
+                    f"[인터페이스 정의서 시트명 추론] sheet 파싱 중 오류 발생: str{e}"
+                )
                 continue
 
         return sheet_names[-1]
-    
