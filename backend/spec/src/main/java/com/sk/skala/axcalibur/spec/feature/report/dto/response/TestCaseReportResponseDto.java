@@ -3,6 +3,10 @@ package com.sk.skala.axcalibur.spec.feature.report.dto.response;
 import lombok.Builder;
 import lombok.Data;
 
+
+/**
+ * 테스트케이스 리포트 응답 DTO
+ */
 @Data
 @Builder
 public class TestCaseReportResponseDto {
