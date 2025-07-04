@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MappingRepository extends JpaRepository<MappingEntity, Integer> {
     List<MappingEntity> findByScenarioKey_ScenarioId(String scenarioId);
+    List<MappingEntity> findByScenarioKey_ScenarioIdIn(List<String> scenarioIds);
 }
