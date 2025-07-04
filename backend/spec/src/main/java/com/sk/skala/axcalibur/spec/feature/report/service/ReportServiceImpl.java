@@ -22,8 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -158,7 +156,13 @@ public class ReportServiceImpl implements ReportService {
         if (testCases.isEmpty()) {
             return List.of();
         }
-        return testCaseDataRepository.findByTestcaseKeyIn(testCases);
+        
+        // Entity 대신 ID만 추출해서 조회
+        List<Integer> testCaseIds = testCases.stream()
+            .map(TestCaseEntity::getId)
+            .collect(Collectors.toList());
+            
+        return testCaseDataRepository.findByTestcaseKey_IdIn(testCaseIds);
     }
 
     private String calculateBusinessFunctionFromScenarios(List<ScenarioEntity> scenarios) {
@@ -180,7 +184,9 @@ public class ReportServiceImpl implements ReportService {
                 .build();
         }
         
-        List<Object[]> result = testCaseRepository.findMostUsedBusinessFunction(testCases);
+        List<Object[]> result = testCaseRepository.findMostUsedBusinessFunction(testCases.stream()
+            .map(TestCaseEntity::getId)
+            .collect(Collectors.toList()));
         
         if (result.isEmpty()) {
             throw BusinessExceptionHandler.builder()

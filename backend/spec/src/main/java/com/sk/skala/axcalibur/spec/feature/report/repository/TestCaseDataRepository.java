@@ -14,4 +14,6 @@ import com.sk.skala.axcalibur.spec.feature.report.entity.TestCaseEntity;
 @Repository
 public interface TestCaseDataRepository extends JpaRepository<TestCaseDataEntity, Integer> {
     List<TestCaseDataEntity> findByTestcaseKeyIn(List<TestCaseEntity> testCaseEntities);
+    
+    List<TestCaseDataEntity> findByTestcaseKey_IdIn(List<Integer> testCaseIds);
 }
