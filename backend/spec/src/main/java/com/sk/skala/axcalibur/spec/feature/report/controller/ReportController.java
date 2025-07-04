@@ -3,8 +3,6 @@ package com.sk.skala.axcalibur.spec.feature.report.controller;
 import com.sk.skala.axcalibur.spec.feature.report.dto.response.TestCaseReportResponseDto;
 import com.sk.skala.axcalibur.spec.feature.report.dto.response.TestScenarioReportResponseDto;
 import com.sk.skala.axcalibur.spec.feature.report.service.ReportService;
-import com.sk.skala.axcalibur.spec.global.code.SuccessCode;
-import com.sk.skala.axcalibur.spec.global.response.SuccessResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,17 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-
 /**
- * 프로젝트 정보 관리 컨트롤러
+ * 리포트 생성 및 다운로드 컨트롤러
  * 
- * 프로젝트 정보 저장, 조회, 삭제, 생성, 쿠키 삭제 기능 제공
- * 
+ * 테스트 시나리오 및 테스트케이스 리포트 다운로드 기능을 제공합니다.
  * 
  */
 
@@ -38,7 +32,7 @@ public class ReportController {
      * IF-RG-0001: 테스트시나리오 리포트 다운로드
      */
     @GetMapping("/scenario")
-    public ResponseEntity<Resource> downloadTestScenarioReport(@CookieValue(name = "avalon") String avalon) throws IOException {
+    public ResponseEntity<Resource> downloadTestScenarioReport(@CookieValue(name = "avalon") String avalon) {
         log.info("[테스트시나리오 리포트 다운로드] 요청. avalon: {}", avalon);
         TestScenarioReportResponseDto response = reportService.downloadTestScenarioReport(avalon);
 
@@ -56,7 +50,7 @@ public class ReportController {
     @GetMapping("/testcase/{scenarioId}")
     public ResponseEntity<Resource> downloadTestCaseReport(
             @PathVariable("scenarioId") String scenarioId,
-            @CookieValue(name = "avalon") String avalon) throws IOException {
+            @CookieValue(name = "avalon") String avalon) {
 
         log.info("[테스트케이스 리포트 다운로드] 요청. scenarioId: {}", scenarioId);
         TestCaseReportResponseDto response = reportService.downloadTestCaseReport(scenarioId, avalon);

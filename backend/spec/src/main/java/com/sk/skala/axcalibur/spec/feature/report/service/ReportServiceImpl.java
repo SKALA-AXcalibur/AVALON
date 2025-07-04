@@ -20,7 +20,7 @@ import com.sk.skala.axcalibur.spec.global.repository.AvalonCookieRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,7 +43,7 @@ public class ReportServiceImpl implements ReportService {
     /**
      * 테스트시나리오 리포트 다운로드
      */
-    public TestScenarioReportResponseDto downloadTestScenarioReport(String avalon) throws IOException {
+    public TestScenarioReportResponseDto downloadTestScenarioReport(String avalon) {
         // 1. 토큰 검증
         AvalonCookieEntity userInfo = validateAvalonToken(avalon);
 
@@ -69,7 +69,7 @@ public class ReportServiceImpl implements ReportService {
     /**
      * 테스트케이스 리포트 다운로드
      */
-    public TestCaseReportResponseDto downloadTestCaseReport(String scenarioId, String avalon) throws IOException {
+    public TestCaseReportResponseDto downloadTestCaseReport(String scenarioId, String avalon) {
         // 1. 토큰 검증
         validateAvalonToken(avalon);
 
@@ -88,7 +88,10 @@ public class ReportServiceImpl implements ReportService {
         List<Integer> testCaseIds = testCases.stream()
             .map(TestCaseEntity::getId)
             .collect(Collectors.toList());
-        List<TestcaseResultEntity> testCaseResults = testcaseResultRepository.findAllByTestcase_IdIn(testCaseIds);
+        List<TestcaseResultEntity> testCaseResults = testcaseResultRepository.findAllByTestcase_IdIn(testCaseIds)
+            .stream()
+            .sorted(Comparator.comparing(TestcaseResultEntity::getCreateAt).reversed())
+            .collect(Collectors.toList());
 
         // 5. 업무기능 계산
         String businessFunction = getMostUsedBusinessFunction(testCases);
@@ -174,15 +177,17 @@ public class ReportServiceImpl implements ReportService {
         }
         
         Map<String, Long> majorCount = testCases.stream()
-            .filter(testCase -> testCase.getMappingKey() != null && 
-                    testCase.getMappingKey().getApiListKey() != null &&
-                    testCase.getMappingKey().getApiListKey().getRequestKey() != null &&
-                    testCase.getMappingKey().getApiListKey().getRequestKey().getMajorKey() != null)
-            .map(testCase -> testCase.getMappingKey().getApiListKey().getRequestKey().getMajorKey().getName())
-            .collect(Collectors.groupingBy(
-                majorName -> majorName,
-                Collectors.counting()
-            ));
+        .map(TestCaseEntity::getMappingKey)
+        .filter(mapping -> mapping != null)
+        .map(MappingEntity::getApiListKey)
+        .filter(apiList -> apiList != null && apiList.getRequestKey() != null)
+        .map(apiList -> apiList.getRequestKey())
+        .filter(request -> request.getMajorKey() != null)
+        .map(request -> request.getMajorKey().getName())
+        .collect(Collectors.groupingBy(
+            majorName -> majorName,
+            Collectors.counting()
+        ));
         
         return majorCount.entrySet().stream()
             .max(Map.Entry.comparingByValue())
