@@ -1,5 +1,6 @@
 package com.sk.skala.axcalibur.spec.feature.report.service;
 
+import com.sk.skala.axcalibur.spec.feature.report.dto.BusinessFunctionResult;
 import com.sk.skala.axcalibur.spec.feature.report.dto.response.TestCaseReportResponseDto;
 import com.sk.skala.axcalibur.spec.feature.report.dto.response.TestScenarioReportResponseDto;
 import com.sk.skala.axcalibur.spec.feature.report.entity.MappingEntity;
@@ -87,10 +88,8 @@ public class ReportServiceImpl implements ReportService {
                 scenarioId, mappings.size(), testCases.size(), testCaseData.size());
 
         // 4. 테스트케이스 결과 조회
-        List<Integer> testCaseIds = testCases.stream()
-            .map(TestCaseEntity::getId)
-            .collect(Collectors.toList());
-        List<TestcaseResultEntity> testCaseResults = testcaseResultRepository.findAllByTestcase_IdIn(testCaseIds)
+        List<Integer> testCaseIds = extractTestCaseIds(testCases);
+        List<TestcaseResultEntity> testCaseResults = testcaseResultRepository.findAllByTestcase_IdInWithFetch(testCaseIds)
             .stream()
             .sorted(Comparator.comparing(TestcaseResultEntity::getCreateAt).reversed())
             .collect(Collectors.toList());
@@ -157,23 +156,29 @@ public class ReportServiceImpl implements ReportService {
             return List.of();
         }
         
-        // Entity 대신 ID만 추출해서 조회
-        List<Integer> testCaseIds = testCases.stream()
-            .map(TestCaseEntity::getId)
-            .collect(Collectors.toList());
-            
-        return testCaseDataRepository.findByTestcaseKey_IdIn(testCaseIds);
+        List<Integer> testCaseIds = extractTestCaseIds(testCases);
+        return testCaseDataRepository.findByTestcaseKey_IdInWithFetch(testCaseIds);
     }
 
     private String calculateBusinessFunctionFromScenarios(List<ScenarioEntity> scenarios) {
-        List<String> scenarioIds = scenarios.stream()
-            .map(ScenarioEntity::getScenarioId)
-            .collect(Collectors.toList());
+        if (scenarios.isEmpty()) {
+            throw BusinessExceptionHandler.builder()
+                .errorCode(ErrorCode.NOT_FOUND_ERROR)
+                .message("시나리오 데이터가 없습니다.")
+                .build();
+        }
         
-        List<MappingEntity> allMappings = mappingRepository.findByScenarioKey_ScenarioIdIn(scenarioIds);
-        List<TestCaseEntity> allTestCases = testCaseRepository.findByMappingKeyIn(allMappings);
+        Integer projectKey = scenarios.get(0).getProject().getKey();
+        List<BusinessFunctionResult> result = testCaseRepository.findMostUsedBusinessFunctionByProjectKey(projectKey);
         
-        return getMostUsedBusinessFunction(allTestCases);
+        if (result.isEmpty()) {
+            throw BusinessExceptionHandler.builder()
+                .errorCode(ErrorCode.NOT_FOUND_ERROR)
+                .message("업무기능 정보를 찾을 수 없습니다.")
+                .build();
+        }
+        
+        return result.get(0).getName();
     }
 
     private String getMostUsedBusinessFunction(List<TestCaseEntity> testCases) {
@@ -184,9 +189,7 @@ public class ReportServiceImpl implements ReportService {
                 .build();
         }
         
-        List<Object[]> result = testCaseRepository.findMostUsedBusinessFunction(testCases.stream()
-            .map(TestCaseEntity::getId)
-            .collect(Collectors.toList()));
+        List<BusinessFunctionResult> result = testCaseRepository.findMostUsedBusinessFunction(extractTestCaseIds(testCases));
         
         if (result.isEmpty()) {
             throw BusinessExceptionHandler.builder()
@@ -195,6 +198,12 @@ public class ReportServiceImpl implements ReportService {
                 .build();
         }
         
-        return (String) result.get(0)[0]; // 첫 번째 결과의 업무기능명 반환
+        return result.get(0).getName();
+    }
+
+    private List<Integer> extractTestCaseIds(List<TestCaseEntity> testCases) {
+        return testCases.stream()
+            .map(TestCaseEntity::getId)
+            .collect(Collectors.toList());
     }
 }
