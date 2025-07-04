@@ -1,5 +1,7 @@
 package com.sk.skala.axcalibur.spec.feature.project.entity;
 
+import org.springframework.data.annotation.Transient;
+
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
 
 import jakarta.persistence.Column;
@@ -69,5 +71,20 @@ public class ParameterEntity extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_key")
     private ParameterEntity parentKey;
+
+    @Transient
+    private String upperName;  // 상위항목명 (DB에 저장되지 않음)
+
+    public String getUpperName() {
+        return upperName;
+    }
+
+    public void setUpperName(String upperName) {
+        this.upperName = upperName;
+    }
+
+    public void setParentKey(ParameterEntity parent) {
+        this.parentKey = parent;
+    }
 
 }
