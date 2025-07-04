@@ -16,6 +16,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 테스트케이스 결과 항목 테이블
+ * 데이터베이스의 'testcase_result' 테이블과 매핑
+ */
 @Entity
 @Builder
 @AllArgsConstructor

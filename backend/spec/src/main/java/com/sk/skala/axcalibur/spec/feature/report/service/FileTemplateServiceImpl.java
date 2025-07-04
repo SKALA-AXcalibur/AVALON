@@ -28,6 +28,9 @@ import com.sk.skala.axcalibur.spec.global.exception.BusinessExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 파일 템플릿 서비스 구현체
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j

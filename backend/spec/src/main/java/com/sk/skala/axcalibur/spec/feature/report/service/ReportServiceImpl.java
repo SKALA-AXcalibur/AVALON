@@ -27,6 +27,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+/**
+ * 리포트 서비스 구현체
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
