@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,13 +36,13 @@ public class ScenarioEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "validation")
+    @Column(name = "validation", columnDefinition = "TEXT")
     private String validation;
 
-    @Column(name = "flow_chart")
+    @Column(name = "flow_chart", columnDefinition = "TEXT")
     private String flowChart;
 
     @ManyToOne(fetch = FetchType.LAZY)
