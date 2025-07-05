@@ -28,6 +28,6 @@ public class CategoryEntity extends BaseTimeEntity{
     @Column(name = "`key`")
     private Integer id;         // 파라미터 항목 키(PK, AUTO_INCREMENT)
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false, unique = true, length = 10)
     private String name;        // 파라미터 항목 이름(path/query, request, response)
 }

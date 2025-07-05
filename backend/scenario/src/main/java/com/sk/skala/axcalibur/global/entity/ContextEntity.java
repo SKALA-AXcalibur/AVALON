@@ -28,6 +28,6 @@ public class ContextEntity extends BaseTimeEntity {
     @Column(name = "`key`")
     private Integer id;         // 항목 유형 키(PK, AUTO_INCREMENT)
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false, unique = true, length = 10)
     private String name;        // 항목 유형 이름(body, header, query, path)
 }
