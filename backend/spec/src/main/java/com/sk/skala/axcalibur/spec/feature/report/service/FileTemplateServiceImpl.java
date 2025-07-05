@@ -190,27 +190,6 @@ public class FileTemplateServiceImpl implements FileTemplateService {
                 setCellValue(sheet, dataRow, 1, scenario.getName());
                 setCellValue(sheet, dataRow, 2, scenario.getDescription());
                 setCellValue(sheet, dataRow, 3, scenario.getValidation());
-                
-                // 이탤릭 해제 - 새로운 스타일 생성하여 적용
-                XSSFRow row = sheet.getRow(dataRow);
-                IntStream.range(0, 4).forEach(col -> {
-                    XSSFCell cell = row.getCell(col);
-                    if (cell != null) {
-                        // 기존 스타일을 복제한 새로운 스타일 생성
-                        XSSFCellStyle style = sheet.getWorkbook().createCellStyle();
-                        if (cell.getCellStyle() != null) {
-                            style.cloneStyleFrom(cell.getCellStyle());
-                        }
-                        
-                        // 새로운 Font 생성하여 이탤릭 해제
-                        XSSFFont font = sheet.getWorkbook().createFont();
-                        font.setItalic(false);
-                        style.setFont(font);
-                        
-                        // 새로운 스타일 적용
-                        cell.setCellStyle(style);
-                    }
-                });
             });
         log.info("시나리오 템플릿 매핑 완료, 시나리오: {}개", scenarios.size());
     }
@@ -238,15 +217,5 @@ public class FileTemplateServiceImpl implements FileTemplateService {
         } else if (value != null) {
             cell.setCellValue(value.toString());
         }
-        
-        // Font 스타일 설정 (Apache POI 5.x 호환)
-        if (cell.getCellStyle() == null) {
-            cell.setCellStyle(sheet.getWorkbook().createCellStyle());
-        }
-        
-        // 새로운 Font 생성하여 이탤릭 해제
-        XSSFFont font = sheet.getWorkbook().createFont();
-        font.setItalic(false);
-        cell.getCellStyle().setFont(font);
     }
 }

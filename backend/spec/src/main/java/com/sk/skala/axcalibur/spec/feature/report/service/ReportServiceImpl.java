@@ -1,8 +1,7 @@
 package com.sk.skala.axcalibur.spec.feature.report.service;
 
 import com.sk.skala.axcalibur.spec.feature.report.dto.BusinessFunctionResult;
-import com.sk.skala.axcalibur.spec.feature.report.dto.response.TestCaseReportResponseDto;
-import com.sk.skala.axcalibur.spec.feature.report.dto.response.TestScenarioReportResponseDto;
+import com.sk.skala.axcalibur.spec.feature.report.dto.response.ReportResponseDto;
 import com.sk.skala.axcalibur.spec.feature.report.entity.MappingEntity;
 import com.sk.skala.axcalibur.spec.feature.report.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.spec.feature.report.entity.TestCaseDataEntity;
@@ -46,7 +45,7 @@ public class ReportServiceImpl implements ReportService {
     /**
      * 테스트시나리오 리포트 다운로드
      */
-    public TestScenarioReportResponseDto downloadTestScenarioReport(String avalon) {
+    public ReportResponseDto downloadTestScenarioReport(String avalon) {
         // 1. 토큰 검증
         AvalonCookieEntity userInfo = validateAvalonToken(avalon);
 
@@ -61,7 +60,7 @@ public class ReportServiceImpl implements ReportService {
         byte[] fileData = fileTemplateService.generateScenarioReport(scenarios, businessFunction);
         
         // 5. 응답 반환
-        return TestScenarioReportResponseDto.builder()
+        return ReportResponseDto.builder()
                 .avalon(avalon)
                 .fileName("scenario_report.xlsx")
                 .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -72,7 +71,7 @@ public class ReportServiceImpl implements ReportService {
     /**
      * 테스트케이스 리포트 다운로드
      */
-    public TestCaseReportResponseDto downloadTestCaseReport(String scenarioId, String avalon) {
+    public ReportResponseDto downloadTestCaseReport(String scenarioId, String avalon) {
         // 1. 토큰 검증
         validateAvalonToken(avalon);
 
@@ -101,7 +100,7 @@ public class ReportServiceImpl implements ReportService {
         byte[] fileData = fileTemplateService.generateTestCaseReport(testCases, testCaseData, testCaseResults, businessFunction);
         
         // 7. 응답 반환
-        return TestCaseReportResponseDto.builder()
+        return ReportResponseDto.builder()
                 .avalon(avalon)
                 .fileName("testcase_report_" + scenarioId + ".xlsx")
                 .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
