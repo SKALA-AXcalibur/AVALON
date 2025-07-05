@@ -31,7 +31,7 @@ public class TestcaseResultEntity extends BaseTimeEntity {
   private Integer id;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "testcase_id", nullable = false)
+  @JoinColumn(name = "testcase_key", nullable = false)
   // 테스트케이스 키
   private TestcaseEntity testcase;
 
