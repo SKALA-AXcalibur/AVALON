@@ -2,7 +2,6 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime
 from service.database import Base
 
-
 class Scenario(Base):
     """
     시나리오 DB 테이블 ORM 모델
@@ -16,5 +15,5 @@ class Scenario(Base):
     description = Column(Text)  # 시나리오 설명
     validation = Column(Text)  # 검증 포인트
     flow_chart = Column(Text)  # Mermaid 코드(시나리오 플로우 차트)
-    created_at = Column(DateTime)  # 생성일시
+    create_at = Column(DateTime)  # 생성일시
     project_key = Column(Integer)  # FK
