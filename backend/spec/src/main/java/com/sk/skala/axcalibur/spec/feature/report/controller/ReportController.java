@@ -1,7 +1,6 @@
 package com.sk.skala.axcalibur.spec.feature.report.controller;
 
-import com.sk.skala.axcalibur.spec.feature.report.dto.response.TestCaseReportResponseDto;
-import com.sk.skala.axcalibur.spec.feature.report.dto.response.TestScenarioReportResponseDto;
+import com.sk.skala.axcalibur.spec.feature.report.dto.response.ReportResponseDto;
 import com.sk.skala.axcalibur.spec.feature.report.service.ReportService;
 
 import lombok.RequiredArgsConstructor;
@@ -35,7 +34,7 @@ public class ReportController {
     @GetMapping("/scenario")
     public ResponseEntity<Resource> downloadTestScenarioReport(@CookieValue(name = "avalon") String avalon) {
         log.info("[테스트시나리오 리포트 다운로드] 요청. avalon: {}", avalon);
-        TestScenarioReportResponseDto response = reportService.downloadTestScenarioReport(avalon);
+        ReportResponseDto response = reportService.downloadTestScenarioReport(avalon);
 
         ByteArrayResource resource = new ByteArrayResource(response.getFileData());
 
@@ -57,7 +56,7 @@ public class ReportController {
             @CookieValue(name = "avalon") String avalon) {
 
         log.info("[테스트케이스 리포트 다운로드] 요청. scenarioId: {}", scenarioId);
-        TestCaseReportResponseDto response = reportService.downloadTestCaseReport(scenarioId, avalon);
+        ReportResponseDto response = reportService.downloadTestCaseReport(scenarioId, avalon);
 
         ByteArrayResource resource = new ByteArrayResource(response.getFileData());
 
