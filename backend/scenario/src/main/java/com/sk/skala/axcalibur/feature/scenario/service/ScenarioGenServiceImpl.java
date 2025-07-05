@@ -22,6 +22,7 @@ import com.sk.skala.axcalibur.global.repository.ApiListRepository;
 import com.sk.skala.axcalibur.global.repository.ProjectRepository;
 import com.sk.skala.axcalibur.global.repository.RequestRepository;
 import com.sk.skala.axcalibur.global.repository.ScenarioRepository;
+import com.sk.skala.axcalibur.global.repository.MappingRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,7 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
     private final RequestRepository requestRepository;
     private final ApiListRepository apiListRepository;
     private final ScenarioRepository scenarioRepository;
+    private final MappingRepository mappingRepository;
     
 
     @Override
@@ -63,6 +65,12 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
     @Override
     @Transactional
     public List<ScenarioEntity> parseAndSaveScenarios(List<ScenarioItem> scenarioList, Integer projectKey) {
+        // null 체크 추가
+        if (scenarioList == null || scenarioList.isEmpty()) {
+            log.warn("시나리오 리스트가 null이거나 비어있습니다. 프로젝트 키: {}", projectKey);
+            throw new BusinessExceptionHandler("시나리오 리스트가 비어있습니다.", ErrorCode.NOT_VALID_ERROR);
+        }
+        
         // 시나리오 저장
        
         ProjectEntity project = projectRepository.findById(projectKey)
@@ -107,10 +115,8 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
         List<RequestEntity> requestEntities = requestRepository.findByProjectKey_Id(projectKey);
         return requestEntities.stream()
             .map(entity -> ReqItem.builder()
-                .reqId(entity.getRequestId())
                 .name(entity.getName())
                 .desc(entity.getDescription())
-                .priority(entity.getPriorityKey().getName())
                 .major(entity.getMajorKey().getName())
                 .middle(entity.getMiddleKey().getName())
                 .minor(entity.getMinorKey().getName())
@@ -129,8 +135,36 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
                 .desc(entity.getDescription())
                 .method(entity.getMethod())
                 .path(entity.getPath())
-                .reqId(entity.getRequestKey().getRequestId())
                 .build())
             .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public long deleteScenariosByProjectKey(Integer projectKey) {
+        try {
+            // 프로젝트 키를 기준으로 시나리오 조회
+            List<ScenarioEntity> scenariosToDelete = scenarioRepository.findByProject_Id(projectKey);
+            long deletedCount = scenariosToDelete.size();
+            
+            if (!scenariosToDelete.isEmpty()) {
+                // 1. 시나리오 ID들 수집
+                List<Integer> scenarioIds = scenariosToDelete.stream()
+                    .map(ScenarioEntity::getId)
+                    .collect(Collectors.toList());
+                
+                // 2. 매핑 데이터를 한 번에 삭제
+                mappingRepository.deleteAllByScenarioKey(scenarioIds);
+                
+                // 3. 시나리오 데이터 삭제
+                scenarioRepository.deleteAllById(scenarioIds);
+            }
+            
+            return deletedCount;
+            
+        } catch (Exception e) {
+            log.error("시나리오 삭제 실패 - 프로젝트: {}, 에러: {}", projectKey, e.getMessage());
+            throw new BusinessExceptionHandler("시나리오 데이터 삭제 중 오류가 발생했습니다.", ErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 }

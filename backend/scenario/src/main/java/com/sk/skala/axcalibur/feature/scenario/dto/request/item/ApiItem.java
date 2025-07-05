@@ -16,5 +16,4 @@ public class ApiItem {
     private String desc;                        // API 설명
     private String method;                      // API HTTP Method
     private String path;                        // API Path
-    private String reqId;                       // 요구사항 아이디
 }
