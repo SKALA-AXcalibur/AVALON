@@ -50,43 +50,31 @@ public class ScenarioGenControllerImpl implements ScenarioGenController {
             // 1. 프로젝트 정보 수집
             ProjectContext projectContext = projectIdResolverService.resolveProjectId(key);
             Integer projectKey = projectContext.getKey();
+            
+            // 2. 기존 시나리오 및 관련 데이터 삭제 (프로젝트 키 기준)
+            clearExistingScenarioData(projectKey);
+            
+            // 3. 요청 데이터 준비
             ScenarioGenRequestDto requestDto = scenarioGenService.prepareRequestData(projectKey);
             
-            // 2. FastAPI 호출
+            // 4. FastAPI 호출
             ScenarioResponseDto response = scenarioGenClient.sendInfoAndGetResponse(requestDto);
             
-            // 응답 로깅 추가
-            log.info("FastAPI 응답 수신 - response: {}", response);
-            if (response != null) {
-                log.info("FastAPI 응답 scenarioList: {}", response.getScenarioList());
-                log.info("FastAPI 응답 scenarioList 크기: {}", response.getScenarioList() != null ? response.getScenarioList().size() : "null");
-            }
-            
-            // 3. 응답 데이터 검증
+            // 5. 응답 데이터 검증
             if (response == null || response.getScenarioList() == null || response.getScenarioList().isEmpty()) {
-                log.warn("FastAPI에서 시나리오 리스트가 비어있거나 null입니다. 프로젝트 키: {}", projectKey);
+                log.warn("FastAPI 응답이 비어있음 - 프로젝트: {}", projectKey);
                 throw new BusinessExceptionHandler("시나리오 생성에 실패했습니다. 생성된 시나리오가 없습니다.", ErrorCode.NOT_VALID_ERROR);
             }
             
-            // 4. DB 저장
+            // 6. DB 저장
             List<ScenarioEntity> savedEntities = scenarioGenService.parseAndSaveScenarios(response.getScenarioList(), projectKey);
             
-            // 4. 매핑/흐름도 생성 시도 (실패해도 시나리오 생성 응답은 정상 반환)
+            // 7. 매핑/흐름도 생성 시도 (실패해도 시나리오 생성 응답은 정상 반환)
             try {
-                log.info("시나리오 생성 완료 후 생성된 시나리오들에 대한 매핑/흐름도 생성 시작 - 프로젝트 키: {}, 시나리오 수: {}", projectKey, savedEntities.size());
-                
-                // 4-1. 생성된 시나리오들에 대한 매핑 생성
                 scenarioMappingService.generateAndSaveMappingForScenarios(projectKey, savedEntities);
-                log.info("시나리오 생성 후 매핑 생성 완료");
-                
-                // 4-2. 생성된 시나리오들에 대한 흐름도 생성
                 scenarioMappingService.generateFlowchartForScenarios(projectKey, savedEntities);
-                log.info("시나리오 생성 후 흐름도 생성 완료");
-                
             } catch (Exception e) {
-                log.error("매핑/흐름도 생성 실패했지만 시나리오 생성은 성공 - 응답 계속 진행: {}", e.getMessage(), e);
-                // 매핑/흐름도 생성 실패 시에도 시나리오 생성 결과는 정상 반환
-                // 예외를 다시 던지지 않음
+                log.warn("매핑/흐름도 생성 실패 (시나리오 생성은 성공): {}", e.getMessage());
             }
             
             // ScenarioEntity를 ScenarioListResponse로 변환
@@ -107,7 +95,7 @@ public class ScenarioGenControllerImpl implements ScenarioGenController {
             HttpHeaders headers = new HttpHeaders();
             headers.add("responseTime", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
             
-            log.info("시나리오 생성 및 응답 완료 - 생성된 시나리오 수: {}", scenarioListResponse.size());
+            log.info("시나리오 생성 완료 - 프로젝트: {}, 생성된 시나리오: {}개", projectKey, scenarioListResponse.size());
             
             return ResponseEntity
                 .status(SuccessCode.INSERT_SUCCESS.getStatus())
@@ -120,6 +108,24 @@ public class ScenarioGenControllerImpl implements ScenarioGenController {
         } catch (FeignException.UnprocessableEntity e) {
             // 422 에러 -> 입력 데이터 문제
             throw new BusinessExceptionHandler("입력 데이터에 문제가 있습니다.", ErrorCode.NOT_VALID_ERROR);
+        }
+    }
+    
+    /**
+     * 프로젝트 키를 기준으로 기존 시나리오 및 관련 데이터 삭제
+     */
+    private void clearExistingScenarioData(Integer projectKey) {
+        try {
+            log.info("프로젝트 {} 기존 시나리오 삭제 시작", projectKey);
+            
+            // 시나리오 삭제 (매핑은 외래키 CASCADE로 자동 삭제)
+            long deletedCount = scenarioGenService.deleteScenariosByProjectKey(projectKey);
+            
+            log.info("프로젝트 {} 시나리오 {}개 삭제 완료", projectKey, deletedCount);
+            
+        } catch (Exception e) {
+            log.error("프로젝트 {} 기존 데이터 삭제 실패: {}", projectKey, e.getMessage());
+            throw new BusinessExceptionHandler("기존 시나리오 데이터 삭제 중 오류가 발생했습니다.", ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 }
