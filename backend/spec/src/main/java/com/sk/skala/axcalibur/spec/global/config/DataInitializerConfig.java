@@ -34,5 +34,7 @@ public class DataInitializerConfig {
         jdbcTemplate.execute("INSERT IGNORE INTO context (`key`, name) VALUES (2, 'HEADER')");
         jdbcTemplate.execute("INSERT IGNORE INTO context (`key`, name) VALUES (3, 'QUERY')");
         jdbcTemplate.execute("INSERT IGNORE INTO context (`key`, name) VALUES (4, 'PATH')");
+        jdbcTemplate.execute("INSERT IGNORE INTO context (`key`, name) VALUES (5, 'COOKIE')");
+        jdbcTemplate.execute("INSERT IGNORE INTO context (`key`, name) VALUES (6, 'SESSION')");
     }
 } 
