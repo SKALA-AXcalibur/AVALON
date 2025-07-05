@@ -58,14 +58,10 @@ export const UploadBox = () => {
     };
 
     const result = await createScenarios(uploadRequest);
-    if (result.success && result.scenarios.length > 0) {
-      router.push(`/project/${project.id}/scenario/${result.scenarios[0].id}`);
-    } else if (result.success && result.scenarios.length === 0) {
-      setError(ERROR_MESSAGES.FILE_UPLOAD.EMPTY_RESULT);
-      resetStep();
+    if (result.success) {
+      router.push(`/project/${project.id}/scenario/new`);
     } else {
       setError(ERROR_MESSAGES.FILE_UPLOAD.CREATION_ERROR);
-      resetStep();
     }
   };
 

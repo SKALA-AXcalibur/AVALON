@@ -16,6 +16,14 @@ export const ScenarioGraph = ({ graph }: { graph: string }) => {
         securityLevel: "loose",
         flowchart: {
           curve: "basis",
+          useMaxWidth: true,
+          htmlLabels: true,
+        },
+        sequence: {
+          useMaxWidth: true,
+        },
+        gantt: {
+          useMaxWidth: true,
         },
       });
       isInitialized = true;
@@ -58,7 +66,7 @@ export const ScenarioGraph = ({ graph }: { graph: string }) => {
 
   return (
     <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 mb-4">
-      <div className="relative min-h-48">
+      <div className="relative w-full flex justify-center items-center">
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded">
             <div className="flex items-center gap-2">
@@ -69,7 +77,8 @@ export const ScenarioGraph = ({ graph }: { graph: string }) => {
         )}
         <div
           ref={graphRef}
-          className="mermaid-wrapper flex justify-center text-center"
+          className="mermaid-wrapper w-full max-w-full flex justify-center"
+          style={{ minHeight: "400px" }}
         />
       </div>
     </div>
