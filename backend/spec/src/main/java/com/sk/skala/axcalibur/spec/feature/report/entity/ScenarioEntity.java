@@ -40,13 +40,13 @@ public class ScenarioEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "validation")
+    @Column(name = "validation", columnDefinition = "TEXT")
     private String validation;
 
-    @Column(name = "flow_chart")
+    @Column(name = "flow_chart", columnDefinition = "TEXT")
     private String flowChart;
 
     @ManyToOne(fetch = FetchType.LAZY)
