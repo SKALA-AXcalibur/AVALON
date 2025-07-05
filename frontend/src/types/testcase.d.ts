@@ -1,4 +1,4 @@
-import { Testcase, TestcaseInfo, api, Param } from "@/interfaces/testcase";
+import { TestcaseInfo, api, Param } from "@/interfaces/testcase";
 
 export type createTestcaseRequest = {
   precondition: string | null;
@@ -8,9 +8,7 @@ export type createTestcaseRequest = {
   testDataList: { paramId: number; value: string | null }[] | null;
 };
 
-type createTestcaseResponse = {
-  tcId: string;
-};
+type createTestcaseResponse = string;
 
 export type readTestcaseResponse = TestcaseInfo;
 
@@ -31,6 +29,6 @@ export type readParamsResponse = {
 };
 
 export type readScenarioTestcasesResponse = {
-  tcList: Testcase[];
+  tcList: string[];
   tcTotal: number;
 };
