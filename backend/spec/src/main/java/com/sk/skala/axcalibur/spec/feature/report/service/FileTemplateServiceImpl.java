@@ -72,7 +72,7 @@ public class FileTemplateServiceImpl implements FileTemplateService {
             return outputStream.toByteArray();
         } catch (IOException e) {
             throw BusinessExceptionHandler.builder()
-                .errorCode(ErrorCode.INTERNAL_SERVER_ERROR)
+                .errorCode(ErrorCode.FILE_STORAGE_ERROR)
                 .message("엑셀 파일 생성 실패")
                 .build();
         }
