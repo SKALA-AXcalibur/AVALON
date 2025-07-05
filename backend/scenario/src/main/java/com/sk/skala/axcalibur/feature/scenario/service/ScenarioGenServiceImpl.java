@@ -63,6 +63,12 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
     @Override
     @Transactional
     public List<ScenarioEntity> parseAndSaveScenarios(List<ScenarioItem> scenarioList, Integer projectKey) {
+        // null 체크 추가
+        if (scenarioList == null || scenarioList.isEmpty()) {
+            log.warn("시나리오 리스트가 null이거나 비어있습니다. 프로젝트 키: {}", projectKey);
+            throw new BusinessExceptionHandler("시나리오 리스트가 비어있습니다.", ErrorCode.NOT_VALID_ERROR);
+        }
+        
         // 시나리오 저장
        
         ProjectEntity project = projectRepository.findById(projectKey)
@@ -107,10 +113,8 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
         List<RequestEntity> requestEntities = requestRepository.findByProjectKey_Id(projectKey);
         return requestEntities.stream()
             .map(entity -> ReqItem.builder()
-                .reqId(entity.getRequestId())
                 .name(entity.getName())
                 .desc(entity.getDescription())
-                .priority(entity.getPriorityKey().getName())
                 .major(entity.getMajorKey().getName())
                 .middle(entity.getMiddleKey().getName())
                 .minor(entity.getMinorKey().getName())
@@ -129,7 +133,6 @@ public class ScenarioGenServiceImpl implements ScenarioGenService {
                 .desc(entity.getDescription())
                 .method(entity.getMethod())
                 .path(entity.getPath())
-                .reqId(entity.getRequestKey().getRequestId())
                 .build())
             .collect(Collectors.toList());
     }

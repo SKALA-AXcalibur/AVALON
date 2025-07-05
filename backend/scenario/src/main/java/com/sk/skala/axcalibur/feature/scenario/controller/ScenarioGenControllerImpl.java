@@ -55,7 +55,20 @@ public class ScenarioGenControllerImpl implements ScenarioGenController {
             // 2. FastAPI 호출
             ScenarioResponseDto response = scenarioGenClient.sendInfoAndGetResponse(requestDto);
             
-            // 3. DB 저장
+            // 응답 로깅 추가
+            log.info("FastAPI 응답 수신 - response: {}", response);
+            if (response != null) {
+                log.info("FastAPI 응답 scenarioList: {}", response.getScenarioList());
+                log.info("FastAPI 응답 scenarioList 크기: {}", response.getScenarioList() != null ? response.getScenarioList().size() : "null");
+            }
+            
+            // 3. 응답 데이터 검증
+            if (response == null || response.getScenarioList() == null || response.getScenarioList().isEmpty()) {
+                log.warn("FastAPI에서 시나리오 리스트가 비어있거나 null입니다. 프로젝트 키: {}", projectKey);
+                throw new BusinessExceptionHandler("시나리오 생성에 실패했습니다. 생성된 시나리오가 없습니다.", ErrorCode.NOT_VALID_ERROR);
+            }
+            
+            // 4. DB 저장
             List<ScenarioEntity> savedEntities = scenarioGenService.parseAndSaveScenarios(response.getScenarioList(), projectKey);
             
             // 4. 매핑/흐름도 생성 시도 (실패해도 시나리오 생성 응답은 정상 반환)
