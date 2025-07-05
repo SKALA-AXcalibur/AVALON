@@ -15,13 +15,18 @@ const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/tc/v1`;
 
 export const clientTestcaseApi = {
   generate: async (): Promise<void> => {
-    const res = await ky
-      .post(`${BASE_URL}/`, {
-        credentials: "include",
-      })
-      .json<SuccessResponse<null> | ErrorResponse>();
-
-    handleApiResponse(res);
+    try {
+      await ky
+        .post(`${BASE_URL}`, {
+          credentials: "include",
+          retry: {
+            limit: 0,
+          },
+        })
+        .json<SuccessResponse<null> | ErrorResponse>();
+    } catch (error) {
+      console.error(error);
+    }
   },
   createTestcase: async (
     scenarioId: string,
@@ -29,7 +34,7 @@ export const clientTestcaseApi = {
     testcase: createTestcaseRequest
   ): Promise<createTestcaseResponse> => {
     const res = await ky
-      .post(`${BASE_URL}/${scenarioId}/${apiId}`, {
+      .post(`${BASE_URL}/api/${scenarioId}/${apiId}`, {
         credentials: "include",
         json: testcase,
       })

@@ -7,7 +7,7 @@ const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/project/v1`;
 export const clientAuthApi = {
   login: async (projectId: string): Promise<void> => {
     const res = await ky
-      .post(`${BASE_URL}/`, {
+      .post(`${BASE_URL}`, {
         json: { projectId },
         credentials: "include",
       })
@@ -17,7 +17,7 @@ export const clientAuthApi = {
   },
   logout: async (): Promise<void> => {
     const res = await ky
-      .delete(`${BASE_URL}/`, {
+      .delete(`${BASE_URL}`, {
         credentials: "include",
       })
       .json<SuccessResponse<null> | ErrorResponse>();
