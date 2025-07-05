@@ -108,11 +108,19 @@ export const useNavigation = (callbacks?: NavigationCallbacks) => {
         color: "bg-gray-500 hover:bg-gray-600",
         text: "돌아가기",
       },
+      refresh: {
+        type: "action" as const,
+        onClick: () => window.location.reload(),
+        color: "bg-yellow-500 hover:bg-yellow-600",
+        text: "새로고침",
+        loading: false,
+      },
     };
 
     if (pathname.includes("/scenario/")) {
       return [
         commonButtons.logout,
+        commonButtons.refresh,
         {
           type: "link" as const,
           href: `/project/${projectId}/upload`,

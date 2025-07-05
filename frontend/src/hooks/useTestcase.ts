@@ -126,10 +126,10 @@ export const useTestcase = (
         }
       );
       addTestcase(scenarioId, {
-        tcId: response.tcId,
+        tcId: response,
       });
       setSuccess(SUCCESS_MESSAGES.TESTCASE.CREATE_SUCCESS);
-      onSuccess?.(response.tcId);
+      onSuccess?.(response);
     } catch (error) {
       console.error(error);
       setError(ERROR_MESSAGES.TESTCASE.CREATE_FAILED);

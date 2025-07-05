@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { clientSpecApi } from "@/services/client/clientSpecApi";
 import { clientScenarioApi } from "@/services/client/clientScenarioApi";
-import { useProjectStore } from "@/store/projectStore";
 import { uploadSpecRequest } from "@/types/spec";
 import { UPLOAD_STEPS } from "@/constants/upload";
 import { Scenario } from "@/interfaces/scenario";
@@ -23,7 +22,6 @@ type UploadStep = {
 export const useFileUpload = (callbacks?: FileUploadCallbacks) => {
   const [step, setStep] = useState<number>(UPLOAD_STEPS.UPLOAD);
   const [isLoading, setIsLoading] = useState(false);
-  const { project, setProject } = useProjectStore();
 
   const handleApiError = (error: unknown) => {
     console.error(error);
@@ -32,21 +30,6 @@ export const useFileUpload = (callbacks?: FileUploadCallbacks) => {
         ? error.message
         : "알 수 없는 오류가 발생했습니다.";
     callbacks?.onError?.(errorMessage);
-  };
-
-  const handleScenarioCreation = async () => {
-    const scenarioResponse = await clientScenarioApi.create();
-    const updatedScenarios = scenarioResponse.scenarioList.map((s) => ({
-      ...s,
-      testcases: [],
-    }));
-
-    setProject({
-      ...project,
-      scenarios: updatedScenarios,
-    });
-
-    return updatedScenarios;
   };
 
   const createUploadSteps = (files: uploadSpecRequest): UploadStep[] => [
@@ -64,7 +47,7 @@ export const useFileUpload = (callbacks?: FileUploadCallbacks) => {
     },
     {
       stepType: UPLOAD_STEPS.CREATE_SCENARIOS,
-      apiCall: handleScenarioCreation,
+      apiCall: () => clientScenarioApi.create(),
       nextStep: UPLOAD_STEPS.COMPLETE,
       callback: callbacks?.onCreateScenariosSuccess,
     },
@@ -76,7 +59,6 @@ export const useFileUpload = (callbacks?: FileUploadCallbacks) => {
       const uploadSteps = createUploadSteps(files);
 
       let currentStep = step;
-      let latestScenarios: Scenario[] = [];
 
       while (currentStep !== UPLOAD_STEPS.COMPLETE) {
         const currentStepData = uploadSteps.find(
@@ -87,11 +69,7 @@ export const useFileUpload = (callbacks?: FileUploadCallbacks) => {
           throw new Error(`Invalid step: ${currentStep}`);
         }
 
-        const result = await currentStepData.apiCall();
-
-        if (currentStep === UPLOAD_STEPS.CREATE_SCENARIOS && result) {
-          latestScenarios = result;
-        }
+        await currentStepData.apiCall();
 
         currentStep = currentStepData.nextStep;
         setStep(currentStep);
@@ -99,10 +77,10 @@ export const useFileUpload = (callbacks?: FileUploadCallbacks) => {
         currentStepData.callback?.();
       }
 
-      return { success: true, scenarios: latestScenarios };
+      return { success: true };
     } catch (error) {
       handleApiError(error);
-      return { success: false, scenarios: [] };
+      return { success: false };
     } finally {
       setIsLoading(false);
     }

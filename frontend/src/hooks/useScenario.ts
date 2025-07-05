@@ -6,11 +6,7 @@ import { ScenarioInfo } from "@/interfaces/scenario";
 import { validateId } from "@/utils/validateId";
 
 export const useScenario = (projectId: string, scenarioId: string) => {
-  const {
-    addScenario,
-    updateScenario,
-    deleteScenario: removeScenario,
-  } = useProjectStore();
+  const { updateScenario, deleteScenario: removeScenario } = useProjectStore();
 
   const [scenarioInfo, setScenarioInfo] = useState<ScenarioInfo>({
     id: scenarioId,
@@ -63,21 +59,17 @@ export const useScenario = (projectId: string, scenarioId: string) => {
     setScenarioInfo((prev) => ({ ...prev, validation: value }));
   };
 
-  const handleCreate = async (onSuccess?: (scenarioId: string) => void) => {
+  const handleCreate = async (onSuccess?: () => void) => {
     try {
       setIsLoading(true);
-      const response = await clientScenarioApi.createScenario({
+      await clientScenarioApi.createScenario({
         name: scenarioInfo.name,
         description: scenarioInfo.description,
         validation: scenarioInfo.validation,
       });
-      addScenario({
-        id: response.id,
-        name: scenarioInfo.name,
-        testcases: [],
-      });
       setSuccess(SUCCESS_MESSAGES.SCENARIO.CREATE_SUCCESS);
-      onSuccess?.(response.id);
+      resetScenario();
+      onSuccess?.();
     } catch (error) {
       console.error(error);
       setError(ERROR_MESSAGES.SCENARIO.CREATE_FAILED);
@@ -86,7 +78,7 @@ export const useScenario = (projectId: string, scenarioId: string) => {
     }
   };
 
-  const handleUpdate = async () => {
+  const handleUpdate = async (onSuccess?: () => void) => {
     try {
       setIsLoading(true);
       await clientScenarioApi.updateScenario(scenarioInfo.id, {
@@ -100,6 +92,7 @@ export const useScenario = (projectId: string, scenarioId: string) => {
         testcases: [],
       });
       setSuccess(SUCCESS_MESSAGES.SCENARIO.UPDATE_SUCCESS);
+      onSuccess?.();
     } catch (error) {
       console.error(error);
       setError(ERROR_MESSAGES.SCENARIO.UPDATE_FAILED);
@@ -126,6 +119,16 @@ export const useScenario = (projectId: string, scenarioId: string) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const resetScenario = () => {
+    setScenarioInfo({
+      id: scenarioId,
+      name: "",
+      graph: "",
+      description: "",
+      validation: "",
+    });
   };
 
   return {
