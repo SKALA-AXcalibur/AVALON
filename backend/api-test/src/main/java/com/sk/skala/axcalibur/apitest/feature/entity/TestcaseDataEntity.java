@@ -35,7 +35,7 @@ public class TestcaseDataEntity {
   @JoinColumn(name = "testcase_key", nullable = false)
   private TestcaseEntity testcase; // 테스트 케이스 (FK, NOT NULL)
 
-  @Column(name = "value", length = 50)
+  @Column(name = "value", columnDefinition = "TEXT")
   private String value;
 
 }
