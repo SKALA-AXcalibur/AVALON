@@ -8,7 +8,6 @@ import com.sk.skala.axcalibur.spec.feature.project.entity.DbDesignEntity;
 import com.sk.skala.axcalibur.spec.feature.project.entity.RequestEntity;
 import com.sk.skala.axcalibur.spec.feature.report.entity.ScenarioEntity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
