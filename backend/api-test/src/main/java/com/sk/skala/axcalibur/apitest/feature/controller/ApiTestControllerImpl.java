@@ -55,6 +55,7 @@ public class ApiTestControllerImpl implements ApiTestController {
       @Valid @RequestBody ExcuteApiTestRequestDto dto,
       @CookieValue(name = "avalon") String avalon) {
     log.info("ApiTestControllerImpl.executeApiTest: called with avalon: {}", avalon);
+    
     // validate cookie
     var entity = cookie.findByToken(avalon);
     Integer key = entity.getProjectKey();
@@ -129,6 +130,7 @@ public class ApiTestControllerImpl implements ApiTestController {
       @Parameter(required = false) @RequestParam(name = "cursor", required = false) String cursor,
       @Parameter(required = false) @RequestParam(name = "size", required = false) Integer size) {
     log.info("ApiTestControllerImpl.getApiTestCaseResult: called with scenarioId: {}, cursor: {}, size: {}",
+
         scenarioId, cursor, size);
 
     // validate cookie
