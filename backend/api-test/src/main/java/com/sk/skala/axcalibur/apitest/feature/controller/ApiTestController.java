@@ -3,7 +3,6 @@ package com.sk.skala.axcalibur.apitest.feature.controller;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.ExcuteApiTestRequestDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.ApiTestResultResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.EmptyResponseDto;
-import com.sk.skala.axcalibur.apitest.feature.dto.response.ExcuteApiTestResponseDto;
 import com.sk.skala.axcalibur.apitest.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

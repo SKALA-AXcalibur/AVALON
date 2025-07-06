@@ -7,7 +7,6 @@ import com.sk.skala.axcalibur.apitest.feature.dto.request.GetTestResultServiceRe
 import com.sk.skala.axcalibur.apitest.feature.dto.response.ApiTestCaseResultResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.ApiTestResultResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.EmptyResponseDto;
-import com.sk.skala.axcalibur.apitest.feature.dto.response.ExcuteApiTestResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.service.ApiTestService;
 import com.sk.skala.axcalibur.apitest.feature.service.AvalonCookieService;
 import com.sk.skala.axcalibur.apitest.feature.service.ScenarioService;
@@ -55,7 +54,8 @@ public class ApiTestControllerImpl implements ApiTestController {
   public ResponseEntity<SuccessResponse<EmptyResponseDto>> executeApiTest(
       @Valid @RequestBody ExcuteApiTestRequestDto dto,
       @CookieValue(name = "avalon") String avalon) {
-    log.info("ApiTestControllerImpl.executeApiTest() called with avalon: {}", avalon);
+    log.info("ApiTestControllerImpl.executeApiTest: called with avalon: {}", avalon);
+    
     // validate cookie
     var entity = cookie.findByToken(avalon);
     Integer key = entity.getProjectKey();
@@ -89,7 +89,7 @@ public class ApiTestControllerImpl implements ApiTestController {
       @Parameter(hidden = true) @CookieValue(name = "avalon") String avalon,
       @Parameter(required = false) @RequestParam(name = "cursor", required = false) String cursor,
       @Parameter(required = false) @RequestParam(name = "size", required = false) Integer size) {
-    log.info("ApiTestControllerImpl.getApiTestResult() called with cursor: {}, size: {}", cursor, size);
+    log.info("ApiTestControllerImpl.getApiTestResult: called with cursor: {}, size: {}", cursor, size);
     // validate cookie
     var entity = cookie.findByToken(avalon);
     Integer key = entity.getProjectKey();
@@ -129,7 +129,8 @@ public class ApiTestControllerImpl implements ApiTestController {
       @Parameter(required = true) @PathVariable("scenarioId") String scenarioId,
       @Parameter(required = false) @RequestParam(name = "cursor", required = false) String cursor,
       @Parameter(required = false) @RequestParam(name = "size", required = false) Integer size) {
-    log.info("ApiTestControllerImpl.getApiTestCaseResult() called with scenarioId: {}, cursor: {}, size: {}",
+    log.info("ApiTestControllerImpl.getApiTestCaseResult: called with scenarioId: {}, cursor: {}, size: {}",
+
         scenarioId, cursor, size);
 
     // validate cookie

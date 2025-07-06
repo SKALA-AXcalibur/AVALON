@@ -340,7 +340,7 @@ public class ApiTestServiceImpl implements ApiTestService {
    */
   @Override
   public ApiRequestDataDto buildTaskData(List<ParameterWithDataDto> parametersWithData) {
-    log.info("ApiTestServiceImpl.buildOptimizedTaskData: Building request data with {} parameters",
+    log.info("ApiTestServiceImpl.buildTaskData: Building request data with {} parameters",
         parametersWithData.size());
 
     // 요청 데이터 초기화
@@ -377,9 +377,9 @@ public class ApiTestServiceImpl implements ApiTestService {
     }
 
     log.debug(
-        "ApiTestServiceImpl.buildOptimizedTaskData: Built request data - ReqHeader: {}, ReqQuery: {}, ReqBody: {}, ReqPath: {}",
+        "ApiTestServiceImpl.buildTaskData: Built request data - ReqHeader: {}, ReqQuery: {}, ReqBody: {}, ReqPath: {}",
         reqHeader, reqQuery, reqBody, reqPath);
-    log.debug("ApiTestServiceImpl.buildOptimizedTaskData: Built response data - ResHeader: {}, ResBody: {}",
+    log.debug("ApiTestServiceImpl.buildTaskData: Built response data - ResHeader: {}, ResBody: {}",
         resHeader,
         resBody);
 
@@ -403,8 +403,8 @@ public class ApiTestServiceImpl implements ApiTestService {
     String contextName = parameter.contextName().toLowerCase();
     String dataType = parameter.dataType() != null ? parameter.dataType().toLowerCase() : "string";
 
-    log.debug(
-        "ApiTestServiceImpl.processOptimizedParameter: Processing Parameter: {}, FullPath: {}, Category: {}, Context: {}, DataType: {}",
+    log.info(
+        "ApiTestServiceImpl.processParameter: Processing Parameter: {}, FullPath: {}, Category: {}, Context: {}, DataType: {}",
         paramName, fullParamName, categoryName, contextName, dataType);
 
     Object processedValue = null;
@@ -430,7 +430,7 @@ public class ApiTestServiceImpl implements ApiTestService {
         placeRequestValue(contextName, targetParamName, processedValue, reqHeader, reqQuery, reqBody, reqPath);
       }
     } else {
-      log.debug("ApiTestServiceImpl.processOptimizedParameter: No test data found for parameter: {}",
+      log.debug("ApiTestServiceImpl.processParameter: No test data found for parameter: {}",
           fullParamName);
     }
   }
@@ -442,7 +442,7 @@ public class ApiTestServiceImpl implements ApiTestService {
       Map<Integer, ParameterWithDataDto> parameterMap,
       Map<Integer, List<ParameterWithDataDto>> childrenMap,
       String parentPath) {
-    log.info("ApiTestServiceImpl.processOptimizedArrayParameter: Processing array parameter: {}",
+    log.info("ApiTestServiceImpl.processArrayParameter: Processing array parameter: {}",
         parameter.parameterName());
 
     List<Object> arrayList = new ArrayList<>();
@@ -482,7 +482,7 @@ public class ApiTestServiceImpl implements ApiTestService {
       Map<Integer, ParameterWithDataDto> parameterMap,
       Map<Integer, List<ParameterWithDataDto>> childrenMap,
       String parentPath) {
-    log.info("ApiTestServiceImpl.processOptimizedObjectParameter: Processing object parameter: {}",
+    log.info("ApiTestServiceImpl.processObjectParameter: Processing object parameter: {}",
         parameter.parameterName());
 
     Map<String, Object> objectMap = new HashMap<>();
@@ -519,7 +519,7 @@ public class ApiTestServiceImpl implements ApiTestService {
           });
         } catch (IOException e) {
           log.warn(
-              "ApiTestServiceImpl.processOptimizedObjectParameter: Failed to parse JSON for parameter: {}, value: {}",
+              "ApiTestServiceImpl.processObjectParameter: Failed to parse JSON for parameter: {}, value: {}",
               parameter.parameterName(), parameter.value());
           objectMap.put(parameter.parameterName(), parameter.value());
         }
