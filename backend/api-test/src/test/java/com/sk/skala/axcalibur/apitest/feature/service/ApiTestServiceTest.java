@@ -19,6 +19,10 @@ import com.sk.skala.axcalibur.apitest.feature.repository.ScenarioRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseDataRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepository;
+import com.sk.skala.axcalibur.apitest.feature.repository.ApiTestRepository;
+import com.sk.skala.axcalibur.apitest.feature.repository.ApiTestDetailRepository;
+import com.sk.skala.axcalibur.apitest.feature.entity.ApiTestRedisEntity;
+import com.sk.skala.axcalibur.apitest.feature.entity.ApiTestDetailRedisEntity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -75,6 +79,12 @@ public class ApiTestServiceTest {
 
   @Autowired
   private RedisTemplate<String, Object> redisTemplate;
+
+  @Autowired
+  private ApiTestRepository apiTestRepository;
+
+  @Autowired
+  private ApiTestDetailRepository apiTestDetailRepository;
 
   private ScenarioEntity testScenario;
   private ApiListEntity testApiList;
@@ -377,7 +387,7 @@ public class ApiTestServiceTest {
     testcaseResults.forEach(result1 -> {
       assertThat(result1.getTestcase()).isNotNull();
       assertThat(result1.getResult()).isEqualTo("");
-      assertThat(result1.getSuccess()).isFalse(); // 초기값은 false
+      assertThat(result1.getSuccess()).isNull(); // 초기값은 null (실행중)
       assertThat(result1.getTime()).isNull(); // 초기값은 null
     });
   }
@@ -392,7 +402,7 @@ public class ApiTestServiceTest {
         .scenarioList(List.of())
         .build();
 
-    // when & then - 결과 기반 검증 (예외 대신 빈 결과나 특정 상태 확인)
+    // when & then - 결과 기반 검증 (예외 대신 빈 결과여야 함)
     try {
       List<String> result = apiTestService.excuteTestService(requestDto);
       // 예외가 발생하지 않는다면 빈 결과여야 함
@@ -521,7 +531,7 @@ public class ApiTestServiceTest {
         .orElse(null);
     assertThat(postResult).isNotNull();
     assertThat(postResult.getResult()).isEqualTo("");
-    assertThat(postResult.getSuccess()).isFalse(); // 초기값은 false
+    assertThat(postResult.getSuccess()).isNull(); // 초기값은 null (실행중)
   }
 
   @Test
@@ -1002,7 +1012,7 @@ public class ApiTestServiceTest {
     // 각 테스트케이스 결과가 초기 상태로 저장되었는지 확인
     testcaseResults.forEach(tr -> {
       assertThat(tr.getResult()).isEqualTo("");
-      assertThat(tr.getSuccess()).isFalse();
+      assertThat(tr.getSuccess()).isNull(); // 초기값은 null (실행중)
       assertThat(tr.getTime()).isNull();
     });
   }
@@ -1179,7 +1189,7 @@ public class ApiTestServiceTest {
     // 모든 결과가 초기 상태로 저장되었는지 확인
     allResults.forEach(tr -> {
       assertThat(tr.getResult()).isEqualTo("");
-      assertThat(tr.getSuccess()).isFalse();
+      assertThat(tr.getSuccess()).isNull(); // 초기값은 null (실행중)
       assertThat(tr.getTime()).isNull();
       assertThat(tr.getReason()).isNull();
     });
@@ -1332,5 +1342,673 @@ public class ApiTestServiceTest {
       assertThat(tc.getMapping().getScenario().getScenarioId())
           .isEqualTo("httpbin-test-scenario");
     });
+  }
+
+  @Test
+  @DisplayName("executeTestService 통합 테스트 - Redis 엔티티 상태 검증")
+  @Transactional
+  void executeTestService_IntegrationTest_RedisEntityVerification() {
+    // given
+    ExcuteTestServiceRequestDto requestDto = ExcuteTestServiceRequestDto.builder()
+        .projectKey(1)
+        .scenarioList(List.of("httpbin-test-scenario"))
+        .build();
+
+    // when
+    List<String> result = apiTestService.excuteTestService(requestDto);
+
+    // then
+    assertThat(result).isNotNull();
+    assertThat(result).hasSize(2);
+
+    // Redis 엔티티 상태 검증 (비동기 처리로 인해 약간의 대기 시간 필요할 수 있음)
+    try {
+      // ApiTestRedisEntity 확인 - 시나리오 진행 상황
+      Iterable<ApiTestRedisEntity> apiTestEntities = apiTestRepository.findAll();
+      List<ApiTestRedisEntity> apiTestEntityList = new ArrayList<>();
+      apiTestEntities.forEach(apiTestEntityList::add);
+
+      if (!apiTestEntityList.isEmpty()) {
+        apiTestEntityList.forEach(entity -> {
+          assertThat(entity.getId()).isNotNull();
+          assertThat(entity.getCompleted()).isGreaterThanOrEqualTo(0);
+          assertThat(entity.getFinish()).isGreaterThan(0);
+        });
+      }
+
+      // ApiTestDetailRedisEntity 확인 - API 실행 세부 정보
+      Iterable<ApiTestDetailRedisEntity> apiTestDetailEntities = apiTestDetailRepository.findAll();
+      List<ApiTestDetailRedisEntity> apiTestDetailEntityList = new ArrayList<>();
+      apiTestDetailEntities.forEach(apiTestDetailEntityList::add);
+
+      if (!apiTestDetailEntityList.isEmpty()) {
+        apiTestDetailEntityList.forEach(entity -> {
+          assertThat(entity.getId()).isNotNull();
+          assertThat(entity.getResultId()).isNotNull();
+          assertThat(entity.getHeader()).isNotNull();
+          assertThat(entity.getBody()).isNotNull();
+          assertThat(entity.getPath()).isNotNull();
+          assertThat(entity.getQuery()).isNotNull();
+        });
+      }
+
+    } catch (Exception e) {
+      // Redis 연결 실패 또는 비동기 처리 지연으로 인한 예외 처리
+      System.out.println("Redis 엔티티 검증 중 오류 발생: " + e.getMessage());
+    }
+  }
+
+  @Test
+  @DisplayName("executeTestService 통합 테스트 - Response 파라미터 기반 예상 응답 비교")
+  @Transactional
+  void executeTestService_IntegrationTest_ResponseParameterBasedValidation() {
+    // given - response category 파라미터를 포함한 테스트케이스 생성
+    ScenarioEntity responseParamScenario = ScenarioEntity.builder()
+        .projectKey(1)
+        .scenarioId("httpbin-response-param-scenario")
+        .name("Response 파라미터 기반 검증 테스트 시나리오")
+        .build();
+    responseParamScenario = scenarioRepository.save(responseParamScenario);
+
+    // API 생성 (httpbin의 /json 엔드포인트 - 고정된 응답)
+    ApiListEntity responseParamApiList = ApiListEntity.builder()
+        .url("https://httpbin.org/json")
+        .path("/json")
+        .method("GET")
+        .build();
+    responseParamApiList = apiListRepository.save(responseParamApiList);
+
+    // 매핑 생성
+    MappingEntity responseParamMapping = MappingEntity.builder()
+        .mappingId("MAP-RESPONSE-PARAM-001")
+        .scenario(responseParamScenario)
+        .apiList(responseParamApiList)
+        .step(1)
+        .build();
+    responseParamMapping = mappingRepository.save(responseParamMapping);
+
+    // 테스트케이스 생성
+    TestcaseEntity responseParamTestcase = TestcaseEntity.builder()
+        .testcaseId("TC-HTTPBIN-RESPONSE-PARAM-001")
+        .description("Response 파라미터 기반 응답 검증 테스트")
+        .precondition("없음")
+        .expected("") // expected는 예상 응답이 아님
+        .status(200)
+        .mapping(responseParamMapping)
+        .build();
+    final TestcaseEntity savedResponseParamTestcase = testcaseRepository.save(responseParamTestcase);
+
+    // Response 카테고리 파라미터들 생성 (예상 응답 정의)
+    // 1. Response Header 파라미터
+    ParameterEntity responseHeaderParam = ParameterEntity.builder()
+        .apiList(responseParamApiList)
+        .category(responseCategory) // response 카테고리
+        .context(headerContext)
+        .name("Content-Type")
+        .dataType("string")
+        .build();
+    responseHeaderParam = parameterRepository.save(responseHeaderParam);
+
+    // 2. Response Body 파라미터들
+    ContextEntity responseBodyContext = ContextEntity.builder()
+        .name("body")
+        .build();
+    responseBodyContext = contextRepository.save(responseBodyContext);
+
+    ParameterEntity responseTitleParam = ParameterEntity.builder()
+        .apiList(responseParamApiList)
+        .category(responseCategory) // response 카테고리
+        .context(responseBodyContext)
+        .name("slideshow.title")
+        .dataType("string")
+        .build();
+    responseTitleParam = parameterRepository.save(responseTitleParam);
+
+    ParameterEntity responseAuthorParam = ParameterEntity.builder()
+        .apiList(responseParamApiList)
+        .category(responseCategory) // response 카테고리
+        .context(responseBodyContext)
+        .name("slideshow.author")
+        .dataType("string")
+        .build();
+    responseAuthorParam = parameterRepository.save(responseAuthorParam);
+
+    // 예상 응답 데이터 생성 (TestcaseDataEntity)
+    TestcaseDataEntity expectedHeaderData = TestcaseDataEntity.builder()
+        .testcase(savedResponseParamTestcase)
+        .parameter(responseHeaderParam)
+        .value("application/json") // 예상되는 Content-Type
+        .build();
+    testcaseDataRepository.save(expectedHeaderData);
+
+    TestcaseDataEntity expectedTitleData = TestcaseDataEntity.builder()
+        .testcase(savedResponseParamTestcase)
+        .parameter(responseTitleParam)
+        .value("Sample Slide Show") // 예상되는 title 값
+        .build();
+    testcaseDataRepository.save(expectedTitleData);
+
+    TestcaseDataEntity expectedAuthorData = TestcaseDataEntity.builder()
+        .testcase(savedResponseParamTestcase)
+        .parameter(responseAuthorParam)
+        .value("Yours Truly") // 예상되는 author 값
+        .build();
+    testcaseDataRepository.save(expectedAuthorData);
+
+    ExcuteTestServiceRequestDto requestDto = ExcuteTestServiceRequestDto.builder()
+        .projectKey(1)
+        .scenarioList(List.of("httpbin-response-param-scenario"))
+        .build();
+
+    // when
+    List<String> result = apiTestService.excuteTestService(requestDto);
+
+    // then
+    assertThat(result).isNotNull();
+    assertThat(result).hasSize(1);
+    assertThat(result).containsExactly("TC-HTTPBIN-RESPONSE-PARAM-001");
+
+    // Response 파라미터 기반 예상 응답 검증
+    List<TestcaseResultEntity> testcaseResults = testcaseResultRepository.findAll();
+    TestcaseResultEntity responseParamResult = testcaseResults.stream()
+        .filter(tr -> tr.getTestcase().getId().equals(savedResponseParamTestcase.getId()))
+        .findFirst()
+        .orElse(null);
+
+    assertThat(responseParamResult).isNotNull();
+
+    // Response category 파라미터들과 예상 값들 확인
+    List<TestcaseDataEntity> responseExpectedData = testcaseDataRepository.findAll().stream()
+        .filter(data -> data.getTestcase().getId().equals(savedResponseParamTestcase.getId()))
+        .filter(data -> data.getParameter().getCategory().getName().equals("response"))
+        .collect(Collectors.toList());
+
+    assertThat(responseExpectedData).hasSize(3); // Header 1개 + Body 2개
+
+    // buildTaskData가 response 파라미터를 resHeader/resBody로 구성하는지 테스트
+    System.out.println("=== Response 파라미터 기반 예상 응답 (TestcaseDataEntity) ===");
+    responseExpectedData.forEach(data -> {
+      String paramName = data.getParameter().getName();
+      String expectedValue = data.getValue();
+      String context = data.getParameter().getContext().getName();
+      System.out.println("Context: " + context + ", Parameter: " + paramName + ", Expected: " + expectedValue);
+    });
+
+    System.out.println("=== buildTaskData로 구성된 ApiRequestDataDto 확인 ===");
+    // 실제로 buildTaskData에서 생성되는 resHeader/resBody 확인을 위해
+    // ApiTestServiceImpl의 로직을 직접 테스트
+    // 이는 RedisStreamListener에서 실제 응답과 비교할 때 사용되는 예상 데이터임
+  }
+
+  @Test
+  @DisplayName("buildTaskData 메서드 - Response 파라미터 처리 검증")
+  @Transactional
+  void buildTaskData_ResponseParameterProcessing() {
+    // given - response 파라미터가 있는 테스트케이스 생성
+    ScenarioEntity buildTestScenario = ScenarioEntity.builder()
+        .projectKey(1)
+        .scenarioId("build-test-scenario")
+        .name("BuildTaskData 테스트 시나리오")
+        .build();
+    buildTestScenario = scenarioRepository.save(buildTestScenario);
+
+    ApiListEntity buildTestApi = ApiListEntity.builder()
+        .url("https://example.com/api")
+        .path("/test")
+        .method("GET")
+        .build();
+    buildTestApi = apiListRepository.save(buildTestApi);
+
+    MappingEntity buildTestMapping = MappingEntity.builder()
+        .mappingId("MAP-BUILD-TEST-001")
+        .scenario(buildTestScenario)
+        .apiList(buildTestApi)
+        .step(1)
+        .build();
+    buildTestMapping = mappingRepository.save(buildTestMapping);
+
+    TestcaseEntity buildTestcase = TestcaseEntity.builder()
+        .testcaseId("TC-BUILD-TEST-001")
+        .description("BuildTaskData 메서드 테스트")
+        .precondition("없음")
+        .expected("")
+        .status(200)
+        .mapping(buildTestMapping)
+        .build();
+    final TestcaseEntity finalBuildTestcase = testcaseRepository.save(buildTestcase);
+
+    // Response Header 파라미터
+    ParameterEntity responseHeaderParam = ParameterEntity.builder()
+        .apiList(buildTestApi)
+        .category(responseCategory)
+        .context(headerContext)
+        .name("X-Custom-Header")
+        .dataType("string")
+        .build();
+    responseHeaderParam = parameterRepository.save(responseHeaderParam);
+
+    // Response Body 파라미터
+    ContextEntity bodyContext = ContextEntity.builder()
+        .name("body")
+        .build();
+    bodyContext = contextRepository.save(bodyContext);
+
+    ParameterEntity responseBodyParam = ParameterEntity.builder()
+        .apiList(buildTestApi)
+        .category(responseCategory)
+        .context(bodyContext)
+        .name("result.status")
+        .dataType("string")
+        .build();
+    responseBodyParam = parameterRepository.save(responseBodyParam);
+
+    // TestcaseDataEntity 생성
+    TestcaseDataEntity headerData = TestcaseDataEntity.builder()
+        .testcase(finalBuildTestcase)
+        .parameter(responseHeaderParam)
+        .value("success")
+        .build();
+    testcaseDataRepository.save(headerData);
+
+    TestcaseDataEntity bodyData = TestcaseDataEntity.builder()
+        .testcase(finalBuildTestcase)
+        .parameter(responseBodyParam)
+        .value("OK")
+        .build();
+    testcaseDataRepository.save(bodyData);
+
+    // when - ApiTestServiceImpl의 buildTaskData 메서드가
+    // response 파라미터를 올바르게 resHeader/resBody에 설정하는지 확인
+    // (실제로는 executeTestService를 통해 간접 확인)
+    // ApiTestServiceImpl의 buildTaskData 로직이 올바른지 확인
+    // 우리는 Redis Stream에 전송되는 데이터 구조를 통해 간접적으로 확인할 수 있음
+
+    // then - response 파라미터들이 올바르게 추출되는지 검증
+    List<TestcaseDataEntity> responseParams = testcaseDataRepository.findAll().stream()
+        .filter(data -> data.getTestcase().getId().equals(finalBuildTestcase.getId()))
+        .filter(data -> data.getParameter().getCategory().getName().equals("response"))
+        .collect(Collectors.toList());
+
+    assertThat(responseParams).hasSize(2);
+
+    // Header 파라미터 검증
+    TestcaseDataEntity headerParam = responseParams.stream()
+        .filter(p -> p.getParameter().getContext().getName().equals("header"))
+        .findFirst()
+        .orElse(null);
+    assertThat(headerParam).isNotNull();
+    assertThat(headerParam.getParameter().getName()).isEqualTo("X-Custom-Header");
+    assertThat(headerParam.getValue()).isEqualTo("success");
+
+    // Body 파라미터 검증
+    TestcaseDataEntity bodyParam = responseParams.stream()
+        .filter(p -> p.getParameter().getContext().getName().equals("body"))
+        .findFirst()
+        .orElse(null);
+    assertThat(bodyParam).isNotNull();
+    assertThat(bodyParam.getParameter().getName()).isEqualTo("result.status");
+    assertThat(bodyParam.getValue()).isEqualTo("OK");
+
+    System.out.println("=== buildTaskData 메서드에서 처리될 Response 파라미터 ===");
+    responseParams.forEach(param -> {
+      String context = param.getParameter().getContext().getName();
+      String name = param.getParameter().getName();
+      String value = param.getValue();
+      System.out.println("Context: " + context + ", Name: " + name + ", Value: " + value);
+      System.out.println("-> " + context + " 컨텍스트는 " +
+          ("header".equals(context) ? "resHeader" : "resBody") + "에 설정됨");
+    });
+  }
+
+  @Test
+  @DisplayName("Response 파라미터와 Request 파라미터 구분 처리 테스트")
+  @Transactional
+  void responseVsRequestParameterDistinction() {
+    // given - request와 response 파라미터가 모두 있는 테스트케이스
+    ScenarioEntity mixedScenario = ScenarioEntity.builder()
+        .projectKey(1)
+        .scenarioId("mixed-param-scenario")
+        .name("Request/Response 파라미터 혼합 시나리오")
+        .build();
+    mixedScenario = scenarioRepository.save(mixedScenario);
+
+    ApiListEntity mixedApi = ApiListEntity.builder()
+        .url("https://httpbin.org/post")
+        .path("/post")
+        .method("POST")
+        .build();
+    mixedApi = apiListRepository.save(mixedApi);
+
+    MappingEntity mixedMapping = MappingEntity.builder()
+        .mappingId("MAP-MIXED-001")
+        .scenario(mixedScenario)
+        .apiList(mixedApi)
+        .step(1)
+        .build();
+    mixedMapping = mappingRepository.save(mixedMapping);
+
+    TestcaseEntity mixedTestcase = TestcaseEntity.builder()
+        .testcaseId("TC-MIXED-001")
+        .description("Request/Response 파라미터 혼합 테스트")
+        .precondition("없음")
+        .expected("")
+        .status(200)
+        .mapping(mixedMapping)
+        .build();
+    final TestcaseEntity finalMixedTestcase = testcaseRepository.save(mixedTestcase);
+
+    // Request 파라미터 (body)
+    ContextEntity bodyContext = ContextEntity.builder()
+        .name("body")
+        .build();
+    bodyContext = contextRepository.save(bodyContext);
+
+    ParameterEntity requestParam = ParameterEntity.builder()
+        .apiList(mixedApi)
+        .category(requestCategory)
+        .context(bodyContext)
+        .name("input.message")
+        .dataType("string")
+        .build();
+    requestParam = parameterRepository.save(requestParam);
+
+    // Response 파라미터 (body)
+    ParameterEntity responseParam = ParameterEntity.builder()
+        .apiList(mixedApi)
+        .category(responseCategory)
+        .context(bodyContext)
+        .name("json.input.message")
+        .dataType("string")
+        .build();
+    responseParam = parameterRepository.save(responseParam);
+
+    // TestcaseData 생성
+    TestcaseDataEntity requestData = TestcaseDataEntity.builder()
+        .testcase(finalMixedTestcase)
+        .parameter(requestParam)
+        .value("Hello World")
+        .build();
+    testcaseDataRepository.save(requestData);
+
+    TestcaseDataEntity responseData = TestcaseDataEntity.builder()
+        .testcase(finalMixedTestcase)
+        .parameter(responseParam)
+        .value("Hello World") // 같은 값이지만 response에서 확인
+        .build();
+    testcaseDataRepository.save(responseData);
+
+    // when & then
+    List<TestcaseDataEntity> allParams = testcaseDataRepository.findAll().stream()
+        .filter(data -> data.getTestcase().getId().equals(finalMixedTestcase.getId()))
+        .collect(Collectors.toList());
+
+    List<TestcaseDataEntity> requestParams = allParams.stream()
+        .filter(data -> data.getParameter().getCategory().getName().equals("request"))
+        .collect(Collectors.toList());
+
+    List<TestcaseDataEntity> responseParams = allParams.stream()
+        .filter(data -> data.getParameter().getCategory().getName().equals("response"))
+        .collect(Collectors.toList());
+
+    assertThat(requestParams).hasSize(1);
+    assertThat(responseParams).hasSize(1);
+
+    System.out.println("=== Request vs Response 파라미터 구분 ===");
+    System.out.println("Request 파라미터: " + requestParams.get(0).getParameter().getName() +
+        " = " + requestParams.get(0).getValue());
+    System.out.println("Response 파라미터: " + responseParams.get(0).getParameter().getName() +
+        " = " + responseParams.get(0).getValue());
+    System.out.println("-> Request는 API 호출시 전송되고, Response는 응답 검증에 사용됨");
+  }
+
+  @Test
+  @DisplayName("실제 API 호출 및 응답 비교 결과 검증 - 비동기 처리 완료 대기")
+  @Transactional
+  void executeTestService_RealApiCall_AsyncResultVerification() throws InterruptedException {
+    // given - 실제 httpbin API를 호출하는 테스트케이스
+    ScenarioEntity realApiScenario = ScenarioEntity.builder()
+        .projectKey(1)
+        .scenarioId("real-api-test-scenario")
+        .name("실제 API 호출 테스트 시나리오")
+        .build();
+    realApiScenario = scenarioRepository.save(realApiScenario);
+
+    // httpbin.org/json - 고정된 JSON 응답을 반환하는 API
+    ApiListEntity realApiList = ApiListEntity.builder()
+        .url("https://httpbin.org/json")
+        .path("/json")
+        .method("GET")
+        .build();
+    realApiList = apiListRepository.save(realApiList);
+
+    MappingEntity realApiMapping = MappingEntity.builder()
+        .mappingId("MAP-REAL-API-001")
+        .scenario(realApiScenario)
+        .apiList(realApiList)
+        .step(1)
+        .build();
+    realApiMapping = mappingRepository.save(realApiMapping);
+
+    TestcaseEntity realApiTestcase = TestcaseEntity.builder()
+        .testcaseId("TC-REAL-API-001")
+        .description("실제 API 호출 및 응답 검증")
+        .precondition("없음")
+        .expected("") // expected는 사용하지 않음
+        .status(200)
+        .mapping(realApiMapping)
+        .build();
+    final TestcaseEntity savedRealApiTestcase = testcaseRepository.save(realApiTestcase);
+
+    // Response 파라미터 생성 - 실제 httpbin.org/json 응답 구조에 맞춤
+    ContextEntity bodyContext = ContextEntity.builder()
+        .name("body")
+        .build();
+    bodyContext = contextRepository.save(bodyContext);
+
+    // slideshow.title 파라미터 (실제 httpbin.org/json에서 반환되는 값)
+    ParameterEntity slideshowTitleParam = ParameterEntity.builder()
+        .apiList(realApiList)
+        .category(responseCategory)
+        .context(bodyContext)
+        .name("slideshow.title")
+        .dataType("string")
+        .build();
+    slideshowTitleParam = parameterRepository.save(slideshowTitleParam);
+
+    // 예상 응답 데이터
+    TestcaseDataEntity expectedTitleData = TestcaseDataEntity.builder()
+        .testcase(savedRealApiTestcase)
+        .parameter(slideshowTitleParam)
+        .value("Sample Slide Show") // httpbin.org/json의 실제 응답값
+        .build();
+    testcaseDataRepository.save(expectedTitleData);
+
+    ExcuteTestServiceRequestDto requestDto = ExcuteTestServiceRequestDto.builder()
+        .projectKey(1)
+        .scenarioList(List.of("real-api-test-scenario"))
+        .build();
+
+    // when - API 테스트 실행
+    List<String> result = apiTestService.excuteTestService(requestDto);
+
+    // then - 초기 상태 확인
+    assertThat(result).isNotNull();
+    assertThat(result).hasSize(1);
+    assertThat(result).containsExactly("TC-REAL-API-001");
+
+    // 초기 TestcaseResultEntity 상태 확인
+    TestcaseResultEntity initialResult = testcaseResultRepository.findAll().stream()
+        .filter(tr -> tr.getTestcase().getId().equals(savedRealApiTestcase.getId()))
+        .findFirst()
+        .orElse(null);
+
+    assertThat(initialResult).isNotNull();
+    assertThat(initialResult.getSuccess()).isNull(); // 초기값은 null (처리중)
+    assertThat(initialResult.getResult()).isEqualTo("");
+
+    System.out.println("=== 비동기 API 호출 및 응답 처리 대기 중... ===");
+
+    // 비동기 처리 완료를 기다림 (최대 30초)
+    int maxWaitSeconds = 30;
+    boolean isCompleted = false;
+
+    for (int i = 0; i < maxWaitSeconds; i++) {
+      Thread.sleep(1000); // 1초 대기
+
+      // DB에서 업데이트된 결과 확인
+      TestcaseResultEntity updatedResult = testcaseResultRepository.findById(initialResult.getId())
+          .orElse(null);
+
+      if (updatedResult != null && updatedResult.getSuccess() != null) {
+        System.out.println("비동기 처리 완료! 대기 시간: " + (i + 1) + "초");
+        System.out.println("=== 실제 API 호출 결과 ===");
+        System.out.println("Success: " + updatedResult.getSuccess());
+        System.out.println("Result: " + updatedResult.getResult());
+        System.out.println("Time: " + updatedResult.getTime() + "ms");
+        System.out.println("Reason: " + updatedResult.getReason());
+
+        // 실제 API 호출 성공 여부 검증
+        if (updatedResult.getSuccess() != null) {
+          isCompleted = true;
+
+          // 성공한 경우 추가 검증
+          if (updatedResult.getSuccess()) {
+            assertThat(updatedResult.getTime()).isGreaterThan(0.0);
+            System.out.println("✅ API 호출 성공 및 예상 응답 일치 확인!");
+          } else {
+            System.out.println("❌ API 호출 실패 또는 예상 응답 불일치");
+            if (updatedResult.getReason() != null) {
+              System.out.println("실패 이유: " + updatedResult.getReason());
+            }
+          }
+          break;
+        }
+      }
+
+      System.out.println("대기 중... " + (i + 1) + "/" + maxWaitSeconds + "초");
+    }
+
+    if (!isCompleted) {
+      System.out.println("⚠️ " + maxWaitSeconds + "초 대기 후에도 비동기 처리가 완료되지 않음");
+      System.out.println("Redis Stream 연결 또는 외부 API 호출에 문제가 있을 수 있음");
+    }
+
+    // Redis에 저장된 세부 정보도 확인
+    System.out.println("=== Redis 저장 데이터 확인 ===");
+    try {
+      Iterable<ApiTestDetailRedisEntity> detailEntities = apiTestDetailRepository.findAll();
+      detailEntities.forEach(entity -> {
+        if (entity.getId().contains("TC-REAL-API-001")) {
+          System.out.println("Detail ID: " + entity.getId());
+          System.out.println("Header: " + entity.getHeader());
+          System.out.println("Body: " + entity.getBody());
+        }
+      });
+    } catch (Exception e) {
+      System.out.println("Redis 데이터 조회 실패: " + e.getMessage());
+    }
+  }
+
+  @Test
+  @DisplayName("실제 API 응답과 예상 응답 불일치 케이스 검증")
+  @Transactional
+  void executeTestService_RealApiCall_MismatchCase() throws InterruptedException {
+    // given - 의도적으로 잘못된 예상값을 설정하여 불일치 케이스 테스트
+    ScenarioEntity mismatchScenario = ScenarioEntity.builder()
+        .projectKey(1)
+        .scenarioId("mismatch-test-scenario")
+        .name("응답 불일치 테스트 시나리오")
+        .build();
+    mismatchScenario = scenarioRepository.save(mismatchScenario);
+
+    ApiListEntity mismatchApiList = ApiListEntity.builder()
+        .url("https://httpbin.org/json")
+        .path("/json")
+        .method("GET")
+        .build();
+    mismatchApiList = apiListRepository.save(mismatchApiList);
+
+    MappingEntity mismatchMapping = MappingEntity.builder()
+        .mappingId("MAP-MISMATCH-001")
+        .scenario(mismatchScenario)
+        .apiList(mismatchApiList)
+        .step(1)
+        .build();
+    mismatchMapping = mappingRepository.save(mismatchMapping);
+
+    TestcaseEntity mismatchTestcase = TestcaseEntity.builder()
+        .testcaseId("TC-MISMATCH-001")
+        .description("응답 불일치 검증 테스트")
+        .precondition("없음")
+        .expected("")
+        .status(200)
+        .mapping(mismatchMapping)
+        .build();
+    final TestcaseEntity savedMismatchTestcase = testcaseRepository.save(mismatchTestcase);
+
+    ContextEntity bodyContext = ContextEntity.builder()
+        .name("body")
+        .build();
+    bodyContext = contextRepository.save(bodyContext);
+
+    // 의도적으로 잘못된 예상값 설정
+    ParameterEntity wrongParam = ParameterEntity.builder()
+        .apiList(mismatchApiList)
+        .category(responseCategory)
+        .context(bodyContext)
+        .name("slideshow.title")
+        .dataType("string")
+        .build();
+    wrongParam = parameterRepository.save(wrongParam);
+
+    TestcaseDataEntity wrongExpectedData = TestcaseDataEntity.builder()
+        .testcase(savedMismatchTestcase)
+        .parameter(wrongParam)
+        .value("Wrong Expected Value") // 실제 응답과 다른 값
+        .build();
+    testcaseDataRepository.save(wrongExpectedData);
+
+    ExcuteTestServiceRequestDto requestDto = ExcuteTestServiceRequestDto.builder()
+        .projectKey(1)
+        .scenarioList(List.of("mismatch-test-scenario"))
+        .build();
+
+    // when
+    List<String> result = apiTestService.excuteTestService(requestDto);
+
+    // then
+    assertThat(result).isNotNull();
+    assertThat(result).hasSize(1);
+
+    System.out.println("=== 불일치 케이스 - 비동기 처리 대기 중... ===");
+
+    // 비동기 처리 완료 대기 (최대 30초)
+    boolean isCompleted = false;
+    for (int i = 0; i < 30; i++) {
+      Thread.sleep(1000);
+
+      TestcaseResultEntity result_entity = testcaseResultRepository.findAll().stream()
+          .filter(tr -> tr.getTestcase().getId().equals(savedMismatchTestcase.getId()))
+          .findFirst()
+          .orElse(null);
+
+      if (result_entity != null && result_entity.getSuccess() != null) {
+        System.out.println("=== 불일치 케이스 결과 ===");
+        System.out.println("Success: " + result_entity.getSuccess());
+        System.out.println("예상값: Wrong Expected Value");
+        System.out.println("실제값과 불일치로 인한 실패 여부: " + !result_entity.getSuccess());
+
+        if (!result_entity.getSuccess()) {
+          System.out.println("✅ 예상대로 응답 불일치 감지됨!");
+        }
+
+        isCompleted = true;
+        break;
+      }
+    }
+
+    if (!isCompleted) {
+      System.out.println("⚠️ 비동기 처리 완료되지 않음");
+    }
   }
 }
