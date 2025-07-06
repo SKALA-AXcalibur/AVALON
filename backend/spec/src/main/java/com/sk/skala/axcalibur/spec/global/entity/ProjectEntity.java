@@ -57,6 +57,7 @@ public class ProjectEntity extends BaseTimeEntity {
   @Builder.Default
   private List<FilePathEntity> filePaths = new ArrayList<>();
 
+
   public ProjectEntity(String id) {
     this.id = id;
   }
