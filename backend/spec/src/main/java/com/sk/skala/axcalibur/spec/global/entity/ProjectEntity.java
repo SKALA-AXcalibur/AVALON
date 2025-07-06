@@ -4,20 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sk.skala.axcalibur.spec.feature.project.entity.ApiListEntity;
-import com.sk.skala.axcalibur.spec.feature.project.entity.DbColumnEntity;
 import com.sk.skala.axcalibur.spec.feature.project.entity.DbDesignEntity;
-import com.sk.skala.axcalibur.spec.feature.project.entity.ParameterEntity;
 import com.sk.skala.axcalibur.spec.feature.project.entity.RequestEntity;
-import com.sk.skala.axcalibur.spec.feature.project.entity.RequestMajorEntity;
-import com.sk.skala.axcalibur.spec.feature.project.entity.RequestMiddleEntity;
-import com.sk.skala.axcalibur.spec.feature.project.entity.RequestMinorEntity;
-import com.sk.skala.axcalibur.spec.feature.report.entity.MappingEntity;
 import com.sk.skala.axcalibur.spec.feature.report.entity.ScenarioEntity;
-import com.sk.skala.axcalibur.spec.feature.report.entity.TestCaseDataEntity;
-import com.sk.skala.axcalibur.spec.feature.report.entity.TestCaseEntity;
-import com.sk.skala.axcalibur.spec.feature.report.entity.TestcaseResultEntity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -47,63 +37,26 @@ public class ProjectEntity extends BaseTimeEntity {
   @Column(name = "id", unique = true, nullable = false, length = 20)
   private String id; // 프로젝트 ID (UNIQUE)
 
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @OneToMany(mappedBy = "projectKey", orphanRemoval = true)
   @Builder.Default
   private List<ApiListEntity> apiLists = new ArrayList<>();
 
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @OneToMany(mappedBy = "projectKey", orphanRemoval = true)
   @Builder.Default
   private List<RequestEntity> requests = new ArrayList<>();
 
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-  @Builder.Default
-  private List<FilePathEntity> filePaths = new ArrayList<>();
-
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-  @Builder.Default
-  private List<DbColumnEntity> dbColumns = new ArrayList<>();
-
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @OneToMany(mappedBy = "projectKey", orphanRemoval = true)
   @Builder.Default
   private List<DbDesignEntity> dbDesigns = new ArrayList<>();
 
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @OneToMany(mappedBy = "projectKey", orphanRemoval = true)
   @Builder.Default
   private List<ScenarioEntity> scenarios = new ArrayList<>();
 
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @OneToMany(mappedBy = "projectKey", orphanRemoval = true)
   @Builder.Default
-  private List<MappingEntity> mappings = new ArrayList<>();
+  private List<FilePathEntity> filePaths = new ArrayList<>();
 
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-  @Builder.Default
-  private List<TestCaseEntity> testCases = new ArrayList<>();
-
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-  @Builder.Default
-  private List<TestCaseDataEntity> testCaseData = new ArrayList<>();
-
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-  @Builder.Default
-  private List<TestcaseResultEntity> testcaseResults = new ArrayList<>();
-
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-  @Builder.Default
-  private List<ParameterEntity> parameters = new ArrayList<>();
-
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-  @Builder.Default
-  private List<RequestMajorEntity> requestMajors = new ArrayList<>();
-
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-  @Builder.Default
-  private List<RequestMiddleEntity> requestMiddle = new ArrayList<>();
-
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-  @Builder.Default
-  private List<RequestMinorEntity> requestMinors = new ArrayList<>();
-  
-  
 
   public ProjectEntity(String id) {
     this.id = id;

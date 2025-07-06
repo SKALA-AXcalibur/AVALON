@@ -36,7 +36,7 @@ public interface TestCaseRepository extends JpaRepository<TestCaseEntity, Intege
             "JOIN m.apiListKey a " +
             "JOIN a.requestKey r " +
             "JOIN r.majorKey maj " +
-            "WHERE s.project.key = :projectKey " +
+            "WHERE s.projectKey.key = :projectKey " +
             "GROUP BY maj.name " +
             "ORDER BY COUNT(tc) DESC")
     List<BusinessFunctionResult> findMostUsedBusinessFunctionByProjectKey(@Param("projectKey") Integer projectKey);

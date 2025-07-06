@@ -1,8 +1,12 @@
 package com.sk.skala.axcalibur.spec.feature.project.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
 import com.sk.skala.axcalibur.spec.global.entity.ProjectEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -42,6 +46,7 @@ public class RequestEntity extends BaseTimeEntity {
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ProjectEntity projectKey;             // 프로젝트 (N:1)
 
     @ManyToOne(fetch = FetchType.LAZY)

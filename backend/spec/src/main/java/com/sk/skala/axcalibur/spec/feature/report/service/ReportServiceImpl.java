@@ -50,7 +50,7 @@ public class ReportServiceImpl implements ReportService {
         AvalonCookieEntity userInfo = validateAvalonToken(avalon);
 
         // 2. 시나리오 데이터 조회
-        List<ScenarioEntity> scenarios = scenarioRepository.findByProject_Key(userInfo.getProjectKey());
+        List<ScenarioEntity> scenarios = scenarioRepository.findByProjectKey_Key(userInfo.getProjectKey());
         log.info("사용자 시나리오 조회 완료: {}개", scenarios.size());
 
         // 3. 업무기능 계산
@@ -167,7 +167,7 @@ public class ReportServiceImpl implements ReportService {
                 .build();
         }
         
-        Integer projectKey = scenarios.get(0).getProject().getKey();
+        Integer projectKey = scenarios.get(0).getProjectKey().getKey();
         List<BusinessFunctionResult> result = testCaseRepository.findMostUsedBusinessFunctionByProjectKey(projectKey);
         
         if (result.isEmpty()) {

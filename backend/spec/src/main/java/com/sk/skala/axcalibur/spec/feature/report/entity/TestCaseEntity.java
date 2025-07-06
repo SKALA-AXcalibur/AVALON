@@ -1,6 +1,10 @@
 package com.sk.skala.axcalibur.spec.feature.report.entity;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
 
@@ -54,10 +58,8 @@ public class TestCaseEntity extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mapping_key", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private MappingEntity mappingKey;
-
-    @OneToMany(mappedBy = "testcaseKey", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<TestCaseDataEntity> dataList; // CASCADE delete를 위한 설정
 
     // TC 내용 update
     public void update(String precondition, String description, String expectedResult, Integer status) {

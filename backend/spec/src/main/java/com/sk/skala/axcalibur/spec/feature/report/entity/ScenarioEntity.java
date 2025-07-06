@@ -1,8 +1,15 @@
 package com.sk.skala.axcalibur.spec.feature.report.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
 import com.sk.skala.axcalibur.spec.global.entity.ProjectEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,6 +18,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -51,5 +59,6 @@ public class ScenarioEntity extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
-    private ProjectEntity project;
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private ProjectEntity projectKey;
 }
