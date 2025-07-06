@@ -108,7 +108,7 @@ public class ApiTestServiceImpl implements ApiTestService {
         TestcaseResultEntity result = TestcaseResultEntity.builder()
             .testcase(testcase) // 실제 엔티티 사용
             .result("") // 초기값 빈 문자열
-            .success(false) // 초기값 false (대기중/실행중)
+            .success(null) // 초기값 null (실행중)
             .time(null) // 초기값 null
             .reason(null) // 초기값 null
             .build();
@@ -220,13 +220,13 @@ public class ApiTestServiceImpl implements ApiTestService {
   @Override
   public List<ScenarioResponseDto> getTestResultService(GetTestResultServiceRequestDto dto) {
     log.info(
-        "ApiTestServiceImpl.getTestResultService() called with dto project: {}, cursor: {}, size: {}",
+        "ApiTestServiceImpl.getTestResultService: called with dto project: {}, cursor: {}, size: {}",
         dto.projectKey(), dto.cursor(), dto.size());
     Integer key = dto.projectKey();
     List<ScenarioEntity> scenarios;
 
     // dto.size is null
-    if (dto.size() == null) {
+    if (dto.size() == null || dto.size() <= 0) {
       scenarios = scene.findAllByProjectKey(key);
     } else {
       var cursor = dto.cursor() == null ? "" : dto.cursor();
@@ -250,10 +250,16 @@ public class ApiTestServiceImpl implements ApiTestService {
           var list = entry.getValue();
           String success;
 
-          if (list.stream().anyMatch(t -> Boolean.FALSE.equals(t.success()))) {
+          if (list == null || list.isEmpty()) {
+            log.warn("ApiTestServiceImpl.getTestResultService: No test results found for scenarioId: {}",
+                scenarioId);
+            success = "준비중";
+          } else if (list.stream().anyMatch(t -> Boolean.FALSE.equals(t.success()))) {
             success = "실패";
-          } else {
+          } else if (list.stream().anyMatch(t -> Boolean.TRUE.equals(t.success()))) {
             success = "성공";
+          } else {
+            success = "실행중";
           }
 
           return ScenarioResponseDto.builder()
@@ -275,14 +281,14 @@ public class ApiTestServiceImpl implements ApiTestService {
   public List<TestcaseInfoResponseDto> getTestCaseResultService(
       GetTestCaseResultServiceRequestDto dto) {
     log.info(
-        "ApiTestServiceImpl.getTestCaseResultService() called with dto projectKdy: {}, scenarioId: {}, cursor: {}, size: {}",
+        "ApiTestServiceImpl.getTestCaseResultService: called with dto projectKey: {}, scenarioId: {}, cursor: {}, size: {}",
         dto.projectKey(), dto.scenarioId(), dto.cursor(), dto.size());
     Integer key = dto.projectKey();
     String scenarioId = dto.scenarioId();
     List<TestcaseEntity> testcases;
 
     // dto.size is null
-    if (dto.size() == null) {
+    if (dto.size() == null || dto.size() <= 0) {
       testcases = tc.findByMapping_Scenario_ProjectKeyAndMapping_Scenario_ScenarioId(key, scenarioId);
     } else {
       var cursor = dto.cursor() == null ? "" : dto.cursor();
@@ -293,7 +299,8 @@ public class ApiTestServiceImpl implements ApiTestService {
               key, scenarioId, cursor, page);
     }
     var testcaseResults = tr.findLastResultByTestcaseIn(testcases);
-
+    log.debug("ApiTestServiceImpl.getTestCaseResultService: found {} testcase results: {}",
+        testcaseResults.size(), testcaseResults);
     var tcMap = testcases.stream()
         .collect(Collectors.toMap(TestcaseEntity::getId, tc -> tc));
     var trMap = testcaseResults.stream()

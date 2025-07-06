@@ -11,6 +11,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,6 +45,7 @@ public class TestcaseEntity {
   private String expected;
 
   @Column(name = "status", nullable = false)
+  @Schema(description = "2, 3, 4, 5")
   private Integer status;
 
   @ManyToOne(fetch = FetchType.LAZY)

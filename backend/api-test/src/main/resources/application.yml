@@ -51,4 +51,5 @@ logging:
       sk:
         skala:
           axcalibur:
-            apitest: info
+            apitest: DEBUG
+    root: INFO
