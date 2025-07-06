@@ -1,9 +1,8 @@
 package com.sk.skala.axcalibur.spec.feature.project.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import com.sk.skala.axcalibur.spec.feature.report.entity.MappingEntity;
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
 import com.sk.skala.axcalibur.spec.global.entity.ProjectEntity;
 
@@ -16,7 +15,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,17 +56,11 @@ public class ApiListEntity extends BaseTimeEntity {
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ProjectEntity projectKey;             // 프로젝트 키 (N:1)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_key", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private RequestEntity requestKey;           // 요구사항 키 (N:1)
-
-    @OneToMany(mappedBy = "apiListKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @Builder.Default
-    private List<ParameterEntity> parameters = new ArrayList<>();
-
-    @OneToMany(mappedBy = "apiListKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @Builder.Default
-    private List<MappingEntity> mappings = new ArrayList<>();
 }

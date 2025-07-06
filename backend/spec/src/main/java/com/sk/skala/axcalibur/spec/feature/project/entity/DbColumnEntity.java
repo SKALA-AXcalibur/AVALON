@@ -1,5 +1,8 @@
 package com.sk.skala.axcalibur.spec.feature.project.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
 
 import jakarta.persistence.Column;
@@ -55,6 +58,7 @@ public class DbColumnEntity extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "db_design_key", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private DbDesignEntity dbDesignKey;
     
 

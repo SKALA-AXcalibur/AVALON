@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.sk.skala.axcalibur.spec.feature.project.entity.ApiListEntity;
 
 import jakarta.persistence.CascadeType;
@@ -52,16 +55,14 @@ public class MappingEntity {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "apilist_key", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ApiListEntity apiListKey;           // API 목록 (N:1)
     
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scenario_key", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ScenarioEntity scenarioKey;         // 시나리오 (N:1)
-    
-    @OneToMany(mappedBy = "mappingKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @Builder.Default
-    private List<TestCaseEntity> testCases = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
