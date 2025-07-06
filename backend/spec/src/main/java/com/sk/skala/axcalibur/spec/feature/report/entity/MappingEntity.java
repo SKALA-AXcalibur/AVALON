@@ -1,9 +1,12 @@
 package com.sk.skala.axcalibur.spec.feature.report.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.sk.skala.axcalibur.spec.feature.project.entity.ApiListEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
@@ -54,6 +58,10 @@ public class MappingEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scenario_key", nullable = false)
     private ScenarioEntity scenarioKey;         // 시나리오 (N:1)
+    
+    @OneToMany(mappedBy = "mappingKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default
+    private List<TestCaseEntity> testCases = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

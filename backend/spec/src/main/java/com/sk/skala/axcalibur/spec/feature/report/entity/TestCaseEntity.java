@@ -1,5 +1,6 @@
 package com.sk.skala.axcalibur.spec.feature.report.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
@@ -56,8 +57,13 @@ public class TestCaseEntity extends BaseTimeEntity {
     @JoinColumn(name = "mapping_key", nullable = false)
     private MappingEntity mappingKey;
 
-    @OneToMany(mappedBy = "testcaseKey", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<TestCaseDataEntity> dataList; // CASCADE delete를 위한 설정
+    @OneToMany(mappedBy = "testcaseKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default
+    private List<TestCaseDataEntity> datas = new ArrayList<>(); // CASCADE delete를 위한 설정
+
+    @OneToMany(mappedBy = "testcase", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default
+    private List<TestcaseResultEntity> results = new ArrayList<>();
 
     // TC 내용 update
     public void update(String precondition, String description, String expectedResult, Integer status) {

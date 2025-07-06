@@ -1,8 +1,13 @@
 package com.sk.skala.axcalibur.spec.feature.project.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sk.skala.axcalibur.spec.feature.report.entity.MappingEntity;
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
 import com.sk.skala.axcalibur.spec.global.entity.ProjectEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -57,4 +63,12 @@ public class ApiListEntity extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_key", nullable = false)
     private RequestEntity requestKey;           // 요구사항 키 (N:1)
+
+    @OneToMany(mappedBy = "apiListKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default
+    private List<ParameterEntity> parameters = new ArrayList<>();
+
+    @OneToMany(mappedBy = "apiListKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default
+    private List<MappingEntity> mappings = new ArrayList<>();
 }

@@ -1,5 +1,6 @@
 package com.sk.skala.axcalibur.spec.feature.project.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.sk.skala.axcalibur.spec.global.entity.ProjectEntity;
@@ -36,8 +37,9 @@ public class DbDesignEntity extends BaseTimeEntity {
     @Column(name = "name", nullable = false, length = 20)
     private String name;
 
-    @OneToMany(mappedBy = "dbDesignKey", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DbColumnEntity> columns;
+    @OneToMany(mappedBy = "dbDesignKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default
+    private List<DbColumnEntity> columns = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
