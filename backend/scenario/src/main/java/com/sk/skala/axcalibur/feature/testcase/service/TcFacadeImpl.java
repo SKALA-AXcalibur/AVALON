@@ -45,8 +45,11 @@ public class TcFacadeImpl implements TcFacade {
             for (int i = 0; i < 3; i++) {
                 try {
                     TcGenerationRequest payload = tcPayloadService.buildPayload(scenario);
+                    log.info("시나리오 {} 테스트케이스 생성 요청 (projectId: {})", scenario.getScenarioId(), projectId);
                     TcGenerationResponse response = tcGeneratorService.callFastApi(payload, scenario);
+                    log.info("시나리오 {} 테스트케이스 생성 완료 (projectId: {})", scenario.getScenarioId(), projectId);
                     tcGeneratorService.saveTestcases(response);
+                    log.info("시나리오 {} 테스트케이스 저장 완료 (projectId: {})", scenario.getScenarioId(), projectId);
                     success = true;
                     break;  // 재시도 루프 탈출
                 } catch (BusinessExceptionHandler e) {
@@ -56,6 +59,7 @@ public class TcFacadeImpl implements TcFacade {
             }
 
             if (!success) failedScenarioIds.add(scenario.getScenarioId());
+            log.info("시나리오 {} 테스트케이스 완료 (projectId: {})", scenario.getScenarioId(), projectId);
         }
 
         if (failedScenarioIds.size() == scenarios.size()) {
@@ -65,5 +69,7 @@ public class TcFacadeImpl implements TcFacade {
         if (!failedScenarioIds.isEmpty()) { // 재시도 후에도 저장 실패 시나리오가 남아있는 경우
             throw new BusinessExceptionHandler("일부 시나리오 실패", ErrorCode.NOT_VALID_ERROR);
         }
+
+        log.info("모든 시나리오 테스트케이스 생성 완료 (projectId: {})", projectId);
     }
 }
