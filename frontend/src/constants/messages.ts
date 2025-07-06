@@ -94,6 +94,17 @@ export const SUCCESS_MESSAGES = {
   },
 };
 
+export const INFO_MESSAGES = {
+  SCENARIO: {
+    CREATE_INFO: "시나리오가 생성될 예정입니다. 새로고침 버튼을 눌러주세요.",
+    UPDATE_INFO: "시나리오가 수정될 예정입니다. 새로고침 버튼을 눌러주세요.",
+  },
+  TESTCASE: {
+    CREATE_INFO:
+      "테스트케이스가 생성될 예정입니다. 새로고침 버튼을 눌러주세요.",
+  },
+};
+
 export const DELETE_MESSAGES = {
   PROJECT: "프로젝트를 삭제하시겠습니까?",
   SCENARIO: "시나리오를 삭제하시겠습니까?",

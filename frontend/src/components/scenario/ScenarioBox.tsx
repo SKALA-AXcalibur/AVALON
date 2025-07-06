@@ -5,7 +5,7 @@ import { LinkButton } from "../common/LinkButton";
 import { ActionButton } from "../common/ActionButton";
 import { useScenario } from "@/hooks/useScenario";
 import { useRouter } from "next/navigation";
-import { DELETE_MESSAGES } from "@/constants/messages";
+import { INFO_MESSAGES, DELETE_MESSAGES } from "@/constants/messages";
 
 export const ScenarioBox = ({
   projectId,
@@ -28,8 +28,13 @@ export const ScenarioBox = ({
     handleDelete,
   } = useScenario(projectId, scenarioId);
 
-  const onCreateSuccess = (scenarioId: string) => {
-    router.push(`/project/${projectId}/scenario/${scenarioId}`);
+  const onCreateSuccess = () => {
+    alert(INFO_MESSAGES.SCENARIO.CREATE_INFO);
+    router.push(`/project/${projectId}/scenario/new`);
+  };
+
+  const onUpdateSuccess = () => {
+    alert(INFO_MESSAGES.SCENARIO.UPDATE_INFO);
   };
 
   const onDeleteSuccess = (scenarioId: string | null, total: number) => {
@@ -98,7 +103,7 @@ export const ScenarioBox = ({
                     삭제
                   </ActionButton>
                   <ActionButton
-                    onClick={handleUpdate}
+                    onClick={() => handleUpdate(onUpdateSuccess)}
                     color="bg-transparent text-slate-700 hover:text-orange-500"
                     disabled={isLoading}
                   >

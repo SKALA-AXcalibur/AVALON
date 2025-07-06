@@ -3,6 +3,7 @@ import { ActionButton } from "@/components/common/ActionButton";
 import { LinkButton } from "@/components/common/LinkButton";
 import { useNavigation } from "@/hooks/useNavigation";
 import { useRouter } from "next/navigation";
+import { INFO_MESSAGES } from "@/constants/messages";
 
 export const Navigation = () => {
   const router = useRouter();
@@ -12,6 +13,7 @@ export const Navigation = () => {
       router.push("/login");
     },
     onGenerateTestcasesSuccess: () => {
+      alert(INFO_MESSAGES.TESTCASE.CREATE_INFO);
       router.push(`/project/${projectId}/scenario/${scenarioId}`);
     },
     onRunApiTestSuccess: (scenarioId: string) => {

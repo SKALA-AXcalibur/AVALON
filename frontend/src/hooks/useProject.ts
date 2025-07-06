@@ -40,7 +40,10 @@ export const useProject = () => {
         ...project,
         scenarios: project.scenarios.map((scenario) =>
           scenario.id === scenarioId
-            ? { ...scenario, testcases: response.tcList }
+            ? {
+                ...scenario,
+                testcases: response.tcList.map((tcId) => ({ tcId })),
+              }
             : scenario
         ),
       });
