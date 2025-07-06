@@ -1,5 +1,7 @@
 package com.sk.skala.axcalibur.spec.feature.project.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.Transient;
 
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
@@ -58,6 +60,7 @@ public class ParameterEntity extends BaseTimeEntity {
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "apilist_key", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ApiListEntity apiListKey;
 
     @ManyToOne(fetch = FetchType.LAZY)

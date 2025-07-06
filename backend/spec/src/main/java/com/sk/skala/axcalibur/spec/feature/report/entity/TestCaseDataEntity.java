@@ -1,5 +1,8 @@
 package com.sk.skala.axcalibur.spec.feature.report.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.sk.skala.axcalibur.spec.feature.project.entity.ParameterEntity;
 
 import jakarta.persistence.Column;
@@ -35,10 +38,12 @@ public class TestCaseDataEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "testcase_key", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private TestCaseEntity testcaseKey;     // 종속된 testcase Key값
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parameter_key", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ParameterEntity parameterKey;   // parameter 정보
 
     @Column(name = "value", columnDefinition = "TEXT")

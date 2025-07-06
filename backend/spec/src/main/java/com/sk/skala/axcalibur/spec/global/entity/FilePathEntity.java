@@ -1,5 +1,8 @@
 package com.sk.skala.axcalibur.spec.global.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.sk.skala.axcalibur.spec.global.entity.BaseTimeEntity;
 
 import jakarta.persistence.Column;
@@ -41,6 +44,7 @@ public class FilePathEntity extends BaseTimeEntity {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_key", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ProjectEntity projectKey;
 
     // 같은 유형의 파일이 있으면 이름과 경로를 업데이트
