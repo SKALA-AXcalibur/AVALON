@@ -30,7 +30,6 @@ public class TcFacadeImpl implements TcFacade {
     private final TcPayloadService tcPayloadService;
     private final TcGeneratorService tcGeneratorService;
 
-    @Transactional
     public void generateAllTestcases(Integer projectId) {
         List<ScenarioEntity> scenarios = tcPayloadService.getScenarios(projectId);
         List<String> failedScenarioIds = new ArrayList<>();
