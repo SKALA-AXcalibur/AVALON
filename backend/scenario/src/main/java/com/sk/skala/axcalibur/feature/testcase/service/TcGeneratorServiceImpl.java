@@ -152,12 +152,13 @@ public class TcGeneratorServiceImpl implements TcGeneratorService {
                 ParameterEntity parameter = paramIdMap.get(paramId);
 
                 // 현재 파라미터가 이 TC의 API에 속하는가 여부 검증
-                if (!parameter.getApiListKey().getId().equals(mapping.getApiListKey().getId())) {
-                    throw new BusinessExceptionHandler(
-                        "파라미터가 이 테스트케이스의 API에 속하지 않음. paramId: " + paramId,
-                        ErrorCode.NOT_VALID_ERROR
-                    );
-                }
+                // AI 단에서 검증 진행함으로 주석처리
+                // if (!parameter.getApiListKey().getId().equals(mapping.getApiListKey().getId())) {
+                //     throw new BusinessExceptionHandler(
+                //         "파라미터가 이 테스트케이스의 API에 속하지 않음. paramId: " + paramId,
+                //         ErrorCode.NOT_VALID_ERROR
+                //     );
+                // }
 
                 testcaseDataList.add(TestCaseDataEntity.builder()
                     .testcaseKey(testcase)
