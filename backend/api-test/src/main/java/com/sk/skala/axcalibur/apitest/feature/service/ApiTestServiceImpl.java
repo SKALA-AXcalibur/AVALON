@@ -403,7 +403,7 @@ public class ApiTestServiceImpl implements ApiTestService {
     String contextName = parameter.contextName().toLowerCase();
     String dataType = parameter.dataType() != null ? parameter.dataType().toLowerCase() : "string";
 
-    log.debug(
+    log.info(
         "ApiTestServiceImpl.processParameter: Processing Parameter: {}, FullPath: {}, Category: {}, Context: {}, DataType: {}",
         paramName, fullParamName, categoryName, contextName, dataType);
 
