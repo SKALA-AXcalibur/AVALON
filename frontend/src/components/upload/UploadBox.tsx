@@ -58,14 +58,10 @@ export const UploadBox = () => {
     };
 
     const result = await createScenarios(uploadRequest);
-    if (result.success && result.scenarios.length > 0) {
-      router.push(`/project/${project.id}/scenario/${result.scenarios[0].id}`);
-    } else if (result.success && result.scenarios.length === 0) {
-      setError(ERROR_MESSAGES.FILE_UPLOAD.EMPTY_RESULT);
-      resetStep();
+    if (result.success) {
+      router.push(`/project/${project.id}/scenario/new`);
     } else {
       setError(ERROR_MESSAGES.FILE_UPLOAD.CREATION_ERROR);
-      resetStep();
     }
   };
 
@@ -80,6 +76,8 @@ export const UploadBox = () => {
       return `${displayStep}/${totalSteps} ${STEP_NAMES[step]} 진행 중`;
     } else if (step === UPLOAD_STEPS.UPLOAD) {
       return "시나리오 생성하기";
+    } else if (step === UPLOAD_STEPS.COMPLETE) {
+      return "시나리오 생성 완료";
     } else {
       return `${STEP_NAMES[step]} 이어서 생성하기`;
     }

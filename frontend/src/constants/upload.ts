@@ -1,15 +1,13 @@
 export const UPLOAD_STEPS = {
   UPLOAD: 0,
   ANALYZE: 1,
-  CREATE_API_LIST: 2,
-  CREATE_SCENARIOS: 3,
-  COMPLETE: 4,
+  CREATE_SCENARIOS: 2,
+  COMPLETE: 3,
 } as const;
 
 export const STEP_NAMES: Record<number, string> = {
   [UPLOAD_STEPS.UPLOAD]: "파일 업로드",
   [UPLOAD_STEPS.ANALYZE]: "파일 분석",
-  [UPLOAD_STEPS.CREATE_API_LIST]: "API 목록 생성",
   [UPLOAD_STEPS.CREATE_SCENARIOS]: "시나리오 생성",
 } as const;
 

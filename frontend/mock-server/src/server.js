@@ -4,7 +4,6 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { setupLoginRoutes } from "./login.js";
 import { setupScenarioRoutes } from "./scenario.js";
-import { setupApiListRoutes } from "./apiList.js";
 import { setupSpecRoutes } from "./spec.js";
 import { setupReportRoutes } from "./report.js";
 import { setupTestcaseRoutes } from "./testcase.js";
@@ -27,7 +26,6 @@ const router = jsonServer.router(join(__dirname, "../db.json"));
 // API 라우트 설정
 setupLoginRoutes(server, router);
 setupScenarioRoutes(server, router);
-setupApiListRoutes(server, router);
 setupSpecRoutes(server, router);
 setupReportRoutes(server, router);
 setupTestcaseRoutes(server, router);

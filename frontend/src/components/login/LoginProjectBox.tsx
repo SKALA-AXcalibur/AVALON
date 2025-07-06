@@ -1,13 +1,13 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useProjectAuth } from "@/hooks/useProjectAuth";
+import { DELETE_MESSAGES } from "@/constants/messages";
 
 export const LoginProjectBox = () => {
   const router = useRouter();
   const {
     projectId,
     isLoading,
-    isConfirming,
     error,
     success,
     handleProjectIdChange,
@@ -59,11 +59,15 @@ export const LoginProjectBox = () => {
         <div className="h-6 mt-1 text-sm text-green-600">{success}</div>
       )}
       <button
-        onClick={handleDelete}
+        onClick={() => {
+          if (window.confirm(DELETE_MESSAGES.PROJECT)) {
+            handleDelete();
+          }
+        }}
         disabled={isLoading || !!error}
         className={`w-full py-3 text-lg rounded-lg transition-colors bg-red-500 text-white hover:bg-red-600`}
       >
-        {isConfirming ? "정말 삭제하시겠습니까?" : "프로젝트 삭제"}
+        프로젝트 삭제
       </button>
     </div>
   );

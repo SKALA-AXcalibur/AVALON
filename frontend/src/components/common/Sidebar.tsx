@@ -17,14 +17,20 @@ export const Sidebar = ({
   const { project } = useProjectStore();
   const { openScenarios, addOpenScenario, toggleOpenScenario, isOpen } =
     useSidebarStore();
-  const { readScenarioTestcases } = useProject();
+  const { readScenarioTestcases, readProjectScenarios } = useProject();
 
   useEffect(() => {
-    if (!isOpen(scenarioId)) {
-      addOpenScenario(scenarioId);
-      readScenarioTestcases(scenarioId);
+    if (project.scenarios.length === 0 || project.id !== projectId) {
+      readProjectScenarios(projectId);
     }
-  }, [scenarioId, addOpenScenario, readScenarioTestcases, isOpen]);
+  }, [projectId]);
+
+  useEffect(() => {
+    if (project.scenarios.length > 0 && project.id === projectId) {
+      readScenarioTestcases(scenarioId);
+      addOpenScenario(scenarioId);
+    }
+  }, [projectId, scenarioId, project.scenarios.length, project.id]);
 
   const handleToggleClick = async (scenarioId: string) => {
     toggleOpenScenario(scenarioId);

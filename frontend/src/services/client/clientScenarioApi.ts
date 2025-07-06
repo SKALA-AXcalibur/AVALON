@@ -5,61 +5,85 @@ import {
   readProjectScenariosResponse,
   createScenarioResponse,
 } from "@/types/scenario";
+import { SuccessResponse, ErrorResponse } from "@/types/api";
+import { handleApiResponse } from "@/utils/apiUtils";
 import ky from "ky-universal";
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/scenario/v1`;
 
 export const clientScenarioApi = {
-  create: async (): Promise<readProjectScenariosResponse> => {
-    const response = await ky.post(`${BASE_URL}/create`, {
-      credentials: "include",
-    });
-
-    return response.json();
+  create: async (): Promise<void> => {
+    try {
+      await ky
+        .post(`${BASE_URL}/create`, {
+          credentials: "include",
+          retry: {
+            limit: 0,
+          },
+        })
+        .json<SuccessResponse<readProjectScenariosResponse> | ErrorResponse>();
+    } catch (error) {
+      console.error(error);
+    }
   },
-  createScenario: async (
-    scenario: createScenarioRequest,
-  ): Promise<createScenarioResponse> => {
-    const response = await ky.post(`${BASE_URL}/`, {
-      credentials: "include",
-      json: scenario,
-    });
-
-    return response.json();
+  createScenario: async (scenario: createScenarioRequest): Promise<void> => {
+    try {
+      await ky
+        .post(`${BASE_URL}`, {
+          credentials: "include",
+          json: scenario,
+          retry: {
+            limit: 0,
+          },
+        })
+        .json<SuccessResponse<createScenarioResponse> | ErrorResponse>();
+    } catch (error) {
+      console.error(error);
+    }
   },
   readScenario: async (scenarioId: string): Promise<readScenarioResponse> => {
-    const response = await ky.get(`${BASE_URL}/scenario/${scenarioId}`, {
-      credentials: "include",
-    });
+    const res = await ky
+      .get(`${BASE_URL}/scenario/${scenarioId}`, {
+        credentials: "include",
+      })
+      .json<SuccessResponse<readScenarioResponse> | ErrorResponse>();
 
-    return response.json();
+    return handleApiResponse(res);
   },
   updateScenario: async (
     scenarioId: string,
-    scenario: updateScenarioRequest,
+    scenario: updateScenarioRequest
   ): Promise<void> => {
-    await ky.put(`${BASE_URL}/${scenarioId}`, {
-      credentials: "include",
-      json: scenario,
-    });
+    try {
+      await ky
+        .put(`${BASE_URL}/${scenarioId}`, {
+          credentials: "include",
+          json: scenario,
+          retry: {
+            limit: 0,
+          },
+        })
+        .json<SuccessResponse<null> | ErrorResponse>();
+    } catch (error) {
+      console.error(error);
+    }
   },
   deleteScenario: async (scenarioId: string): Promise<void> => {
-    await ky.delete(`${BASE_URL}/scenario/${scenarioId}`, {
-      credentials: "include",
-    });
-  },
-  readProjectScenarios: async (
-    offset: number = 0,
-    query: number = 10,
-  ): Promise<readProjectScenariosResponse> => {
-    const response = await ky.get(`${BASE_URL}/project`, {
-      credentials: "include",
-      searchParams: {
-        offset,
-        query,
-      },
-    });
+    const res = await ky
+      .delete(`${BASE_URL}/scenario/${scenarioId}`, {
+        credentials: "include",
+      })
+      .json<SuccessResponse<null> | ErrorResponse>();
 
-    return response.json();
+    handleApiResponse(res);
+  },
+  readProjectScenarios: async (): Promise<readProjectScenariosResponse> => {
+    const res = await ky
+      .get(`${BASE_URL}/project`, {
+        credentials: "include",
+      })
+      .json<SuccessResponse<readProjectScenariosResponse> | ErrorResponse>();
+
+    return handleApiResponse(res);
   },
 };

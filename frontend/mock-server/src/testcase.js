@@ -2,18 +2,36 @@ import {
   generateRandomTestCaseDescription,
   generateRandomPrecondition,
   generateRandomExpectedResult,
-  generateRandomTestDataKey,
+  generateRandomTestStatus,
+  generateRandomTestDataCategory,
+  generateRandomTestDataId,
+  generateRandomTestDataKoName,
+  generateRandomTestDataName,
+  generateRandomTestDataContext,
   generateRandomTestDataType,
+  generateRandomTestDataLength,
+  generateRandomTestDataFormat,
+  generateRandomTestDataDefaultValue,
+  generateRandomTestDataRequired,
+  generateRandomTestDataDesc,
   generateRandomTestDataValue,
 } from "./utils.js";
 
-// 랜덤 테스트데이터 생성
-const createTestData = () => {
-  const type = generateRandomTestDataType();
+export const CreateTestData = () => {
   return {
-    key: generateRandomTestDataKey(),
-    type: type,
-    value: generateRandomTestDataValue(type),
+    paramId: generateRandomTestDataId(),
+    category: generateRandomTestDataCategory(),
+    koName: generateRandomTestDataKoName(),
+    name: generateRandomTestDataName(),
+    context: generateRandomTestDataContext(),
+    type: generateRandomTestDataType(),
+    length: generateRandomTestDataLength(),
+    format: generateRandomTestDataFormat(),
+    defaultValue: generateRandomTestDataDefaultValue(),
+    required: generateRandomTestDataRequired(),
+    parent: generateRandomTestDataName(),
+    desc: generateRandomTestDataDesc(),
+    value: generateRandomTestDataValue(),
   };
 };
 
@@ -26,7 +44,8 @@ const createTestCase = () => {
     precondition: generateRandomPrecondition(),
     description: generateRandomTestCaseDescription(),
     expectedResult: generateRandomExpectedResult(),
-    testDataList: Array.from({ length: 3 }, () => createTestData()),
+    status: generateRandomTestStatus(),
+    testDataList: Array.from({ length: 3 }, () => CreateTestData()),
   };
 };
 
@@ -86,7 +105,7 @@ export const setupTestcaseRoutes = (server, router) => {
 
     const tcList = scenario.testcaseList.slice(
       parseInt(offset, 10),
-      parseInt(offset, 10) + parseInt(query, 10),
+      parseInt(offset, 10) + parseInt(query, 10)
     );
     const tcTotal = scenario.testcaseList.length;
 
@@ -132,11 +151,8 @@ export const setupTestcaseRoutes = (server, router) => {
       precondition: testcase.precondition,
       description: testcase.description,
       expectedResult: testcase.expectedResult,
-      testDataList: testcase.testDataList.map((data) => ({
-        key: data.key,
-        type: data.type,
-        value: data.value,
-      })),
+      status: testcase.status,
+      testDataList: testcase.testDataList,
     });
   });
 
@@ -144,7 +160,7 @@ export const setupTestcaseRoutes = (server, router) => {
   server.put("/api/tc/v1/:tcId", (req, res) => {
     const avalon = req.cookies?.avalon;
     const { tcId } = req.params;
-    const { precondition, description, expectedResult, testDataList } =
+    const { precondition, description, expectedResult, status, testDataList } =
       req.body;
 
     if (!avalon) {
@@ -168,10 +184,16 @@ export const setupTestcaseRoutes = (server, router) => {
             precondition,
             description,
             expectedResult,
-            testDataList:
-              typeof testDataList === "string"
-                ? JSON.parse(testDataList)
-                : testDataList,
+            status,
+            testDataList: tc.testDataList.map((data) => {
+              const matchingData = testDataList.find(
+                (newData) => data.paramId === newData.paramId
+              );
+              if (matchingData) {
+                return { ...data, value: matchingData.value };
+              }
+              return data;
+            }),
           };
         }
         return tc;
@@ -210,7 +232,7 @@ export const setupTestcaseRoutes = (server, router) => {
     let deleted = false;
     const updatedScenarioList = project.scenarioList.map((scenario) => {
       const updatedTestcaseList = scenario.testcaseList.filter(
-        (tc) => tc.tcId !== tcId,
+        (tc) => tc.tcId !== tcId
       );
       if (updatedTestcaseList.length !== scenario.testcaseList.length) {
         deleted = true;
@@ -229,6 +251,10 @@ export const setupTestcaseRoutes = (server, router) => {
 
     res.json({ message: "Test case deleted successfully" });
   });
+
+  // API 조회
+
+  // API 선택
 
   // TC 추가
   server.post("/api/tc/v1/scenario/:scenarioId", (req, res) => {
