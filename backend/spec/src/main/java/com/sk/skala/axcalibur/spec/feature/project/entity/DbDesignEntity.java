@@ -40,7 +40,7 @@ public class DbDesignEntity extends BaseTimeEntity {
     @Column(name = "name", nullable = false, length = 20)
     private String name;
 
-    @OneToMany(mappedBy = "dbDesignKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "dbDesignKey", orphanRemoval = true)
     @Builder.Default
     private List<DbColumnEntity> columns = new ArrayList<>();
 

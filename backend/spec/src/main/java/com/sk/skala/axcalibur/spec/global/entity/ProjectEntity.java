@@ -38,23 +38,23 @@ public class ProjectEntity extends BaseTimeEntity {
   @Column(name = "id", unique = true, nullable = false, length = 20)
   private String id; // 프로젝트 ID (UNIQUE)
 
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @OneToMany(mappedBy = "projectKey", orphanRemoval = true)
   @Builder.Default
   private List<ApiListEntity> apiLists = new ArrayList<>();
 
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @OneToMany(mappedBy = "projectKey", orphanRemoval = true)
   @Builder.Default
   private List<RequestEntity> requests = new ArrayList<>();
 
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @OneToMany(mappedBy = "projectKey", orphanRemoval = true)
   @Builder.Default
   private List<DbDesignEntity> dbDesigns = new ArrayList<>();
 
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @OneToMany(mappedBy = "projectKey", orphanRemoval = true)
   @Builder.Default
   private List<ScenarioEntity> scenarios = new ArrayList<>();
 
-  @OneToMany(mappedBy = "projectKey", cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @OneToMany(mappedBy = "projectKey", orphanRemoval = true)
   @Builder.Default
   private List<FilePathEntity> filePaths = new ArrayList<>();
 
