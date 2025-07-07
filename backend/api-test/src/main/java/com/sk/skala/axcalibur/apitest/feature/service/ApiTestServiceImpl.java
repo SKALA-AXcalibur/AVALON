@@ -13,9 +13,11 @@ import com.sk.skala.axcalibur.apitest.feature.dto.response.ParameterWithDataDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.ScenarioResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.TestcaseInfoResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.TestcaseSuccessResponseDto;
+import com.sk.skala.axcalibur.apitest.feature.entity.ApiTestRedisEntity;
 import com.sk.skala.axcalibur.apitest.feature.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.apitest.feature.entity.TestcaseEntity;
 import com.sk.skala.axcalibur.apitest.feature.entity.TestcaseResultEntity;
+import com.sk.skala.axcalibur.apitest.feature.repository.ApiTestRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.MappingRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.ParameterRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.ScenarioRepository;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -54,6 +57,7 @@ public class ApiTestServiceImpl implements ApiTestService {
   private final ScenarioRepository scene;
   private final MappingRepository mr;
   private final ParameterRepository pr;
+  private final ApiTestRepository at;
   private final RedisTemplate<String, Object> redis;
   private final ObjectMapper mapper;
 
@@ -84,19 +88,28 @@ public class ApiTestServiceImpl implements ApiTestService {
 
       // 2. 테스트케이스 결과 생성을 위한 데이터 준비
       List<TestcaseResultEntity> testcaseResultList = new ArrayList<>();
+      List<ApiTestRedisEntity> apiTestRedisEntityList = new ArrayList<>();
       Map<Integer, ApiTestExecutionDataDto> executionDataMap = new HashMap<>();
 
       // 실제 TestcaseEntity 조회를 위한 캐시
       Map<Integer, TestcaseEntity> testcaseCache = new HashMap<>();
 
+      // 시나리오 별 최대 step 추출
+      Map<Integer, Integer> maxStepByScenario = executionDataList.stream()
+          .collect(Collectors.toMap(
+              ApiTestExecutionDataDto::scenarioId,
+              ApiTestExecutionDataDto::step,
+              Integer::max // 최대 step 값을 선택
+          ));
+
       // 모든 testcaseId를 한 번에 조회
-      List<Integer> allTestcaseIds = executionDataList.stream()
+      List<Integer> allTestcaseIdList = executionDataList.stream()
           .map(ApiTestExecutionDataDto::testcaseId)
           .distinct()
           .toList();
 
-      List<TestcaseEntity> testcases = tc.findAllById(allTestcaseIds);
-      testcases.forEach(testcase -> testcaseCache.put(testcase.getId(), testcase));
+      List<TestcaseEntity> testcaseList = tc.findAllById(allTestcaseIdList);
+      testcaseList.forEach(testcase -> testcaseCache.put(testcase.getId(), testcase));
 
       for (ApiTestExecutionDataDto executionData : executionDataList) {
         TestcaseEntity testcase = testcaseCache.get(executionData.testcaseId());
@@ -116,8 +129,21 @@ public class ApiTestServiceImpl implements ApiTestService {
         executionDataMap.put(executionData.testcaseId(), executionData);
       }
 
+      for (var entry : maxStepByScenario.entrySet()) {
+        Integer scenarioId = entry.getKey();
+        Integer maxStep = entry.getValue();
+        var entity = ApiTestRedisEntity.builder()
+            .id(scenarioId)
+            .completed(0) // 초기 완료 단계
+            .finish(maxStep) // 최대 단계로 설정
+            .build();
+        apiTestRedisEntityList.add(entity);
+      }
+
       // 3. 테스트케이스 결과 저장
       testcaseResultList = tr.saveAll(testcaseResultList);
+      // 3-1. ApiTestEntity 저장
+      at.saveAll(apiTestRedisEntityList);
 
       // 4. API 목록과 테스트케이스 ID 추출
       List<Integer> apiListIds = executionDataList.stream()
@@ -165,7 +191,7 @@ public class ApiTestServiceImpl implements ApiTestService {
 
         // ApiTaskDto 생성
         ApiTaskDto apiTask = ApiTaskDto.builder()
-            .id(executionData.mappingId())
+            .id(executionData.scenarioId())
             .testcaseId(testcaseId)
             .resultId(testcaseResult.getId())
             .precondition(executionData.precondition())
