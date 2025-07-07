@@ -3,7 +3,6 @@ import { useProjectStore } from "@/store/projectStore";
 import { clientScenarioApi } from "@/services/client/clientScenarioApi";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/constants/messages";
 import { ScenarioInfo } from "@/interfaces/scenario";
-import { validateId } from "@/utils/validateId";
 
 export const useScenario = (projectId: string, scenarioId: string) => {
   const { updateScenario, deleteScenario: removeScenario } = useProjectStore();
@@ -48,8 +47,6 @@ export const useScenario = (projectId: string, scenarioId: string) => {
   }, [scenarioId]);
 
   const handleNameChange = (value: string) => {
-    const validation = validateId(value);
-    setError(validation.isValid ? null : validation.errorMessage || null);
     setScenarioInfo((prev) => ({ ...prev, name: value }));
   };
   const handleDescriptionChange = (value: string) => {

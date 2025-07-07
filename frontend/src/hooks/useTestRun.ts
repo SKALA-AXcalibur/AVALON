@@ -1,7 +1,7 @@
 import { ScenarioResult } from "@/interfaces/apiTest";
 import { clientApiTestApi } from "@/services/client/clientApiTestApi";
 import { clientReportApi } from "@/services/client/clientReportApi";
-import { downloadFile } from "@/utils/downloadFile";
+import { downloadBlob } from "@/utils/downloadFile";
 import { useEffect, useState, useCallback } from "react";
 import { useTestResultStore } from "@/store/testResult";
 
@@ -57,8 +57,8 @@ export const useTestRun = (scenarioId: string) => {
   const readScenarioReport = async () => {
     setLoadingStates((prev) => ({ ...prev, scenarioReport: true }));
     try {
-      const response = await clientReportApi.readScenarioReport();
-      downloadFile(response, "scenario-report.csv");
+      const blob = await clientReportApi.readScenarioReport();
+      downloadBlob(blob, "scenario_report.xlsx");
     } catch (error) {
       console.error("Failed to download scenario report:", error);
     } finally {
@@ -69,8 +69,8 @@ export const useTestRun = (scenarioId: string) => {
   const readTestcaseReport = async () => {
     setLoadingStates((prev) => ({ ...prev, testcaseReport: true }));
     try {
-      const response = await clientReportApi.readTestcaseReport(scenarioId);
-      downloadFile(response, `testcase-report-${scenarioId}.csv`);
+      const blob = await clientReportApi.readTestcaseReport(scenarioId);
+      downloadBlob(blob, `testcase_report_${scenarioId}.xlsx`);
     } catch (error) {
       console.error("Failed to download testcase report:", error);
     } finally {
