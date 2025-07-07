@@ -42,11 +42,13 @@ public class ApiTaskDtoConverter {
   // private static final Logger log =
   // LoggerFactory.getLogger(ApiTaskDtoConverter.class);
 
+
   // 다양한 타입을 위한 TypeReference들
   private static final TypeReference<Map<String, Object>> objectMapTypeRef = new TypeReference<Map<String, Object>>() {
   };
   private static final TypeReference<Map<String, String>> stringMapTypeRef = new TypeReference<Map<String, String>>() {
   };
+
 
   public ApiTaskDtoConverter(ObjectMapper objectMapper) {
     mapper = objectMapper;
@@ -85,15 +87,16 @@ public class ApiTaskDtoConverter {
       }
     }
 
+
     if (dto.reqBody() != null) {
       try {
         map.put("reqBody", mapper.writeValueAsString(dto.reqBody()));
       } catch (JsonProcessingException e) {
         log.error("ApiTaskDtoConverter.toMap: Failed to serialize reqBody: {}", e.getMessage());
         throw new BusinessExceptionHandler("ApiTaskDtoConverter.toMap: Failed to serialize reqBody",
-            ErrorCode.JACKSON_PROCESS_ERROR, e);
       }
     }
+
 
     if (dto.resHeader() != null) {
       try {
@@ -105,6 +108,7 @@ public class ApiTaskDtoConverter {
       }
     }
 
+
     if (dto.resBody() != null) {
       try {
         map.put("resBody", mapper.writeValueAsString(dto.resBody()));
@@ -114,6 +118,7 @@ public class ApiTaskDtoConverter {
             ErrorCode.JACKSON_PROCESS_ERROR, e);
       }
     }
+  }
 
     if (dto.reqPath() != null) {
       try {
@@ -124,6 +129,10 @@ public class ApiTaskDtoConverter {
             ErrorCode.JACKSON_PROCESS_ERROR, e);
       }
     }
+    // 이중 따옴표가 있는 경우 제거
+    String cleanValue = cleanString(value);
+    return Integer.valueOf(cleanValue);
+  }
 
     if (dto.reqQuery() != null) {
       try {

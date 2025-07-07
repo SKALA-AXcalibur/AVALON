@@ -129,7 +129,8 @@ public class ApiTestControllerImpl implements ApiTestController {
       @Parameter(required = true) @PathVariable("scenarioId") String scenarioId,
       @Parameter(required = false) @RequestParam(name = "cursor", required = false) String cursor,
       @Parameter(required = false) @RequestParam(name = "size", required = false) Integer size) {
-    log.info("ApiTestControllerImpl.getApiTestCaseResult() called with scenarioId: {}, cursor: {}, size: {}",
+    log.info("ApiTestControllerImpl.getApiTestCaseResult: called with scenarioId: {}, cursor: {}, size: {}",
+
         scenarioId, cursor, size);
 
     // validate cookie
