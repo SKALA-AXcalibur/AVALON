@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -198,7 +197,7 @@ public class ApiTestServiceImpl implements ApiTestService {
             .step(executionData.step())
             .attempt(1) // 초기 시도 횟수
             .method(executionData.method())
-            .uri(executionData.url())
+            .uri(executionData.url() + executionData.path())
             .reqHeader(reqHeader)
             .reqBody(reqBody)
             .reqQuery(reqQuery)
