@@ -51,6 +51,7 @@ public class FileTemplateServiceImpl implements FileTemplateService {
         FileSystemResource resource = new FileSystemResource(scenarioTemplate);
 
         if (!resource.exists()) {
+            log.error("시나리오 템플릿 파일을 찾을 수 없습니다. path: {}", scenarioTemplate);
             throw BusinessExceptionHandler.builder()
                 .errorCode(ErrorCode.NOT_FOUND_ERROR)
                 .message("시나리오 템플릿 파일을 찾을 수 없습니다.")
@@ -85,6 +86,7 @@ public class FileTemplateServiceImpl implements FileTemplateService {
         FileSystemResource resource = new FileSystemResource(testcaseTemplate);
 
         if (!resource.exists()) {
+            log.error("테스트케이스 템플릿 파일을 찾을 수 없습니다. path: {}", testcaseTemplate);
             throw BusinessExceptionHandler.builder()
                 .errorCode(ErrorCode.NOT_FOUND_ERROR)
                 .message("테스트케이스 템플릿 파일을 찾을 수 없습니다.")
