@@ -1,7 +1,7 @@
 package com.sk.skala.axcalibur.spec.feature.report.service;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -48,9 +48,10 @@ public class FileTemplateServiceImpl implements FileTemplateService {
      * 시나리오 템플릿 처리
      */
     public byte[] generateScenarioReport(List<ScenarioEntity> scenarios, String businessFunction) {
-        ClassPathResource resource = new ClassPathResource(scenarioTemplate);
+        FileSystemResource resource = new FileSystemResource(scenarioTemplate);
 
         if (!resource.exists()) {
+            log.error("시나리오 템플릿 파일을 찾을 수 없습니다. path: {}", scenarioTemplate);
             throw BusinessExceptionHandler.builder()
                 .errorCode(ErrorCode.NOT_FOUND_ERROR)
                 .message("시나리오 템플릿 파일을 찾을 수 없습니다.")
@@ -82,9 +83,10 @@ public class FileTemplateServiceImpl implements FileTemplateService {
      * 테스트케이스 템플릿 처리
      */
     public byte[] generateTestCaseReport(List<TestCaseEntity> testCases, List<TestCaseDataEntity> testCaseData, List<TestcaseResultEntity> testCaseResults, String businessFunction) {
-        ClassPathResource resource = new ClassPathResource(testcaseTemplate);
+        FileSystemResource resource = new FileSystemResource(testcaseTemplate);
 
         if (!resource.exists()) {
+            log.error("테스트케이스 템플릿 파일을 찾을 수 없습니다. path: {}", testcaseTemplate);
             throw BusinessExceptionHandler.builder()
                 .errorCode(ErrorCode.NOT_FOUND_ERROR)
                 .message("테스트케이스 템플릿 파일을 찾을 수 없습니다.")
