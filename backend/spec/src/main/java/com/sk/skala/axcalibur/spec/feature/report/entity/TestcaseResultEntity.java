@@ -43,7 +43,7 @@ public class TestcaseResultEntity extends BaseTimeEntity {
   // 테스트케이스 키
   private TestCaseEntity testcase;
 
-  @Column(name = "result", length = 50, nullable = true)
+  @Column(name = "result", columnDefinition = "TEXT", nullable = true)
   // 수행 결과
   private String result;
 
