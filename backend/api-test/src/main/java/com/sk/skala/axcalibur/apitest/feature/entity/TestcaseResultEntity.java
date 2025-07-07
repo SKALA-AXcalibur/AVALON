@@ -1,5 +1,8 @@
 package com.sk.skala.axcalibur.apitest.feature.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.sk.skala.axcalibur.apitest.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,10 +35,11 @@ public class TestcaseResultEntity extends BaseTimeEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "testcase_key", nullable = false)
+  @OnDelete(action = OnDeleteAction.CASCADE)
   // 테스트케이스 키
   private TestcaseEntity testcase;
 
-  @Column(name = "result", length = 50, nullable = true)
+  @Column(name = "result", columnDefinition = "TEXT")
   // 수행 결과
   private String result;
 
