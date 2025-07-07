@@ -13,9 +13,11 @@ import com.sk.skala.axcalibur.apitest.feature.dto.response.ParameterWithDataDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.ScenarioResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.TestcaseInfoResponseDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.response.TestcaseSuccessResponseDto;
+import com.sk.skala.axcalibur.apitest.feature.entity.ApiTestRedisEntity;
 import com.sk.skala.axcalibur.apitest.feature.entity.ScenarioEntity;
 import com.sk.skala.axcalibur.apitest.feature.entity.TestcaseEntity;
 import com.sk.skala.axcalibur.apitest.feature.entity.TestcaseResultEntity;
+import com.sk.skala.axcalibur.apitest.feature.repository.ApiTestRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.MappingRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.ParameterRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.ScenarioRepository;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -54,6 +57,7 @@ public class ApiTestServiceImpl implements ApiTestService {
   private final ScenarioRepository scene;
   private final MappingRepository mr;
   private final ParameterRepository pr;
+  private final ApiTestRepository at;
   private final RedisTemplate<String, Object> redis;
   private final ObjectMapper mapper;
 
@@ -84,18 +88,27 @@ public class ApiTestServiceImpl implements ApiTestService {
 
       // 2. 테스트케이스 결과 생성을 위한 데이터 준비
       List<TestcaseResultEntity> testcaseResultList = new ArrayList<>();
+      List<ApiTestRedisEntity> apiTestRedisEntityList = new ArrayList<>();
       Map<Integer, ApiTestExecutionDataDto> executionDataMap = new HashMap<>();
 
       // 실제 TestcaseEntity 조회를 위한 캐시
       Map<Integer, TestcaseEntity> testcaseCache = new HashMap<>();
 
+      // 시나리오 별 최대 step 추출
+      Map<Integer, Integer> maxStepByScenario = executionDataList.stream()
+          .collect(Collectors.toMap(
+              ApiTestExecutionDataDto::scenarioId,
+              ApiTestExecutionDataDto::step,
+              Integer::max // 최대 step 값을 선택
+          ));
+
       // 모든 testcaseId를 한 번에 조회
-      List<Integer> allTestcaseIds = executionDataList.stream()
+      List<Integer> allTestcaseIdList = executionDataList.stream()
           .map(ApiTestExecutionDataDto::testcaseId)
           .distinct()
           .toList();
 
-      List<TestcaseEntity> testcases = tc.findAllById(allTestcaseIds);
+      List<TestcaseEntity> testcases = tc.findAllById(allTestcaseIdList);
       testcases.forEach(testcase -> testcaseCache.put(testcase.getId(), testcase));
 
       for (ApiTestExecutionDataDto executionData : executionDataList) {
@@ -108,7 +121,7 @@ public class ApiTestServiceImpl implements ApiTestService {
         TestcaseResultEntity result = TestcaseResultEntity.builder()
             .testcase(testcase) // 실제 엔티티 사용
             .result("") // 초기값 빈 문자열
-            .success(false) // 초기값 false (대기중/실행중)
+            .success(null) // 초기값 null (실행중)
             .time(null) // 초기값 null
             .reason(null) // 초기값 null
             .build();
@@ -116,8 +129,21 @@ public class ApiTestServiceImpl implements ApiTestService {
         executionDataMap.put(executionData.testcaseId(), executionData);
       }
 
+      for (var entry : maxStepByScenario.entrySet()) {
+        Integer scenarioId = entry.getKey();
+        Integer maxStep = entry.getValue();
+        var entity = ApiTestRedisEntity.builder()
+            .id(scenarioId)
+            .completed(0) // 초기 완료 단계
+            .finish(maxStep) // 최대 단계로 설정
+            .build();
+        apiTestRedisEntityList.add(entity);
+      }
+
       // 3. 테스트케이스 결과 저장
       testcaseResultList = tr.saveAll(testcaseResultList);
+      // 3-1. ApiTestEntity 저장
+      at.saveAll(apiTestRedisEntityList);
 
       // 4. API 목록과 테스트케이스 ID 추출
       List<Integer> apiListIds = executionDataList.stream()
@@ -165,7 +191,7 @@ public class ApiTestServiceImpl implements ApiTestService {
 
         // ApiTaskDto 생성
         ApiTaskDto apiTask = ApiTaskDto.builder()
-            .id(executionData.mappingId())
+            .id(executionData.scenarioId())
             .testcaseId(testcaseId)
             .resultId(testcaseResult.getId())
             .precondition(executionData.precondition())
@@ -220,13 +246,22 @@ public class ApiTestServiceImpl implements ApiTestService {
   @Override
   public List<ScenarioResponseDto> getTestResultService(GetTestResultServiceRequestDto dto) {
     log.info(
-        "ApiTestServiceImpl.getTestResultService() called with dto project: {}, cursor: {}, size: {}",
+        "ApiTestServiceImpl.getTestResultService: called with dto project: {}, cursor: {}, size: {}",
         dto.projectKey(), dto.cursor(), dto.size());
     Integer key = dto.projectKey();
     List<ScenarioEntity> scenarios;
 
     // dto.size is null
     if (dto.size() == null) {
+      scenarios = scene.findAllByProjectKey(key);
+    } else {
+      var cursor = dto.cursor() == null ? "" : dto.cursor();
+      var size = dto.size();
+      var page = PageRequest.of(0, size, Sort.by("id").ascending());
+      scenarios = scene.findAllByProjectKeyAndScenarioIdGreaterThanOrderByIdAsc(key, cursor, page);
+    }
+    // dto.size is null
+    if (dto.size() == null || dto.size() <= 0) {
       scenarios = scene.findAllByProjectKey(key);
     } else {
       var cursor = dto.cursor() == null ? "" : dto.cursor();
@@ -250,10 +285,16 @@ public class ApiTestServiceImpl implements ApiTestService {
           var list = entry.getValue();
           String success;
 
-          if (list.stream().anyMatch(t -> Boolean.FALSE.equals(t.success()))) {
+          if (list == null || list.isEmpty()) {
+            log.warn("ApiTestServiceImpl.getTestResultService: No test results found for scenarioId: {}",
+                scenarioId);
+            success = "준비중";
+          } else if (list.stream().anyMatch(t -> Boolean.FALSE.equals(t.success()))) {
             success = "실패";
-          } else {
+          } else if (list.stream().anyMatch(t -> Boolean.TRUE.equals(t.success()))) {
             success = "성공";
+          } else {
+            success = "실행중";
           }
 
           return ScenarioResponseDto.builder()
@@ -275,7 +316,7 @@ public class ApiTestServiceImpl implements ApiTestService {
   public List<TestcaseInfoResponseDto> getTestCaseResultService(
       GetTestCaseResultServiceRequestDto dto) {
     log.info(
-        "ApiTestServiceImpl.getTestCaseResultService() called with dto projectKdy: {}, scenarioId: {}, cursor: {}, size: {}",
+        "ApiTestServiceImpl.getTestCaseResultService: called with dto projectKey: {}, scenarioId: {}, cursor: {}, size: {}",
         dto.projectKey(), dto.scenarioId(), dto.cursor(), dto.size());
     Integer key = dto.projectKey();
     String scenarioId = dto.scenarioId();
@@ -298,6 +339,17 @@ public class ApiTestServiceImpl implements ApiTestService {
         .collect(Collectors.toMap(TestcaseEntity::getId, tc -> tc));
     var trMap = testcaseResults.stream()
         .collect(Collectors.toMap(tr -> tr.getTestcase().getId(), tr -> tr));
+    // dto.size is null
+    if (dto.size() == null || dto.size() <= 0) {
+      testcases = tc.findByMapping_Scenario_ProjectKeyAndMapping_Scenario_ScenarioId(key, scenarioId);
+    } else {
+      var cursor = dto.cursor() == null ? "" : dto.cursor();
+      var size = dto.size();
+      var page = PageRequest.of(0, size, Sort.by("id").ascending());
+      testcases = tc
+          .findByMapping_Scenario_ProjectKeyAndMapping_Scenario_ScenarioIdAndTestcaseIdGreaterThanOrderByIdAsc(
+              key, scenarioId, cursor, page);
+    }
 
     return tcMap.entrySet().stream().map(
         entry -> {

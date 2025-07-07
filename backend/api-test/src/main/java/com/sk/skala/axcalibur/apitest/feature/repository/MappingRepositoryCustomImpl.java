@@ -16,35 +16,36 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MappingRepositoryCustomImpl implements MappingRepositoryCustom {
 
-    private final JPAQueryFactory query;
+  private final JPAQueryFactory query;
 
-    @Override
-    public List<ApiTestExecutionDataDto> findExecutionDataByProjectAndScenarios(
-            Integer projectKey, List<String> scenarioIds) {
-        log.info(
-                "MappingRepositoryCustomImpl.findExecutionDataByProjectAndScenarios: called with project: {}, scenarios: {}",
-                projectKey, scenarioIds);
+  @Override
+  public List<ApiTestExecutionDataDto> findExecutionDataByProjectAndScenarios(
+      Integer projectKey, List<String> scenarioIds) {
+    log.info(
+        "MappingRepositoryCustomImpl.findExecutionDataByProjectAndScenarios: called with project: {}, scenarios: {}",
+        projectKey, scenarioIds);
 
-        return query
-                .select(Projections.constructor(
-                        ApiTestExecutionDataDto.class,
-                        mappingEntity.id,
-                        mappingEntity.step,
-                        testcaseEntity.id,
-                        testcaseEntity.testcaseId,
-                        testcaseEntity.precondition,
-                        testcaseEntity.status,
-                        apiListEntity.id,
-                        apiListEntity.method,
-                        apiListEntity.url,
-                        apiListEntity.path))
-                .from(testcaseEntity)
-                .join(testcaseEntity.mapping, mappingEntity)
-                .join(mappingEntity.scenario, scenarioEntity)
-                .join(mappingEntity.apiList, apiListEntity)
-                .where(scenarioEntity.projectKey.eq(projectKey)
-                        .and(scenarioEntity.scenarioId.in(scenarioIds)))
-                .orderBy(mappingEntity.step.asc(), testcaseEntity.id.asc())
-                .fetch();
-    }
+    return query
+        .select(Projections.constructor(
+            ApiTestExecutionDataDto.class,
+            scenarioEntity.id,
+            mappingEntity.id,
+            mappingEntity.step,
+            testcaseEntity.id,
+            testcaseEntity.testcaseId,
+            testcaseEntity.precondition,
+            testcaseEntity.status,
+            apiListEntity.id,
+            apiListEntity.method,
+            apiListEntity.url,
+            apiListEntity.path))
+        .from(testcaseEntity)
+        .join(testcaseEntity.mapping, mappingEntity)
+        .join(mappingEntity.scenario, scenarioEntity)
+        .join(mappingEntity.apiList, apiListEntity)
+        .where(scenarioEntity.projectKey.eq(projectKey)
+            .and(scenarioEntity.scenarioId.in(scenarioIds)))
+        .orderBy(mappingEntity.step.asc(), testcaseEntity.id.asc())
+        .fetch();
+  }
 }

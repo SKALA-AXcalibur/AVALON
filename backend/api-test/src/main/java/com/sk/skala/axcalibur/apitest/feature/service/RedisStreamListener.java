@@ -1,5 +1,7 @@
 package com.sk.skala.axcalibur.apitest.feature.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk.skala.axcalibur.apitest.feature.code.StreamConstants;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.ApiTaskDto;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.ApiTestParserServiceBuildUriRequestDto;
@@ -12,13 +14,11 @@ import com.sk.skala.axcalibur.apitest.feature.repository.ApiTestDetailRepository
 import com.sk.skala.axcalibur.apitest.feature.repository.ApiTestRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseRepository;
 import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepository;
-import com.sk.skala.axcalibur.apitest.feature.repository.TestcaseResultRepositoryCustom;
 import com.sk.skala.axcalibur.apitest.feature.util.ApiTaskDtoConverter;
 import com.sk.skala.axcalibur.apitest.global.code.ErrorCode;
 import com.sk.skala.axcalibur.apitest.global.exception.BusinessExceptionHandler;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,24 +63,35 @@ public class RedisStreamListener implements StreamListener<String, MapRecord<Str
   private final ApiTestDetailRepository ad;
 
   private final ApiTestParserService parser;
+  private final ObjectMapper mapper;
+
+  private final TypeReference<HashMap<String, Object>> objectMap = new TypeReference<HashMap<String, Object>>() {
+  };
+  private final TypeReference<LinkedMultiValueMap<String, String>> multiValueMap = new TypeReference<LinkedMultiValueMap<String, String>>() {
+  };
+  private final TypeReference<HashMap<String, String>> stringMap = new TypeReference<HashMap<String, String>>() {
+  };
 
   @Override
   public void onMessage(MapRecord<String, String, String> message) {
     Map<String, String> value = message.getValue();
-    log.debug("RedisStreamListener.onMessage: Raw message value: {}", value);
+    log.info("RedisStreamListener.onMessage: Raw message value: {}", value);
     ApiTaskDto dto = ApiTaskDtoConverter.fromMap(value);
-    log.info("RedisStreamListener.onMessage: Received message from Redis Stream: {} on {}", dto.resultId(),
+    log.info(
+        "RedisStreamListener.onMessage: Received message from Redis Stream: resultId: {}, scenarioId: {}, step: {} on {}",
+        dto.resultId(), dto.id(), dto.step(),
         Thread.currentThread().getName());
 
     // result id 확인
-    var resultId = dto.resultId();
-    var atEntityOptional = at.findById(resultId);
+    var atId = dto.id();
+    var atEntityOptional = at.findById(atId);
     if (atEntityOptional.isEmpty()) {
       // 이미 수행이 다 끝나 Redis에 없는 경우
-      log.warn("RedisStreamListener.onMessage: No ApiTestEntity in Redis found for resultId: {}", resultId);
+      log.warn("RedisStreamListener.onMessage: No ApiTestEntity in Redis found for id: {}", atId);
       redis.opsForStream().acknowledge(StreamConstants.GROUP_NAME, message);
       return;
     }
+    var resultId = dto.resultId();
     var adId = dto.id() + "-" + dto.step() + "-" + dto.statusCode();
     var adEntity = ad.findById(adId).orElse(null);
     if (adEntity != null) {
@@ -102,15 +113,15 @@ public class RedisStreamListener implements StreamListener<String, MapRecord<Str
     log.debug("RedisStreamListener.onMessage: Saving ApiTestDetailEntity to Redis: {}", adEntity.getId());
     ad.save(adEntity); // Redis는 Transactional 필요 없음
     try {
-      var uri = dto.uri();
-      var reqHeader = dto.reqHeader();
-      var reqBody = dto.reqBody();
-      var reqPath = dto.reqPath();
-      var reqQuery = dto.reqQuery();
+      String uri = dto.uri();
+      LinkedMultiValueMap<String, String> reqHeader = mapper.convertValue(dto.reqHeader(), multiValueMap);
+      HashMap<String, Object> reqBody = mapper.convertValue(dto.reqBody(), objectMap);
+      HashMap<String, String> reqPath = mapper.convertValue(dto.reqPath(), stringMap);
+      LinkedMultiValueMap<String, String> reqQuery = mapper.convertValue(dto.reqQuery(), multiValueMap);
 
       // 사전 조건 파싱 구현
       if (dto.precondition() != null && !dto.precondition().isEmpty()) {
-        log.info("RedisStreamListener.onMessage: Precondition is detected : {}", message.getId());
+        log.info("RedisStreamListener.onMessage: Precondition is detected, message.id : {}", message.getId());
 
         // 사전 조건 파싱
         var preconditions = parser.parsePrecondition(ApiTestParserServiceParsePreconditionRequestDto.builder()
@@ -187,7 +198,7 @@ public class RedisStreamListener implements StreamListener<String, MapRecord<Str
       // 응답 시간 측정 종료 및 계산 (나노초에서 밀리초로 변환)
       double responseTimeMs = (System.nanoTime() - startTime) / 1_000_000.0;
 
-      log.debug("RedisStreamListener.onMessage: API response status code: {}", res.getStatusCode());
+      log.info("RedisStreamListener.onMessage: API response status code: {}", res.getStatusCode());
       log.debug("RedisStreamListener.onMessage: API response time: {} ms", responseTimeMs);
 
       // status code 비교
@@ -200,8 +211,9 @@ public class RedisStreamListener implements StreamListener<String, MapRecord<Str
         return;
       }
 
-      MultiValueMap<String, String> header = res.getHeaders(); // never null
-      Map<String, Object> body = res.getBody(); // nullable
+      LinkedMultiValueMap<String, String> header = mapper.convertValue(res.getHeaders(), multiValueMap); // never null
+      HashMap<String, Object> body = mapper.convertValue(res.getBody() == null ? new HashMap<>() : res.getBody(),
+          objectMap); // nullable
       Boolean success = true;
 
       if (method == HttpMethod.POST || method == HttpMethod.PATCH) {
@@ -297,6 +309,8 @@ public class RedisStreamListener implements StreamListener<String, MapRecord<Str
           .time(responseTimeMs)
           .build();
       tr.updateResult(trEntity, updated);
+      log.debug("RedisStreamListener.onMessage: TestcaseResultEntity updated: resultId={}, success={}, time={} ms",
+          dto.resultId(), success, responseTimeMs);
 
       // redis에 완료 단계 업데이트
       var atEntity = atEntityOptional.get();
@@ -309,6 +323,9 @@ public class RedisStreamListener implements StreamListener<String, MapRecord<Str
             .build();
         at.save(nextAtEntity);
       }
+      log.debug("RedisStreamListener.onMessage: ApiTestEntity updated: id={}, completed={}",
+          atEntity.getId(), atEntity.getCompleted());
+
       var nextAdEntity = adEntity.toBuilder()
           .header(header)
           .body(body)
@@ -316,6 +333,7 @@ public class RedisStreamListener implements StreamListener<String, MapRecord<Str
           .query(reqQuery)
           .build();
       ad.save(nextAdEntity);
+      log.debug("RedisStreamListener.onMessage: ApiTestDetailEntity updated: id={}", nextAdEntity.getId());
 
       // 메시지 처리 후 ACK를 보내면 메시지가 스트림에서 제거됨
       redis.opsForStream().acknowledge(StreamConstants.GROUP_NAME, message);
