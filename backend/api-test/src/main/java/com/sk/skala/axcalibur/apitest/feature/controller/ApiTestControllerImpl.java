@@ -55,7 +55,7 @@ public class ApiTestControllerImpl implements ApiTestController {
       @Valid @RequestBody ExcuteApiTestRequestDto dto,
       @CookieValue(name = "avalon") String avalon) {
     log.info("ApiTestControllerImpl.executeApiTest: called with avalon: {}", avalon);
-    
+
     // validate cookie
     var entity = cookie.findByToken(avalon);
     Integer key = entity.getProjectKey();
