@@ -6,8 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk.skala.axcalibur.apitest.feature.dto.request.ApiTaskDto;
 import com.sk.skala.axcalibur.apitest.global.code.ErrorCode;
 import com.sk.skala.axcalibur.apitest.global.exception.BusinessExceptionHandler;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -30,16 +34,24 @@ import java.util.regex.PatternSyntaxException;
  * MyClass result = deserializeToClass(json, MyClass.class);
  * 
  */
+@Component
+@Slf4j
 public class ApiTaskDtoConverter {
 
-  private static final ObjectMapper mapper = new ObjectMapper();
-  private static final Logger log = LoggerFactory.getLogger(ApiTaskDtoConverter.class);
+  private static ObjectMapper mapper;
+  // private static final Logger log =
+  // LoggerFactory.getLogger(ApiTaskDtoConverter.class);
 
   // 다양한 타입을 위한 TypeReference들
   private static final TypeReference<Map<String, Object>> objectMapTypeRef = new TypeReference<Map<String, Object>>() {
   };
   private static final TypeReference<Map<String, String>> stringMapTypeRef = new TypeReference<Map<String, String>>() {
   };
+
+  public ApiTaskDtoConverter(ObjectMapper objectMapper) {
+    mapper = objectMapper;
+    log.info("ApiTaskDtoConverter: ObjectMapper successfully injected via constructor");
+  }
 
   /**
    * ApiTaskDto를 Map<String, String>으로 변환
@@ -188,14 +200,14 @@ public class ApiTaskDtoConverter {
   private static MultiValueMap<String, String> deserializeMultiValueMap(String json) {
     log.info("ApiTaskDtoConverter.deserializeMultiValueMap: Deserializing JSON to MultiValueMap: {}", json);
     if (json == null || json.trim().isEmpty()) {
-      return null;
+      return new LinkedMultiValueMap<>();
     }
 
     try {
       // 제네릭 범용 메서드를 활용
       Map<String, Object> tempMap = deserializeToType(json, objectMapTypeRef);
       if (tempMap == null) {
-        return null;
+        tempMap = new HashMap<>();
       }
 
       MultiValueMap<String, String> result = new LinkedMultiValueMap<>();
@@ -222,7 +234,11 @@ public class ApiTaskDtoConverter {
    */
   private static Map<String, Object> deserializeMap(String json) {
     log.info("ApiTaskDtoConverter.deserializeMap: Deserializing JSON to Map<String, Object>: {}", json);
-    return deserializeToType(json, objectMapTypeRef);
+    Map<String, Object> map = deserializeToType(json, objectMapTypeRef);
+    if (map == null) {
+      map = new HashMap<>();
+    }
+    return map;
   }
 
   /**
@@ -238,6 +254,15 @@ public class ApiTaskDtoConverter {
     }
 
     try {
+      // 문자열 시작이 홑따옴표인 경우 제거
+      if (json.startsWith("'")) {
+        json = json.substring(1);
+      }
+      // 문자열 끝이 홑따옴표인 경우 제거
+      if (json.endsWith("'")) {
+        json = json.substring(0, json.length() - 1);
+      }
+      json = unescapeJson(json);
       return mapper.readValue(json, typeReference);
     } catch (JsonProcessingException e) {
       log.error("ApiTaskDtoConverter.deserializeToType: Failed to deserialize to type {}: {}",
@@ -247,24 +272,23 @@ public class ApiTaskDtoConverter {
   }
 
   /**
-   * 제네릭을 활용한 범용 역직렬화 메서드
-   * Class 타입을 받아서 원하는 타입으로 역직렬화
+   * JSON 이스케이프 해제
+   * 
+   * @param json
+   * @return
    */
-  private static <T> T deserializeToClass(String json, Class<T> clazz) {
-    log.info("ApiTaskDtoConverter.deserializeToClass: Deserializing JSON to class {}: {}",
-        clazz.getName(), json);
-    if (json == null || json.trim().isEmpty()) {
-      log.warn("ApiTaskDtoConverter.deserializeToClass: JSON is null or empty, returning null");
+  private static String unescapeJson(String json) {
+    if (json == null)
       return null;
+
+    // 앞뒤 따옴표 제거
+    if (json.startsWith("\"") && json.endsWith("\"")) {
+      json = json.substring(1, json.length() - 1);
     }
 
-    try {
-      return mapper.readValue(json, clazz);
-    } catch (JsonProcessingException e) {
-      log.error("ApiTaskDtoConverter.deserializeToClass: Failed to deserialize to class {}: {}",
-          clazz.getName(), e.getMessage());
-      return null;
-    }
+    // JSON 이스케이프 해제
+    return json.replace("\\\"", "\"")
+        .replace("\\\\", "\\");
   }
 
   /**
@@ -272,7 +296,11 @@ public class ApiTaskDtoConverter {
    */
   private static Map<String, String> deserializeStringMap(String json) {
     log.info("ApiTaskDtoConverter.deserializeStringMap: Deserializing JSON to Map<String, String>: {}", json);
-    return deserializeToType(json, stringMapTypeRef);
+    Map<String, String> map = deserializeToType(json, stringMapTypeRef);
+    if (map == null) {
+      map = new HashMap<>();
+    }
+    return map;
   }
 
 }

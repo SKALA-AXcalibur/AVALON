@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -15,10 +16,20 @@ public class ObjectMapperConfig {
   public ObjectMapper objectMapper() {
     var mapper = new ObjectMapper();
     mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
-    mapper.registerModule(new JavaTimeModule());
+    mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
-    // LocalDateTime을 타임스탬프 배열이 아닌 문자열로 직렬화
+    // 역직렬화 설정
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
+    mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+    mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
+    // 직렬화 설정
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
+    // 모듈 등록
+    mapper.registerModule(new JavaTimeModule());
 
     return mapper;
   }
