@@ -14,7 +14,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MariaDBDialect
-
+template:
+  scenario-file: "testcase_scenario.xlsx"
+  testcase-file: "testcase_result.xlsx"
 
 server:
   port: 8080
