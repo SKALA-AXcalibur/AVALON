@@ -198,7 +198,7 @@ public class ProjectServiceImpl implements ProjectService {
             // 모든 파라미터를 한 번에 배치 저장
             if (!allParameters.isEmpty()) {
                     List<ParameterEntity> savedParameters = parameterRepository.saveAll(allParameters);
-                    updateParentKeys(savedParameters);   // ➕ 추가
+                    updateParentKeys(savedParameters);
             }
         }
  
