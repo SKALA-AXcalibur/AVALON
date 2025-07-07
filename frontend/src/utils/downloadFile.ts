@@ -26,3 +26,7 @@ export const downloadFile = async (response: Response, filename: string) => {
 
   getFile(blob, filename);
 };
+
+export const downloadBlob = (blob: Blob, filename: string) => {
+  getFile(blob, filename);
+};
