@@ -90,15 +90,20 @@ public class RedisStreamListener implements StreamListener<String, MapRecord<Str
       log.warn("RedisStreamListener.onMessage: No ApiTestEntity in Redis found for id: {}", atId);
       redis.opsForStream().acknowledge(StreamConstants.GROUP_NAME, message);
       return;
+    } else if (atEntityOptional.get().getCompleted() + 1 < dto.step()) {
+      // 현재 단계가 수행한 단계가 아닌 경우
+      log.warn("RedisStreamListener.onMessage: ApiTestEntity step mismatch for id: {}, expected: {}, actual: {}",
+          atId, atEntityOptional.get().getCompleted() + 1, dto.step());
+      // 수행을 위해 대기 -> PendingMessageReclaimerService가 처리함
+      return;
     }
     var resultId = dto.resultId();
-    var adId = dto.id() + "-" + dto.step() + "-" + dto.statusCode();
+    var adId = dto.id() + "-" + dto.step() + "-" + dto.resultId() + "-" + dto.statusCode();
     var adEntity = ad.findById(adId).orElse(null);
     if (adEntity != null) {
       // 이미 처리되었거나 처리 중인 테스트케이스인 경우
       log.warn("RedisStreamListener.onMessage: ApiTestDetailEntity already exists for id: {}", adId);
-      // ACK를 보내 메시지를 스트림에서 제거
-      redis.opsForStream().acknowledge(StreamConstants.GROUP_NAME, message);
+      // Redis에 저장된 adEntity가 있으면, 이미 처리 중인 테스트케이스이므로 아무 작업도 하지 않고 리턴
       return;
     }
     adEntity = ApiTestDetailRedisEntity.builder()
@@ -145,12 +150,12 @@ public class RedisStreamListener implements StreamListener<String, MapRecord<Str
         // path 있으면 추출 및 병합
         if (preconditions.path() != null && !preconditions.path().isEmpty()) {
           log.debug("RedisStreamListener.onMessage: Merging precondition path: {}", preconditions.path());
-          // reqPath와 사전조건의 path가 겹치는 경우 reqPath가 우선됨
+          // reqPath와 사전조건의 path가 겹치는 경우 사전조건이 우선됨
           for (var entry : preconditions.path().entrySet()) {
             reqPath.merge(entry.getKey(), entry.getValue(), (existing, incoming) -> {
               log.debug("RedisStreamListener.onMessage: Merging precondition path entry: {}, from {} to {}",
-                  entry.getKey(), existing, incoming);
-              return existing;
+                  entry.getKey(), incoming, existing);
+              return incoming;
             });
           }
 
@@ -187,6 +192,9 @@ public class RedisStreamListener implements StreamListener<String, MapRecord<Str
       if (reqBody != null) {
         requestSpec = requestSpec.body(reqBody);
       }
+
+      log.debug("RedisStreamListener.onMessage: Request method: {}, URI: {}, Headers: {}, Body: {}",
+          method, uri, reqHeader, reqBody);
 
       // 응답 시간 측정 시작 (나노초 단위로 더 정밀하게 측정)
       long startTime = System.nanoTime();
