@@ -90,6 +90,15 @@ public class ProjectServiceImpl implements ProjectService {
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.PROJECT_NOT_FOUND));
 
+        List<RequestEntity> existingRequests = requestRepository.findByProjectKey(project);
+        requestRepository.deleteAll(existingRequests);
+        
+        List<ApiListEntity> existingApis = apiListRepository.findByProjectKey(project);
+        apiListRepository.deleteAll(existingApis);
+        
+        List<DbDesignEntity> existingTables = dbDesignRepository.findByProjectKey(project);
+        dbDesignRepository.deleteAll(existingTables);
+
         // 요구사항 데이터 저장
         if (request.getRequirement() != null && !request.getRequirement().isEmpty()) {
             List<RequestEntity> requestEntities = request.getRequirement().stream()
@@ -142,8 +151,11 @@ public class ProjectServiceImpl implements ProjectService {
                 .distinct()
                 .collect(Collectors.toList());
 
-            // DB에서 한 번에 조회
-            List<RequestEntity> requestEntities = requestRepository.findByIdIn(reqIds);
+            // DB에서 한 번에 조회 (프로젝트별 필터링 적용)
+            List<RequestEntity> allProjectRequests = requestRepository.findByProjectKey(project);
+            List<RequestEntity> requestEntities = allProjectRequests.stream()
+                .filter(req -> reqIds.contains(req.getId()))
+                .collect(Collectors.toList());
 
             // Map 생성
             Map<String, RequestEntity> requestMap = requestEntities.stream()
