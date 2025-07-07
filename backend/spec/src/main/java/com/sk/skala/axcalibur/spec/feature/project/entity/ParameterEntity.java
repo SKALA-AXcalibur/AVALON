@@ -27,67 +27,68 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "parameter")
 public class ParameterEntity extends BaseTimeEntity {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "`key`")
-    private Integer key;                 // 파라미터 키 (PK, AUTO_INCREMENT)
 
-    @Column(name = "name_ko", length = 100, nullable = false)
-    private String nameKo;              // 파라미터 한글명
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "`key`")
+  private Integer key; // 파라미터 키 (PK, AUTO_INCREMENT)
 
-    @Column(name = "name", length = 100, nullable = false)
-    private String name;                // 파라미터 영문명
+  @Column(name = "name_ko", length = 100, nullable = false)
+  private String nameKo; // 파라미터 한글명
 
-    @Column(name = "data_type", length = 20, nullable = false)
-    private String dataType;            // 데이터 타입
+  @Column(name = "name", length = 100, nullable = false)
+  private String name; // 파라미터 영문명
 
-    @Column(name = "length")
-    private Integer length;             // 길이
+  @Column(name = "data_type", length = 20, nullable = false)
+  private String dataType; // 데이터 타입
 
-    @Column(name = "format", length = 30)
-    private String format;              // 형식
+  @Column(name = "length")
+  private Integer length; // 길이
 
-    @Column(name = "default_value", length = 255)
-    private String defaultValue;        // 기본값
+  @Column(name = "format", length = 30)
+  private String format; // 형식
 
-    @Column(name = "required", nullable = false)
-    private Boolean required;           // 필수 여부
+  @Column(name = "default_value", length = 255)
+  private String defaultValue; // 기본값
 
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;         // 설명
-    
-    // 연관 관계
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "apilist_key", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private ApiListEntity apiListKey;
+  @Column(name = "required", nullable = false)
+  private Boolean required; // 필수 여부
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_key", nullable = false)
-    private CategoryEntity categoryKey;
+  @Column(name = "description", columnDefinition = "TEXT")
+  private String description; // 설명
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "context_key", nullable = false)
-    private ContextEntity contextKey;
+  // 연관 관계
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "apilist_key", nullable = false)
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  private ApiListEntity apiListKey;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_key")
-    private ParameterEntity parentKey;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "category_key", nullable = false)
+  private CategoryEntity categoryKey;
 
-    @Transient
-    private String upperName;  // 상위항목명 (DB에 저장되지 않음)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "context_key", nullable = false)
+  private ContextEntity contextKey;
 
-    public String getUpperName() {
-        return upperName;
-    }
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "parent_key")
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  private ParameterEntity parentKey;
 
-    public void setUpperName(String upperName) {
-        this.upperName = upperName;
-    }
+  @Transient
+  private String upperName; // 상위항목명 (DB에 저장되지 않음)
 
-    public void setParentKey(ParameterEntity parent) {
-        this.parentKey = parent;
-    }
+  public String getUpperName() {
+    return upperName;
+  }
+
+  public void setUpperName(String upperName) {
+    this.upperName = upperName;
+  }
+
+  public void setParentKey(ParameterEntity parent) {
+    this.parentKey = parent;
+  }
 
 }
