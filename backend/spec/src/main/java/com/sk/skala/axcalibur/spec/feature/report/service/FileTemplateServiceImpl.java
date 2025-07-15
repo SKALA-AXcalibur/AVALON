@@ -99,7 +99,7 @@ public class FileTemplateServiceImpl implements FileTemplateService {
             
             setCellValue(sheet, 1, 1, businessFunction);
 
-            int testCount = testCaseResults.size();
+            int testCount = testCases.size();
             setCellValue(sheet, 1, 3, testCount);
             setCellValue(sheet, 2, 1, "AVALON");
             setCellValue(sheet, 2, 3, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
